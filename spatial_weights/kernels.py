@@ -3,7 +3,7 @@ import numpy as np
 
 
 # Lucy function
-def ComputeLucyWeight(c,dist):
+def Lucy(c,dist):
     """
         Compute the CG weight using a Lucy function
         ---------------------------------------------------------------------
@@ -31,7 +31,7 @@ def H(dis):
         return 0
 
 # Heavy side function
-def ComputeHeavySideWeight(c, dist):
+def HeavySide(c, dist):
     # given that c = w
     if dist > c:
         return 0
@@ -43,7 +43,7 @@ def ComputeHeavySideWeight(c, dist):
 
 
 # Gaussian function
-def ComputeGaussianWeight(c, dist):
+def Gaussian(c, dist):
     '''
         Compute the CG weight using a Gaussian function
         ---------------------------------------------------------------------
