@@ -812,7 +812,7 @@ if __name__ == "__main__":
 
                         }
     out_path = "./bedload_example/PysammosCG/" # directory where you save CG output
-    t0 = 150 ; tf = 400 # first and last time steps (assumes 1 unit increment of time steps). It pads it with zeros. 
+    t0 = 150 ; tf = 154 # first and last time steps (assumes 1 unit increment of time steps). It pads it with zeros. 
     partialignore = True # forces monodisperse CG if True
 
     # ------------------------------- CALLING COARSE-GRAINING CLASS -----------------------------
