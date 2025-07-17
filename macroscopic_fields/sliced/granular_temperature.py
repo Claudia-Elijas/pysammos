@@ -3,7 +3,7 @@ from numba import njit, prange
 from .utils import *
 
 @njit
-def GranularTemperature_inSlices(dy, y0, y1, velocity_all, diam_all, density_all, mass_all, particle_positions_all):
+def granular_temperature(dy, y0, y1, velocity_all, diam_all, density_all, mass_all, particle_positions_all):
     rad = diam_all / 2
     position_y = particle_positions_all[:, 1]
     rho_particle = density_all.flatten()
@@ -24,7 +24,7 @@ def GranularTemperature_inSlices(dy, y0, y1, velocity_all, diam_all, density_all
     # Precompute weights
     wm_vals = np.zeros(len(m))
     for i in range(len(m)):
-        wm_vals[i] = Wm_numba(m[i], n)
+        wm_vals[i] = Wm(m[i], n)
 
     m_WeightedVelocity = np.zeros((len(Z_k), len(m), 3))
     k_WeightedVelocity = np.zeros((len(Z_k), 3))
@@ -39,14 +39,14 @@ def GranularTemperature_inSlices(dy, y0, y1, velocity_all, diam_all, density_all
         for i in range(len(m)):
             Zm_low = Z_k_m[j, i] - half_sublayer_width
             Zm_high = Z_k_m[j, i] + half_sublayer_width
-            ps = ParticlesInBand_numba(position_y, rad, Zm_low, Zm_high)
+            ps = particles_band(position_y, rad, Zm_low, Zm_high)
             if ps.shape[0] == 0:
                 continue
             acc = np.zeros(3)
             total_weight = 0.0
             for idx in ps:
                 dist = np.abs(Z_k_m[j, i] - position_y[idx])
-                a = Area_numba(rad[idx], dist)
+                a = area(rad[idx], dist)
                 rho = rho_particle[idx]
                 ar = a * rho
                 acc += ar * velocity_all[idx]
@@ -76,7 +76,7 @@ def GranularTemperature_inSlices(dy, y0, y1, velocity_all, diam_all, density_all
         for i in range(len(m)):
             Zm_low = Z_k_m[j, i] - half_sublayer_width
             Zm_high = Z_k_m[j, i] + half_sublayer_width
-            ps = ParticlesInBand_numba(position_y, rad, Zm_low, Zm_high)
+            ps = particles_band(position_y, rad, Zm_low, Zm_high)
             N = ps.shape[0]
             if N == 0:
                 continue
@@ -92,7 +92,7 @@ def GranularTemperature_inSlices(dy, y0, y1, velocity_all, diam_all, density_all
             total_weight = 0.0
             for idx in ps:
                 dist = np.abs(Z_k_m[j, i] - position_y[idx])
-                a = Area_numba(rad[idx], dist)
+                a = area(rad[idx], dist)
                 rho = rho_particle[idx]
                 ar = a * rho
                 acc += ar * velocity_fluctuation[idx] ** 2

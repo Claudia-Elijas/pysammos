@@ -8,7 +8,7 @@ def test():
     print("This is a test function for particle phase clustering.")
     print(np.arange(10))  # Example operation to test the import
 
-def Find_Phases(particle_diameters, particle_densities, n_max):
+def find_phases(particle_diameters, particle_densities, n_max):
     
     # 1. data scaling
     X = np.column_stack((particle_diameters, particle_densities))
@@ -32,7 +32,7 @@ def Find_Phases(particle_diameters, particle_densities, n_max):
         
     return phases, phase_array
 
-def Plot_Phases(particle_diameters, particle_densities, phases, phase_array):
+def plot_phases(particle_diameters, particle_densities, phases, phase_array):
 
     plt.figure(figsize=(5, 6))
     plt.scatter(particle_diameters, particle_densities, c=phase_array, cmap='Set1', alpha=0.6, zorder=3)

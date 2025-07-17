@@ -4,7 +4,7 @@ from scipy.spatial import cKDTree
 from itertools import accumulate
 # =======================================================================
 
-def Particle_Node_Correspondance(GridPoints, Particle_Position, c):
+def particle_node_match(GridPoints, Particle_Position, c):
     """
     This function uses a kd-tree to find the particles within a cutoff distance of each grid point.
     Returns the start indices and a flattened array of particle indices.
@@ -29,7 +29,7 @@ def Particle_Node_Correspondance(GridPoints, Particle_Position, c):
     return start_indices, particle_indices_flat
 
 @njit#(parallel=True)
-def Calc_Displacement_and_Distance(GridPoints, Particle_Position, 
+def calc_displacement(GridPoints, Particle_Position, 
                                    start_indices, visibility,  
                                    return_disp, return_dist):
     """
