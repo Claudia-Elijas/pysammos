@@ -1,7 +1,7 @@
 import numpy as np
 import complete.branch_vectors as branch_vectors
 
-def map_contact_data(Global_ID, Position, Diameter, Density, Volume, # Particle data
+def map_contact_data(Global_ID, Position, Diameter, Density, Volume,# Particle data
                                     Particle_LL, Particle_I, Fij, Contact_Points,# Contact data
                                     ModelAxesRanges, AxesPeriodicity, # Information for Branch Vector Calculation
                                     Return_Volume, # Is volume data needed to calculate fabric tensor?

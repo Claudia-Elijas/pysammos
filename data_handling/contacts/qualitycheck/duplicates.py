@@ -17,7 +17,7 @@ def get_unique_pairs(LL_py, I_py):
     #remove_indices = np.where(~keep_mask)[0] ; #print('Remove indices: ', len(remove_indices))  
     return keep_indices
 # Check if there is duplicate pairs
-def check(Particle_LL_OG, Particle_I_OG, Fij_OG, Contacts_OG):
+def delete(Particle_LL_OG, Particle_I_OG, Fij_OG, Contacts_OG):
     # Find Unique Pairs
     keep_these = get_unique_pairs(Particle_LL_OG, Particle_I_OG)
     #Select the Contact data corresponding to Unique Pairs
