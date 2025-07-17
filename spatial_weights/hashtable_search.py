@@ -1,6 +1,6 @@
 import numpy as np
 from numba import njit, prange
-from utils import *
+from .utils import *
 
 
 # Build hash table
