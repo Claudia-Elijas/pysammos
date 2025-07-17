@@ -750,6 +750,7 @@ class Coarse_Graining:
 if __name__ == "__main__":
 
 
+
     # ------------------------------ INPUT CONFIGURATION ---------------------------------
     # BEDLOAD EXAMPLE 
     particles_path = './bedload_example/VTU/DES_FB1_'
@@ -862,7 +863,8 @@ if __name__ == "__main__":
     print("------------------------------------------------------------")
     print(">>> Coarse Graining completed successfully")
     print("------------------------------------------------------------")
-        
+
+     
     
    
     
