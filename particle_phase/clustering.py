@@ -4,9 +4,6 @@ from sklearn import metrics
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
-def test():
-    print("This is a test function for particle phase clustering.")
-    print(np.arange(10))  # Example operation to test the import
 
 def find_phases(particle_diameters, particle_densities, n_max):
     
