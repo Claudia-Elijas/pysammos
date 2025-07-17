@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 def test():
     print("This is a test function for particle phase clustering.")
+    print(np.arange(10))  # Example operation to test the import
+
 def Find_Phases(particle_diameters, particle_densities, n_max):
     
     # 1. data scaling
@@ -27,7 +29,11 @@ def Find_Phases(particle_diameters, particle_densities, n_max):
     km = KMeans(n_clusters=optimum_clust, random_state=200, n_init=100)
     phase_array = km.fit_predict(X_scaled)
     phases = scaler.inverse_transform(km.cluster_centers_)
-    
+        
+    return phases, phase_array
+
+def Plot_Phases(particle_diameters, particle_densities, phases, phase_array):
+
     plt.figure(figsize=(5, 6))
     plt.scatter(particle_diameters, particle_densities, c=phase_array, cmap='Set1', alpha=0.6, zorder=3)
     plt.scatter(phases[:, 0], phases[:, 1], c='black', s=200, marker='X', label='Centroids', zorder=4)
@@ -36,7 +42,4 @@ def Find_Phases(particle_diameters, particle_densities, n_max):
     plt.ylabel('Density (kg/m^3)')
     plt.legend()
     plt.grid(zorder=0)
-    plt.savefig('kmeans_clustering.png', dpi=300)  # <-- Save the figure
-
-    
-    return phases, phase_array
+    plt.show()  # Display the plot
