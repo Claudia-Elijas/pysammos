@@ -4,6 +4,7 @@ from vtk.util.numpy_support import vtk_to_numpy
 # subpackage imports
 from macroscopic_fields.field_dependencies import get_fields_to_compute
 from data_read.mfix import cell_data, point_data, file_read
+from data_read.mfix.utils import get_bounds, get_point_data_variable
 
 
 # Coarse Graining Class
@@ -51,36 +52,22 @@ class CoarseGraining:
 
         
         # READ TIME STEP 0
-        path_t0 = self.Particle_path+f"{self.TimeSteps[0]:04d}.vtp" #:04d 
+        path_t0 = self.particle_path+f"{self.time_steps[0]:04d}.vtp" #:04d 
         self.file_type = file_read.get_file_type(path_t0) # detect the file type
-        polydata_t0 = file_read.reader(self.file_type, path_t0).GetOutput() # read the vtp file
+        poly_out_t0 = file_read.reader(self.file_type, path_t0).GetOutput() # read the vtp file
         #polydata_t0 = Reader_vtm(self.Particle_path + f"{self.TimeSteps[0]}.vtm").GetOutput() # read the vtm file
 
         # BOUNDS      
-        bounds = np.array(polydata_t0.GetPoints().GetBounds()) 
-        self.BoundsData_t0 = bounds.reshape(3,2)
-        print(f"particle data bounds {self.BoundsData_t0}")
+        self.BoundsData_t0 = get_bounds(poly_out_t0).reshape(3,2) ; print(f"particle data bounds {self.BoundsData_t0}")
 
-        def get_bounds(polydata_t0):
-            """
-            Helper function to get bounds from polydata.
-            """
-            return np.array(polydata_t0.GetPoints().GetBounds()).reshape(3, 2)
-
-        def get_point_data_variable(var_name, polydata):
-            """
-            Helper function to get point data variable from polydata.
-            """
-            return vtk_to_numpy(polydata.GetPointData().GetArray(var_name))
-          
         # PARTICLE PROPERTIES
         if self.DEM_keymap["Particle_Diameter"] is not None:
-            Diameter_t0 = vtk_to_numpy(polydata_t0.GetPointData().GetArray(self.DEM_keymap["Particle_Diameter"])) 
+            Diameter_t0 = get_point_data_variable(self.DEM_keymap["Particle_Diameter"], poly_out_t0)
         else: 
-            Diameter_t0 = vtk_to_numpy(polydata_t0.GetPointData().GetArray(self.DEM_keymap["Particle_Radius"])) * 2
-        Density_t0 = vtk_to_numpy(polydata_t0.GetPointData().GetArray(self.DEM_keymap["Particle_Density"])) 
-        Mass_t0 = vtk_to_numpy(polydata_t0.GetPointData().GetArray(self.DEM_keymap["Particle_Mass"]))
-        GlobalID_t0 = vtk_to_numpy(polydata_t0.GetPointData().GetArray(self.DEM_keymap["Global_ID"]))
+            Diameter_t0 = get_point_data_variable(self.DEM_keymap["Particle_Radius"], poly_out_t0) * 2
+        Density_t0 = get_point_data_variable(self.DEM_keymap["Particle_Density"], poly_out_t0)
+        Mass_t0 = get_point_data_variable(self.DEM_keymap["Particle_Mass"], poly_out_t0)
+        GlobalID_t0 = get_point_data_variable(self.DEM_keymap["Particle_Global_ID"], poly_out_t0)
         
         return self.BoundsData_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0
           
