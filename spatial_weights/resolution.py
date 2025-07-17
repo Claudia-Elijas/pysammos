@@ -17,7 +17,7 @@ def calc_half_width(Average_part_diam, w_mult=0.75):
     return w
 
 # calcualte c
-def calc_cutoff_distance(w, function):
+def calc_cutoff(w, function):
 
     '''
         Compute the cut-off distance

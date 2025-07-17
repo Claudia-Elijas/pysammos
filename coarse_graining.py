@@ -10,6 +10,10 @@ from data_read.mfix import cell_data, point_data, file_read
 from data_read.mfix.utils import get_bounds, get_point_data_variable
 # phase finding
 from particle_phase.clustering import find_phases, plot_phases
+# weights
+from spatial_weights import kernels
+from spatial_weights.resolution import calc_half_width, calc_cutoff
+from spatial_weights.hashtable_search import make_hash_table, hash_table_search
 
 
 
@@ -77,7 +81,7 @@ class CoarseGraining:
         
         return self.BoundsData_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0
     
-    def particle_size_statistics(self, diameter_t0, mass_t0):
+    def get_particle_size_statistics(self, diameter_t0, mass_t0):
         
 
         # Sort the diameter and mass arrays based on the diameter
@@ -118,7 +122,8 @@ class CoarseGraining:
         
         # find different phases 
         else: 
-
+            
+            # employ clustering
             self.phases, phase_array = find_phases(diameter_t0, density_t0, n_max_phases) # find the phases and phase array
             print(f"-------- Number of phases found: {len(self.phases)}")
             if plot:
@@ -143,6 +148,13 @@ class CoarseGraining:
                 self.Phase_Array = None
             elif self.cg_calc_mode == "Polydisperse":
                 self.Phase_Array = phase_array[np.argsort(global_id)] # sort the phase array by global ID
+
+    def set_resolution(self, average_diameter, w_mult = 0.75):
+        
+        self.w = calc_half_width(average_diameter, w_mult) # calculate the half width
+        self.c = calc_cutoff(self.w, self.weight_function) # calculate the cutoff distance
+
+    
           
     
     
