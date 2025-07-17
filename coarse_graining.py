@@ -1,7 +1,7 @@
 import numpy as np
 import os
 from vtk.util.numpy_support import vtk_to_numpy
-
+import time
 # subpackage imports ----------------------------------------------
 # specify what fields to compute
 from macroscopic_fields.field_dependencies import get_fields_to_compute
@@ -18,10 +18,10 @@ from spatial_weights.hashtable_search import make_hash_table, hash_table_search
 from grid_generation import regular_cuboid 
 # handle data
 from data_handling.contacts.particle_mapper import map_contact_data
-import data_handling.contacts.qualitycheck as qc
+from data_handling.contacts.qualitycheck import duplicates
 # coordination number
 from data_handling.contacts.complete import coordination_number
-
+# 
 
 # Coarse Graining Class
 class CoarseGraining: 
@@ -182,7 +182,70 @@ class CoarseGraining:
                                                                                         self.grid_info["y_axis_periodic"],
                                                                                         self.grid_info["z_axis_periodic"]]).Generate()
     
-    def load_data(self, t):
+    def compute_fields(self, c_custom): 
+                                                                 
+        print("-------------------- Calculating Coarse Grained Fields --------------------")
+        # default or custom c 
+        if c_custom is None:
+            if not hasattr(self, 'c'):
+                raise AttributeError("self.c is not initialized. Ensure Calc_CG_Grid_Spacing is called before this method.")
+            c = self.c
+        else:
+            c = c_custom
+        # initialize an empty dataset to store the results
+
+        # LOOP OVER TIME STEPS ==========================================
+        for t in range(len(self.time_steps)):# len(self.TimeSteps)
+
+            real_time = self.TimeSteps[t]
+
+            print("------------------------------------------------------------")
+            time_start = time.time()
+
+            print( "  ");print(f">>> Loading data for time step {real_time}")
+            data = self.Data_Loading(real_time) # Load the data for the current time step
+
+            print( "  ");print(f">>> Calculating CG fields for time step {real_time}")
+            results_timestep = self.Calcs_CG(c, data) # Calculate the CG fields for that time step
+
+            print( "  ");print(f">>> Saving CG fields for time step {real_time}") #
+            
+            
+            # write .h5 files 
+            manager = H5XarrayManager(f"{self.Output_path}CG_{self.CG_Function}_{self.cg_calc_mode}.h5")
+            manager.add_positions(self.GridPoints)
+
+            if self.cg_calc_mode == "Polydisperse":
+                phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
+                manager.add_phases(phase_labels)
+
+            manager.update_h5py_file(results_timestep, dim_index=t, dim_value=real_time, dim_name="time")
+
+            # write .VTKHDF files for ParaView visualisation
+            writer = VTKHDFWriter(node_dimensions=self.Nodes,  
+                         node_spacing=self.Spacing, 
+                         origin=self.GridPoints[0,:],
+                         path=f"{self.Output_path}CG_{self.CG_Function}_{self.cg_calc_mode}_{real_time:04d}")
+            if self.cg_calc_mode == "Monodisperse":
+                writer.write(data_dict=results_timestep)
+            elif self.cg_calc_mode == "Polydisperse": 
+                writer.write_polydisperse(data_dict=results_timestep,
+                                          n_phases=len(self.phases)+1, 
+                                          phase_indepen_field_names=["d32", "d43", 
+                                                                     "coordination_number", 
+                                                                     "velocity_gradient",
+                                                                     "fabric_tensor", 
+                                                                     "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                                                                     "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                                                                     "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                                                                      "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
+                                                                     ])
+            time_end = time.time()
+            print(f"Timestep {t} took {time_end - time_start} to run...")
+              
+            pass
+
+    def _load_data(self, t):
         """Load particle and contact data for a given timestep."""
         # Load particle data ==========================================================
         PD = file_read.reader(self.file_type, self.particle_path + f"{t:04d}.vtp") 
@@ -205,7 +268,7 @@ class CoarseGraining:
             Contact_ij_string=self.DEM_keymap["Contact_ij"])
         # Handle contact data
         Bounds_t = np.array(bounds_t).reshape(3,2) ; Ranges_t = Bounds_t[:, 1] - Bounds_t[:, 0] # update the model domain bounds for a robust calc of branch vecot
-        Particle_i, Particle_j, F_ij, Contact_ij = qc.duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og) # remove duplicates        
+        Particle_i, Particle_j, F_ij, Contact_ij = duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og) # remove duplicates        
         Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = map_contact_data(
             Global_ID, Position, Diameter, Density, Volume, 
             Particle_i, Particle_j, F_ij, Contact_ij,
@@ -240,4 +303,89 @@ class CoarseGraining:
             "d_inContact_mean": d_inContact_mean
             } 
     
+    def _compute_fields_single_timestep(self, timestep, data_t):
+        
+        print(f"Computing CG fields at timestep {timestep}")
+        data = self._load_data(timestep) if data_t is None else data_t
+
+        d = self._unpack_data(data)
+        g = self._assign_particles_to_grid_nodes(d, self.c)
+        W_p, W_c, Wint_c = self._compute_weights(d, g, self.c)
+        computed_fields = self._compute_cg_fields(d, g, W_p, W_c, Wint_c)
+        results = self._export_fields(computed_fields)
+        
+        return results
     
+    def _unpack_data(self, data):
+        return {
+            "Position": data["Position"],
+            "Velocity": data["Velocity"],
+            "Diameter": data["Diameter"],
+            "Density": data["Density"],
+            "Volume": data["Volume"],
+            "Mass": data["Mass"],
+            "Coordination_Number": data["Coordination_Number"],
+            "Phase_Array": data["Phase_Array"],
+            "Position_i": data["Position_i"],
+            "Force_i": data["Force_i"],
+            "BranchVector_i": data["BranchVector_i"],
+            "CenterToCenterVector_LL": data["CenterToCenterVector_LL"],
+            "Volume_i": data["Volume_i"],
+            "PhaseArray_i": data["PhaseArray_i"],
+            "d_inContact_mean": data["d_inContact_mean"]
+        }
+
+    def _assign_particles_to_grid_nodes(self, d, c):
+        grid_ind_p, part_ind_p = Particle_Node_Correspondance(self.GridPoints, d["Position"], c)
+        r_ri, r_ri_dist = Calc_Displacement_and_Distance(self.GridPoints, d["Position"], grid_ind_p, part_ind_p, return_disp=True, return_dist=True)
+
+        grid_ind_c, part_ind_c = Particle_Node_Correspondance(self.GridPoints, d["Position_i"], c)
+        r_ri_c, _ = Calc_Displacement_and_Distance(self.GridPoints, d["Position_i"], grid_ind_c, part_ind_c, return_disp=True, return_dist=False)
+
+        return {
+            "grid_ind_p": grid_ind_p,
+            "part_ind_p": part_ind_p,
+            "r_ri": r_ri,
+            "r_ri_dist": r_ri_dist,
+            "grid_ind_c": grid_ind_c,
+            "part_ind_c": part_ind_c,
+            "r_ri_c": r_ri_c
+        }
+
+    def _compute_weights(self, d, g, c):
+        # Select CG kernel
+        if self.weight_function == "Gaussian":
+            WeightFunc = ComputeGaussianWeight
+        elif self.weight_function == "Lucy":
+            WeightFunc = ComputeLucyWeight
+        elif self.weight_function == "HeavySide":
+            WeightFunc = ComputeHeavySideWeight
+        else:
+            raise ValueError("Invalid CG function")
+
+        # Particle weights
+        hash_table_p, stepsize_p = make_hash_table(WeightFunc, c, sensitivity=1000)
+        W_p = hash_table_search(g["r_ri_dist"], hash_table_p, stepsize_p)
+
+        # Contact weights
+        s = integration_scalar(0, 1, 10)
+        dist_along_branch = compute_dist_along_branch_numba(g["r_ri_c"], s, d["BranchVector_i"], g["part_ind_c"])
+        hash_table_c, stepsize_c = make_hash_table(WeightFunc, c, sensitivity=1000)
+        W_c = hash_table_search(dist_along_branch, hash_table_c, stepsize_c)
+        Wint_c = trapezoidal_integration(0, 1, 10, W_c)
+
+        return W_p, W_c, Wint_c
+
+    def _compute_cg_fields(self, d, g, W_p, W_c, Wint_c):
+        results = {}
+
+        if "volume_fraction" in self.fields_to_compute:
+            results["volume_fraction"] = CG_Scalar(W_p, g["part_ind_p"], d["Volume"])
+        
+        # Add more fields here as needed
+
+        return results
+
+    def _export_fields(self, computed_fields):
+        return {k: computed_fields[k] for k in self.field_to_export if k in computed_fields}
+

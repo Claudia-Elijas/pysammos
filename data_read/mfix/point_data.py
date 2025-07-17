@@ -38,7 +38,9 @@ def particles(InputConnection,
     else:
 
         if Radius_string is not None:
-            Diameter_sorted = None
+            Radius = get_point_data_variable(Radius_string, poly_output)
+            Radius_sorted = Radius[sorted_idx]
+            Diameter_sorted = 2 * Radius_sorted
         if Radius_string is None: 
             raise ValueError("Diameter_string is None. Please provide a valid string.")
 
@@ -60,12 +62,6 @@ def particles(InputConnection,
     else:
         Mass_sorted = None
 
-    if Radius_string is not None:
-        Radius = get_point_data_variable(Radius_string, poly_output)
-        Radius_sorted = Radius[sorted_idx]
-    else:
-        Radius_sorted = None
-        Radius = None
     if Coordination_Number_string is not None:
         Coordination_Number = get_point_data_variable(Coordination_Number_string, poly_output)
         Coordination_Number_sorted = Coordination_Number[sorted_idx]
@@ -73,7 +69,7 @@ def particles(InputConnection,
         Coordination_Number_sorted = None
         Coordination_Number = None
     Bounds_t = get_bounds(poly_output)
-    return Position_sorted, Global_ID_sorted, Velocity_sorted, Diameter_sorted, Density_sorted, Volume_sorted, Mass_sorted, Radius_sorted, Coordination_Number_sorted, Bounds_t
+    return Position_sorted, Global_ID_sorted, Velocity_sorted, Diameter_sorted, Density_sorted, Volume_sorted, Mass_sorted, Coordination_Number_sorted, Bounds_t
     #return Position, Global_ID, Velocity, Diameter, Density, Volume, Mass, Radius
 
 def contacts(InputConnection,    
