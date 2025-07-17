@@ -14,7 +14,8 @@ from particle_phase.clustering import find_phases, plot_phases
 from spatial_weights import kernels
 from spatial_weights.resolution import calc_half_width, calc_cutoff
 from spatial_weights.hashtable_search import make_hash_table, hash_table_search
-
+# grid generation
+from grid_generation import regular_cuboid 
 
 
 # Coarse Graining Class
@@ -154,7 +155,127 @@ class CoarseGraining:
         self.w = calc_half_width(average_diameter, w_mult) # calculate the half width
         self.c = calc_cutoff(self.w, self.weight_function) # calculate the cutoff distance
 
+    def make_grid(self, smoothing_length):
+
+        """Generate the CG grid based on the provided grid information."""
+        print("generating grid")
+        # generate the grid
+        self.GridPoints, self.Nodes, self.Spacing, self.Ranges = regular_cuboid.Grid_Generation(
+                                                                        smoothing_length=smoothing_length, 
+                                                                        particle_bounds=self.BoundsData_t0, 
+                                                                        grid_dimension=self.grid_info["grid_dimension"], 
+                                                                        grid_axes=self.grid_info["grid_axes"],
+                                                                        automatic_grid=self.grid_info["automatic_grid"],
+                                                                        max_particle_size=self.dmax,
+                                                                        custom_grid_range=[self.grid_info["x_min"], self.grid_info["x_max"],
+                                                                                        self.grid_info["y_min"], self.grid_info["y_max"],
+                                                                                        self.grid_info["z_min"], self.grid_info["z_max"]],
+                                                                        custom_grid_transects=[self.grid_info["x_transect"], 
+                                                                                               self.grid_info["y_transect"], 
+                                                                                               self.grid_info["z_transect"]],
+                                                                        bound_period=[self.grid_info["x_axis_periodic"],
+                                                                                        self.grid_info["y_axis_periodic"],
+                                                                                        self.grid_info["z_axis_periodic"]]).Generate()
     
-          
+    def load_data(self, t):
+        """Load particle and contact data for a given timestep."""
+
+        # Load particle data ==========================================================
+        PD = Reader(self.file_type, self.Particle_path + f"{t:04d}.vtp")
+        #PD = Reader_vtm(self.Particle_path + f"{t}.vtm") # read vtm data (needed for Polydisperse and MultiSphere)
+
+        Position, Global_ID, Velocity, Diameter, Density, Volume, Mass, Radius, Coordination_Number, bounds_t = ParticleData(
+            PD,
+            Global_ID_string=self.DEM_keymap["Global_ID"],
+            Velocity_string=self.DEM_keymap["Particle_Velocity"],
+            Diameter_string=self.DEM_keymap["Particle_Diameter"],
+            Density_string=self.DEM_keymap["Particle_Density"],
+            Volume_string=self.DEM_keymap["Particle_Volume"],
+            Mass_string=self.DEM_keymap["Particle_Mass"],
+            Radius_string=self.DEM_keymap["Particle_Radius"],
+            Coordination_Number_string=self.DEM_keymap["Coordination_Number"],
+        )
+        print("Particle data loaded") 
+        print(f"  {len(Position)} particles")
+
+        # phase array
+        Phase_Array_t = self.Phase_Array # [Global_ID - 1] if self.Phase_Array is not None else None# no need to update as each time step we argsort
+
+        # check particle size data is provided 
+        if Diameter is None:
+            if Radius is None:
+                raise ValueError("Diameter or Radius must be provided")
+            else:
+                Diameter = 2 * Radius
+
+        # update the model domain bounds for a robust calc of branch vecot
+        Bounds_t = np.array(bounds_t).reshape(3,2)
+        Ranges_t = Ranges_t = Bounds_t[:, 1] - Bounds_t[:, 0]
+
+        # Load contact data ===========================================================
+        CD = Reader("vtp", self.Contacts_path + f"{t:04d}.vtp")  
+        Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og = ContactData(CD,                                                               
+            Particle_i_string=self.DEM_keymap["Particle_i_ID"],
+            Particle_j_string=self.DEM_keymap["Particle_j_ID"],
+            Force_ij_string=self.DEM_keymap["Force_ij"],
+            Contact_ij_string=self.DEM_keymap["Contact_ij"], )
+      
+        # Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og = ContactData__JP(
+        #     CD,
+        #     Part_ids_string=self.DEM_keymap["Particle_i_ID"],
+        #     Force_ij_string=self.DEM_keymap["Force_ij"],
+        #     Contact_ij_string=self.DEM_keymap["Contact_ij"]            
+        # )   
+
+        # Handle contact data
+        Particle_i, Particle_j, F_ij, Contact_ij = Check_for_Duplicate_Pairs(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og)
+        Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = Arange_ContactData(
+            Global_ID, Position, Diameter, Density, Volume, 
+            Particle_i, Particle_j, F_ij, Contact_ij,
+            ModelAxesRanges=Ranges_t,
+            AxesPeriodicity=self.bound_period,
+            Return_Volume=True, 
+            Particle_Phase_Array_t=Phase_Array_t ) 
+
+        # coordination number calculation
+        if "coordination_number" in self.fields_to_compute:
+            if Coordination_Number is None:
+                print("Coordination number not provided. Calculating it.")
+                Particle_i_dup = np.concatenate((Particle_i.astype(np.int64), Particle_j.astype(np.int64)))
+                Coordination_Number, Coordination_Number_corrected = Calc_Coordination_Number(Particle_i_dup,
+                                                                Global_ID.astype(np.int64))
+                print(f"coordination number max , min = {Coordination_Number.max(), Coordination_Number.min(), len(Coordination_Number)}")
+            else:
+                print("Coordination number provided. Using it, and making a copy with no rattlers.")
+                Coordination_Number = Coordination_Number.astype(np.int64)
+                #Coordination_Number_corrected = Coordination_Number[Coordination_Number > 1]
+        else: 
+            Coordination_Number == None
+
+        # Flush or delete the of contact data
+        del Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og
+        # ================================================================================
+        return {
+
+            # particle data
+            "Position": Position,
+            "Velocity": Velocity,
+            "Diameter": Diameter,
+            "Density": Density,
+            "Volume": Volume,
+            "Mass": Mass,
+            "Phase_Array": Phase_Array_t,
+            "Coordination_Number": Coordination_Number,
+
+            # contact data
+            "Position_i": Position_i,
+            "Force_i": Force_i,
+            "BranchVector_i": BranchVector_i,
+            "CenterToCenterVector_LL": CenterToCenterVector_LL_dup,
+            "Volume_i": Volume_i,
+            "PhaseArray_i": Phase_Array_i_t,
+            "d_inContact_mean": d_inContact_mean
+        
+            } 
     
     
