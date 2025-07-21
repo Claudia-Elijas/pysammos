@@ -1,4 +1,4 @@
-from .scalars import (scalar_polydisperse, scalar_monodisperse)
+from .scalars import (scalar_polydisperse, scalar_polydisperse_scaled, scalar_monodisperse, scalar_monodisperse_scaled)
 from .vectors import (vector_polydisperse, vector_monodisperse)
 from .tensors import (tensor_polydisperse, tensor_monodisperse,
                       kinetic_tensor_interpolation_polydisperse, kinetic_tensor_interpolation_monodisperse)
@@ -7,7 +7,11 @@ from .tensors import (tensor_polydisperse, tensor_monodisperse,
 # generic scalar
 def scalar(weights, visibility, grid_indices, Data, Data_scale, Phase, cg_calc_mode):
     if cg_calc_mode == 'Monodisperse':
-        return scalar_monodisperse(weights, visibility, grid_indices, Data, Data_scale)
+        if Data_scale is None:
+            return scalar_monodisperse(weights, visibility, grid_indices, Data, Data_scale)
+        else:
+            return scalar_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_scale)
+
     elif cg_calc_mode == 'Polydisperse':
         return scalar_polydisperse(weights, visibility, grid_indices, Data, Data_scale, Phase)
     else:

@@ -353,6 +353,7 @@ class CoarseGraining:
         # 2. Compute fields based on the fields to compute ..................................................................
         # volume fraction
         if "volume_fraction" in self.fields_to_compute:
+            print(f"weight type: {W_p.dtype}, part_ind_p type: {part_ind_p.dtype}, grid_ind_p type: {grid_ind_p.dtype}")
             VolumeFraction_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Volume, None, Phase_Array_p, self.cg_calc_mode)
             print(f"volum fraction dtype {VolumeFraction_CG.dtype}")
             print('volume fraction done')

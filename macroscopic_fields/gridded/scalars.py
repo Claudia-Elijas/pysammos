@@ -4,70 +4,78 @@ from numba import njit, prange, int32, float32, float64
 
 # Polydisperse
 @njit(parallel=True)
-def scalar_polydisperse(weights, visibility, grid_indices, Data, Data_scale, Phase):
+def scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_scale, Phase):
     Ngridpoints = len(grid_indices) - 2  # because it's padded [0], [len(flat_visibility)]
     Nphases = np.max(Phase) + 1
     CG_Field = np.zeros((Ngridpoints, Nphases + 1))
-    if Data_scale is None:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g] ; end = grid_indices[g+1]
-            phase_sum = np.zeros(Nphases)  # Local buffer for each grid point
-            for i in range(start, end): # loop over particles
-                idx = visibility[i] # get the particle index
-                phase = Phase[idx] # get the phase
-                if 0 <= phase < Nphases:
-                    w = weights[i]
-                    d = Data[idx]
-                    phase_sum[phase] += w * d # weighted sum
-            for p in range(Nphases): # store the weighted sum in the CG_Field
-                CG_Field[g, p + 1] = phase_sum[p]
-                CG_Field[g, 0] += phase_sum[p]
-    else:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g] ; end = grid_indices[g+1]
-            phase_sum = np.zeros(Nphases)
-            for i in range(start, end):
-                idx = visibility[i]
-                phase = Phase[idx]
-                if 0 <= phase < Nphases:
-                    w = weights[i]
-                    d = Data[idx]
-                    ds = Data_scale[idx]
-                    phase_sum[phase] += w * d * ds
-            for p in range(Nphases):
-                CG_Field[g, p + 1] = phase_sum[p]
-                CG_Field[g, 0] += phase_sum[p]
-    return CG_Field
-
-# Monodisperse
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:]),parallel=True)
-def scalar_monodisperse(weights, visibility, grid_indices, Data, Data_scale):
-    Ngridpoints = len(grid_indices) - 2  # Padding assumed: grid_indices[0] = 0, grid_indices[-1] = len(visibility)
-    CG_Field = np.zeros(Ngridpoints)
-    if Data_scale is None:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g]
-            end = grid_indices[g + 1]
-            val = 0.0
-            for i in range(start, end):
-                idx = visibility[i]
-                w = weights[i]
-                d = Data[idx]
-                val += w * d
-            CG_Field[g] = val
-    else:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g]
-            end = grid_indices[g + 1]
-            val = 0.0
-            for i in range(start, end):
-                idx = visibility[i]
+    for g in prange(Ngridpoints):
+        start = grid_indices[g] ; end = grid_indices[g+1]
+        phase_sum = np.zeros(Nphases)
+        for i in range(start, end):
+            idx = visibility[i]
+            phase = Phase[idx]
+            if 0 <= phase < Nphases:
                 w = weights[i]
                 d = Data[idx]
                 ds = Data_scale[idx]
-                val += w * d * ds
-            CG_Field[g] = val
+                phase_sum[phase] += w * d * ds
+        for p in range(Nphases):
+            CG_Field[g, p + 1] = phase_sum[p]
+            CG_Field[g, 0] += phase_sum[p]
+    return CG_Field
 
+@njit(parallel=True)
+def scalar_polydisperse(weights, visibility, grid_indices, Data, Phase):
+    Ngridpoints = len(grid_indices) - 2  # because it's padded [0], [len(flat_visibility)]
+    Nphases = np.max(Phase) + 1
+    CG_Field = np.zeros((Ngridpoints, Nphases + 1))
+    for g in prange(Ngridpoints):
+        start = grid_indices[g] ; end = grid_indices[g+1]
+        phase_sum = np.zeros(Nphases)  # Local buffer for each grid point
+        for i in range(start, end): # loop over particles
+            idx = visibility[i] # get the particle index
+            phase = Phase[idx] # get the phase
+            if 0 <= phase < Nphases:
+                w = weights[i]
+                d = Data[idx]
+                phase_sum[phase] += w * d # weighted sum
+        for p in range(Nphases): # store the weighted sum in the CG_Field
+            CG_Field[g, p + 1] = phase_sum[p]
+            CG_Field[g, 0] += phase_sum[p]
+    
+
+# Monodisperse
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:]),parallel=True)
+def scalar_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_scale):
+    Ngridpoints = len(grid_indices) - 2  # Padding assumed: grid_indices[0] = 0, grid_indices[-1] = len(visibility)
+    CG_Field = np.zeros(Ngridpoints, dtype=np.float64)
+    for g in prange(Ngridpoints):
+        start = grid_indices[g]
+        end = grid_indices[g + 1]
+        val = 0.0
+        for i in range(start, end):
+            idx = visibility[i]
+            w = weights[i]
+            d = Data[idx]
+            ds = Data_scale[idx]
+            val += w * d * ds
+        CG_Field[g] = val
+    return CG_Field
+
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:]),parallel=True)
+def scalar_monodisperse(weights, visibility, grid_indices, Data):
+    Ngridpoints = len(grid_indices) - 2  # Padding assumed: grid_indices[0] = 0, grid_indices[-1] = len(visibility)
+    CG_Field = np.zeros(Ngridpoints, dtype=np.float64)
+    for g in prange(Ngridpoints):
+        start = grid_indices[g]
+        end = grid_indices[g + 1]
+        val = 0.0
+        for i in range(start, end):
+            idx = visibility[i]
+            w = weights[i]
+            d = Data[idx]
+            val += w * d
+        CG_Field[g] = val
     return CG_Field
 
 
