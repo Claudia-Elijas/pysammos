@@ -17,11 +17,14 @@ from spatial_weights.hashtable_search import make_hash_table, hash_table_search
 # grid generation
 from grid_generation import regular_cuboid 
 # handle data
-from data_handling.contacts.particle_mapper import map_contact_data
-from data_handling.contacts.qualitycheck import duplicates
+from data_handle.contacts.particle_mapper import map_contact_data
+from data_handle.contacts.qualitycheck import duplicates
 # coordination number
-from data_handling.contacts.complete import coordination_number
-# 
+from data_handle.contacts.complete import coordination_number
+# data writing
+from data_write.h5.writer import H5XarrayManager
+from data_write.vtkhdf.writer import VTKHDFWriter
+
 
 # Coarse Graining Class
 class CoarseGraining: 
@@ -33,28 +36,21 @@ class CoarseGraining:
                  weight_function, 
                  fields_to_export, 
                  ignore_phases):
-        
         # data info
         self.particle_path = particle_path
         self.contacts_path = contacts_path
         self.time_steps = np.arange(start_timestep, end_timestep+1, dt_time_step)#np.array([3, 10, 25, 50, 75, 100, 125, 150, 175])#np.arange(start_timestep, end_timestep+1, dt_time_step)
-
         # DEM key mapping dictionary
         self.DEM_keymap = DEM_keymap
-
         # CG grid info dictionary
         self.grid_info = grid_info
-           
         # CG smoothing function of choice
         self.weight_function = weight_function
-
         # CG partial fields ignore
         self.ignore_phases = ignore_phases
-
         # custom outputs and their dependencies
         self.field_to_export = fields_to_export
         self.fields_to_compute = get_fields_to_compute(fields_to_export)
-
         # create output path folder 
         self.output_path = output_path
         if not os.path.exists(self.Output_path):
@@ -62,7 +58,6 @@ class CoarseGraining:
             print(f"Output path created: {self.output_path}")
         else:
             print(f"Output path already exists: {self.output_path}")
-
 
     def data_sampling(self):
 
@@ -182,69 +177,6 @@ class CoarseGraining:
                                                                                         self.grid_info["y_axis_periodic"],
                                                                                         self.grid_info["z_axis_periodic"]]).Generate()
     
-    def compute_fields(self, c_custom): 
-                                                                 
-        print("-------------------- Calculating Coarse Grained Fields --------------------")
-        # default or custom c 
-        if c_custom is None:
-            if not hasattr(self, 'c'):
-                raise AttributeError("self.c is not initialized. Ensure Calc_CG_Grid_Spacing is called before this method.")
-            c = self.c
-        else:
-            c = c_custom
-        # initialize an empty dataset to store the results
-
-        # LOOP OVER TIME STEPS ==========================================
-        for t in range(len(self.time_steps)):# len(self.TimeSteps)
-
-            real_time = self.TimeSteps[t]
-
-            print("------------------------------------------------------------")
-            time_start = time.time()
-
-            print( "  ");print(f">>> Loading data for time step {real_time}")
-            data = self.Data_Loading(real_time) # Load the data for the current time step
-
-            print( "  ");print(f">>> Calculating CG fields for time step {real_time}")
-            results_timestep = self.Calcs_CG(c, data) # Calculate the CG fields for that time step
-
-            print( "  ");print(f">>> Saving CG fields for time step {real_time}") #
-            
-            
-            # write .h5 files 
-            manager = H5XarrayManager(f"{self.Output_path}CG_{self.CG_Function}_{self.cg_calc_mode}.h5")
-            manager.add_positions(self.GridPoints)
-
-            if self.cg_calc_mode == "Polydisperse":
-                phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
-                manager.add_phases(phase_labels)
-
-            manager.update_h5py_file(results_timestep, dim_index=t, dim_value=real_time, dim_name="time")
-
-            # write .VTKHDF files for ParaView visualisation
-            writer = VTKHDFWriter(node_dimensions=self.Nodes,  
-                         node_spacing=self.Spacing, 
-                         origin=self.GridPoints[0,:],
-                         path=f"{self.Output_path}CG_{self.CG_Function}_{self.cg_calc_mode}_{real_time:04d}")
-            if self.cg_calc_mode == "Monodisperse":
-                writer.write(data_dict=results_timestep)
-            elif self.cg_calc_mode == "Polydisperse": 
-                writer.write_polydisperse(data_dict=results_timestep,
-                                          n_phases=len(self.phases)+1, 
-                                          phase_indepen_field_names=["d32", "d43", 
-                                                                     "coordination_number", 
-                                                                     "velocity_gradient",
-                                                                     "fabric_tensor", 
-                                                                     "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
-                                                                     "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
-                                                                     "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
-                                                                      "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
-                                                                     ])
-            time_end = time.time()
-            print(f"Timestep {t} took {time_end - time_start} to run...")
-              
-            pass
-
     def load_data(self, t):
         """Load particle and contact data for a given timestep."""
         # Load particle data ==========================================================
@@ -258,7 +190,7 @@ class CoarseGraining:
             Mass_string=self.DEM_keymap["Particle_Mass"],
             Radius_string=self.DEM_keymap["Particle_Radius"],
             Coordination_Number_string=self.DEM_keymap["Coordination_Number"])
-        print("Particle data loaded for timestep:", t) 
+        print("Particle data loaded") 
         # Load contact data ===========================================================
         CD = file_read.reader("vtp", self.Contacts_path + f"{t:04d}.vtp")  
         Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og = point_data.contacts(CD,                                                               
@@ -274,7 +206,7 @@ class CoarseGraining:
             Particle_i, Particle_j, F_ij, Contact_ij,
             ModelAxesRanges=Ranges_t, AxesPeriodicity=self.bound_period,
             Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array ) 
-        print("Contact data loaded for timestep:", t)
+        print("Contact data loaded and mapped")
         # calculate coordination number
         if "coordination_number" in self.fields_to_compute:
             if Coordination_Number is None:
@@ -303,6 +235,64 @@ class CoarseGraining:
             "d_inContact_mean": d_inContact_mean
             } 
     
+    def compute_fields(self, c_custom): 
+                                                                 
+        print("-------------------- Calculating Coarse Grained Fields --------------------")
+        
+        # cut-off distance of coarse-graining function 
+        if c_custom is None:
+            if not hasattr(self, 'c'):
+                raise AttributeError("self.c is not initialized. Ensure Calc_CG_Grid_Spacing is called before this method.")
+            c = self.c
+        else:
+            c = c_custom
+        
+
+        # time loop
+        for t in range(len(self.time_steps)):
+
+            real_time = self.time_steps[t]
+            print("------------------------------------------------------------")
+            time_start = time.time()
+
+            print( "  ");print(f">>> Loading data for time step {real_time}")
+            data = self.Data_Loading(real_time) # Load the data for the current time step
+
+            print( "  ");print(f">>> Calculating CG fields for time step {real_time}")
+            results_timestep = self._compute_fields_single_timestep(c, data) # Calculate the CG fields for that time step
+
+            print( "  ");print(f">>> Saving CG fields for time step {real_time}") 
+            # write .h5 files 
+            manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
+            manager.add_positions(self.GridPoints)
+            if self.cg_calc_mode == "Polydisperse":
+                phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
+                manager.add_phases(phase_labels)
+            manager.update_h5py_file(results_timestep, dim_index=t, dim_value=real_time, dim_name="time")
+            # write .VTKHDF files 
+            writer = VTKHDFWriter(node_dimensions=self.Nodes,  
+                         node_spacing=self.Spacing, 
+                         origin=self.GridPoints[0,:],
+                         path=f"{self.Output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{real_time:04d}")
+            if self.cg_calc_mode == "Monodisperse":
+                writer.write(data_dict=results_timestep)
+            elif self.cg_calc_mode == "Polydisperse": 
+                writer.write_polydisperse(data_dict=results_timestep,
+                                          n_phases=len(self.phases)+1, 
+                                          phase_indepen_field_names=["d32", "d43", 
+                                                                     "coordination_number", 
+                                                                     "velocity_gradient",
+                                                                     "fabric_tensor", 
+                                                                     "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                                                                     "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                                                                     "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                                                                      "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
+                                                                     ])
+            time_end = time.time()
+            print(f"Timestep {t} took {time_end - time_start} to run...")
+              
+            pass
+
     def _compute_fields_single_timestep(self, timestep, data_t):
         
         print(f"Computing CG fields at timestep {timestep}")
