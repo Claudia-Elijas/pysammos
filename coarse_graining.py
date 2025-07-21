@@ -343,17 +343,18 @@ class CoarseGraining:
         part_ind_c = g["part_ind_c"]   
 
         # check data types
-        print(f"Data types")
-        print(f"Position: {Position.dtype}, Velocity: {Velocity.dtype}, BranchVector_i: {BranchVector_i.dtype}, Force_i: {Force_i.dtype}") 
-        print(f"Phase_Array_p: {Phase_Array_p.dtype}, PhaseArray_i: {PhaseArray_i.dtype}")
-        print(f"Grid indices: {grid_ind_p.dtype}, Particle indices: {part_ind_p.dtype}, distance r_ri: {r_ri.dtype}")
-        print(f"Weights: {W_p.dtype}, Wint_c: {Wint_c.dtype}")
+        # print(f"Data types")
+        # print(f"Position: {Position.dtype}, Velocity: {Velocity.dtype}, BranchVector_i: {BranchVector_i.dtype}, Force_i: {Force_i.dtype}") 
+        # print(f"Phase_Array_p: {Phase_Array_p.dtype}, PhaseArray_i: {PhaseArray_i.dtype}")
+        # print(f"Grid indices: {grid_ind_p.dtype}, Particle indices: {part_ind_p.dtype}, distance r_ri: {r_ri.dtype}")
+        # print(f"Weights: {W_p.dtype}, Wint_c: {Wint_c.dtype}")
 
 
         # 2. Compute fields based on the fields to compute ..................................................................
         # volume fraction
         if "volume_fraction" in self.fields_to_compute:
             VolumeFraction_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Volume, None, Phase_Array_p, self.cg_calc_mode)
+            print(f"volum fraction dtype {VolumeFraction_CG.dtype}")
             print('volume fraction done')
 
         # density

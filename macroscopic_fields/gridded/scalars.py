@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit, prange
+from numba import njit, prange, int32, float32, float64
 
 
 # Polydisperse
@@ -40,7 +40,7 @@ def scalar_polydisperse(weights, visibility, grid_indices, Data, Data_scale, Pha
     return CG_Field
 
 # Monodisperse
-@njit(parallel=True)
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:]),parallel=True)
 def scalar_monodisperse(weights, visibility, grid_indices, Data, Data_scale):
     Ngridpoints = len(grid_indices) - 2  # Padding assumed: grid_indices[0] = 0, grid_indices[-1] = len(visibility)
     CG_Field = np.zeros(Ngridpoints)
