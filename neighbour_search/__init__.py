@@ -1,1 +1,1 @@
-print("importing neighbour_search...")
+print("Loading neighbour_search package...")

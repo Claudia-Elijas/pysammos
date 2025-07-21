@@ -14,16 +14,26 @@ from particle_phase.clustering import find_phases, plot_phases
 from spatial_weights import kernels
 from spatial_weights.resolution import calc_half_width, calc_cutoff
 from spatial_weights.hashtable_search import make_hash_table, hash_table_search
+from spatial_weights.utils import integration_scalar, trapezoidal_integration, compute_dist_along_branch
+# particle-node correspondence
+from neighbour_search.grid_particle_search import particle_node_match, calc_displacement
 # grid generation
 from grid_generation import regular_cuboid 
 # handle data
 from data_handle.contacts.particle_mapper import map_contact_data
 from data_handle.contacts.qualitycheck import duplicates
+from data_handle.particles.particle_stats import d50_calc 
 # coordination number
 from data_handle.contacts.complete import coordination_number
+# computing fields
+from macroscopic_fields.gridded import dispatcher 
+from macroscopic_fields.gridded import secondary
+from macroscopic_fields.gridded import scalars
+import macroscopic_fields.sliced.granular_temperature as sliced
 # data writing
 from data_write.h5.writer import H5XarrayManager
 from data_write.vtkhdf.writer import VTKHDFWriter
+
 
 
 # Coarse Graining Class
@@ -53,7 +63,7 @@ class CoarseGraining:
         self.fields_to_compute = get_fields_to_compute(fields_to_export)
         # create output path folder 
         self.output_path = output_path
-        if not os.path.exists(self.Output_path):
+        if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
             print(f"Output path created: {self.output_path}")
         else:
@@ -78,76 +88,48 @@ class CoarseGraining:
             Diameter_t0 = get_point_data_variable(self.DEM_keymap["Particle_Radius"], poly_out_t0) * 2
         Density_t0 = get_point_data_variable(self.DEM_keymap["Particle_Density"], poly_out_t0)
         Mass_t0 = get_point_data_variable(self.DEM_keymap["Particle_Mass"], poly_out_t0)
-        GlobalID_t0 = get_point_data_variable(self.DEM_keymap["Particle_Global_ID"], poly_out_t0)
+        GlobalID_t0 = get_point_data_variable(self.DEM_keymap["Global_ID"], poly_out_t0)
         
         return self.BoundsData_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0
     
     def get_particle_size_statistics(self, diameter_t0, mass_t0):
         
-
         # Sort the diameter and mass arrays based on the diameter
         sorted_indices = np.argsort(diameter_t0)
         diameter_t0_sort = diameter_t0[sorted_indices]
         mass_t0_sort = mass_t0[sorted_indices] 
+        sizes , counts = np.unique(diameter_t0_sort, return_counts=True) # count unique particle sizes
 
         # Calculate the diameter statistics
-        sizes , counts = np.unique(diameter_t0_sort, return_counts=True) # count unique particle sizes
         self.dmax = np.max(sizes) # calculate maximum particle size
         self.d43 = np.sum(counts*sizes**4)/np.sum(counts*sizes**3) # calculate volume-weighted mean diameter
         self.d32 = np.sum(counts*sizes**3)/np.sum(counts*sizes**2) # calculate surface-weighted mean diameter
-        self.drms = np.sqrt(np.sum(counts*sizes**2)/np.sum(counts)) # calculate root mean square diameter
-        
-        # calculate d50 mass-weighted diameter
-        total_mass = np.sum(mass_t0_sort)
-        cumulative_mass = np.cumsum(mass_t0_sort)
-        cumulative_fraction = cumulative_mass / total_mass
-        idx = np.searchsorted(cumulative_fraction, 0.5) # find where cumulative mass crosses 0.5 (D50)
-        if idx == 0:
-            d50 = diameter_t0_sort[0] # Handle edge cases
-        else: # Linear interpolation
-            x0, x1 = diameter_t0_sort[idx - 1], diameter_t0_sort[idx]
-            y0, y1 = cumulative_fraction[idx - 1], cumulative_fraction[idx]
-            d50 = x0 + (0.5 - y0) * (x1 - x0) / (y1 - y0)
-        self.d50 = d50 # calculate median particle size
+        self.drms = np.sqrt(np.sum(counts*sizes**2)/np.sum(counts)) # calculate root mean square diameter        
+        self.d50 = d50_calc(diameter_t0_sort, mass_t0_sort) # calculate median particle size
 
         return self.d43, self.d32
     
     def get_particle_phases(self, diameter_t0, density_t0, global_id, n_max_phases = 6, plot=True):
      
-        # ignore phases
+        # IGNORE phases
         if self.ignore_phases:
-            self.phases = np.array([[self.d50,self.density_t0.mean()]]) # use mean density and d50 as phase
+            self.phases = np.array([[self.d50,density_t0.mean()]]) # use mean density and d50 as phase
             print("Ignoring phases. Using mean density and d50 as phase.")
             self.Phase_Array = None
             self.cg_calc_mode = "Monodisperse"
         
-        # find different phases 
+        # find different phases via clustering
         else: 
-            
-            # employ clustering
             self.phases, phase_array = find_phases(diameter_t0, density_t0, n_max_phases) # find the phases and phase array
             print(f"-------- Number of phases found: {len(self.phases)}")
             if plot:
                 plot_phases(diameter_t0, density_t0, self.phases, phase_array)
-
-            # polydisperse or monodisperse calcs
-            if len(self.phases) == 1: # monodisperse
-                print("Input data is Monodisperse ---> using Monodisperse calculation")
-                self.cg_calc_mode = "Monodisperse"
-            elif len(self.phases) > 1: # polydisperse
-                if self.ignore_phases == True: # ignore partial fields
-                    print("Input data is Polydisperse. Entered Partial_Fields_Ignore=True ---> using Monodisperse calculation")
-                    self.cg_calc_mode = "Monodisperse"
-                elif self.ignore_phases == False: # calculate partial fields
-                    print("Input data is Polydisperse. Entered Partial_Fields_Ignore=False ---> using Polydisperse calculation")
-                    self.cg_calc_mode = "Polydisperse"
-                else:
-                    raise ValueError("Partial_Fields_Ignore must be True or False")
-            
             # particle phase array 
-            if self.cg_calc_mode == "Monodisperse":
+            if len(self.phases) == 1: # if only one phase is found
+                self.cg_calc_mode == "Monodisperse"
                 self.Phase_Array = None
-            elif self.cg_calc_mode == "Polydisperse":
+            elif len(self.phases) > 1: # if multiple phases are found
+                self.cg_calc_mode == "Polydisperse"
                 self.Phase_Array = phase_array[np.argsort(global_id)] # sort the phase array by global ID
 
     def set_resolution(self, average_diameter, w_mult = 0.75):
@@ -155,7 +137,7 @@ class CoarseGraining:
         self.w = calc_half_width(average_diameter, w_mult) # calculate the half width
         self.c = calc_cutoff(self.w, self.weight_function) # calculate the cutoff distance
 
-    def make_grid(self, smoothing_length):
+    def generate_grid(self, smoothing_length):
 
         """Generate the CG grid based on the provided grid information."""
         print("generating grid")
@@ -163,24 +145,38 @@ class CoarseGraining:
         self.GridPoints, self.Nodes, self.Spacing, self.Ranges = regular_cuboid.Grid_Generation(
                                                                         smoothing_length=smoothing_length, 
                                                                         particle_bounds=self.BoundsData_t0, 
-                                                                        grid_dimension=self.grid_info["grid_dimension"], 
+                                                                        grid_dimensions=self.grid_info["grid_dimension"], 
                                                                         grid_axes=self.grid_info["grid_axes"],
-                                                                        automatic_grid=self.grid_info["automatic_grid"],
-                                                                        max_particle_size=self.dmax,
+                                                                        max_particle_diameter=self.dmax,
+                                                                        automatic_range=self.grid_info["automatic_grid"],
                                                                         custom_grid_range=[self.grid_info["x_min"], self.grid_info["x_max"],
                                                                                         self.grid_info["y_min"], self.grid_info["y_max"],
                                                                                         self.grid_info["z_min"], self.grid_info["z_max"]],
                                                                         custom_grid_transects=[self.grid_info["x_transect"], 
                                                                                                self.grid_info["y_transect"], 
-                                                                                               self.grid_info["z_transect"]],
-                                                                        bound_period=[self.grid_info["x_axis_periodic"],
-                                                                                        self.grid_info["y_axis_periodic"],
-                                                                                        self.grid_info["z_axis_periodic"]]).Generate()
+                                                                                               self.grid_info["z_transect"]]).Generate()
     
-    def load_data(self, t):
+    def fields_in_time(self): 
+                                                                 
+        print("-------------------- Calculating Coarse Grained Fields --------------------")
+        # time loop
+        for t in range(len(self.time_steps)):
+            time_of_timestep = self.time_steps[t]
+            time_start = time.time()
+            # ========================================================================
+            data = self._load_data(time_of_timestep) # Read the data for the current time step
+            results = self._fields_single_time(data) # Calculate the CG fields for that time step
+            self._write_results(results, t, time_of_timestep) # Write the results to .h5 and .VTKHDF files
+            # ========================================================================
+            time_end = time.time()
+            print(f"Timestep {t} took {time_end - time_start} to run...")
+            pass
+    
+    def _load_data(self, time_of_timestep):
         """Load particle and contact data for a given timestep."""
+        print(f"Loading data for timestep {time_of_timestep}...")
         # Load particle data ==========================================================
-        PD = file_read.reader(self.file_type, self.particle_path + f"{t:04d}.vtp") 
+        PD = file_read.reader(self.file_type, self.particle_path + f"{time_of_timestep:04d}.vtp") 
         Position, Global_ID, Velocity, Diameter, Density, Volume, Mass, Coordination_Number, bounds_t = point_data.particles(PD,
             Global_ID_string=self.DEM_keymap["Global_ID"],
             Velocity_string=self.DEM_keymap["Particle_Velocity"],
@@ -192,7 +188,7 @@ class CoarseGraining:
             Coordination_Number_string=self.DEM_keymap["Coordination_Number"])
         print("Particle data loaded") 
         # Load contact data ===========================================================
-        CD = file_read.reader("vtp", self.Contacts_path + f"{t:04d}.vtp")  
+        CD = file_read.reader("vtp", self.contacts_path + f"{time_of_timestep:04d}.vtp")  
         Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og = point_data.contacts(CD,                                                               
             Particle_i_string=self.DEM_keymap["Particle_i_ID"],
             Particle_j_string=self.DEM_keymap["Particle_j_ID"],
@@ -204,14 +200,16 @@ class CoarseGraining:
         Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = map_contact_data(
             Global_ID, Position, Diameter, Density, Volume, 
             Particle_i, Particle_j, F_ij, Contact_ij,
-            ModelAxesRanges=Ranges_t, AxesPeriodicity=self.bound_period,
+            ModelAxesRanges=Ranges_t, AxesPeriodicity=[self.grid_info["x_axis_periodic"], 
+                                                      self.grid_info["y_axis_periodic"], 
+                                                      self.grid_info["z_axis_periodic"]],
             Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array ) 
         print("Contact data loaded and mapped")
         # calculate coordination number
         if "coordination_number" in self.fields_to_compute:
             if Coordination_Number is None:
                 print("Coordination number not provided. Calculating it.")
-                Coordination_Number, _ = coordination_number.count(np.concatenate((Particle_i, Particle_j)),Global_ID)
+                Coordination_Number, _ = coordination_number.count(np.concatenate((Particle_i.astype(np.int64), Particle_j.astype(np.int64))),Global_ID.astype(np.int64))
         # Flush or delete the of contact data
         del Particle_i, Particle_j, F_ij, Contact_ij, Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og 
         # ================================================================================
@@ -234,104 +232,30 @@ class CoarseGraining:
             "PhaseArray_i": Phase_Array_i_t,
             "d_inContact_mean": d_inContact_mean
             } 
+
+    def _fields_single_time(self, data):
+        
+        # 1. assign particles to grid nodes
+        particle_to_grid_map = self._assign_particles_to_grid_nodes(data) ; print("... particles assigned to grid nodes")
+        # 2. compute weights for particles and contacts
+        weights_particle, weights_integral = self._compute_weights(particle_to_grid_map, data); print("... weights computed")
+        # 3. compute coarse-grained fields needed for export
+        cg_fields = self._compute_fields(data, particle_to_grid_map, weights_particle, weights_integral); print("... fields computed")
+        
+        return cg_fields
     
-    def compute_fields(self, c_custom): 
-                                                                 
-        print("-------------------- Calculating Coarse Grained Fields --------------------")
-        
-        # cut-off distance of coarse-graining function 
-        if c_custom is None:
-            if not hasattr(self, 'c'):
-                raise AttributeError("self.c is not initialized. Ensure Calc_CG_Grid_Spacing is called before this method.")
-            c = self.c
-        else:
-            c = c_custom
-        
+    def _assign_particles_to_grid_nodes(self, data):
 
-        # time loop
-        for t in range(len(self.time_steps)):
-
-            real_time = self.time_steps[t]
-            print("------------------------------------------------------------")
-            time_start = time.time()
-
-            print( "  ");print(f">>> Loading data for time step {real_time}")
-            data = self.Data_Loading(real_time) # Load the data for the current time step
-
-            print( "  ");print(f">>> Calculating CG fields for time step {real_time}")
-            results_timestep = self._compute_fields_single_timestep(c, data) # Calculate the CG fields for that time step
-
-            print( "  ");print(f">>> Saving CG fields for time step {real_time}") 
-            # write .h5 files 
-            manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
-            manager.add_positions(self.GridPoints)
-            if self.cg_calc_mode == "Polydisperse":
-                phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
-                manager.add_phases(phase_labels)
-            manager.update_h5py_file(results_timestep, dim_index=t, dim_value=real_time, dim_name="time")
-            # write .VTKHDF files 
-            writer = VTKHDFWriter(node_dimensions=self.Nodes,  
-                         node_spacing=self.Spacing, 
-                         origin=self.GridPoints[0,:],
-                         path=f"{self.Output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{real_time:04d}")
-            if self.cg_calc_mode == "Monodisperse":
-                writer.write(data_dict=results_timestep)
-            elif self.cg_calc_mode == "Polydisperse": 
-                writer.write_polydisperse(data_dict=results_timestep,
-                                          n_phases=len(self.phases)+1, 
-                                          phase_indepen_field_names=["d32", "d43", 
-                                                                     "coordination_number", 
-                                                                     "velocity_gradient",
-                                                                     "fabric_tensor", 
-                                                                     "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
-                                                                     "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
-                                                                     "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
-                                                                      "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
-                                                                     ])
-            time_end = time.time()
-            print(f"Timestep {t} took {time_end - time_start} to run...")
-              
-            pass
-
-    def _compute_fields_single_timestep(self, timestep, data_t):
-        
-        print(f"Computing CG fields at timestep {timestep}")
-        data = self.load_data(timestep) if data_t is None else data_t
-
-        d = self._unpack_data(data)
-        g = self._assign_particles_to_grid_nodes(d, self.c)
-        W_p, W_c, Wint_c = self._compute_weights(d, g, self.c)
-        computed_fields = self._compute_cg_fields(d, g, W_p, W_c, Wint_c)
-        results = self._export_fields(computed_fields)
-        
-        return results
-    
-    def _unpack_data(self, data):
-        return {
-            "Position": data["Position"],
-            "Velocity": data["Velocity"],
-            "Diameter": data["Diameter"],
-            "Density": data["Density"],
-            "Volume": data["Volume"],
-            "Mass": data["Mass"],
-            "Coordination_Number": data["Coordination_Number"],
-            "Phase_Array": data["Phase_Array"],
-            "Position_i": data["Position_i"],
-            "Force_i": data["Force_i"],
-            "BranchVector_i": data["BranchVector_i"],
-            "CenterToCenterVector_LL": data["CenterToCenterVector_LL"],
-            "Volume_i": data["Volume_i"],
-            "PhaseArray_i": data["PhaseArray_i"],
-            "d_inContact_mean": data["d_inContact_mean"]
-        }
-
-    def _assign_particles_to_grid_nodes(self, d, c):
-        grid_ind_p, part_ind_p = Particle_Node_Correspondance(self.GridPoints, d["Position"], c)
-        r_ri, r_ri_dist = Calc_Displacement_and_Distance(self.GridPoints, d["Position"], grid_ind_p, part_ind_p, return_disp=True, return_dist=True)
-
-        grid_ind_c, part_ind_c = Particle_Node_Correspondance(self.GridPoints, d["Position_i"], c)
-        r_ri_c, _ = Calc_Displacement_and_Distance(self.GridPoints, d["Position_i"], grid_ind_c, part_ind_c, return_disp=True, return_dist=False)
-
+        # particle data .........................................
+        grid_ind_p, part_ind_p = particle_node_match(self.GridPoints, data["Position"], self.c) # kd-tree function
+        r_ri, r_ri_dist = calc_displacement(self.GridPoints, data["Position"], 
+                                            grid_ind_p, part_ind_p, 
+                                            return_disp=True, return_dist=True) # calculate the displacement and distance
+        # contact data ...........................................
+        grid_ind_c, part_ind_c = particle_node_match(self.GridPoints, data["Position_i"], self.c) # kd-tree function
+        r_ri_c, _ = calc_displacement(self.GridPoints, data["Position_i"],
+                                    grid_ind_c, part_ind_c, 
+                                    return_disp=True, return_dist=False)
         return {
             "grid_ind_p": grid_ind_p,
             "part_ind_p": part_ind_p,
@@ -342,40 +266,435 @@ class CoarseGraining:
             "r_ri_c": r_ri_c
         }
 
-    def _compute_weights(self, d, g, c):
+    def _compute_weights(self, particle_map, data):
         # Select CG kernel
         if self.weight_function == "Gaussian":
-            WeightFunc = ComputeGaussianWeight
+            WeightFunc = kernels.gaussian
         elif self.weight_function == "Lucy":
-            WeightFunc = ComputeLucyWeight
+            WeightFunc = kernels.lucy
         elif self.weight_function == "HeavySide":
-            WeightFunc = ComputeHeavySideWeight
+            WeightFunc = kernels.heavySide
         else:
             raise ValueError("Invalid CG function")
 
         # Particle weights
-        hash_table_p, stepsize_p = make_hash_table(WeightFunc, c, sensitivity=1000)
-        W_p = hash_table_search(g["r_ri_dist"], hash_table_p, stepsize_p)
+        hash_table_p, stepsize_p = make_hash_table(WeightFunc, self.c, sensitivity=1000)
+        W_p = hash_table_search(particle_map["r_ri_dist"], hash_table_p, stepsize_p)
 
         # Contact weights
         s = integration_scalar(0, 1, 10)
-        dist_along_branch = compute_dist_along_branch_numba(g["r_ri_c"], s, d["BranchVector_i"], g["part_ind_c"])
-        hash_table_c, stepsize_c = make_hash_table(WeightFunc, c, sensitivity=1000)
+        dist_along_branch = compute_dist_along_branch(particle_map["r_ri_c"], s, data["BranchVector_i"], particle_map["part_ind_c"])
+        hash_table_c, stepsize_c = make_hash_table(WeightFunc, self.c, sensitivity=1000)
         W_c = hash_table_search(dist_along_branch, hash_table_c, stepsize_c)
         Wint_c = trapezoidal_integration(0, 1, 10, W_c)
 
-        return W_p, W_c, Wint_c
+        return W_p, Wint_c
 
-    def _compute_cg_fields(self, d, g, W_p, W_c, Wint_c):
+    def _compute_fields(self, data, g, W_p, Wint_c):
+        # Unpack data
+        Position = data["Position"]
+        Velocity = data["Velocity"]
+        Diameter = data["Diameter"]
+        Density = data["Density"]
+        Mass = data["Mass"]
+        Volume = data["Volume"]
+        Coordination_Number = data["Coordination_Number"]
+        Phase_Array_p = data["Phase_Array"]
+        Position_i = data["Position_i"]
+        Force_i = data["Force_i"]
+        BranchVector_i = data["BranchVector_i"]
+        CenterToCenterVector_LL = data["CenterToCenterVector_LL"]
+        Volume_i = data["Volume_i"]
+        PhaseArray_i = data["PhaseArray_i"]
+        d_inContact_mean = data["d_inContact_mean"]
+        r_ri = g["r_ri"]
+        grid_ind_p = g["grid_ind_p"]
+        part_ind_p = g["part_ind_p"]
+        grid_ind_c = g["grid_ind_c"]
+        part_ind_c = g["part_ind_c"]    
+
         results = {}
 
+        # volume fraction
         if "volume_fraction" in self.fields_to_compute:
-            results["volume_fraction"] = CG_Scalar(W_p, g["part_ind_p"], d["Volume"])
-        
-        # Add more fields here as needed
+            VolumeFraction_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Volume, None, Phase_Array_p, self.cg_calc_mode)
+            print('volume fraction done')
 
+        # density
+        if "density_mixture" in self.fields_to_compute:
+            DensityMixture_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Mass, None, Phase_Array_p, self.cg_calc_mode)
+            print('mixture density done')
+    
+        # velocity
+        if "momentum_density" in self.fields_to_compute:
+            MomentumDens_CG = dispatcher.vector(W_p, part_ind_p, grid_ind_p, Velocity, Mass,  Phase_Array_p, self.cg_calc_mode)
+            print('momentum density done')
+
+        # velocity and kinetic tensor    
+        # Check if we have phase information
+        if self.cg_calc_mode == 'Monodisperse':  # Monodisperse case
+            if "velocity" in self.fields_to_compute:
+                Velocity_CG = MomentumDens_CG / DensityMixture_CG[:, np.newaxis] # Velocity CG
+            if "velocity_gradient" in self.fields_to_compute:
+                GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG, self.Nodes, self.Spacing) # Velocity Gradient
+            if "kinetic_tensor" in self.fields_to_compute:
+                KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG, GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
+        else:  # Polydisperse case
+            if "velocity" in self.fields_to_compute:
+                Velocity_CG = MomentumDens_CG / DensityMixture_CG[..., np.newaxis] # Velocity CG
+                print('velocity done')
+            if "velocity_gradient" in self.fields_to_compute:
+                GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG[:,0,:], self.Nodes, self.Spacing) # Velocity Gradient
+                print('velocity gradient done')
+            if "kinetic_tensor" in self.fields_to_compute:
+                KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:, 0, :], GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
+                print('kinetic tensor done')
+        # contact tensor
+        if "contact_tensor" in self.fields_to_compute:
+            ContactTensor_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, Force_i, BranchVector_i, None, PhaseArray_i, self.cg_calc_mode)
+            print('contact tensor done')
+        # SECONDARY VARIABLES ==========================================
+        # Density of particle cg
+        if "density_particle" in self.fields_to_compute:
+            DensityParticle_CG = DensityMixture_CG / VolumeFraction_CG
+            print('particle density done')
+
+        # Total stress tensor
+        if "total_stress_tensor" in self.fields_to_compute:
+            TotalStressTensor_CG = KineticTensor_CG + ContactTensor_CG
+            TotalStressTensor_CG_xyz_mag = secondary.compute_second_invariant(TotalStressTensor_CG, factor=0.5) # calculate the second invariant of the total stress tensor
+            # deviatoric stress
+            TotalStressDeviator_xyz = secondary.compute_deviatoric_tensor(TotalStressTensor_CG[...,:, :]) # 3D
+            TotalStressDeviator_xy = secondary.compute_deviatoric_tensor(TotalStressTensor_CG[...,:2,:2]) # 2D
+            TotalStressDeviator_xyz_mag = secondary.compute_second_invariant(TotalStressDeviator_xyz, factor=0.5) # 3D mag
+            TotalStressDeviator_xy_mag = secondary.compute_second_invariant(TotalStressDeviator_xy, factor=0.5) # 2D mag
+            print('total stress done')
+
+        # Volume-weighted mean diameter, d43
+        if "d43" in self.fields_to_compute:
+            d43_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=3)
+            print('d43 done')
+        if "d32" in self.fields_to_compute:
+            d32_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=2)
+            print('d32 done')
+  
+        # l_CG = None
+        # Coordination number
+        if "coordination_number" in self.fields_to_compute:
+            CoordinationNumber_rattlers = scalars.scalar_x_volume(W_p, part_ind_p, grid_ind_p, Coordination_Number)
+            print('Z done')
+        # Pressure
+        if "pressure" in self.fields_to_compute:
+            Pressure_xyz = secondary.compute_pressure(TotalStressTensor_CG)
+            Pressure_xy = secondary.compute_pressure(TotalStressTensor_CG[...,0:2, 0:2])
+            Pressure_x = TotalStressTensor_CG[...,0, 0] 
+            Pressure_y = TotalStressTensor_CG[...,1, 1] 
+            Pressure_z = TotalStressTensor_CG[...,2, 2] 
+            print('pressure done')
+
+        # granular temperature
+        if "granular_temperature" in self.fields_to_compute:
+            GranularTemperature_xyz = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG) 
+            GranularTemperature_x = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG[...,0,0]) 
+            GranularTemperature_y = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG[...,1,1]) 
+            GranularTemperature_z = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG[...,2,2]) 
+            print('granular temp done')
+        if "granular_temperature_alternatives" in self.fields_to_compute:
+            GranularTemperature_KimKamrin20, GranularTemperature_LAMMPS = sliced.granular_temperature(dy=self.Spacing[1], 
+                                                                                                    y0=self.GridPoints[:,1].min(),
+                                                                                                    y1=self.GridPoints[:,1].max(),
+                                                                                                    velocity_all=Velocity, 
+                                                                                                    diam_all=Diameter, 
+                                                                                                    density_all=Density, 
+                                                                                                    mass_all=Mass, 
+                                                                                                    particle_positions_all=Position)
+    
+        # shear rate tensor 
+        if "shear_rate_tensor" in self.fields_to_compute:
+            # 2d - grid
+            ShearRateTensor_xy = secondary.compute_shear_rate_tensor(GradV_CG[...,0:2, 0:2])
+            ShearRateTensor_xy_mag = secondary.compute_second_invariant(ShearRateTensor_xy, factor=2) # 2D mag
+            # shear rate deviator 
+            ShearRateDeviator_xy = secondary.compute_deviatoric_tensor(ShearRateTensor_xy)
+            ShearRateDeviator_xy_mag = secondary.compute_second_invariant(ShearRateDeviator_xy, factor=2) # 2D mag
+            # 3d - grid
+            if self.grid_info["grid_dimension"] == 3:
+                ShearRateTensor_xyz = secondary.compute_shear_rate_tensor(GradV_CG)
+                ShearRateTensor_xyz_mag = secondary.compute_second_invariant(ShearRateTensor_xyz, factor=2) # 3D mag
+                # shear rate deviator 
+                ShearRateDeviator_xyz = secondary.compute_deviatoric_tensor(ShearRateTensor_xyz)
+                ShearRateDeviator_xyz_mag = secondary.compute_second_invariant(ShearRateDeviator_xyz, factor=2) # 3D mag
+            print('shear rate done')
+ 
+        # inertial number
+        if "inertial_number" in self.fields_to_compute:
+            InertialNumber_xy_Pxyz_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxy_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Py_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxyz_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxy_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Py_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            # InertialNumber_xy_Pxyz_l = None
+            # InertialNumbe_xy_Pxy_l = None
+            # Inertial_Number_xy_Py_l = None
+            print('inertial number done')
+
+        # frictional coefficient
+        if "frictional_coefficient" in self.fields_to_compute:
+            FrictionalCoefficient_Dxy_Pxyz = TotalStressDeviator_xy_mag / Pressure_xyz
+            FrictionalCoefficient_Dxy_Pxy = TotalStressDeviator_xy_mag / Pressure_xy
+            FrictionalCoefficient_Dxy_Py = TotalStressDeviator_xy_mag / Pressure_y
+            FrictionalCoefficient_Dxyz_Pxyz = TotalStressDeviator_xyz_mag / Pressure_xyz
+            FrictionalCoefficient_Dxyz_Pxy = TotalStressDeviator_xyz_mag / Pressure_xy
+            FrictionalCoefficient_Dxyz_Py = TotalStressDeviator_xyz_mag / Pressure_y
+            FrictionalCoefficient_01_Pxyz = TotalStressTensor_CG[...,0,1] / Pressure_xyz
+            FrictionalCoefficient_01_Pxy = TotalStressTensor_CG[...,0,1] / Pressure_xy
+            FrictionalCoefficient_01_Py = TotalStressTensor_CG[...,0,1] / Pressure_y
+            print('mu done')
+    
+        # fabric tensor
+        if "fabric_tensor" in self.fields_to_compute:
+            l_i_mag = np.linalg.norm(CenterToCenterVector_LL, axis=-1) # calculate the magnitude of the branch vector
+            l_i_normalised = CenterToCenterVector_LL / l_i_mag[:, np.newaxis]
+            l_inContact_mean = np.mean(l_i_mag)
+            FabricTensor_Monodisperse_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, l_i_normalised, l_i_normalised, Volume_i, None, "Monodisperse")
+            #FabricTensor_Sun = Compute_Bulk_FabricTensor_Sun2015(l_i_normalised)
+            print('frabric tensor done')
+
+        # collect result to write it into file
+        results = {}
+        # volume fraction
+        if self.field_to_export.get("volume_fraction"): results["volume_fraction"] = VolumeFraction_CG
+
+        # density of mixture
+        if self.field_to_export.get("density_mixture"): results["density_mixture"] = DensityMixture_CG
+
+        # particle density
+        if self.field_to_export.get("density_particle"): results["density_particle"] = DensityParticle_CG
+
+        # particle size
+        if self.field_to_export.get("d32"): results["d32"] = d32_CG
+        if self.field_to_export.get("d43"): results["d43"] = d43_CG
+
+        # particle contacts
+        if self.field_to_export.get("coordination_number"): results["coordination_number"] = CoordinationNumber_rattlers
+        if self.field_to_export.get("coordination_number_without_rattlers"): results["coordination_number_without_rattlers"] = None
+
+        # velocity
+        if self.field_to_export.get("momentum_density"): results["momentum_density"] = MomentumDens_CG
+        if self.field_to_export.get("velocity"): results["velocity"] = Velocity_CG
+        if self.field_to_export.get("velocity_gradient"): results["velocity_gradient"] = GradV_CG
+
+        # stress tensor
+        if self.field_to_export.get("kinetic_tensor"): results["kinetic_tensor"] = KineticTensor_CG
+        if self.field_to_export.get("contact_tensor"): results["contact_tensor"] = ContactTensor_CG
+        if self.field_to_export.get("total_stress_tensor"): 
+            results["total_stress_tensor_xy_dev"] = TotalStressDeviator_xy
+            results["total_stress_tensor_xy_dev_mag"] = TotalStressDeviator_xy_mag
+            results["total_stress_tensor_xyz"] = TotalStressTensor_CG
+            results["total_stress_tensor_xyz_mag"] = TotalStressTensor_CG_xyz_mag
+            results["total_stress_tensor_xyz_dev"] = TotalStressDeviator_xyz
+            results["total_stress_tensor_xyz_dev_mag"] = TotalStressDeviator_xyz_mag
+
+        # fabric tensor
+        if self.field_to_export.get("fabric_tensor"): results["fabric_tensor"] = FabricTensor_Monodisperse_CG
+        #if self.field_to_export.get("fabric_tensor_Sun"): results["fabric_tensor_Sun"] = FabricTensor_Sun
+
+        # shear rate tensor
+        if self.field_to_export.get("shear_rate_tensor"): 
+            results["shear_rate_tensor_xy"] = ShearRateTensor_xy
+            results["shear_rate_tensor_xy_mag"] = ShearRateTensor_xy_mag
+            results["shear_rate_tensor_xy_dev"] = ShearRateDeviator_xy
+            results["shear_rate_tensor_xy_dev_mag"] = ShearRateDeviator_xy_mag
+            if self.grid_info["grid_dimension"] == 3:
+                results["shear_rate_tensor_xyz"] = ShearRateTensor_xyz
+                results["shear_rate_tensor_xyz_mag"] = ShearRateTensor_xyz_mag
+                results["shear_rate_tensor_xyz_dev"] = ShearRateDeviator_xyz
+                results["shear_rate_tensor_xyz_dev_mag"] = ShearRateDeviator_xyz_mag
+
+        # pressure
+        if self.field_to_export.get("pressure"): 
+            results["pressure_xyz"] = Pressure_xyz
+            results["pressure_xy"] = Pressure_xy
+            results["pressure_x"] = Pressure_x
+            results["pressure_y"] = Pressure_y
+            results["pressure_z"] = Pressure_z
+
+        # granular temperature
+        if self.field_to_export.get("granular_temperature"): 
+            results["granular_temperature_xyz"] = GranularTemperature_xyz
+            results["granular_temperature_x"] = GranularTemperature_x
+            results["granular_temperature_y"] = GranularTemperature_y
+            results["granular_temperature_z"] = GranularTemperature_z
+
+        # inertial number
+        if self.field_to_export.get("inertial_number"): 
+            results["inertial_number_Sxy_Pxyz_d43"] = InertialNumber_xy_Pxyz_d43
+            results["inertial_number_Sxy_Pxy_d43"] = InertialNumber_xy_Pxy_d43
+            results["inertial_number_Sxy_Py_d43"] = InertialNumber_xy_Py_d43
+            results["inertial_number_Sxy_Pxyz_d32"] = InertialNumber_xy_Pxyz_d32
+            results["inertial_number_Sxy_Pxy_d32"] = InertialNumber_xy_Pxy_d32
+            results["inertial_number_Sxy_Py_d32"] = InertialNumber_xy_Py_d32
+
+        # frictional coefficient
+        if self.field_to_export.get("frictional_coefficient"): 
+            results["frictional_coefficient_Dxy_Pxyz"] = FrictionalCoefficient_Dxy_Pxyz
+            results["frictional_coefficient_Dxy_Pxy"] = FrictionalCoefficient_Dxy_Pxy
+            results["frictional_coefficient_Dxy_Py"] = FrictionalCoefficient_Dxy_Py
+            results["frictional_coefficient_Dxyz_Pxyz"] = FrictionalCoefficient_Dxyz_Pxyz
+            results["frictional_coefficient_Dxyz_Pxy"] = FrictionalCoefficient_Dxyz_Pxy
+            results["frictional_coefficient_Dxyz_Py"] = FrictionalCoefficient_Dxyz_Py
+            results["frictional_coefficient_01_Pxyz"] = FrictionalCoefficient_01_Pxyz
+            results["frictional_coefficient_01_Pxy"] = FrictionalCoefficient_01_Pxy
+            results["frictional_coefficient_01_Py"] = FrictionalCoefficient_01_Py
+       
+                    
+        print(" results assigned ")
         return results
 
-    def _export_fields(self, computed_fields):
-        return {k: computed_fields[k] for k in self.field_to_export if k in computed_fields}
+    def _write_results(self, results_timestep, time_step, time_of_timestep):
+        print(f"Writing results for timestep {time_of_timestep}...")
+        # write .h5 files 
+        manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
+        manager.add_positions(self.GridPoints)
+        if self.cg_calc_mode == "Polydisperse":
+            phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
+            manager.add_phases(phase_labels)
+        manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+        # write .VTKHDF files 
+        writer = VTKHDFWriter(node_dimensions=self.Nodes,  
+                        node_spacing=self.Spacing, 
+                        origin=self.GridPoints[0,:],
+                        path=f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{time_of_timestep:04d}")
+        if self.cg_calc_mode == "Monodisperse":
+            writer.write(data_dict=results_timestep)
+        elif self.cg_calc_mode == "Polydisperse": 
+            writer.write_polydisperse(data_dict=results_timestep,
+                                        n_phases=len(self.phases)+1, 
+                                        phase_indepen_field_names=["d32", "d43", 
+                                                                    "coordination_number", 
+                                                                    "velocity_gradient",
+                                                                    "fabric_tensor", 
+                                                                    "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                                                                    "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                                                                    "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                                                                    "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
+                                                                    ])
 
+
+
+if __name__ == "__main__":
+    print("This is a module and should not be run directly. Please use the coarse_graining.py script.")
+
+
+    # ------------------------------ INPUT CONFIGURATION ---------------------------------
+    # BEDLOAD EXAMPLE 
+    particles_path = './bedload_example/VTU/DES_FB1_'
+    contacts_path = './bedload_example/VTU/ENTIRE_DOMAIN_'
+
+    key_mapping = { # tell it the exact name of your variables in the MFIX vtp files
+    "Global_ID": "Particle_ID",
+    "Particle_Velocity": "Velocity",
+    "Particle_Diameter": "Diameter",    
+    "Particle_Density": "Density",
+    "Particle_Volume": "Volume",
+    "Particle_Mass": "Mass",
+    "Particle_Radius": None,
+    "Coordination_Number": None, 
+    "Particle_i_ID": "Particle_ID_1",
+    "Particle_j_ID": "Particle_ID_2",
+    "Force_ij": "FORCE_CHAIN_FC",
+    "Contact_ij": "FORCE_CHAIN_CONTACT_POINT"
+                    }
+
+    grid_info = {
+    "grid_dimension": 3, # 3D
+    "grid_axes": 'xyz', # orientation (e.g., if 2D, it can be xy, xz, yz)
+    "automatic_grid": False, 
+    "x_min": 0.00105, # can be None if automatic_grid = True
+    "x_max": 0.5,
+    "y_min": 0.001, 
+    "y_max": 0.24,
+    "z_min": 0.0, 
+    "z_max": 0.02,
+    "x_transect": None, # if your grid is 2D or 1D you can select at what x,z or y it is located. Note: our vtkhdf writer doesnt like 2D grids
+    "y_transect": None,
+    "z_transect": None,
+    "x_axis_periodic": True, # let it know if axis is periodic in case you want to CG up to the boundary and you don't have the contact points
+    "y_axis_periodic": False,
+    "z_axis_periodic": False
+            }
+
+    cg_custom_output = { # dependencies are taken care of inside the code, so only set true those that you want written out
+                
+        "volume_fraction": True, 
+        "density_particle": True, 
+        "density_mixture": True,
+        "momentum_density": False,
+        "velocity": True,
+        "velocity_gradient": True,
+        "kinetic_tensor": False,
+        "contact_tensor": False,
+        "total_stress_tensor": True,  
+        "pressure": True,
+        "granular_temperature": True,
+        "granular_temperature_alternatives": False, # leave this as False, as I've not written exports for this yet
+        "fabric_tensor": True,
+        "inertial_number": True,
+        "coordination_number": True,
+        "d43": True,
+        "d32": True,
+        "frictional_coefficient": True,
+        "shear_rate_tensor": True,
+
+                        }
+    out_path = "./bedload_example/PysammosCG/" # directory where you save CG output
+    t0 = 150 ; tf = 154 # first and last time steps (assumes 1 unit increment of time steps). It pads it with zeros. 
+    partialignore = True # forces monodisperse CG if True
+
+    # ------------------------------- CALLING COARSE-GRAINING CLASS -----------------------------
+    CG = CoarseGraining(particle_path=particles_path, 
+                        contacts_path=contacts_path, 
+                        output_path=out_path,
+                 start_timestep=t0, end_timestep=tf, dt_time_step=1,
+                 DEM_keymap=key_mapping,
+                 grid_info=grid_info,
+                 weight_function='Lucy', 
+                 fields_to_export=cg_custom_output, 
+                 ignore_phases=partialignore)
+                          
+
+    # Load the size-relevant particle data for the first time step
+    Bounds_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0 = CG.data_sampling()
+    
+    # Calculate the particle size range
+    d43, d32 = CG.get_particle_size_statistics(Diameter_t0, Mass_t0)
+    print(">> d43: ", d43)
+    print(">> dmax: ", CG.dmax)
+    print(">> d50: ", CG.d50)
+    print(">> d32: ", d32)
+    print(">> drms: ", CG.drms)
+
+    # Get the phases
+    CG.get_particle_phases(Diameter_t0, Density_t0, GlobalID_t0, 8)
+    print(">> Phases: ", CG.phases)
+    print("       Diameter: ", CG.phases[:,0])
+    print("       Density: ", CG.phases[:,1])
+
+    # Calculate the CG grid spacing
+    CG.set_resolution(d43) # here you can input different number, to make w and c bigger or smaller 
+    print("c :", CG.c)
+    print("w :", CG.w)
+
+    # Generate the CG grid
+    CG.generate_grid(smoothing_length=CG.c)
+    print("Grid Points: ", CG.GridPoints.shape, "First Point: ", CG.GridPoints[0])
+    print("Nodes: ", CG.Nodes)
+    print("Spacing: ", CG.Spacing)
+
+    # Calculate the CG fields
+    CG.fields_in_time()
+
+    print("------------------------------------------------------------")
+    print(">>> Coarse Graining completed successfully")
+    print("------------------------------------------------------------")

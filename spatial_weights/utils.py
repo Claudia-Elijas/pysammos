@@ -22,7 +22,7 @@ def trapezoidal_integration(s0, s1, n, W):
 
 # Numba version
 @njit(parallel=True)
-def compute_dist_along_branch_numba(r_ri_c, s, BranchVector_i, part_ind_c):
+def compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c):
     n_s = s.shape[0]
     n_contacts = r_ri_c.shape[0]
     out = np.empty((n_s, n_contacts), dtype=np.float64)

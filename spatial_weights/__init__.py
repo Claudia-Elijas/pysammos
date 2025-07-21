@@ -1,1 +1,1 @@
-print("Importing spatial_weights package...")
+print("Loading spatial_weights package...")

@@ -2,8 +2,8 @@ import numpy as np
 
 
 class Grid_Generation: 
-    def __init__(self, smmoothing_length, particle_bounds, grid_dimensions, grid_axes, max_particle_diameter, automatic_range, custom_grid_range, custom_grid_transects):
-        self.c = smmoothing_length
+    def __init__(self, smoothing_length, particle_bounds, grid_dimensions, grid_axes, max_particle_diameter, automatic_range, custom_grid_range, custom_grid_transects):
+        self.c = smoothing_length
         self.bounds = particle_bounds
         self.dimensions = grid_dimensions
         self.axes = grid_axes
