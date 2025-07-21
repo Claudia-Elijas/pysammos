@@ -245,7 +245,7 @@ class CoarseGraining:
               
             pass
 
-    def _load_data(self, t):
+    def load_data(self, t):
         """Load particle and contact data for a given timestep."""
         # Load particle data ==========================================================
         PD = file_read.reader(self.file_type, self.particle_path + f"{t:04d}.vtp") 
@@ -306,7 +306,7 @@ class CoarseGraining:
     def _compute_fields_single_timestep(self, timestep, data_t):
         
         print(f"Computing CG fields at timestep {timestep}")
-        data = self._load_data(timestep) if data_t is None else data_t
+        data = self.load_data(timestep) if data_t is None else data_t
 
         d = self._unpack_data(data)
         g = self._assign_particles_to_grid_nodes(d, self.c)
