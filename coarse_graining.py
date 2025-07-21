@@ -126,10 +126,10 @@ class CoarseGraining:
                 plot_phases(diameter_t0, density_t0, self.phases, phase_array)
             # particle phase array 
             if len(self.phases) == 1: # if only one phase is found
-                self.cg_calc_mode == "Monodisperse"
+                self.cg_calc_mode = "Monodisperse"
                 self.Phase_Array = None
             elif len(self.phases) > 1: # if multiple phases are found
-                self.cg_calc_mode == "Polydisperse"
+                self.cg_calc_mode = "Polydisperse"
                 self.Phase_Array = phase_array[np.argsort(global_id)] # sort the phase array by global ID
 
     def set_resolution(self, average_diameter, w_mult = 0.75):
@@ -244,6 +244,35 @@ class CoarseGraining:
         
         return cg_fields
     
+    def _write_results(self, results_timestep, time_step, time_of_timestep):
+        print(f"Writing results for timestep {time_of_timestep}...")
+        # write .h5 files 
+        manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
+        manager.add_positions(self.GridPoints)
+        if self.cg_calc_mode == "Polydisperse":
+            phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
+            manager.add_phases(phase_labels)
+        manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+        # write .VTKHDF files 
+        writer = VTKHDFWriter(node_dimensions=self.Nodes,  
+                        node_spacing=self.Spacing, 
+                        origin=self.GridPoints[0,:],
+                        path=f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{time_of_timestep:04d}")
+        if self.cg_calc_mode == "Monodisperse":
+            writer.write(data_dict=results_timestep)
+        elif self.cg_calc_mode == "Polydisperse": 
+            writer.write_polydisperse(data_dict=results_timestep,
+                                        n_phases=len(self.phases)+1, 
+                                        phase_indepen_field_names=["d32", "d43", 
+                                                                    "coordination_number", 
+                                                                    "velocity_gradient",
+                                                                    "fabric_tensor", 
+                                                                    "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                                                                    "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                                                                    "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                                                                    "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
+                                                                    ])
+
     def _assign_particles_to_grid_nodes(self, data):
 
         # particle data .........................................
@@ -291,7 +320,7 @@ class CoarseGraining:
         return W_p, Wint_c
 
     def _compute_fields(self, data, g, W_p, Wint_c):
-        # Unpack data
+        # 1. Unpack data
         Position = data["Position"]
         Velocity = data["Velocity"]
         Diameter = data["Diameter"]
@@ -311,10 +340,17 @@ class CoarseGraining:
         grid_ind_p = g["grid_ind_p"]
         part_ind_p = g["part_ind_p"]
         grid_ind_c = g["grid_ind_c"]
-        part_ind_c = g["part_ind_c"]    
+        part_ind_c = g["part_ind_c"]   
 
-        results = {}
+        # check data types
+        print(f"Data types")
+        print(f"Position: {Position.dtype}, Velocity: {Velocity.dtype}, BranchVector_i: {BranchVector_i.dtype}, Force_i: {Force_i.dtype}") 
+        print(f"Phase_Array_p: {Phase_Array_p.dtype}, PhaseArray_i: {PhaseArray_i.dtype}")
+        print(f"Grid indices: {grid_ind_p.dtype}, Particle indices: {part_ind_p.dtype}, distance r_ri: {r_ri.dtype}")
+        print(f"Weights: {W_p.dtype}, Wint_c: {Wint_c.dtype}")
 
+
+        # 2. Compute fields based on the fields to compute ..................................................................
         # volume fraction
         if "volume_fraction" in self.fields_to_compute:
             VolumeFraction_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Volume, None, Phase_Array_p, self.cg_calc_mode)
@@ -353,7 +389,7 @@ class CoarseGraining:
         if "contact_tensor" in self.fields_to_compute:
             ContactTensor_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, Force_i, BranchVector_i, None, PhaseArray_i, self.cg_calc_mode)
             print('contact tensor done')
-        # SECONDARY VARIABLES ==========================================
+    
         # Density of particle cg
         if "density_particle" in self.fields_to_compute:
             DensityParticle_CG = DensityMixture_CG / VolumeFraction_CG
@@ -461,8 +497,11 @@ class CoarseGraining:
             #FabricTensor_Sun = Compute_Bulk_FabricTensor_Sun2015(l_i_normalised)
             print('frabric tensor done')
 
-        # collect result to write it into file
+        # 3. Prepare results for export based on fields to export ................................................
+        
+        # Prepare results dictionary
         results = {}
+
         # volume fraction
         if self.field_to_export.get("volume_fraction"): results["volume_fraction"] = VolumeFraction_CG
 
@@ -552,149 +591,4 @@ class CoarseGraining:
         print(" results assigned ")
         return results
 
-    def _write_results(self, results_timestep, time_step, time_of_timestep):
-        print(f"Writing results for timestep {time_of_timestep}...")
-        # write .h5 files 
-        manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
-        manager.add_positions(self.GridPoints)
-        if self.cg_calc_mode == "Polydisperse":
-            phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
-            manager.add_phases(phase_labels)
-        manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
-        # write .VTKHDF files 
-        writer = VTKHDFWriter(node_dimensions=self.Nodes,  
-                        node_spacing=self.Spacing, 
-                        origin=self.GridPoints[0,:],
-                        path=f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{time_of_timestep:04d}")
-        if self.cg_calc_mode == "Monodisperse":
-            writer.write(data_dict=results_timestep)
-        elif self.cg_calc_mode == "Polydisperse": 
-            writer.write_polydisperse(data_dict=results_timestep,
-                                        n_phases=len(self.phases)+1, 
-                                        phase_indepen_field_names=["d32", "d43", 
-                                                                    "coordination_number", 
-                                                                    "velocity_gradient",
-                                                                    "fabric_tensor", 
-                                                                    "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
-                                                                    "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
-                                                                    "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
-                                                                    "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
-                                                                    ])
-
-
-
-if __name__ == "__main__":
-    print("This is a module and should not be run directly. Please use the coarse_graining.py script.")
-
-
-    # ------------------------------ INPUT CONFIGURATION ---------------------------------
-    # BEDLOAD EXAMPLE 
-    particles_path = './bedload_example/VTU/DES_FB1_'
-    contacts_path = './bedload_example/VTU/ENTIRE_DOMAIN_'
-
-    key_mapping = { # tell it the exact name of your variables in the MFIX vtp files
-    "Global_ID": "Particle_ID",
-    "Particle_Velocity": "Velocity",
-    "Particle_Diameter": "Diameter",    
-    "Particle_Density": "Density",
-    "Particle_Volume": "Volume",
-    "Particle_Mass": "Mass",
-    "Particle_Radius": None,
-    "Coordination_Number": None, 
-    "Particle_i_ID": "Particle_ID_1",
-    "Particle_j_ID": "Particle_ID_2",
-    "Force_ij": "FORCE_CHAIN_FC",
-    "Contact_ij": "FORCE_CHAIN_CONTACT_POINT"
-                    }
-
-    grid_info = {
-    "grid_dimension": 3, # 3D
-    "grid_axes": 'xyz', # orientation (e.g., if 2D, it can be xy, xz, yz)
-    "automatic_grid": False, 
-    "x_min": 0.00105, # can be None if automatic_grid = True
-    "x_max": 0.5,
-    "y_min": 0.001, 
-    "y_max": 0.24,
-    "z_min": 0.0, 
-    "z_max": 0.02,
-    "x_transect": None, # if your grid is 2D or 1D you can select at what x,z or y it is located. Note: our vtkhdf writer doesnt like 2D grids
-    "y_transect": None,
-    "z_transect": None,
-    "x_axis_periodic": True, # let it know if axis is periodic in case you want to CG up to the boundary and you don't have the contact points
-    "y_axis_periodic": False,
-    "z_axis_periodic": False
-            }
-
-    cg_custom_output = { # dependencies are taken care of inside the code, so only set true those that you want written out
-                
-        "volume_fraction": True, 
-        "density_particle": True, 
-        "density_mixture": True,
-        "momentum_density": False,
-        "velocity": True,
-        "velocity_gradient": True,
-        "kinetic_tensor": False,
-        "contact_tensor": False,
-        "total_stress_tensor": True,  
-        "pressure": True,
-        "granular_temperature": True,
-        "granular_temperature_alternatives": False, # leave this as False, as I've not written exports for this yet
-        "fabric_tensor": True,
-        "inertial_number": True,
-        "coordination_number": True,
-        "d43": True,
-        "d32": True,
-        "frictional_coefficient": True,
-        "shear_rate_tensor": True,
-
-                        }
-    out_path = "./bedload_example/PysammosCG/" # directory where you save CG output
-    t0 = 150 ; tf = 154 # first and last time steps (assumes 1 unit increment of time steps). It pads it with zeros. 
-    partialignore = True # forces monodisperse CG if True
-
-    # ------------------------------- CALLING COARSE-GRAINING CLASS -----------------------------
-    CG = CoarseGraining(particle_path=particles_path, 
-                        contacts_path=contacts_path, 
-                        output_path=out_path,
-                 start_timestep=t0, end_timestep=tf, dt_time_step=1,
-                 DEM_keymap=key_mapping,
-                 grid_info=grid_info,
-                 weight_function='Lucy', 
-                 fields_to_export=cg_custom_output, 
-                 ignore_phases=partialignore)
-                          
-
-    # Load the size-relevant particle data for the first time step
-    Bounds_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0 = CG.data_sampling()
     
-    # Calculate the particle size range
-    d43, d32 = CG.get_particle_size_statistics(Diameter_t0, Mass_t0)
-    print(">> d43: ", d43)
-    print(">> dmax: ", CG.dmax)
-    print(">> d50: ", CG.d50)
-    print(">> d32: ", d32)
-    print(">> drms: ", CG.drms)
-
-    # Get the phases
-    CG.get_particle_phases(Diameter_t0, Density_t0, GlobalID_t0, 8)
-    print(">> Phases: ", CG.phases)
-    print("       Diameter: ", CG.phases[:,0])
-    print("       Density: ", CG.phases[:,1])
-
-    # Calculate the CG grid spacing
-    CG.set_resolution(d43) # here you can input different number, to make w and c bigger or smaller 
-    print("c :", CG.c)
-    print("w :", CG.w)
-
-    # Generate the CG grid
-    CG.generate_grid(smoothing_length=CG.c)
-    print("Grid Points: ", CG.GridPoints.shape, "First Point: ", CG.GridPoints[0])
-    print("Nodes: ", CG.Nodes)
-    print("Spacing: ", CG.Spacing)
-
-    # Calculate the CG fields
-    CG.fields_in_time()
-
-    print("------------------------------------------------------------")
-    print(">>> Coarse Graining completed successfully")
-    print("------------------------------------------------------------")

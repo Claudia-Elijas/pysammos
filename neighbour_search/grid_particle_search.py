@@ -26,7 +26,7 @@ def particle_node_match(GridPoints, Particle_Position, c):
     start_indices[0] = 0  # Start index for the first grid point
     start_indices[-1] = len(particle_indices_flat)  # Last index must be total number of particles
     
-    return start_indices, particle_indices_flat
+    return start_indices.astype(np.int32), particle_indices_flat.astype(np.int32)
 
 @njit#(parallel=True)
 def calc_displacement(GridPoints, Particle_Position, 

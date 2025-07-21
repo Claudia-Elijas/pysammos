@@ -1,1 +1,0 @@
-from data_handle.contacts.particle_mapper import map_contact_data

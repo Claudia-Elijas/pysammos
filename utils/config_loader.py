@@ -30,10 +30,12 @@ def parse_grid_info(config):
         "z_axis_periodic": grid_cfg.getboolean("z_axis_periodic"),
     }
 
+import configparser
+
 def load_config(path_to_ini="config.ini"):
     config = configparser.ConfigParser()
+    config.optionxform = str  
     config.read(path_to_ini)
-    print(config)
 
     config_data = {
         "particles_path": config["paths"]["particles_path"],
@@ -42,9 +44,10 @@ def load_config(path_to_ini="config.ini"):
         "t0": int(config["timesteps"]["t0"]),
         "tf": int(config["timesteps"]["tf"]),
         "partialignore": str2bool(config["flags"]["partialignore"]),
-        "key_mapping": parse_dict("key_mapping", config),
-        "grid_info": parse_grid_info(config),  # <-- use the explicit parser
+        "key_mapping": parse_dict("key_mapping", config),   # Keys will now keep their capitalization
+        "grid_info": parse_grid_info(config),
         "fields_to_export": parse_bool_dict("fields_to_export", config),
     }
 
     return config_data
+
