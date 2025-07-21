@@ -3,11 +3,11 @@ from numba import njit, prange, int32, float32, float64
 
 
 # Polydisperse
-@njit(parallel=True)
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:], int32[:]), parallel=True)
 def scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_scale, Phase):
     Ngridpoints = len(grid_indices) - 2  # because it's padded [0], [len(flat_visibility)]
     Nphases = np.max(Phase) + 1
-    CG_Field = np.zeros((Ngridpoints, Nphases + 1))
+    CG_Field = np.zeros((Ngridpoints, Nphases + 1), dtype=np.float64)
     for g in prange(Ngridpoints):
         start = grid_indices[g] ; end = grid_indices[g+1]
         phase_sum = np.zeros(Nphases)
@@ -24,11 +24,11 @@ def scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
             CG_Field[g, 0] += phase_sum[p]
     return CG_Field
 
-@njit(parallel=True)
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:], int32[:]),parallel=True)
 def scalar_polydisperse(weights, visibility, grid_indices, Data, Phase):
     Ngridpoints = len(grid_indices) - 2  # because it's padded [0], [len(flat_visibility)]
     Nphases = np.max(Phase) + 1
-    CG_Field = np.zeros((Ngridpoints, Nphases + 1))
+    CG_Field = np.zeros((Ngridpoints, Nphases + 1), dtype=np.float64)
     for g in prange(Ngridpoints):
         start = grid_indices[g] ; end = grid_indices[g+1]
         phase_sum = np.zeros(Nphases)  # Local buffer for each grid point
@@ -42,7 +42,8 @@ def scalar_polydisperse(weights, visibility, grid_indices, Data, Phase):
         for p in range(Nphases): # store the weighted sum in the CG_Field
             CG_Field[g, p + 1] = phase_sum[p]
             CG_Field[g, 0] += phase_sum[p]
-    
+    return CG_Field
+
 
 # Monodisperse
 @njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:]),parallel=True)

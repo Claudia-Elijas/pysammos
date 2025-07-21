@@ -1,97 +1,104 @@
 import numpy as np
-from numba import njit, prange
+from numba import njit, prange, int32, float32, float64
 
 
 #ploydisperse
-@njit(parallel=True)
-def tensor_polydisperse(weights, visibility, grid_indices, Data1, Data2, Data_scale, Phase):
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:], float32[:], int32[:]), parallel=True)
+def tensor_polydisperse_scaled(weights, visibility, grid_indices, Data1, Data2, Data_scale, Phase):
     Ngridpoints = len(grid_indices) - 2
     Nphases = np.max(Phase) + 1
-    CG_Field = np.zeros((Ngridpoints, Nphases + 1, 3, 3))
-    if Data_scale is None:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g] ; end = grid_indices[g+1]
-            phase_tensor = np.zeros((Nphases, 3, 3))
-            for i in range(start, end):
-                idx = visibility[i]
-                phase = Phase[idx]
-                if 0 <= phase < Nphases:
-                    w = weights[i]
-                    d1 = Data1[idx]
-                    d2 = Data2[idx]
-                    for j in range(3):
-                        for k in range(3):
-                            phase_tensor[phase, j, k] += w * d1[j] * d2[k]
-            for p in range(Nphases):
-                tensor = phase_tensor[p]
-                for j in range(3):
-                    for k in range(3):
-                        CG_Field[g, p + 1, j, k] = tensor[j, k]
-                        CG_Field[g, 0, j, k] += tensor[j, k]
-
-    else:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g] ; end = grid_indices[g+1]
-            phase_tensor = np.zeros((Nphases, 3, 3))
-            for i in range(start, end):
-                idx = visibility[i]
-                phase = Phase[idx]
-                if 0 <= phase < Nphases:
-                    w = weights[i]
-                    d1 = Data1[idx]
-                    d2 = Data2[idx]
-                    ds = Data_scale[idx]
-                    for j in range(3):
-                        for k in range(3):
-                            phase_tensor[phase, j, k] += w * d1[j] * d2[k] * ds
-            for p in range(Nphases):
-                tensor = phase_tensor[p]
-                for j in range(3):
-                    for k in range(3):
-                        CG_Field[g, p + 1, j, k] = tensor[j, k]
-                        CG_Field[g, 0, j, k] += tensor[j, k]
-    return CG_Field
-
-# monodisperse
-@njit(parallel=True)
-def tensor_monodisperse(weights, visibility, grid_indices, Data1, Data2, Data_scale):
-    Ngridpoints = len(grid_indices) - 2
-    CG_Field = np.zeros((Ngridpoints, 3, 3))  # Only one tensor per grid point
-
-    if Data_scale is None:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g]
-            end = grid_indices[g + 1]
-            tensor = np.zeros((3, 3))
-            for i in range(start, end):
-                idx = visibility[i]
-                w = weights[i]
-                d1 = Data1[idx]
-                d2 = Data2[idx]
-                for j in range(3):
-                    for k in range(3):
-                        tensor[j, k] += w * d1[j] * d2[k]
-            for j in range(3):
-                for k in range(3):
-                    CG_Field[g, j, k] = tensor[j, k]
-    else:
-        for g in prange(Ngridpoints):
-            start = grid_indices[g]
-            end = grid_indices[g + 1]
-            tensor = np.zeros((3, 3))
-            for i in range(start, end):
-                idx = visibility[i]
+    CG_Field = np.zeros((Ngridpoints, Nphases + 1, 3, 3), dtype=np.float64)
+    for g in prange(Ngridpoints):
+        start = grid_indices[g] ; end = grid_indices[g+1]
+        phase_tensor = np.zeros((Nphases, 3, 3))
+        for i in range(start, end):
+            idx = visibility[i]
+            phase = Phase[idx]
+            if 0 <= phase < Nphases:
                 w = weights[i]
                 d1 = Data1[idx]
                 d2 = Data2[idx]
                 ds = Data_scale[idx]
                 for j in range(3):
                     for k in range(3):
-                        tensor[j, k] += w * d1[j] * d2[k] * ds
+                        phase_tensor[phase, j, k] += w * d1[j] * d2[k] * ds
+        for p in range(Nphases):
+            tensor = phase_tensor[p]
             for j in range(3):
                 for k in range(3):
-                    CG_Field[g, j, k] = tensor[j, k]
-    
+                    CG_Field[g, p + 1, j, k] = tensor[j, k]
+                    CG_Field[g, 0, j, k] += tensor[j, k]
+    return CG_Field
+
+@njit(float64[:](float64[:], int32[:], int32[:], float32[:], float32[:], int32[:]), parallel=True)
+def tensor_polydisperse(weights, visibility, grid_indices, Data1, Data2, Phase):
+    Ngridpoints = len(grid_indices) - 2
+    Nphases = np.max(Phase) + 1
+    CG_Field = np.zeros((Ngridpoints, Nphases + 1, 3, 3), dtype=np.float64)
+    for g in prange(Ngridpoints):
+        start = grid_indices[g] ; end = grid_indices[g+1]
+        phase_tensor = np.zeros((Nphases, 3, 3))
+        for i in range(start, end):
+            idx = visibility[i]
+            phase = Phase[idx]
+            if 0 <= phase < Nphases:
+                w = weights[i]
+                d1 = Data1[idx]
+                d2 = Data2[idx]
+                for j in range(3):
+                    for k in range(3):
+                        phase_tensor[phase, j, k] += w * d1[j] * d2[k]
+        for p in range(Nphases):
+            tensor = phase_tensor[p]
+            for j in range(3):
+                for k in range(3):
+                    CG_Field[g, p + 1, j, k] = tensor[j, k]
+                    CG_Field[g, 0, j, k] += tensor[j, k]
+    return CG_Field
+
+# monodisperse
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:], float32[:]), parallel=True)
+def tensor_monodisperse_scaled(weights, visibility, grid_indices, Data1, Data2, Data_scale):
+    Ngridpoints = len(grid_indices) - 2
+    CG_Field = np.zeros((Ngridpoints, 3, 3), dtype=np.float64)  # Only one tensor per grid point
+    for g in prange(Ngridpoints):
+        start = grid_indices[g]
+        end = grid_indices[g + 1]
+        tensor = np.zeros((3, 3))
+        for i in range(start, end):
+            idx = visibility[i]
+            w = weights[i]
+            d1 = Data1[idx]
+            d2 = Data2[idx]
+            ds = Data_scale[idx]
+            for j in range(3):
+                for k in range(3):
+                    tensor[j, k] += w * d1[j] * d2[k] * ds
+        for j in range(3):
+            for k in range(3):
+                CG_Field[g, j, k] = tensor[j, k]
+
+    return CG_Field
+
+@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:]), parallel=True)
+def tensor_monodisperse(weights, visibility, grid_indices, Data1, Data2):
+    Ngridpoints = len(grid_indices) - 2
+    CG_Field = np.zeros((Ngridpoints, 3, 3), dtype=np.float64)  # Only one tensor per grid point
+    for g in prange(Ngridpoints):
+        start = grid_indices[g]
+        end = grid_indices[g + 1]
+        tensor = np.zeros((3, 3))
+        for i in range(start, end):
+            idx = visibility[i]
+            w = weights[i]
+            d1 = Data1[idx]
+            d2 = Data2[idx]
+            for j in range(3):
+                for k in range(3):
+                    tensor[j, k] += w * d1[j] * d2[k]
+        for j in range(3):
+            for k in range(3):
+                CG_Field[g, j, k] = tensor[j, k]
 
     return CG_Field
 
