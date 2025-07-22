@@ -8,7 +8,7 @@ from .tensors import (tensor_polydisperse, tensor_polydisperse_scaled, tensor_mo
 def scalar(weights, visibility, grid_indices, Data, Data_scale, Phase, cg_calc_mode):
     if cg_calc_mode == 'Monodisperse':
         if Data_scale is None:
-            return scalar_monodisperse(weights, visibility, grid_indices, Data, Data_scale)
+            return scalar_monodisperse(weights, visibility, grid_indices, Data)
         else:
             return scalar_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_scale)
     elif cg_calc_mode == 'Polydisperse':

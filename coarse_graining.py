@@ -348,6 +348,7 @@ class CoarseGraining:
         # print(f"Phase_Array_p: {Phase_Array_p.dtype}, PhaseArray_i: {PhaseArray_i.dtype}")
         # print(f"Grid indices: {grid_ind_p.dtype}, Particle indices: {part_ind_p.dtype}, distance r_ri: {r_ri.dtype}")
         # print(f"Weights: {W_p.dtype}, Wint_c: {Wint_c.dtype}")
+        print(f"particle velocity type: {Velocity.dtype}")
 
 
         # 2. Compute fields based on the fields to compute ..................................................................
@@ -387,6 +388,8 @@ class CoarseGraining:
             if "kinetic_tensor" in self.fields_to_compute:
                 KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:, 0, :], GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
                 print('kinetic tensor done')
+
+        print(f"Velocity_CG dtype: {Velocity_CG.dtype}, GradV_CG dtype: {GradV_CG.dtype}, KineticTensor_CG dtype: {KineticTensor_CG.dtype}")
         # contact tensor
         if "contact_tensor" in self.fields_to_compute:
             ContactTensor_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, Force_i, BranchVector_i, None, PhaseArray_i, self.cg_calc_mode)

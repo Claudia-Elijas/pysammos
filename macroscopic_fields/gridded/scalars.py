@@ -3,7 +3,7 @@ from numba import njit, prange, int32, float32, float64
 
 
 # Polydisperse
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:], int32[:]), parallel=True)
+@njit(float64[:, :](float64[:],int32[:], int32[:], float32[:], float32[:], int32[:]), parallel=True)
 def scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_scale, Phase):
     Ngridpoints = len(grid_indices) - 2  # because it's padded [0], [len(flat_visibility)]
     Nphases = np.max(Phase) + 1
@@ -24,7 +24,7 @@ def scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
             CG_Field[g, 0] += phase_sum[p]
     return CG_Field
 
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:], int32[:]),parallel=True)
+@njit(float64[:, :](float64[:],int32[:], int32[:], float32[:], int32[:]),parallel=True)
 def scalar_polydisperse(weights, visibility, grid_indices, Data, Phase):
     Ngridpoints = len(grid_indices) - 2  # because it's padded [0], [len(flat_visibility)]
     Nphases = np.max(Phase) + 1

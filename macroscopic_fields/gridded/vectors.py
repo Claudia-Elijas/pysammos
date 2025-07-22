@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit, prange, int32, float32, float64
 
 # polydisperse
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:], int32[:]),parallel=True)
+@njit(float64[:,:,:](float64[:],int32[:], int32[:], float32[:,:], float32[:], int32[:]),parallel=True)
 def vector_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_scale, Phase):
     Ngridpoints = len(grid_indices) - 2
     Nphases = np.max(Phase) + 1
@@ -27,7 +27,7 @@ def vector_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
                 CG_Field[g, 0, d] += vec[d]
     return CG_Field
 
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:], int32[:]),parallel=True)
+@njit(float64[:,:,:](float64[:],int32[:], int32[:], float32[:,:], int32[:]),parallel=True)
 def vector_polydisperse(weights, visibility, grid_indices, Data, Phase):
     Ngridpoints = len(grid_indices) - 2
     Nphases = np.max(Phase) + 1
@@ -53,7 +53,7 @@ def vector_polydisperse(weights, visibility, grid_indices, Data, Phase):
 
 
 # monodisperse
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:], float32[:]), parallel=True)
+@njit(float64[:,:](float64[:],int32[:], int32[:], float32[:,:], float32[:]), parallel=True)
 def vector_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_scale):
     Ngridpoints = len(grid_indices) - 2
     CG_Field = np.zeros((Ngridpoints, 3), dtype=np.float64)  # No phase info in monodisperse case
@@ -74,7 +74,7 @@ def vector_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
 
     return CG_Field
 
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:]),parallel=True)
+@njit(float64[:,:](float64[:],int32[:], int32[:], float32[:,:]),parallel=True)
 def vector_monodisperse(weights, visibility, grid_indices, Data):
     Ngridpoints = len(grid_indices) - 2
     CG_Field = np.zeros((Ngridpoints, 3), dtype=np.float64)  # No phase info in monodisperse case
