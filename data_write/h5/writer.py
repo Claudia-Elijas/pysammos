@@ -101,7 +101,7 @@ class H5XarrayManager:
                 shape = (dim_index + 1,)
                 dset = f.create_dataset(dim_name, shape=shape, maxshape=(None,), chunks=True, dtype=type(dim_value))
                 dset[dim_index] = dim_value
-        print(f"File successfully updated to {self.filename}")
+        print(f"  File successfully updated to {self.filename}")
 
     def h5_to_xarray(self, dim_name="time"):
         """

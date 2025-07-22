@@ -25,5 +25,5 @@ def delete(Particle_LL_OG, Particle_I_OG, Fij_OG, Contacts_OG):
     Particle_I = Particle_I_OG[keep_these]
     Fij = Fij_OG[keep_these]
     Contacts = Contacts_OG[keep_these] if Contacts_OG is not None else None
-    print('Repeated pairs in contact data: ', len(Particle_LL_OG) - len(Particle_LL))
+    print('  Repeated pairs in contact data: ', len(Particle_LL_OG) - len(Particle_LL))
     return Particle_LL, Particle_I, Fij, Contacts

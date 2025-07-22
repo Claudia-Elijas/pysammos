@@ -22,8 +22,6 @@ def map_contact_data(Global_ID, Position, Diameter, Density, Volume,# Particle d
     inds_glob_LL = inds_glob_LL[valid_LL]
     inds_glob_I = inds_glob_I[valid_I] 
 
-    print("Found relationship between contact data and particle data")
-
     # Get arrays from VELOCITY files
     Pos_LL = Position[inds_glob_LL] # Positions (to calculate branch vector)
     Pos_I = Position[inds_glob_I] # Positions (to calculate branch vector)

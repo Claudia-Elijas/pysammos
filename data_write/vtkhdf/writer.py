@@ -32,7 +32,7 @@ class VTKHDFWriter:
         filename = self.path + ".vtkhdf"
         with h5py.File(filename, "w") as f:
             v5i.write_vtkhdf(f, box, compression='gzip', compression_opts=4)
-        print(f"File successfully written to {filename}")
+        print(f"  File successfully written to {filename}")
         
     def write_polydisperse(self, data_dict, n_phases, phase_indepen_field_names):
         box = pv.ImageData(dimensions=self.node_dimensions, spacing=self.node_spacing, origin=self.origin)
