@@ -277,14 +277,20 @@ class CoarseGraining:
 
         # particle data .........................................
         grid_ind_p, part_ind_p = particle_node_match(self.GridPoints, data["Position"], self.c) # kd-tree function
-        r_ri, r_ri_dist = calc_displacement(self.GridPoints, data["Position"], 
-                                            grid_ind_p, part_ind_p, 
-                                            return_disp=True, return_dist=True) # calculate the displacement and distance
+        r_ri, r_ri_dist = calc_displacement(self.GridPoints, data["Position"], grid_ind_p, part_ind_p) # calculate the displacement and distance
         # contact data ...........................................
         grid_ind_c, part_ind_c = particle_node_match(self.GridPoints, data["Position_i"], self.c) # kd-tree function
-        r_ri_c, _ = calc_displacement(self.GridPoints, data["Position_i"],
-                                    grid_ind_c, part_ind_c, 
-                                    return_disp=True, return_dist=False)
+        r_ri_c, _ = calc_displacement(self.GridPoints, data["Position_i"], grid_ind_c, part_ind_c)
+                            
+        # check types and shapes
+        print("---- calc_displacement ----")
+        print(f"GridPoints: {self.GridPoints.dtype, self.GridPoints.shape}")
+        print(f"Particle_Position: {data['Position_i'].dtype, data['Position_i'].shape}")
+        print(f"grid_ind_p: {grid_ind_p.dtype, grid_ind_p.shape}")
+        print(f"part_ind_p: {part_ind_p.dtype, part_ind_p.shape}")
+        print(f"r_ri: {r_ri.dtype}")
+        print(f"r_ri_dist: {r_ri_dist.dtype}")
+
         return {
             "grid_ind_p": grid_ind_p,
             "part_ind_p": part_ind_p,
@@ -317,6 +323,20 @@ class CoarseGraining:
         W_c = hash_table_search(dist_along_branch, hash_table_c, stepsize_c)
         Wint_c = trapezoidal_integration(0, 1, 10, W_c)
 
+        # check particle type 
+        print("----- hash_table_search ----")
+        print(f"r_ri_dist: {particle_map['r_ri_dist'].dtype, particle_map['r_ri_dist'].shape}")
+        print(f"hash_table_p: {hash_table_p.dtype, hash_table_p.shape}")
+        print(f"stepsize_p: {stepsize_p.dtype, stepsize_p.shape}")
+        print(f"W_p: {W_p.dtype, W_p.shape}")
+        print("----- compute_dist_along_branch ----")
+        print(f"s: {s.dtype, s.shape}")
+        print(f"particle_map['r_ri_c']: {particle_map['r_ri_c'].dtype, particle_map['r_ri_c'].shape}")
+        print(f"data['BranchVector_i']: {data['BranchVector_i'].dtype, data['BranchVector_i'].shape}")
+        print(f"particle_map['part_ind_c']: {particle_map['part_ind_c'].dtype, particle_map['part_ind_c'].shape}")
+        print(f"dist_along_branch: {dist_along_branch.dtype, dist_along_branch.shape}")
+
+
         return W_p, Wint_c
 
     def _compute_fields(self, data, g, W_p, Wint_c):
@@ -341,14 +361,6 @@ class CoarseGraining:
         part_ind_p = g["part_ind_p"]
         grid_ind_c = g["grid_ind_c"]
         part_ind_c = g["part_ind_c"]   
-
-        # check data types
-        # print(f"Data types")
-        # print(f"Position: {Position.dtype}, Velocity: {Velocity.dtype}, BranchVector_i: {BranchVector_i.dtype}, Force_i: {Force_i.dtype}") 
-        # print(f"Phase_Array_p: {Phase_Array_p.dtype}, PhaseArray_i: {PhaseArray_i.dtype}")
-        # print(f"Grid indices: {grid_ind_p.dtype}, Particle indices: {part_ind_p.dtype}, distance r_ri: {r_ri.dtype}")
-        # print(f"Weights: {W_p.dtype}, Wint_c: {Wint_c.dtype}")
-        print(f"particle velocity type: {Velocity.dtype}")
 
 
         # 2. Compute fields based on the fields to compute ..................................................................
@@ -389,7 +401,6 @@ class CoarseGraining:
                 KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:, 0, :], GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
                 print('kinetic tensor done')
 
-        print(f"Velocity_CG dtype: {Velocity_CG.dtype}, GradV_CG dtype: {GradV_CG.dtype}, KineticTensor_CG dtype: {KineticTensor_CG.dtype}")
         # contact tensor
         if "contact_tensor" in self.fields_to_compute:
             ContactTensor_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, Force_i, BranchVector_i, None, PhaseArray_i, self.cg_calc_mode)

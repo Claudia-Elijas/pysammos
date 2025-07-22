@@ -1,4 +1,5 @@
 import numpy as np
+
 from numba import njit, prange
 from scipy.spatial import cKDTree
 from itertools import accumulate
@@ -28,10 +29,8 @@ def particle_node_match(GridPoints, Particle_Position, c):
     
     return start_indices.astype(np.int32), particle_indices_flat.astype(np.int32)
 
-@njit#(parallel=True)
-def calc_displacement(GridPoints, Particle_Position, 
-                                   start_indices, visibility,  
-                                   return_disp, return_dist):
+@njit(parallel=True)
+def calc_displacement(GridPoints, Particle_Position, start_indices, visibility):
     """
     Optimized calculation of displacement vectors and distances between grid points and particles within a cutoff distance.
     Returns them as 1D arrays.
@@ -42,7 +41,7 @@ def calc_displacement(GridPoints, Particle_Position,
     distances = np.empty(total_particles, dtype=np.float64)
     NPoints = GridPoints.shape[0]  # Number of grid points
     
-    for i in range(NPoints): # Iterate over grid points in parallel
+    for i in prange(NPoints): # Iterate over grid points in parallel
         
         # Get the start and end indices for this grid point
         start = start_indices[i] ; end = start_indices[i+1]
@@ -59,12 +58,5 @@ def calc_displacement(GridPoints, Particle_Position,
         displacement_vectors[start:end] = r_ri
         distances[start:end] = r_ri_dist
     
-    # Return the results
-    if return_disp and return_dist:
-        return displacement_vectors, distances
-    elif return_disp:
-        return displacement_vectors, None
-    elif return_dist:
-        return None, distances
-    else:
-        return None, None
+    return displacement_vectors, distances
+    
