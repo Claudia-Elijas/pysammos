@@ -103,7 +103,7 @@ def tensor_monodisperse(weights, visibility, grid_indices, Data1, Data2):
     return CG_Field
 
 # ---------------- KINETIC TENSOR ----------------
-@njit(float64[:,:,:,:](float64[:],int32[:], int32[:], float32[:,:], float32[:,:]), parallel=True)
+@njit(float64[:,:,:,:](float64[:],int32[:], int32[:], float64[:,:], float32[:,:], float32[:], float64[:,:], float64[:,:,:], int32[:]), parallel=True)
 def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices, displacement,
                                      Particle_Velocity, Particle_Mass, 
                                      Velocity_Field, Velocity_Field_Gradient, 
@@ -166,12 +166,12 @@ def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices,
     return KineticTensor
 
 # kinetic tensor for monodisperse case
-@njit(parallel=True)
+@njit(float64[:,:,:](float64[:],int32[:], int32[:], float64[:,:], float32[:,:], float32[:], float64[:,:], float64[:,:,:]),parallel=True)
 def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices, displacement,
                                              Particle_Velocity, Particle_Mass, 
                                              Velocity_Field, Velocity_Field_Gradient):
     Ngridpoints = len(grid_indices) - 2
-    KineticTensor = np.zeros((Ngridpoints, 3, 3))  # Only one tensor per grid point
+    KineticTensor = np.zeros((Ngridpoints, 3, 3), dtype=np.float64)  # Only one tensor per grid point
 
     for g in prange(Ngridpoints):
         start = grid_indices[g]
