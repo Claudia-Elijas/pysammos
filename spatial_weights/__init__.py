@@ -1,1 +1,0 @@
-print("Loading spatial_weights package...")

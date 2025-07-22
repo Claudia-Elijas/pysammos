@@ -1,1 +1,0 @@
-print("Loading data_write package...")
