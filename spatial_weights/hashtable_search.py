@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit, prange
+from numba import njit, prange, float64, float32, int64, int32
 from .utils import *
 
 
@@ -12,23 +12,40 @@ def make_hash_table(func, max_value, sensitivity):
     return hash_table_outputs, step_size
 
 # Hash table search algorithm
-@njit(parallel=True)
+@njit(float64[:](float64[:], float64[:], float64), parallel=True)
+def hash_table_search_1d(query_values, hash_table_outputs, step_size):
+    query_results = np.empty_like(query_values)
+    max_index = len(hash_table_outputs) - 1
+
+    for q in prange(query_values.shape[0]):
+        hash_index = int(np.floor(query_values[q] * (1 / step_size)))
+        hash_index = min(max(hash_index, 0), max_index)
+        query_results[q] = hash_table_outputs[hash_index]
+
+    return query_results
+
+@njit(float64[:,:](float64[:,:], float64[:], float64), parallel=True)
+def hash_table_search_2d(query_values, hash_table_outputs, step_size):
+    out = np.empty_like(query_values)
+    max_index = len(hash_table_outputs) - 1
+
+    for i in prange(query_values.shape[0]):
+        for j in range(query_values.shape[1]):
+            val = query_values[i, j]
+            hash_index = int(np.floor(val * (1 / step_size)))
+            hash_index = min(max(hash_index, 0), max_index)
+            out[i, j] = hash_table_outputs[hash_index]
+
+    return out
+
+# Dispatcher (pure Python)
 def hash_table_search(query_values, hash_table_outputs, step_size):
-    # Match your data to the table outputs
-    query_shape = query_values.shape; 
-    query_flat = query_values.reshape(-1); 
-    query_results = np.empty(len(query_flat)); 
+    if query_values.ndim == 1:
+        return hash_table_search_1d(query_values, hash_table_outputs, step_size)
+    elif query_values.ndim == 2:
+        return hash_table_search_2d(query_values, hash_table_outputs, step_size)
+    else:
+        raise ValueError("query_values must be 1D or 2D")
 
-    # Calculate the hash index for each query value
-    max_index = len(hash_table_outputs) - 1; 
-    for q in prange(len(query_flat)):
-        hash_index = int(np.floor(query_flat[q] * (1 / step_size))) # Calculate the hash index based on the step size
-        hash_index = min(max(hash_index, 0), max_index) # Ensure the index is within bounds
-        query_results[q] = hash_table_outputs[hash_index] # Get the corresponding output from the hash table
-    
-    # Reshape the results to match the original query shape
-    query_results = query_results.reshape(query_shape); 
-
-    return query_results 
 
 

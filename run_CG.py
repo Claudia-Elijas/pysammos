@@ -5,8 +5,6 @@ from utils.config_loader import load_config
 # Load the configuration from the ini file
 cfg = load_config("config.ini")  
 
-print(cfg["key_mapping"])
-
 # Initialize the CoarseGraining class with the loaded configuration
 CG = CoarseGraining(
     particle_path=cfg["particles_path"],
