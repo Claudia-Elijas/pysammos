@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit, prange
+from numba import njit, prange, float64, float32, int32
 
 # Find the position of the first significant figure
 def first_significant_figure_position(number):
@@ -21,7 +21,7 @@ def trapezoidal_integration(s0, s1, n, W):
     return Wint
 
 # Numba version
-@njit(parallel=True)
+@njit(float64[:,:](float64[:,:], float64[:], float32[:,:], int32[:]),parallel=True)
 def compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c):
     n_s = s.shape[0]
     n_contacts = r_ri_c.shape[0]

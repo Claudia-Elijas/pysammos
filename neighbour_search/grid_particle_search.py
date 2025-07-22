@@ -1,6 +1,6 @@
 import numpy as np
-
-from numba import njit, prange
+from numba.types import Tuple 
+from numba import njit, prange, float64, float32, int32
 from scipy.spatial import cKDTree
 from itertools import accumulate
 # =======================================================================
@@ -29,7 +29,7 @@ def particle_node_match(GridPoints, Particle_Position, c):
     
     return start_indices.astype(np.int32), particle_indices_flat.astype(np.int32)
 
-@njit(parallel=True)
+@njit(Tuple((float64[:,:], float64[:]))(float64[:,:], float32[:,:], int32[:], int32[:]),parallel=True) 
 def calc_displacement(GridPoints, Particle_Position, start_indices, visibility):
     """
     Optimized calculation of displacement vectors and distances between grid points and particles within a cutoff distance.
