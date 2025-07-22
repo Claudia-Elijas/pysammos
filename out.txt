@@ -1,0 +1,271 @@
+Output path created: ./bedload_example/PysammosCG/
+XML-based PolyData detected.
+particle data bounds [[0.00093589 0.49873453]
+ [0.00645462 0.23088837]
+ [0.         0.        ]]
+>> d43:  0.01651367411185649
+>> dmax:  0.019993
+>> d50:  0.016306963
+>> d32:  0.016109877148148044
+>> drms:  0.015422490500786803
+Ignoring phases. Using mean density and d50 as phase.
+>> Phases:  [[1.6306963e-02 2.7000000e+03]]
+       Diameter:  [0.01630696]
+       Density:  [2700.]
+c : 0.024770511167784733
+w : 0.012385255583892366
+generating grid
+Generating Grid with Customised Grid Ranges
+Customised grid bounds: x = [0.00105, 0.5], y = [0.001, 0.24], z = [0.0, 0.02], x_transect = None, y_transect = None, z_transect = None
+Grid Points:  (2646, 3) First Point:  [0.00105 0.001   0.     ]
+Nodes:  [42 21  3]
+Spacing:  [0.01216951 0.01195    0.01      ]
+-------------------- Calculating Coarse Grained Fields --------------------
+Loading data for timestep 150...
+Particle data loaded
+Repeated pairs in contact data:  1142
+Found relationship between contact data and particle data
+Contact data loaded and mapped
+Coordination number not provided. Calculating it.
+---- calc_displacement ----
+GridPoints: (dtype('float64'), (2646, 3))
+Particle_Position: (dtype('float32'), (2628, 3))
+grid_ind_p: (dtype('int32'), (2648,))
+part_ind_p: (dtype('int32'), (22197,))
+r_ri: float64
+r_ri_dist: float64
+... particles assigned to grid nodes
+----- hash_table_search ----
+r_ri_dist: (dtype('float64'), (22197,))
+hash_table_p: (dtype('float64'), (2478,))
+stepsize_p: (dtype('float64'), ())
+W_p: (dtype('float64'), (22197,))
+----- compute_dist_along_branch ----
+s: (dtype('float64'), (10,))
+particle_map['r_ri_c']: (dtype('float64'), (75010, 3))
+data['BranchVector_i']: (dtype('float32'), (2628, 3))
+particle_map['part_ind_c']: (dtype('int32'), (75010,))
+dist_along_branch: (dtype('float64'), (10, 75010))
+... weights computed
+weight type: float64, part_ind_p type: int32, grid_ind_p type: int32
+volum fraction dtype float64
+volume fraction done
+mixture density done
+momentum density done
+contact tensor done
+particle density done
+total stress done
+d43 done
+d32 done
+Z done
+pressure done
+granular temp done
+shear rate done
+inertial number done
+mu done
+frabric tensor done
+ results assigned 
+... fields computed
+Writing results for timestep 150...
+File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
+File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0150.vtkhdf
+Timestep 0 took 6.651668310165405 to run...
+Loading data for timestep 151...
+Particle data loaded
+Repeated pairs in contact data:  1140
+Found relationship between contact data and particle data
+Contact data loaded and mapped
+Coordination number not provided. Calculating it.
+---- calc_displacement ----
+GridPoints: (dtype('float64'), (2646, 3))
+Particle_Position: (dtype('float32'), (2624, 3))
+grid_ind_p: (dtype('int32'), (2648,))
+part_ind_p: (dtype('int32'), (22165,))
+r_ri: float64
+r_ri_dist: float64
+... particles assigned to grid nodes
+----- hash_table_search ----
+r_ri_dist: (dtype('float64'), (22165,))
+hash_table_p: (dtype('float64'), (2478,))
+stepsize_p: (dtype('float64'), ())
+W_p: (dtype('float64'), (22165,))
+----- compute_dist_along_branch ----
+s: (dtype('float64'), (10,))
+particle_map['r_ri_c']: (dtype('float64'), (74878, 3))
+data['BranchVector_i']: (dtype('float32'), (2624, 3))
+particle_map['part_ind_c']: (dtype('int32'), (74878,))
+dist_along_branch: (dtype('float64'), (10, 74878))
+... weights computed
+weight type: float64, part_ind_p type: int32, grid_ind_p type: int32
+volum fraction dtype float64
+volume fraction done
+mixture density done
+momentum density done
+contact tensor done
+particle density done
+total stress done
+d43 done
+d32 done
+Z done
+pressure done
+granular temp done
+shear rate done
+inertial number done
+mu done
+frabric tensor done
+ results assigned 
+... fields computed
+Writing results for timestep 151...
+File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
+File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0151.vtkhdf
+Timestep 1 took 0.5997226238250732 to run...
+Loading data for timestep 152...
+Particle data loaded
+Repeated pairs in contact data:  1165
+Found relationship between contact data and particle data
+Contact data loaded and mapped
+Coordination number not provided. Calculating it.
+---- calc_displacement ----
+GridPoints: (dtype('float64'), (2646, 3))
+Particle_Position: (dtype('float32'), (2674, 3))
+grid_ind_p: (dtype('int32'), (2648,))
+part_ind_p: (dtype('int32'), (22179,))
+r_ri: float64
+r_ri_dist: float64
+... particles assigned to grid nodes
+----- hash_table_search ----
+r_ri_dist: (dtype('float64'), (22179,))
+hash_table_p: (dtype('float64'), (2478,))
+stepsize_p: (dtype('float64'), ())
+W_p: (dtype('float64'), (22179,))
+----- compute_dist_along_branch ----
+s: (dtype('float64'), (10,))
+particle_map['r_ri_c']: (dtype('float64'), (76314, 3))
+data['BranchVector_i']: (dtype('float32'), (2674, 3))
+particle_map['part_ind_c']: (dtype('int32'), (76314,))
+dist_along_branch: (dtype('float64'), (10, 76314))
+... weights computed
+weight type: float64, part_ind_p type: int32, grid_ind_p type: int32
+volum fraction dtype float64
+volume fraction done
+mixture density done
+momentum density done
+contact tensor done
+particle density done
+total stress done
+d43 done
+d32 done
+Z done
+pressure done
+granular temp done
+shear rate done
+inertial number done
+mu done
+frabric tensor done
+ results assigned 
+... fields computed
+Writing results for timestep 152...
+File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
+File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0152.vtkhdf
+Timestep 2 took 0.6968026161193848 to run...
+Loading data for timestep 153...
+Particle data loaded
+Repeated pairs in contact data:  1151
+Found relationship between contact data and particle data
+Contact data loaded and mapped
+Coordination number not provided. Calculating it.
+---- calc_displacement ----
+GridPoints: (dtype('float64'), (2646, 3))
+Particle_Position: (dtype('float32'), (2646, 3))
+grid_ind_p: (dtype('int32'), (2648,))
+part_ind_p: (dtype('int32'), (22180,))
+r_ri: float64
+r_ri_dist: float64
+... particles assigned to grid nodes
+----- hash_table_search ----
+r_ri_dist: (dtype('float64'), (22180,))
+hash_table_p: (dtype('float64'), (2478,))
+stepsize_p: (dtype('float64'), ())
+W_p: (dtype('float64'), (22180,))
+----- compute_dist_along_branch ----
+s: (dtype('float64'), (10,))
+particle_map['r_ri_c']: (dtype('float64'), (75536, 3))
+data['BranchVector_i']: (dtype('float32'), (2646, 3))
+particle_map['part_ind_c']: (dtype('int32'), (75536,))
+dist_along_branch: (dtype('float64'), (10, 75536))
+... weights computed
+weight type: float64, part_ind_p type: int32, grid_ind_p type: int32
+volum fraction dtype float64
+volume fraction done
+mixture density done
+momentum density done
+contact tensor done
+particle density done
+total stress done
+d43 done
+d32 done
+Z done
+pressure done
+granular temp done
+shear rate done
+inertial number done
+mu done
+frabric tensor done
+ results assigned 
+... fields computed
+Writing results for timestep 153...
+File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
+File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0153.vtkhdf
+Timestep 3 took 0.7295503616333008 to run...
+Loading data for timestep 154...
+Particle data loaded
+Repeated pairs in contact data:  1159
+Found relationship between contact data and particle data
+Contact data loaded and mapped
+Coordination number not provided. Calculating it.
+---- calc_displacement ----
+GridPoints: (dtype('float64'), (2646, 3))
+Particle_Position: (dtype('float32'), (2662, 3))
+grid_ind_p: (dtype('int32'), (2648,))
+part_ind_p: (dtype('int32'), (22232,))
+r_ri: float64
+r_ri_dist: float64
+... particles assigned to grid nodes
+----- hash_table_search ----
+r_ri_dist: (dtype('float64'), (22232,))
+hash_table_p: (dtype('float64'), (2478,))
+stepsize_p: (dtype('float64'), ())
+W_p: (dtype('float64'), (22232,))
+----- compute_dist_along_branch ----
+s: (dtype('float64'), (10,))
+particle_map['r_ri_c']: (dtype('float64'), (76046, 3))
+data['BranchVector_i']: (dtype('float32'), (2662, 3))
+particle_map['part_ind_c']: (dtype('int32'), (76046,))
+dist_along_branch: (dtype('float64'), (10, 76046))
+... weights computed
+weight type: float64, part_ind_p type: int32, grid_ind_p type: int32
+volum fraction dtype float64
+volume fraction done
+mixture density done
+momentum density done
+contact tensor done
+particle density done
+total stress done
+d43 done
+d32 done
+Z done
+pressure done
+granular temp done
+shear rate done
+inertial number done
+mu done
+frabric tensor done
+ results assigned 
+... fields computed
+Writing results for timestep 154...
+File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
+File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0154.vtkhdf
+Timestep 4 took 0.6209201812744141 to run...
+------------------------------------------------------------
+>>> Coarse Graining completed successfully
+------------------------------------------------------------

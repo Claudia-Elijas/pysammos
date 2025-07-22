@@ -1,6 +1,9 @@
 from coarse_graining import CoarseGraining
 from utils.config_loader import load_config
+import sys
 
+# Terminal print output
+sys.stdout = open("out.txt", "w")  
 
 # Load the configuration from the ini file
 cfg = load_config("config.ini")  
