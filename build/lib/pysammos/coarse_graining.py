@@ -1,41 +1,38 @@
-
-
-# import standard libraries ----------------------------------------------
 import numpy as np
 import os
 from vtk.util.numpy_support import vtk_to_numpy
 import time
 # subpackage imports ----------------------------------------------
 # specify what fields to compute
-from .macroscopic_fields.field_dependencies import get_fields_to_compute
+from macroscopic_fields.field_dependencies import get_fields_to_compute
 # data reading 
-from .data_read.mfix import cell_data, point_data, file_read
-from .data_read.mfix.utils import get_bounds, get_point_data_variable
+from data_read.mfix import cell_data, point_data, file_read
+from data_read.mfix.utils import get_bounds, get_point_data_variable
 # phase finding
-from .particle_phase.clustering import find_phases, plot_phases
+from particle_phase.clustering import find_phases, plot_phases
 # weights
-from .spatial_weights import kernels
-from .spatial_weights.resolution import calc_half_width, calc_cutoff
-from .spatial_weights.hashtable_search import make_hash_table, hash_table_search
-from .spatial_weights.utils import integration_scalar, trapezoidal_integration, compute_dist_along_branch
+from spatial_weights import kernels
+from spatial_weights.resolution import calc_half_width, calc_cutoff
+from spatial_weights.hashtable_search import make_hash_table, hash_table_search
+from spatial_weights.utils import integration_scalar, trapezoidal_integration, compute_dist_along_branch
 # particle-node correspondence
-from .neighbour_search.grid_particle_search import particle_node_match, calc_displacement
+from neighbour_search.grid_particle_search import particle_node_match, calc_displacement
 # grid generation
-from .grid_generation import regular_cuboid 
+from grid_generation import regular_cuboid 
 # handle data
-from .data_handle.contacts.particle_mapper import map_contact_data
-from .data_handle.contacts.qualitycheck import duplicates
-from .data_handle.particles.particle_stats import d50_calc 
+from data_handle.contacts.particle_mapper import map_contact_data
+from data_handle.contacts.qualitycheck import duplicates
+from data_handle.particles.particle_stats import d50_calc 
 # coordination number
-from .data_handle.contacts.complete import coordination_number
+from data_handle.contacts.complete import coordination_number
 # computing fields
-from .macroscopic_fields.gridded import dispatcher 
-from .macroscopic_fields.gridded import secondary
-from .macroscopic_fields.gridded import scalars
-from .macroscopic_fields.sliced import granular_temperature as sliced
+from macroscopic_fields.gridded import dispatcher 
+from macroscopic_fields.gridded import secondary
+from macroscopic_fields.gridded import scalars
+import macroscopic_fields.sliced.granular_temperature as sliced
 # data writing
-from .data_write.h5.writer import H5XarrayManager
-from .data_write.vtkhdf.writer import VTKHDFWriter
+from data_write.h5.writer import H5XarrayManager
+from data_write.vtkhdf.writer import VTKHDFWriter
 
 
 
@@ -201,9 +198,9 @@ class CoarseGraining:
         Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = map_contact_data(
             Global_ID, Position, Diameter, Density, Volume, 
             Particle_i, Particle_j, F_ij, Contact_ij,
-            ModelAxesRanges=Ranges_t, AxesPeriodicity=np.array([self.grid_info["x_axis_periodic"], 
+            ModelAxesRanges=Ranges_t, AxesPeriodicity=np.array[self.grid_info["x_axis_periodic"], 
                                                       self.grid_info["y_axis_periodic"], 
-                                                      self.grid_info["z_axis_periodic"]]),
+                                                      self.grid_info["z_axis_periodic"]],
             Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array ) 
         print("  Contact data loaded and mapped")
         # calculate coordination number

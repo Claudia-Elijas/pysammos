@@ -1,5 +1,15 @@
+Hello from pysammos
+Loading macroscopic_fields package...
+Loading data_read package...
+Loading particle_phase package...
+Loading spatial_weights package...
+Loading neighbour_search package...
+Loading grid_generation package...
+Loading data_handle package...
+Loading data_write package...
+>>> Numba is using 8 cores
 -------------------- config.ini file read --------------------
-Output path already exists: ./bedload_example/PysammosCG/
+Output path already exists: ./PysammosCG/
   
 -------------------- CoarseGraining class initialised --------------------
 XML-based PolyData detected.
@@ -22,8 +32,8 @@ Customised grid bounds: x = [0.00105, 0.5], y = [0.001, 0.24], z = [0.0, 0.02], 
        Grid Points:  (2646, 3) First Point:  [0.00105 0.001   0.     ]
        Nodes:  [42 21  3]
        Spacing:  [0.01216951 0.01195    0.01      ]
--------------------- Calculating Coarse Grained Fields --------------------
  
+-------------------- Calculating Coarse Grained Fields --------------------
  
 ---> Time step 0: time 0150 ................................................
 Loading data ... 
@@ -54,10 +64,10 @@ Computing Coarse Graining fields...
   frabric tensor done
 ... fields computed
 Writing results for timestep 150...
-  File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
-  File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0150.vtkhdf
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0150.vtkhdf
 ... results written
->> time step 0 took 6.657003402709961 to run.
+>> time step 0 took 6.687149524688721 to run.
   
 ---> Time step 1: time 0151 ................................................
 Loading data ... 
@@ -88,10 +98,10 @@ Computing Coarse Graining fields...
   frabric tensor done
 ... fields computed
 Writing results for timestep 151...
-  File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
-  File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0151.vtkhdf
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0151.vtkhdf
 ... results written
->> time step 1 took 0.48389315605163574 to run.
+>> time step 1 took 0.22973966598510742 to run.
   
 ---> Time step 2: time 0152 ................................................
 Loading data ... 
@@ -122,10 +132,10 @@ Computing Coarse Graining fields...
   frabric tensor done
 ... fields computed
 Writing results for timestep 152...
-  File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
-  File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0152.vtkhdf
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0152.vtkhdf
 ... results written
->> time step 2 took 0.47783660888671875 to run.
+>> time step 2 took 0.2273712158203125 to run.
   
 ---> Time step 3: time 0153 ................................................
 Loading data ... 
@@ -156,10 +166,10 @@ Computing Coarse Graining fields...
   frabric tensor done
 ... fields computed
 Writing results for timestep 153...
-  File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
-  File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0153.vtkhdf
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0153.vtkhdf
 ... results written
->> time step 3 took 0.6211028099060059 to run.
+>> time step 3 took 0.2263338565826416 to run.
   
 ---> Time step 4: time 0154 ................................................
 Loading data ... 
@@ -190,11 +200,14 @@ Computing Coarse Graining fields...
   frabric tensor done
 ... fields computed
 Writing results for timestep 154...
-  File successfully updated to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse.h5
-  File successfully written to ./bedload_example/PysammosCG/CG_Lucy_Monodisperse_0154.vtkhdf
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0154.vtkhdf
 ... results written
->> time step 4 took 0.689497709274292 to run.
+>> time step 4 took 0.22444820404052734 to run.
   
+ 
+Coarse Graining completed in 7.60 seconds
+ 
 ------------------------------------------------------------
 >>> Coarse Graining completed successfully <<<
 ------------------------------------------------------------

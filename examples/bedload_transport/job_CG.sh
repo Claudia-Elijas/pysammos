@@ -20,4 +20,4 @@ export NUMBA_NUM_THREADS=$SLURM_CPUS_PER_TASK
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 # Run the Python script
-python run_CG.py
+python compute_CG.py

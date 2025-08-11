@@ -3,7 +3,7 @@ from collections import defaultdict
 from typing import Tuple
 
 # Get unique pairs of two arrays 
-def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray)-> np.ndarray:
+def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray):
     r"""Identify and filter duplicate particle pairs.
 
     Given two arrays representing particle interactions, this function identifies

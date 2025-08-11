@@ -1,0 +1,12 @@
+numpy>=2.0.0
+pandas>=2.2.3
+scipy>=1.15.3
+scikit-learn>=1.6.1
+matplotlib>=3.10.0
+pyvista>=0.45.2
+vtk>=9.4.2
+vtk-hdf>=0.2.0
+requests>=2.32.3
+pooch>=1.8.2
+scooby>=0.10.1
+typing-extensions>=4.14.0

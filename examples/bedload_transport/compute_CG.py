@@ -1,9 +1,20 @@
-from coarse_graining import CoarseGraining
-from utils.config_loader import load_config
-import sys
-
 # Terminal print output
-sys.stdout = open("out.txt", "w")  
+import sys
+sys.stdout = open("out.txt", "w")
+
+# Set the number of threads for Numba to use
+import os
+os.environ["NUMBA_NUM_THREADS"] = "8"
+
+# Import packages
+from pysammos.utils.config_loader import load_config
+from pysammos.coarse_graining import CoarseGraining
+import numba 
+print(f">>> Numba is using {numba.get_num_threads()} cores")
+import time
+
+# Start the timer
+start_time = time.time()
 
 # Load the configuration from the ini file
 cfg = load_config("config.ini")  
@@ -60,6 +71,13 @@ print("       Spacing: ", CG.Spacing)
 
 # 6. Calculate the CG fields
 CG.fields_in_time()
+
+# end the timer
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(" ")
+print(f"Coarse Graining completed in {elapsed_time:.2f} seconds")
+print(" ")
 
 print("------------------------------------------------------------")
 print(">>> Coarse Graining completed successfully <<<") 

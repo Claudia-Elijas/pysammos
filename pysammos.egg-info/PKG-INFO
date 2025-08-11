@@ -1,0 +1,36 @@
+Metadata-Version: 2.4
+Name: pysammos
+Version: 0.1
+Summary: Python package to compute macroscopic continuum fields from discrete element method simulations.
+Author: Claudia Elijas-Parra
+Author-email: claudia.elijas.parra@gmail.com
+License: GPL-3.0
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: PhysicsIntended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Requires-Python: >=3.12
+License-File: LICENSE
+Requires-Dist: numpy>=2.0.0
+Requires-Dist: pandas>=2.2.3
+Requires-Dist: scipy>=1.15.3
+Requires-Dist: scikit-learn>=1.6.1
+Requires-Dist: matplotlib>=3.10.0
+Requires-Dist: pyvista>=0.45.2
+Requires-Dist: vtk>=9.4.2
+Requires-Dist: vtk-hdf>=0.2.0
+Requires-Dist: requests>=2.32.3
+Requires-Dist: pooch>=1.8.2
+Requires-Dist: scooby>=0.10.1
+Requires-Dist: typing-extensions>=4.14.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: license
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

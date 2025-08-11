@@ -1,4 +1,4 @@
-import data_write.vtkhdf.core as v5i
+from . import core as v5i
 import h5py
 import pyvista as pv
 

@@ -1,10 +1,11 @@
 import numpy as np
 from numba import njit, int64
-from numba.types import Tuple  
+from numba.types import Tuple as NumbaTuple 
+from typing import Tuple as TypingTuple
 
 # Calculate coordination number
-@njit(Tuple((int64[:], int64[:]))(int64[:],int64[:]))
-def count(particle_inContacts_dup:np.ndarray, global_id_all:np.ndarray)->Tuple[np.ndarray,np.ndarray]:
+@njit(NumbaTuple((int64[:], int64[:]))(int64[:],int64[:]))
+def count(particle_inContacts_dup:np.ndarray, global_id_all:np.ndarray)-> TypingTuple[np.ndarray, np.ndarray]:
     r"""Count the number of contacts per particle and exclude isolated ones.
 
     Counts the number of times each particle ID appears in the contact list,
