@@ -22,7 +22,7 @@ CG = CoarseGraining(
     weight_function='Lucy',
     fields_to_export=cfg["fields_to_export"],
     ignore_phases=cfg["partialignore"]
-                    )
+                    ) 
 print("  ") ; print("-------------------- CoarseGraining class initialised --------------------")
                         
 # -------------------  COARSE-GRAINING WORK FLOW  ------------------------- # 
@@ -32,7 +32,7 @@ Bounds_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0 = CG.data_sampling()
 
 # 2. Calculate the particle size range
 d43, d32 = CG.get_particle_size_statistics(Diameter_t0, Mass_t0)
-print(">> Particle size statistics: ")
+print(">> Particle size statistics: ") 
 print("       d43: ", d43)
 print("       dmax: ", CG.dmax)
 print("       d50: ", CG.d50)
