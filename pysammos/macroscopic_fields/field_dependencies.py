@@ -14,8 +14,15 @@ field_dependencies = {
 
 
 def get_fields_to_compute(fields_to_export):
-    
+        """
+        Determine which fields need to be computed based on user-selected outputs.
+        
+        Parameters
+        ----------
+        fields_to_export : dict
+        """
         fields_to_compute = set()
+
         # recursive functions for dependencies
         def add_field(field):
             if field not in fields_to_compute:
