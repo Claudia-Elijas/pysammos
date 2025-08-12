@@ -1,10 +1,30 @@
+"""
+Duplicate Particle Pairs Handling
+========================
+This module provides functionality to identify and remove duplicate particle pairs
+from contact data. It ensures that each unique pair of particles is represented only once,
+regardless of their order (i.e., (A, B) is considered the same as (B, A)).
+It is particularly useful in DEM simulations computed in parallel, where duplicate pairs
+may arise due to the use of ghost particles or other parallelization artifacts.
+
+This module contains two main functions:
+1. `get_unique_pairs`: Identifies and filters duplicate particle pairs from two arrays.
+2. `delete`: Removes duplicate particle pairs and their associated data from the original contact list.
+
+"""
+
+
+
+# import necessary libraries
 import numpy as np
 from collections import defaultdict
 from typing import Tuple
 
 # Get unique pairs of two arrays 
 def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray):
-    r"""Identify and filter duplicate particle pairs.
+    r"""
+    
+    Identify and filter duplicate particle pairs.
 
     Given two arrays representing particle interactions, this function identifies
     all unique unordered pairs (i.e., (A, B) and (B, A) are treated as the same)
@@ -12,16 +32,17 @@ def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray):
 
     Parameters
     ----------
-    LL_py : ndarray
-        First particle ID array of shape (N,).
+    LL_py : ndarray, shape (N,).
+        First particle ID array.
 
-    I_py : ndarray
-        Second particle ID array of shape (N,).
+    I_py : ndarray, shape (N,).
+        Particle that particle LL is interacting with.
 
     Returns
     -------
-    keep_indices : ndarray
+    keep_indices : ndarray, shape (M,).
         Indices of the first occurrence of each unique pair.
+
     """
     pair_indices = defaultdict(list) # Store indices of each pair, treating (A,B) and (B,A) as the same
     for idx, (ll, i) in enumerate(zip(LL_py, I_py)):
@@ -41,20 +62,21 @@ def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray):
 # Check if there is duplicate pairs
 def delete(Particle_LL_OG:np.ndarray, Particle_I_OG:np.ndarray, 
            Fij_OG:np.ndarray, Contacts_OG:np.ndarray)->Tuple[np.ndarray,np.ndarray,np.ndarray]:
-    r"""Remove duplicate particle interaction pairs and associated data.
+    r"""
+    Remove duplicate particle interaction pairs and associated data.
 
     Uses `get_unique_pairs()` to retain only the first occurrence of each
     particle pair (treating (A, B) and (B, A) as duplicates).
 
     Parameters
     ----------
-    Particle_LL_OG : ndarray
+    Particle_LL_OG : ndarray, shape (N,).
         Particle A IDs for original contact list.
 
-    Particle_I_OG : ndarray
+    Particle_I_OG : ndarray, shape (N,).
         Particle B IDs for original contact list.
 
-    Fij_OG : ndarray
+    Fij_OG : ndarray, shape (N, 3).
         Contact force vectors corresponding to particle pairs.
 
     Contacts_OG : ndarray or None
@@ -62,16 +84,16 @@ def delete(Particle_LL_OG:np.ndarray, Particle_I_OG:np.ndarray,
 
     Returns
     -------
-    Particle_LL : ndarray
+    Particle_LL : ndarray, shape (M,).
         Filtered Particle A IDs.
 
-    Particle_I : ndarray
+    Particle_I : ndarray, shape (M,).
         Filtered Particle B IDs.
 
-    Fij : ndarray
+    Fij : ndarray, shape (M, 3).
         Filtered contact forces.
 
-    Contacts : ndarray or None
+    Contacts : ndarray or None, shape (M, 3), optional.
         Filtered contact points if provided.
     """
     # Find Unique Pairs
