@@ -14,14 +14,13 @@ This module contains two main functions:
 """
 
 
-
 # import necessary libraries
 import numpy as np
 from collections import defaultdict
-from typing import Tuple
+from typing import Tuple, Optional
 
 # Get unique pairs of two arrays 
-def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray):
+def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray)-> np.ndarray:
     r"""
     
     Identify and filter duplicate particle pairs.
@@ -61,7 +60,7 @@ def get_unique_pairs(LL_py:np.ndarray, I_py:np.ndarray):
 
 # Check if there is duplicate pairs
 def delete(Particle_LL_OG:np.ndarray, Particle_I_OG:np.ndarray, 
-           Fij_OG:np.ndarray, Contacts_OG:np.ndarray)->Tuple[np.ndarray,np.ndarray,np.ndarray]:
+           Fij_OG:np.ndarray, Contacts_OG:Optional[np.ndarray])->Tuple[np.ndarray,np.ndarray,Optional[np.ndarray]]:
     r"""
     Remove duplicate particle interaction pairs and associated data.
 
@@ -79,8 +78,9 @@ def delete(Particle_LL_OG:np.ndarray, Particle_I_OG:np.ndarray,
     Fij_OG : ndarray, shape (N, 3).
         Contact force vectors corresponding to particle pairs.
 
-    Contacts_OG : ndarray or None
-        Optional contact point data.
+    Contacts_OG : ndarray or None, optional, shape (N, 3).
+        Contact point coordinates. If `None`, no contact points are returned.
+
 
     Returns
     -------

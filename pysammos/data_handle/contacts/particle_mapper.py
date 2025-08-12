@@ -1,13 +1,35 @@
+"""
+Particle Mapper Module
+===================
+
+This module provides functionality to map global particle data (positions, diameters, etc.) to contact
+pair data, duplicates the arrays to account for both directions (A→B and B→A),
+and computes the branch vectors using either contact points or particle diameters.
+It also includes options to return particle volumes for fabric tensor calculations.
+
+Functions
+--------
+- `map_contact_data`: Maps particle and contact data for branch vector and fabric tensor analysis.
+  Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases
+  for each contact pair, accounting for both directions of interaction.
+
+
+"""
+
+
 import numpy as np
 from .complete import branch_vectors
+from typing import Tuple, Optional
 
-def map_contact_data(Global_ID, Position, Diameter, Density, Volume,# Particle data
-                                    Particle_LL, Particle_I, Fij, Contact_Points,# Contact data
-                                    ModelAxesRanges, AxesPeriodicity, # Information for Branch Vector Calculation
-                                    Return_Volume, # Is volume data needed to calculate fabric tensor?
-                                    Particle_Phase_Array_t):  # if True, does NOT return a phase array
+def map_contact_data(Global_ID:np.ndarray, Position:np.ndarray, Diameter:np.ndarray, Density:np.ndarray, Volume:np.ndarray,# Particle data
+                                    Particle_LL:np.ndarray, Particle_I:np.ndarray, Fij:np.ndarray, Contact_Points:np.ndarray,# Contact data
+                                    ModelAxesRanges:np.ndarray, AxesPeriodicity:np.ndarray, # Information for Branch Vector Calculation
+                                    Return_Volume:bool, # Is volume data needed to calculate fabric tensor?
+                                    Particle_Phase_Array_t:np.ndarray)-> Tuple[np.ndarray,np.ndarray,np.ndarray,np.ndarray,
+                                                                        Optional[np.ndarray],Optional[np.ndarray], float]: # if None, no phase data is returned
+    r"""
     
-    r"""Map particle and contact data for branch vector and fabric tensor analysis.
+    Map particle and contact data for branch vector and fabric tensor analysis.
 
     This function maps global particle data (positions, diameters, etc.) to contact
     pair data, duplicates the arrays to account for both directions (A→B and B→A),
@@ -18,37 +40,37 @@ def map_contact_data(Global_ID, Position, Diameter, Density, Volume,# Particle d
 
     Parameters
     ----------
-    Global_ID : ndarray
-        Global particle IDs.
+    Global_ID : ndarray, shape (N,).
+        Array of global particle IDs, used to map contact pairs to particle data.
 
-    Position : ndarray
-        Particle positions of shape (N, 3).
+    Position : ndarray, shape (N, 3).
+        Particle positions.
 
-    Diameter : ndarray
+    Diameter : ndarray, shape (N,).
         Particle diameters.
 
-    Density : ndarray
+    Density : ndarray, shape (N,).
         Particle densities.
 
-    Volume : ndarray
-        Particle volumes.
+    Volume : ndarray, shape (N,).
+        Particle volumes, used for fabric tensor calculations if `Return_Volume` is `True`.
 
-    Particle_LL : ndarray
+    Particle_LL : ndarray, shape (M,).
         Particle A IDs for contact pairs.
 
-    Particle_I : ndarray
+    Particle_I : ndarray, shape (M,).
         Particle B IDs for contact pairs.
 
-    Fij : ndarray
-        Contact forces between particles.
+    Fij : ndarray, shape (M, 3).
+        Contact forces between particle pairs (A, B).
 
-    Contact_Points : ndarray or None
+    Contact_Points : ndarray or None, shape (M, 3), optional.
         Contact point coordinates. If `None`, diameters are used to estimate branch vectors.
 
-    ModelAxesRanges : array-like
-        Domain dimensions (e.g., box size).
+    ModelAxesRanges : ndarray, shape (3,).
+        Domain dimensions.
 
-    AxesPeriodicity : array-like
+    AxesPeriodicity : ndarray of bool, shape (3,).
         Periodicity flags for each axis (True/False).
 
     Return_Volume : bool
@@ -59,22 +81,22 @@ def map_contact_data(Global_ID, Position, Diameter, Density, Volume,# Particle d
 
     Returns
     -------
-    Position_LL_dup : ndarray
-        Positions for each duplicated contact direction.
+    Position_LL_dup : ndarray, shape (2M, 3).
+        Positions for each duplicated contact.
 
-    Force_LL_dup : ndarray
+    Force_LL_dup : ndarray, shape (2M, 3).
         Contact forces, duplicated (including negative counterparts).
 
-    BranchVector_LL_dup : ndarray
-        Computed branch vectors from particle A to contact point.
+    BranchVector_LL_dup : ndarray, shape (2M, 3).
+        Computed branch vectors from each particle to a contact point.
 
-    CenterToCenterVector_LL_dup : ndarray
-        Center-to-center vectors between particle pairs.
+    CenterToCenterVector_LL_dup : ndarray, shape (2M, 3).
+        Center-to-center vectors between particle pairs in both directions.
 
-    Volume_LL_dup : ndarray or None
+    Volume_LL_dup : ndarray or None, shape (2M,).
         Duplicated particle volumes if `Return_Volume` is True.
 
-    Phases_array : ndarray or None
+    Phases_array : ndarray or None, shape (2M,).
         Duplicated particle phase data if provided.
 
     Mean_Diameter : float
