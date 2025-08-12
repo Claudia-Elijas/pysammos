@@ -142,13 +142,9 @@ class Grid_Generation:
             Dimensionality of the generated grid.
         axes : str
             Axes along which to generate the grid. Options are:
-            - 'xyz'
-            - 'xy'
-            - 'xz'
-            - 'yz'
-            - 'x'
-            - 'y'
-            - 'z'
+            - **3D**: 'xyz'
+            - **2D**: 'xy', 'xz', 'yz'
+            - **1D**: 'x', 'y', 'z'
 
         Returns
         -------
@@ -167,8 +163,11 @@ class Grid_Generation:
 
         Notes
         -----
-        The method uses `np.meshgrid` to create structured grids, 
-        even for 1D or 2D cases, returning all points in 3D space.
+        - Spacing along active axes is computed as:
+        ``c / high_res_scaling``.
+        - The output is always a set of points in 3D space, even for 
+        1D and 2D grids, to maintain compatibility with 3D data structures.
+        - This method uses `np.meshgrid` to create structured grids.
         """
 
         # General grid parameters

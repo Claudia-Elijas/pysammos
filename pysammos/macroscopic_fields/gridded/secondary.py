@@ -1,5 +1,33 @@
-import numpy as np
-from numba import njit, prange
+"""
+Tensor and Rheological Calculations for Granular Flow
+=====================================================
+
+This module provides functions to compute velocity gradients, 
+shear rate tensors, deviatoric tensors, tensor invariants, 
+pressure, inertial numbers, granular temperature, and bulk fabric tensors 
+for both monodisperse and polydisperse particulate systems.
+
+It supports 1D, 2D, and 3D grids and uses `NumPy` for array 
+operations and `Numba` for accelerated numerical loops.
+
+Functions
+---------
+- compute_vector_bulk_gradient : Calculate velocity gradient tensor from bulk velocity.
+- compute_shear_rate_tensor : Compute symmetric part of velocity gradient tensor.
+- compute_deviatoric_tensor : Compute deviatoric part of a stress tensor.
+- compute_second_invariant : Compute the second invariant of a deviatoric stress tensor.
+- compute_pressure : Compute pressure from a stress tensor.
+- compute_inertial_number : Compute dimensionless inertial number.
+- compute_granular_temperature : Compute granular temperature following Weinhart (2016).
+- bulk_fabric_tensor_Sun2015 : Compute bulk fabric tensor following Sun et al. (2015).
+
+Notes
+-----
+- All array shapes are explicitly described in the function docstrings.
+- Functions decorated with `@njit` are JIT-compiled with Numba for performance.
+
+"""
+
 
 import numpy as np
 from numba import njit, prange
@@ -7,15 +35,40 @@ from numba import njit, prange
 # ####################################################################################
 
 # BULK VECTOR GRADIENT (with physical units)
-def compute_vector_bulk_gradient(Velocity_bulk_CG, nodes, spacing):
+def compute_vector_bulk_gradient(
+    Velocity_bulk_CG: np.ndarray,
+    nodes: tuple[int, ...],
+    spacing: tuple[float, ...]
+) -> np.ndarray:
     """
-    Compute the gradient tensor of a vector field on a regular grid for 1D, 2D, or 3D.
-    Velocity_bulk_CG: (N, 3) array (flattened grid, 3 components)
-    nodes: tuple of grid shape (nx, [ny, [nz]])
-    dx, dy, dz: grid spacings (defaults to 1.0)
-    Returns:
-        GradTen: (N, 3, ndim) array, where ndim is the number of spatial dimensions
+    Compute the gradient tensor of a bulk velocity field on a regular grid.
+
+    Parameters
+    ----------
+    Velocity_bulk_CG : (N, 3) ndarray
+        Flattened velocity field with 3 components per grid point.
+    nodes : tuple of int
+        Shape of the grid. Can be (nx,), (nx, ny), or (nx, ny, nz).
+    spacing : tuple of float
+        Grid spacings along each dimension (dx,), (dx, dy), or (dx, dy, dz).
+
+    Returns
+    -------
+    GradTen : (N, 3, ndim) ndarray
+        Velocity gradient tensor at each grid point, where `ndim` is 
+        the number of spatial dimensions (1, 2, or 3).
+
+    Raises
+    ------
+    ValueError
+        If the dimensionality is not 1, 2, or 3.
+
+    Notes
+    -----
+    - The function handles 1D, 2D, and 3D grids automatically.
+    - Output is flattened back to match the input node order.
     """
+
     dim = len([x for x in nodes if x > 1])
     if dim == 1:
         nx = nodes[0]
@@ -72,13 +125,21 @@ def compute_vector_bulk_gradient(Velocity_bulk_CG, nodes, spacing):
 
 # SHEAR RATE TENSOR
 @njit
-def compute_shear_rate_tensor(VelocityGrad):
+def compute_shear_rate_tensor(
+    VelocityGrad: np.ndarray
+) -> np.ndarray:
     """
-    Calculate the shear rate tensor from the velocity gradient tensor.
-    Args:
-        VelocityGrad: (Npoints, Nphases, 3, 3) or (Npoints, 3, 3) array
-    Returns:
-        ShearRateTensor: (Npoints, Nphases, 3, 3) or (Npoints, 3, 3) array
+    Compute the symmetric shear rate tensor from a velocity gradient tensor.
+
+    Parameters
+    ----------
+    VelocityGrad : (N, 3, 3) ndarray
+        Velocity gradient tensor for N points.
+
+    Returns
+    -------
+    ShearRateTensor : (N, 3, 3) ndarray
+        Symmetric part of the velocity gradient tensor.
     """
     # case for BULK property only
     Npoints, dims, _ = VelocityGrad.shape
@@ -90,7 +151,22 @@ def compute_shear_rate_tensor(VelocityGrad):
 
 # TENSOR DEVIATOR 
 @njit
-def compute_deviatoric_tensor(Tensor): 
+def compute_deviatoric_tensor(
+    Tensor: np.ndarray
+) -> np.ndarray:
+    """
+    Compute the deviatoric tensor by removing the mean normal stress.
+
+    Parameters
+    ----------
+    Tensor : (N, 3, 3) or (N, P, 3, 3) ndarray
+        Stress tensor(s). P is number of phases.
+
+    Returns
+    -------
+    DeviatoricTensor : ndarray
+        Tensor(s) with isotropic part removed. Shape matches input.
+    """
     # 1. case for POLYDISPERSE ---------------------------------------
     if Tensor.ndim == 4:
         Npoints, Nphases, dims, _ = Tensor.shape
@@ -111,13 +187,24 @@ def compute_deviatoric_tensor(Tensor):
 
 # TENSOR SECOND INVARIANT
 @njit
-def compute_second_invariant(Tensor, factor=0.5):
+def compute_second_invariant(
+    Tensor: np.ndarray,
+    factor: float = 0.5
+) -> np.ndarray:
     """
-    Compute the second invariant for a batch of 2x2 or 3x3 deviatoric stress tensors.
-    Args:
-        dev_stress_tensor: (Npoints, 3, 3) or (Npoints, 2, 2) array
-    Returns:
-        second_invariant: (Npoints,) array
+    Compute the second invariant of a deviatoric stress tensor.
+
+    Parameters
+    ----------
+    Tensor : (N, 3, 3), (N, 2, 2), (N, P, 3, 3), or (N, P, 2, 2) ndarray
+        Deviatoric stress tensor(s).
+    factor : float, optional
+        Multiplicative factor in the invariant calculation (default is 0.5).
+
+    Returns
+    -------
+    second_invariant : (N,) or (N, P) ndarray
+        Second invariant magnitude for each tensor.
     """
     # 1. case for POLYDISPERSE ---------------------------------------
     if Tensor.ndim == 4:
@@ -177,13 +264,21 @@ def compute_second_invariant(Tensor, factor=0.5):
 
 # PRESSURE 
 @njit
-def compute_pressure(StressTensor):
+def compute_pressure(
+    StressTensor: np.ndarray
+) -> np.ndarray:
     """
-    Calculate the pressure from the stress tensor.
-    Args:
-        StressTensor: (Npoints, Nphases, 3, 3) or (Npoints, 3, 3) array
-    Returns:
-        Pressure: (Npoints, Nphases) or (Npoints,) array
+    Compute pressure from the stress tensor.
+
+    Parameters
+    ----------
+    StressTensor : (N, 3, 3) or (N, P, 3, 3) ndarray
+        Stress tensor(s), where P is the number of phases.
+
+    Returns
+    -------
+    Pressure : (N,) or (N, P) ndarray
+        Computed pressure(s).
     """
     # 1. POLYDISPERSE case
     if StressTensor.ndim == 4:
@@ -203,7 +298,38 @@ def compute_pressure(StressTensor):
 
 # INERTIAL NUMBER
 @njit
-def compute_inertial_number(shear_rate_tens_dev_mag, pressure, particle_density_mix, particle_diameter_mix, density_phases, diameter_phases):
+def compute_inertial_number(
+    shear_rate_tens_dev_mag: np.ndarray,
+    pressure: np.ndarray,
+    particle_density_mix: np.ndarray,
+    particle_diameter_mix: np.ndarray,
+    density_phases: np.ndarray,
+    diameter_phases: np.ndarray
+) -> np.ndarray:
+    """
+    Compute the inertial number for monodisperse or polydisperse systems.
+
+    Parameters
+    ----------
+    shear_rate_tens_dev_mag : (N,) ndarray
+        Magnitude of the deviatoric shear rate tensor.
+    pressure : (N,) or (N, P) ndarray
+        Pressure values.
+    particle_density_mix : (N,) or (N, P) ndarray
+        Bulk particle density.
+    particle_diameter_mix : (N,) ndarray
+        Bulk particle diameter.
+    density_phases : (P-1,) ndarray
+        Densities for individual phases (polydisperse case).
+    diameter_phases : (P-1,) ndarray
+        Diameters for individual phases (polydisperse case).
+
+    Returns
+    -------
+    Inertial_Number : (N,) or (N, P) ndarray
+        Dimensionless inertial number(s).
+    """    
+    
     Npoints = pressure.shape[0]
     # 1. Monodisperse case
     if pressure.ndim == 1:
@@ -233,15 +359,26 @@ def compute_inertial_number(shear_rate_tens_dev_mag, pressure, particle_density_
 
 # GRANULAR TEMPERATURE WEINHART 2016
 @njit
-def compute_granular_temperature(DensityMixture, KineticTensor):
+def compute_granular_temperature(
+    DensityMixture: np.ndarray,
+    KineticTensor: np.ndarray
+) -> np.ndarray:
     """
-    Calculate the granular temperature from the density mixture and kinetic tensor.
-    Args:
-        DensityMixture: (Npoints, Nphases) or (Npoints,) array
-        KineticTensor: (Npoints, Nphases, 3, 3) or (Npoints, 3, 3) array
-    Returns:
-        GranularTemperature: (Npoints, Nphases) or (Npoints,) array
+    Compute granular temperature following Weinhart (2016).
+
+    Parameters
+    ----------
+    DensityMixture : (N,) or (N, P) ndarray
+        Bulk or phase-wise particle density.
+    KineticTensor : (N, 3, 3), (N, P, 3, 3), (N,), or (N, P) ndarray
+        Full kinetic energy tensor or scalar kinetic energy component.
+
+    Returns
+    -------
+    GranularTemperature : (N,) or (N, P) ndarray
+        Granular temperature(s).
     """
+
     # 1. cases for POLYDISPERSE ---------------------------------------
     # a) full kinetic tensor is provided
     if KineticTensor.ndim == 4:
@@ -295,7 +432,23 @@ def compute_granular_temperature(DensityMixture, KineticTensor):
 
 # BULK FABRIC TENSOR 
 @njit
-def bulk_fabric_tensor_Sun2015(normalised_center_to_center_vectors):
+def bulk_fabric_tensor_Sun2015(
+    normalised_center_to_center_vectors: np.ndarray
+) -> np.ndarray:
+    """
+    Compute the bulk fabric tensor following Sun et al. (2015).
+
+    Parameters
+    ----------
+    normalised_center_to_center_vectors : (Nc, 3) ndarray
+        Normalised contact vectors between particle centers.
+
+    Returns
+    -------
+    A : (3, 3) ndarray
+        Bulk fabric tensor.
+    """
+    
     l = normalised_center_to_center_vectors
     Nc = l.shape[0]
 
