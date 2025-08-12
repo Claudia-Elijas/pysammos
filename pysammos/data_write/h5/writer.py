@@ -1,3 +1,41 @@
+"""
+Writer for HDF5 files using h5py and xarray
+===========================================
+
+This module provides a manager class for reading and writing HDF5 files containing array data,
+and converting them to xarray Datasets. It supports adding grid point positions, phase labels,
+and saving data at specific indices with custom dimension values.
+
+It also includes functionality to load the HDF5 file as an xarray Dataset with appropriate
+coordinates and dimension names.
+
+It is designed to handle various data shapes, including scalar, vector, and tensor data,
+and to ensure unique dimension names for each variable.
+
+It is particularly useful for managing simulation data in a structured format,
+allowing for efficient storage and retrieval of large datasets, while providing a convenient
+interface for data analysis using xarray.
+
+Class: H5XarrayManager
+------------------
+This class manages HDF5 files and provides methods to add positions, phases, and update datasets
+with new data. It also includes methods to convert the HDF5 file into an xarray Dataset,
+handling various data shapes and ensuring appropriate dimension names.
+H5XarrayManager(filename: str)
+    Initializes the manager with the specified HDF5 file.   
+Methods:
+- add_positions(positions: array-like): Adds grid point positions to the HDF5 file
+- add_phases(phase_labels: list): Adds phase labels to the HDF5 file
+- update_h5py_file(data_dict: dict, dim_index: int, dim_value: float, dim_name: str = "time"):
+    Saves a single step of data to the HDF5 file at a specific index with a custom dimension value.
+- h5_to_xarray(dim_name: str = "time") -> xarray.Dataset:
+    Loads the HDF5 file as an xarray Dataset, handling various data shapes and ensuring appropriate dimension names.
+
+
+"""
+
+
+# import necessary libraries
 import h5py
 import numpy as np
 import xarray as xr
@@ -13,7 +51,7 @@ class H5XarrayManager:
         Path to the HDF5 file to read/write.
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename:str):
         """
         Initialize the H5XarrayManager.
 
@@ -24,7 +62,7 @@ class H5XarrayManager:
         """
         self.filename = filename
 
-    def add_positions(self, positions):
+    def add_positions(self, positions: np.ndarray):
         """
         Add grid point positions to the HDF5 file if not already present.
 
@@ -37,7 +75,7 @@ class H5XarrayManager:
             if "positions" not in f:
                 f.create_dataset("positions", data=positions)
 
-    def add_phases(self, phase_labels):
+    def add_phases(self, phase_labels: list):
         """
         Add phase labels to the HDF5 file if not already present.
 
@@ -50,7 +88,7 @@ class H5XarrayManager:
             if "phases" not in f:
                 f.create_dataset("phases", data=np.array(phase_labels).astype("S"))
 
-    def update_h5py_file(self, data_dict, dim_index, dim_value, dim_name="time"):
+    def update_h5py_file(self, data_dict:dict, dim_index:int, dim_value:int, dim_name:str="time"):
         """
         Save a single step of data to an HDF5 file at a specific index, with a custom dimension value.
 
@@ -103,7 +141,7 @@ class H5XarrayManager:
                 dset[dim_index] = dim_value
         print(f"  File successfully updated to {self.filename}")
 
-    def h5_to_xarray(self, dim_name="time"):
+    def h5_to_xarray(self, dim_name:str="time"):
         """
         Load the HDF5 file as an xarray Dataset.
 
