@@ -1,9 +1,26 @@
+"""
+Branch Vectors Calculation Module
+================================
+This module provides functions to calculate branch vectors and center-to-center vectors
+between particles in a simulation, considering periodic boundary conditions.
+It includes two main functions:
+1. `from_contacts`: Computes branch vectors from contact positions.
+2. `from_diameters`: Computes branch vectors based on particle diameters.
+
+These functions handle periodic boundary corrections to ensure accurate vector calculations
+in simulations with periodic boundaries.
+
+"""
+
 import numpy as np
 from typing import Tuple
+
 # Calculate branch vectors
 def from_contacts(r_A: np.ndarray, r_B: np.ndarray, contact_A: np.ndarray, 
                   L: np.ndarray, periodic: np.ndarray)-> Tuple[np.ndarray, np.ndarray]:
-    r"""Calculate branch vectors from contact positions with periodic boundaries.
+    r"""
+    
+    Calculate branch vectors from contact positions with periodic boundaries.
 
     Computes the branch vector :math:`\mathbf{BV}` from the center of particle A
     to its contact point, as well as the center-to-center vector :math:`\mathbf{d}`
@@ -39,28 +56,28 @@ def from_contacts(r_A: np.ndarray, r_B: np.ndarray, contact_A: np.ndarray,
 
     Parameters
     ----------
-    r_A : ndarray
-        Center positions of particle A, shape (N, 3).
+    r_A : ndarray, shape (N, 3).
+        Center positions of particle A.
 
-    r_B : ndarray
-        Center positions of particle B, shape (N, 3).
+    r_B : ndarray, shape (N, 3).
+        Center positions of particle B.
 
-    contact_A : ndarray
-        Contact points on particle A, shape (N, 3).
+    contact_A : ndarray, shape (N, 3).
+        Contact points on particle A.
 
-    L : ndarray
-        Domain dimensions (3,).
+    L : ndarray, shape (3,).
+        Domain dimensions.
 
-    periodic : ndarray
-        Boolean array indicating periodicity in each spatial dimension (3,).
+    periodic : ndarray, shape (3,).
+        Boolean array indicating periodicity in each spatial dimension.
 
     Returns
     -------
-    BV : ndarray
-        Branch vectors from particle A center to contact point, shape (N, 3).
+    BV : ndarray, shape (N, 3).
+        Branch vectors from particle A center to contact point.
 
-    d : ndarray
-        Center-to-center vectors between particles A and B, shape (N, 3).
+    d : ndarray, shape (N, 3).
+        Center-to-center vectors between particles A and B.
     """
     
     # Compute displacement vector from center to contact point
@@ -78,7 +95,9 @@ def from_contacts(r_A: np.ndarray, r_B: np.ndarray, contact_A: np.ndarray,
 # Calculate branch vectors from diameters
 def from_diameters(r_A:np.ndarray, r_B:np.ndarray, d_A:np.ndarray, d_B:np.ndarray, 
                    L:np.ndarray, periodic:np.ndarray)-> Tuple[np.ndarray, np.ndarray]:
-    r"""Calculate branch vectors using particle diameters and periodic boundary corrections.
+    r"""
+    
+    Calculate branch vectors using particle diameters and periodic boundary corrections.
 
     This function calculates the branch vector from the center of particle A to the
     contact point along the line connecting particles A and B, based on their diameters.
@@ -110,31 +129,31 @@ def from_diameters(r_A:np.ndarray, r_B:np.ndarray, d_A:np.ndarray, d_B:np.ndarra
 
     Parameters
     ----------
-    r_A : ndarray
-        Center positions of particle A, shape (N, 3).
+    r_A : ndarray, shape (N, 3).
+        Center positions of particle A.
 
-    r_B : ndarray
-        Center positions of particle B, shape (N, 3).
+    r_B : ndarray, shape (N, 3).
+        Center positions of particle B.
 
-    d_A : ndarray
-        Diameters of particle A, shape (N,).
+    d_A : ndarray, shape (N,).
+        Diameters of particle A.
 
-    d_B : ndarray
-        Diameters of particle B, shape (N,).
+    d_B : ndarray, shape (N,).
+        Diameters of particle B.
 
-    L : array_like
-        Domain dimensions, shape (3,).
+    L : array_like, shape (3,).
+        Domain dimensions.
 
-    periodic : array_like
-        Periodicity flags (True/False) for each axis, shape (3,).
+    periodic : array_like, shape (3,).
+        Periodicity flags (True/False) for each axis.
 
     Returns
     -------
-    BV : ndarray
-        Branch vectors from particle A to contact points, shape (N, 3).
+    BV : ndarray, shape (N, 3).
+        Branch vectors from particle A to contact points.
 
-    d : ndarray
-        Periodically corrected center-to-center vectors, shape (N, 3).
+    d : ndarray, shape (N, 3).
+        Periodically corrected center-to-center vectors.
     """
     # Initialize displacement vector
     d = r_A - r_B

@@ -1,4 +1,45 @@
-# pysammos - Coarse Graining Module
+"""
+Coarse Graining Module
+======================
+
+This module provides functionality for coarse graining particle data from discrete element method (DEM) simulations.
+It includes methods for loading particle data, calculating particle size statistics, generating coarse-grained grids, 
+computing macroscopic fields, handling particle phases, and writing output data.
+
+Main Class
+----------
+CoarseGraining
+    Encapsulates the coarse graining process, including initialization, configuration, data sampling, phase identification, grid generation, and field computation.
+
+Key Methods
+-----------
+- data_sampling()
+    Loads particle data for the first time step.
+- get_particle_size_statistics()
+    Calculates particle size statistics such as d43, d32, dmax, drms, and d50.
+- get_particle_phases()
+    Identifies particle phases based on diameter and density.
+- generate_grid()
+    Generates a coarse-grained grid based on particle bounds and specified resolution.
+- fields_in_time()
+    Computes and writes macroscopic fields over specified time steps.
+- _load_data()
+    Loads particle and contact data for a given time step.
+- _fields_single_time()
+    Computes coarse-grained fields for a single time step.
+- _write_results()
+    Writes computed results to .h5 and .VTKHDF files.
+- _assign_particles_to_grid_nodes()
+    Assigns particles and contacts to grid nodes for coarse graining.
+- _compute_weights()
+    Computes spatial weights for particles and contacts based on the specified weight function.
+
+Notes
+-----
+- Designed for extensibility and integration with DEM simulation workflows.
+- Output formats include HDF5 and VTKHDF for compatibility with scientific visualization tools.
+
+"""
 
 
 # import standard libraries ----------------------------------------------
