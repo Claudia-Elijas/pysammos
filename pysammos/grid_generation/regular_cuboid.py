@@ -1,8 +1,70 @@
+"""
+Regular Cuboid Grid Generation Module
+=====================================
+
+This module provides the `Grid_Generation` class for generating regular cuboid grids
+for coarse graining in DEM simulations. It supports automatic and custom grid range
+determination, and can generate 1D, 2D, or 3D grids with user-specified axes and resolution.
+
+Main Class
+----------
+Grid_Generation
+    Handles the creation of grid points, nodes, and spacing for coarse-grained field calculations.
+    Supports both automatic and user-defined grid bounds and transects.
+
+Key Methods
+-----------
+- Automatic_Range()
+    Determines grid ranges automatically based on particle bounds and smoothing length.
+- Create_grid_points()
+    Static method to generate grid points and nodes for 1D, 2D, or 3D grids.
+- Generate()
+    Main method to generate the grid using either automatic or custom ranges.
+
+Notes
+-----
+- Designed for flexibility in grid generation for scientific simulations.
+- Output includes grid points, node counts, spacing, and grid ranges.
+
+"""
+
+
+# import necessary libraries 
 import numpy as np
+from typing import Tuple, Optional
 
 
 class Grid_Generation: 
-    def __init__(self, smoothing_length, particle_bounds, grid_dimensions, grid_axes, max_particle_diameter, automatic_range, custom_grid_range, custom_grid_transects):
+
+    def __init__(self, smoothing_length:float, particle_bounds:np.ndarray, grid_dimensions:int, 
+                 grid_axes:str, max_particle_diameter:float, automatic_range:bool, 
+                 custom_grid_range:Tuple, custom_grid_transects:Tuple):
+        """
+        
+        Parameters
+        ----------
+        smoothing_length : float
+            Smoothing length (kernel size) for grid spacing calculations.
+        particle_bounds : ndarray of shape (3, 2)
+            Minimum and maximum coordinates for the particle domain along x, y, z.
+        grid_dimensions : int
+            Dimensionality of the grid: 1, 2, or 3.
+        grid_axes : str
+            Axes along which the grid will be generated. 
+            For 1D: 'x', 'y', or 'z'.  
+            For 2D: 'xy', 'xz', or 'yz'.  
+            For 3D: 'xyz' (implicitly used).
+        max_particle_diameter : float
+            Maximum particle diameter used for domain buffer calculations.
+        automatic_range : bool
+            If True, automatically determine the grid range with domain padding.
+        custom_grid_range : tuple of float or None
+            Custom range (x0, x1, y0, y1, z0, z1) if `automatic_range` is False.
+        custom_grid_transects : tuple of float or None
+            Custom transect positions (x_transect, y_transect, z_transect) 
+            if `automatic_range` is False.
+        """
+        
         self.c = smoothing_length
         self.bounds = particle_bounds
         self.dimensions = grid_dimensions
@@ -13,26 +75,101 @@ class Grid_Generation:
         self.custom_grid_transects = custom_grid_transects
     
     # Automatic range determination
-    def Automatic_Range(self):
+    def Automatic_Range(self)->Tuple[list, list, list]:
+        """
+            Automatically determine the grid coordinate ranges 
+            based on domain bounds and kernel size.
 
-            delta = 2.5 * self.c + 0.5 * self.dmax # distance from the boundary of the domain
+            Returns
+            -------
+            x_range : list of float
+                Minimum and maximum x-coordinates for the grid.
+            y_range : list of float
+                Minimum and maximum y-coordinates for the grid.
+            z_range : list of float
+                Minimum and maximum z-coordinates for the grid.
+
+            Notes
+            -----
+            The method offsets the bounds by:
+
+            .. math::
+
+            2.5\,c + 0.5\,d_\mathrm{max}
+
+            where :math:`c` is the smoothing length and :math:`d_\mathrm{max}` is the maximum particle diameter, 
+            to avoid boundary effects.
+    
             
-            min = np.zeros(3) ; max = np.zeros(3)
+        """
 
-            for i in range(3):
-                min[i] = self.bounds[i,0] + delta
-                max[i] = self.bounds[i,1] - delta
-            
-            x_range = [min[0], max[0]] 
-            y_range = [min[1], max[1]] 
-            z_range = [min[2], max[2]] 
+        delta = 2.5 * self.c + 0.5 * self.dmax # distance from the boundary of the domain
+        
+        min = np.zeros(3) ; max = np.zeros(3)
 
-            return x_range, y_range, z_range
+        for i in range(3):
+            min[i] = self.bounds[i,0] + delta
+            max[i] = self.bounds[i,1] - delta
+        
+        x_range = [min[0], max[0]] 
+        y_range = [min[1], max[1]] 
+        z_range = [min[2], max[2]] 
+
+        return x_range, y_range, z_range
     
     # Create grid points
     @staticmethod
-    def Create_grid_points(X_range, Y_range, Z_range, X_transect, Y_transect, Z_transect, c, high_res_scaling=1.5, dimensions=3, axes='xyz'):
+    def Create_grid_points(X_range:list, Y_range:list, Z_range:list, 
+                           X_transect:Optional[float], Y_transect:Optional[float], Z_transect:Optional[float], 
+                           c:float, high_res_scaling:Optional[float]=1.5, 
+                           dimensions:int=3, axes:str='xyz') -> Tuple[np.ndarray,np.ndarray,np.ndarray]:
+        """
+        Create structured grid points in 1D, 2D, or 3D.
 
+        Parameters
+        ----------
+        X_range, Y_range, Z_range : list of float or None
+            Coordinate ranges for each axis, in the form [min, max]. 
+            If None, that axis will be fixed at its transect value.
+        X_transect, Y_transect, Z_transect : float or None
+            Transect positions for fixed coordinates when not 
+            generating points along that axis.
+        c : float
+            Smoothing length used for grid spacing calculation.
+        high_res_scaling : float, optional
+            Scaling factor for grid density (default is 1.5).
+        dimensions : int, {1, 2, 3}
+            Dimensionality of the generated grid.
+        axes : str
+            Axes along which to generate the grid. Options are:
+            - 'xyz'
+            - 'xy'
+            - 'xz'
+            - 'yz'
+            - 'x'
+            - 'y'
+            - 'z'
+
+        Returns
+        -------
+        grid_points : ndarray of shape (N, 3)
+            Array of generated grid points in 3D coordinates.
+        nodes : ndarray of shape (3,)
+            Number of nodes along each axis (0 if fixed).
+        spacing : ndarray
+            Grid spacing along each active axis.
+
+        Raises
+        ------
+        ValueError
+            If the number of grid points in a direction is <= 1, 
+            or if `dimensions`/`axes` combination is invalid.
+
+        Notes
+        -----
+        The method uses `np.meshgrid` to create structured grids, 
+        even for 1D or 2D cases, returning all points in 3D space.
+        """
 
         # General grid parameters
         # X - dimension
@@ -200,105 +337,127 @@ class Grid_Generation:
         return grid_points, nodes, spacing
     
     # Make grid
-    def Generate(self):
-     
-            # 1. get ranges and or transects
-            if self.automatic_range == True:
-                print("Generating Grid with Automatic Grid Ranges")
-                x_range_, y_range_, z_range_ = self.Automatic_Range()
-                # 1D grid
-                if self.dimensions == 1: 
-                    if self.axes == 'x': 
-                        y_transect = y_range_[0] + 0.5 * (y_range_[1] - y_range_[0]) ; y_range = None
-                        z_transect = z_range_[0] + 0.5 * (z_range_[1] - z_range_[0]) ; z_range = None
-                        x_transect = None ; x_range = x_range_
-                        print(f"Automatic bounds: x_range = {x_range}, y_transect = {y_transect}, z_transect = {z_transect}")
-                    elif self.axes == 'y':
-                        x_transect = x_range_[0] + 0.5 * (x_range_[1] - x_range_[0]) ; x_range = None
-                        z_transect = z_range_[0] + 0.5 * (z_range_[1] - z_range_[0]) ; z_range = None
-                        y_transect = None ; y_range = y_range_
-                        print(f"Automatic bounds: y_range = {y_range}, x_transect = {x_transect}, z_transect = {z_transect}")
-                    elif self.axes == 'z':
-                        x_transect = x_range_[0] + 0.5 * (x_range_[1] - x_range_[0]) ; x_range = None
-                        y_transect = y_range_[0] + 0.5 * (y_range_[1] - y_range_[0]) ; y_range = None
-                        z_transect = None ; z_range = z_range_
-                        print(f"Automatic bounds: z_range = {z_range}, x_transect = {x_transect}, y_transect = {y_transect}")
-                    else:
-                        raise ValueError("Invalid axes for 1D grid. Must be 'x', 'y', or 'z'.")
-                # 2D grid
-                elif self.dimensions == 2:
-                    if self.axes == 'xy':
-                        z_transect = z_range_[0] + 0.5 * (z_range_[1] - z_range_[0]) ; z_range = None
-                        x_transect = None ; x_range = x_range_
-                        y_transect = None ; y_range = y_range_
-                        print(f"Automatic bounds: x_range = {x_range}, y_range = {y_range}, z_transect = {z_transect}")
-                    elif self.axes == 'xz':
-                        y_transect = y_range_[0] + 0.5 * (y_range_[1] - y_range_[0]) ; y_range = None
-                        z_transect = None ; z_range = z_range_
-                        x_transect = None ; x_range = x_range_
-                        print(f"Automatic bounds: x_range = {x_range}, y_transect = {y_transect}, z_range = {z_range}")
-                    elif self.axes == 'yz':
-                        x_transect = x_range_[0] + 0.5 * (x_range_[1] - x_range_[0]) ; x_range = None
-                        z_transect = None ; z_range = z_range_
-                        y_transect = None ; y_range = y_range_
-                        print(f"Automatic bounds: y_range = {y_range}, x_transect = {x_transect}, z_range = {z_range}")
-                    else:
-                        raise ValueError("Invalid axes for 2D grid. Must be 'xy', 'xz', or 'yz'.")
-                elif self.dimensions == 3:
-                    x_range = x_range_ ; y_range = y_range_ ; z_range = z_range_
-                    x_transect = None ; y_transect = None ; z_transect = None
-                    print(f"Automatic bounds: x_range = {x_range}, y_range = {y_range}, z_range = {z_range}")
-                            
-            elif self.automatic_range == False:
-                print("Generating Grid with Customised Grid Ranges")
-                x_0, x_1, y_0, y_1, z_0, z_1 = self.custom_grid_range
-                x_tr, y_tr, z_tr = self.custom_grid_transects
-                # flag that the user has not provided ranges bigger than the domain
-                # b = self.bounds
-                # print(f" bounds {b}")
-                # # Adjust ranges and checks based on dimensions
-                # if x_0 and x_1 is not None:
-                #     if x_0 < b[0,0] or x_1 > b[0,1]:
-                #         raise ValueError("The provided X ranges are bigger than the domain.")
-                # if y_0 and y_1 is not None:
-                #     if y_0 < b[1,0] or y_1 > b[1,1]:
-                #         raise ValueError("The provided Y ranges are bigger than the domain.")
-                # if z_0 and z_1 is not None:
-                #     if z_0 < b[2,0] or z_1 > b[2,1]:
-                #         raise ValueError("The provided Z ranges are bigger than the domain.")
-                # # Check that transect values are provided
-                # if x_tr is not None: 
-                #     if x_tr < b[0,0] or x_tr > b[0,1]:
-                #         raise ValueError("The provided X transect is outside the domain.")
-                # if y_tr is not None:
-                #     if y_tr < b[1,0] or y_tr > b[1,1]:
-                #         raise ValueError("The provided Y transect is outside the domain.")
-                # if z_tr is not None:
-                #     if z_tr < b[2,0] or z_tr > b[2,1]:
-                #         raise ValueError("The provided Z transect is outside the domain.")
-                # put together the ranges and/or transects
-                
-                x_range = [x_0, x_1] ; y_range = [y_0, y_1] ; z_range = [z_0, z_1]
-                y_transect = y_tr ; x_transect = x_tr ; z_transect = z_tr
-                print(f"Customised grid bounds: x = {x_range}, y = {y_range}, z = {z_range}, x_transect = {x_transect}, y_transect = {y_transect}, z_transect = {z_transect}")
+    def Generate(self)->Tuple[np.ndarray,np.ndarray,np.ndarray,np.ndarray]:
+        """
+        Generate the computational grid points.
 
-            # 2. generate the CG grid points
-            GridPoints , Nodes, Spacing = self.Create_grid_points(X_range=x_range, Y_range=y_range, Z_range=z_range, 
-                                X_transect = x_transect, Y_transect = y_transect, Z_transect = z_transect,
-                                c = self.c, 
-                                high_res_scaling = 2, 
-                                dimensions = self.dimensions, axes = self.axes) 
-        
-            # 3. calculate the ranges length
-            # Ranges_Length = np.array([
-            #                 0 if np.all(r) is None else r[1] - r[0] 
-            #                 for r in [x_range, y_range, z_range]
-            #             ])
-            Ranges_Length = np.array([
-            0 if r is None or any(v is None for v in r) else r[1] - r[0]
-            for r in [x_range, y_range, z_range]
-        ])
-                    
-            return GridPoints, Nodes, Spacing, Ranges_Length
+        Returns
+        -------
+        GridPoints : ndarray of shape (N, 3)
+            Generated grid points in 3D coordinates.
+        Nodes : ndarray of shape (3,)
+            Number of nodes along each axis.
+        Spacing : ndarray
+            Grid spacing along each active axis.
+        Ranges_Length : ndarray of shape (3,)
+            Length of each coordinate range. Zero if the axis is fixed.
+
+        Notes
+        -----
+        - If `automatic_range` is True, grid ranges are computed using 
+          :meth:`Automatic_Range` with domain padding.
+        - If `automatic_range` is False, ranges and transects are 
+          taken from `custom_grid_range` and `custom_grid_transects`.
+        - The method calls :meth:`Create_grid_points` to build the grid.
+        """
+     
+        # 1. get ranges and or transects
+        if self.automatic_range == True:
+            print("Generating Grid with Automatic Grid Ranges")
+            x_range_, y_range_, z_range_ = self.Automatic_Range()
+            # 1D grid
+            if self.dimensions == 1: 
+                if self.axes == 'x': 
+                    y_transect = y_range_[0] + 0.5 * (y_range_[1] - y_range_[0]) ; y_range = None
+                    z_transect = z_range_[0] + 0.5 * (z_range_[1] - z_range_[0]) ; z_range = None
+                    x_transect = None ; x_range = x_range_
+                    print(f"Automatic bounds: x_range = {x_range}, y_transect = {y_transect}, z_transect = {z_transect}")
+                elif self.axes == 'y':
+                    x_transect = x_range_[0] + 0.5 * (x_range_[1] - x_range_[0]) ; x_range = None
+                    z_transect = z_range_[0] + 0.5 * (z_range_[1] - z_range_[0]) ; z_range = None
+                    y_transect = None ; y_range = y_range_
+                    print(f"Automatic bounds: y_range = {y_range}, x_transect = {x_transect}, z_transect = {z_transect}")
+                elif self.axes == 'z':
+                    x_transect = x_range_[0] + 0.5 * (x_range_[1] - x_range_[0]) ; x_range = None
+                    y_transect = y_range_[0] + 0.5 * (y_range_[1] - y_range_[0]) ; y_range = None
+                    z_transect = None ; z_range = z_range_
+                    print(f"Automatic bounds: z_range = {z_range}, x_transect = {x_transect}, y_transect = {y_transect}")
+                else:
+                    raise ValueError("Invalid axes for 1D grid. Must be 'x', 'y', or 'z'.")
+            # 2D grid
+            elif self.dimensions == 2:
+                if self.axes == 'xy':
+                    z_transect = z_range_[0] + 0.5 * (z_range_[1] - z_range_[0]) ; z_range = None
+                    x_transect = None ; x_range = x_range_
+                    y_transect = None ; y_range = y_range_
+                    print(f"Automatic bounds: x_range = {x_range}, y_range = {y_range}, z_transect = {z_transect}")
+                elif self.axes == 'xz':
+                    y_transect = y_range_[0] + 0.5 * (y_range_[1] - y_range_[0]) ; y_range = None
+                    z_transect = None ; z_range = z_range_
+                    x_transect = None ; x_range = x_range_
+                    print(f"Automatic bounds: x_range = {x_range}, y_transect = {y_transect}, z_range = {z_range}")
+                elif self.axes == 'yz':
+                    x_transect = x_range_[0] + 0.5 * (x_range_[1] - x_range_[0]) ; x_range = None
+                    z_transect = None ; z_range = z_range_
+                    y_transect = None ; y_range = y_range_
+                    print(f"Automatic bounds: y_range = {y_range}, x_transect = {x_transect}, z_range = {z_range}")
+                else:
+                    raise ValueError("Invalid axes for 2D grid. Must be 'xy', 'xz', or 'yz'.")
+            elif self.dimensions == 3:
+                x_range = x_range_ ; y_range = y_range_ ; z_range = z_range_
+                x_transect = None ; y_transect = None ; z_transect = None
+                print(f"Automatic bounds: x_range = {x_range}, y_range = {y_range}, z_range = {z_range}")
+                        
+        elif self.automatic_range == False:
+            print("Generating Grid with Customised Grid Ranges")
+            x_0, x_1, y_0, y_1, z_0, z_1 = self.custom_grid_range
+            x_tr, y_tr, z_tr = self.custom_grid_transects
+            # flag that the user has not provided ranges bigger than the domain
+            # b = self.bounds
+            # print(f" bounds {b}")
+            # # Adjust ranges and checks based on dimensions
+            # if x_0 and x_1 is not None:
+            #     if x_0 < b[0,0] or x_1 > b[0,1]:
+            #         raise ValueError("The provided X ranges are bigger than the domain.")
+            # if y_0 and y_1 is not None:
+            #     if y_0 < b[1,0] or y_1 > b[1,1]:
+            #         raise ValueError("The provided Y ranges are bigger than the domain.")
+            # if z_0 and z_1 is not None:
+            #     if z_0 < b[2,0] or z_1 > b[2,1]:
+            #         raise ValueError("The provided Z ranges are bigger than the domain.")
+            # # Check that transect values are provided
+            # if x_tr is not None: 
+            #     if x_tr < b[0,0] or x_tr > b[0,1]:
+            #         raise ValueError("The provided X transect is outside the domain.")
+            # if y_tr is not None:
+            #     if y_tr < b[1,0] or y_tr > b[1,1]:
+            #         raise ValueError("The provided Y transect is outside the domain.")
+            # if z_tr is not None:
+            #     if z_tr < b[2,0] or z_tr > b[2,1]:
+            #         raise ValueError("The provided Z transect is outside the domain.")
+            # put together the ranges and/or transects
+            
+            x_range = [x_0, x_1] ; y_range = [y_0, y_1] ; z_range = [z_0, z_1]
+            y_transect = y_tr ; x_transect = x_tr ; z_transect = z_tr
+            print(f"Customised grid bounds: x = {x_range}, y = {y_range}, z = {z_range}, x_transect = {x_transect}, y_transect = {y_transect}, z_transect = {z_transect}")
+
+        # 2. generate the CG grid points
+        GridPoints , Nodes, Spacing = self.Create_grid_points(X_range=x_range, Y_range=y_range, Z_range=z_range, 
+                            X_transect = x_transect, Y_transect = y_transect, Z_transect = z_transect,
+                            c = self.c, 
+                            high_res_scaling = 2, 
+                            dimensions = self.dimensions, axes = self.axes) 
     
+        # 3. calculate the ranges length
+        # Ranges_Length = np.array([
+        #                 0 if np.all(r) is None else r[1] - r[0] 
+        #                 for r in [x_range, y_range, z_range]
+        #             ])
+        Ranges_Length = np.array([
+        0 if r is None or any(v is None for v in r) else r[1] - r[0]
+        for r in [x_range, y_range, z_range]
+    ])
+                
+        return GridPoints, Nodes, Spacing, Ranges_Length
+
 
