@@ -1,19 +1,106 @@
+"""
+Point data reading functions for MFIX simulations.
+========================================
+
+This module provides functions to read and process point data from MFIX simulations.
+It extracts particle information such as position, global ID, velocity, diameter, density,
+volume, mass, and coordination number from the point data, allowing for further analysis and manipulation.
+It is designed to work with VTK data structures, converting them into NumPy arrays for easier handling.
+
+Functions
+---------
+- `particles`: Extracts particle data from the input connection, including position, global ID,
+    velocity, diameter, density, volume, mass, and coordination number.
+- `contacts`: Extracts contact data from the input connection, including particle IDs, total forces
+    and contact points.
+- `Reader_vtm`: Reads VTM files and extracts all PolyData blocks, merging them into a single PolyData object.
+
+
+"""
+
+# import necessary libraries
 import vtk
 import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
 from .utils import get_point_data_variable, get_bounds
+from typing import Tuple, Optional
 
 
-def particles(InputConnection, 
-                Global_ID_string="Particle_ID", 
-                Velocity_string="Velocity", 
-                Diameter_string="Diameter",
-                Density_string="Density",   
-                Volume_string="Volume",
-                Mass_string="Mass", 
-                Radius_string="Radius", 
-                Coordination_Number_string="Coordination_Number",): 
+def particles(InputConnection:vtk.vtkAlgorithmOutput, 
+                Global_ID_string:Optional[str]="Particle_ID", 
+                Velocity_string:Optional[str]="Velocity", 
+                Diameter_string:Optional[str]="Diameter",
+                Density_string:Optional[str]="Density",   
+                Volume_string:Optional[str]="Volume",
+                Mass_string:Optional[str]="Mass", 
+                Radius_string:Optional[str]="Radius", 
+                Coordination_Number_string="Coordination_Number")-> Tuple[np.ndarray, np.ndarray, 
+                    Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray], 
+                    Optional[np.ndarray], Optional[np.ndarray], Optional[np.ndarray], Tuple]:
+    """
+
+    Extracts particle data from the input connection, including position, global ID,
+    velocity, diameter, density, volume, mass, and coordination number.
+
+    Parameters:
+    ----------
+    InputConnection : vtk.vtkAlgorithmOutput
+        The input connection containing the VTK data.
+    Global_ID_string : str, optional
+        The name of the global ID variable in the point data (default is "Particle_ID").
+    Velocity_string : str, optional
+        The name of the velocity variable in the point data (default is "Velocity").
+    Diameter_string : str, optional
+        The name of the diameter variable in the point data (default is "Diameter").
+    Density_string : str, optional
+        The name of the density variable in the point data (default is "Density").
+    Volume_string : str, optional
+        The name of the volume variable in the point data (default is "Volume").
+    Mass_string : str, optional
+        The name of the mass variable in the point data (default is "Mass").
+    Radius_string : str, optional       
+        The name of the radius variable in the point data (default is "Radius").
+    Coordination_Number_string : str, optional
+        The name of the coordination number variable in the point data (default is "Coordination_Number").
     
+    Returns:
+    --------
+    Position_sorted : np.ndarray, shape (N, 3).
+        The sorted positions of the particles.
+    Global_ID_sorted : np.ndarray, shape (N,).
+        The sorted global IDs of the particles.
+    Velocity_sorted : np.ndarray, shape (N, 3), optional
+        The sorted velocities of the particles, if available.
+    Diameter_sorted : np.ndarray, shape (N,), optional
+        The sorted diameters of the particles, if available.
+    Density_sorted : np.ndarray, shape (N,), optional
+        The sorted densities of the particles, if available.
+    Volume_sorted : np.ndarray, shape (N,), optional
+        The sorted volumes of the particles, if available.
+    Mass_sorted : np.ndarray, shape (N,), optional
+        The sorted masses of the particles, if available.
+    Coordination_Number_sorted : np.ndarray, shape (N,), optional
+        The sorted coordination numbers of the particles, if available.
+    Bounds_t : tuple
+        The bounds of the point data, represented as a tuple of (xmin, xmax, ymin, ymax, zmin, zmax).
+    
+    Raises:
+    -------
+    ValueError
+        If any of the required strings (Global_ID_string, Density_string, etc.) are None or not provided.
+    
+    Notes:
+    -----
+    - The function retrieves the point data from the input connection and extracts the specified variables.
+    - The global IDs are sorted, and the corresponding positions, velocities, diameters, densities
+      volumes, masses, and coordination numbers are also sorted based on the global IDs.
+    - If any optional variables (Velocity_string, Diameter_string, etc.) are not provided,
+      the corresponding output will be None.
+    - The function returns the sorted arrays and the bounds of the point data.  
+
+
+    """
+
     poly_output = InputConnection.GetOutput()
 
     if Global_ID_string is not None:
@@ -72,11 +159,43 @@ def particles(InputConnection,
     return Position_sorted, Global_ID_sorted, Velocity_sorted, Diameter_sorted, Density_sorted, Volume_sorted, Mass_sorted, Coordination_Number_sorted, Bounds_t
     #return Position, Global_ID, Velocity, Diameter, Density, Volume, Mass, Radius
 
-def contacts(InputConnection,    
-                Particle_i_string="Particle_ID_1", 
-                Particle_j_string="Particle_ID_2", 
-                Force_ij_string="FORCE_CHAIN_FC", 
-                Contact_ij_string=None):
+def contacts(InputConnection:vtk.vtkAlgorithmOutput,    
+                Particle_i_string:Optional[str]="Particle_ID_1", 
+                Particle_j_string:Optional[str]="Particle_ID_2", 
+                Force_ij_string:Optional[str]="FORCE_CHAIN_FC", 
+                Contact_ij_string:Optional[str]=None)-> Tuple[np.ndarray, np.ndarray, 
+                                                            np.ndarray, Optional[np.ndarray]]:
+    
+    """
+    Extracts contact data from the input connection, including particle IDs, total forces
+    and contact points.
+
+    Parameters:
+    ----------
+    InputConnection : vtk.vtkAlgorithmOutput
+        The input connection containing the VTK data.
+    Particle_i_string : str, optional
+        The name of the first particle ID variable in the point data (default is "Particle_ID_1").
+    Particle_j_string : str, optional
+        The name of the second particle ID variable in the point data (default is "Particle_ID_2").
+    Force_ij_string : str, optional
+        The name of the total force variable in the point data (default is "FORCE_CHAIN_FC").
+    Contact_ij_string : str, optional   
+        The name of the contact points variable in the point data (default is None).
+
+    Returns:
+    --------
+    Particle_i : np.ndarray, shape (N,)
+        The particle IDs of the first particles involved in the contacts.
+    Particle_j : np.ndarray, shape (N,)
+        The particle IDs of the second particles involved in the contacts.
+    F_ij : np.ndarray, shape (N, 3)
+        The total forces acting on the contacts, if available.
+    Contact_ij : np.ndarray, shape (N, 3), optional
+        The contact points between the particles, if available.
+
+
+    """
 
     poly_output = InputConnection.GetOutput()
     F_ij = get_point_data_variable(Force_ij_string, poly_output) if Force_ij_string else None
@@ -89,7 +208,7 @@ def contacts(InputConnection,
 
 
 # ============================================= #
-# for benchmarking JP's models
+# for DEM data containing multiple PolyData blocks
 # ============================================= #
 # Read vtp data
 def extract_all_polydata(dataset, level=0):
