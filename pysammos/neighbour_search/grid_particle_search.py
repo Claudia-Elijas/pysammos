@@ -1,3 +1,25 @@
+"""
+Grid particle association
+=========================
+
+Module for efficiently matching particles to grid points within a cutoff radius
+and calculating displacement vectors and distances between them.
+
+Functions
+---------
+
+- `particle_node_match`: Uses kd-tree spatial queries to find particles within a cutoff radius of each grid point, returning
+  start indices and a flattened array of matching particle indices.
+  
+- `calc_displacement`: Computes displacement vectors and distances between each grid point and its neighboring particles,
+  using the output of `particle_node_match`.
+
+These functions facilitate coarse-graining operations by quickly associating particles to grid points
+and calculating relative positional data in an optimized manner.
+"""
+
+
+# import relevant libraries
 import numpy as np
 from numba.types import Tuple 
 from numba import njit, prange, float64, float32, int32
@@ -5,10 +27,27 @@ from scipy.spatial import cKDTree
 from itertools import accumulate
 # =======================================================================
 
-def particle_node_match(GridPoints, Particle_Position, c):
+def particle_node_match(GridPoints:np.ndarray, Particle_Position:np.ndarray, c:float)->Tuple[np.ndarray, np.ndarray]:
     """
-    This function uses a kd-tree to find the particles within a cutoff distance of each grid point.
-    Returns the start indices and a flattened array of particle indices.
+    Find particles within a cutoff distance of each grid point using kd-tree queries.
+
+    Parameters
+    ----------
+    GridPoints : np.ndarray, shape(N_points, 3) 
+        Coordinates of the coarse-graining grid points in 3D space.
+    Particle_Position : np.ndarray, (N_particles, 3) 
+        Coordinates of particles in 3D space.
+    c : float
+        Cutoff distance within which particles are considered neighbors to grid points.
+
+    Returns
+    -------
+    start_indices : np.ndarray, shape(N_points + 2,) 
+        Array of start indices into the flattened particle indices array for each grid point.
+        Includes padding: start_indices[0] = 0 and start_indices[-1] = total number of matched particles.
+    particle_indices_flat : np.ndarray, shape(N_total_neighbors,)
+        Flattened array of particle indices that lie within cutoff distance of each grid point.
+        The neighbors of grid point i are located in particle_indices_flat[start_indices[i]:start_indices[i+1]].
     """
     tree = cKDTree(GridPoints)
     particle_indices = tree.query_ball_tree(cKDTree(Particle_Position), c)
@@ -32,9 +71,28 @@ def particle_node_match(GridPoints, Particle_Position, c):
 @njit(Tuple((float64[:,:], float64[:]))(float64[:,:], float32[:,:], int32[:], int32[:]),parallel=True) 
 def calc_displacement(GridPoints, Particle_Position, start_indices, visibility):
     """
-    Optimized calculation of displacement vectors and distances between grid points and particles within a cutoff distance.
-    Returns them as 1D arrays.
+    Calculate displacement vectors and distances between grid points and visible particles.
+
+    Parameters
+    ----------
+    GridPoints : np.ndarray, shape(N_points, 3) 
+        Coordinates of coarse-graining grid points.
+    Particle_Position : np.ndarray, shape(N_particles, 3)
+        Coordinates of particles.
+    start_indices : np.ndarray, shape(N_points + 2,) 
+        Start indices into the visibility array for each grid point.
+        Assumes padding: start_indices[0] = 0, start_indices[-1] = len(visibility).
+    visibility : np.ndarray, shape(N_total_neighbors,)
+        Flattened array of particle indices visible to each grid point.
+
+    Returns
+    -------
+    displacement_vectors : np.ndarray, shape(N_total_neighbors, 3) 
+        Displacement vectors from each particle to the corresponding grid point.
+    distances : np.ndarray, shape(N_total_neighbors,)
+        Euclidean distances corresponding to displacement vectors.
     """
+
     # Preallocate arrays for results 
     total_particles = len(visibility)
     displacement_vectors = np.empty((total_particles, 3), dtype=np.float64)

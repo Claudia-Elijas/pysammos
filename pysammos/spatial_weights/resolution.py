@@ -1,3 +1,30 @@
+"""
+Kernel width and cutoff calculation utilities
+=============================================
+
+This module provides helper functions for determining characteristic length
+scales used in kernel-based coarse-graining, smoothing, and interpolation
+methods. These parameters are essential in defining the support domain of a
+kernel function and thus controlling the spatial resolution of computed
+fields.
+
+Functions
+---------
+calc_half_width(Average_part_diam, w_mult=0.75)
+    Computes the kernel half-width `w` from an average particle diameter `D`
+    scaled by a user-defined multiplicative factor.
+
+calc_cutoff(w, function)
+    Computes the kernel cutoff radius `c` based on the half-width `w` and
+    the chosen kernel type (Lucy, Gaussian, or HeavySide).
+
+Typical use
+-----------
+These functions are often called during preprocessing to set consistent
+smoothing parameters for all particles in a simulation, ensuring that the
+kernel shape and support are appropriately scaled to particle size.
+"""
+
 # calculate w
 def calc_half_width(Average_part_diam, w_mult=0.75):
     

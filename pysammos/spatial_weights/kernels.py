@@ -1,6 +1,29 @@
+"""
+Kernel functions module
+=======================
+
+This module provides a collection of commonly used kernel functions for
+smoothing, weighting, and interpolation in particle-based methods such as
+Smoothed Particle Hydrodynamics (SPH) or coarse-graining techniques.
+
+Included kernels:
+
+- Lucy kernel: A smooth, compactly supported kernel with continuous derivatives.
+- Top-hat (step) function: A simple binary indicator function.
+- Heaviside kernel: Uniform weighting inside a spherical cutoff volume.
+- Gaussian kernel: A smooth, bell-shaped kernel with compact support truncated
+  at three standard deviations.
+
+Each kernel function computes a weight based on the distance from a kernel center
+and a cutoff radius, ensuring locality and normalization properties as appropriate.
+
+These kernels are useful for weighting contributions of particles or points
+within a neighborhood and are foundational in various numerical methods
+in computational physics, fluid dynamics, and materials science.
+"""
+
 from scipy.special import erf
 import numpy as np
-
 
 # Lucy function
 def lucy(c,dist):
