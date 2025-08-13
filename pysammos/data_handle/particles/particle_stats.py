@@ -1,11 +1,10 @@
 """
 Particle Statistics Module
-===================
+==========================
 
 Functions
 --------
 - d50_calc: Computes the D50 (median diameter) from sorted particle diameters and their corresponding masses.
-
 """
 
 # import necessary libraries

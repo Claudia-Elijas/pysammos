@@ -11,7 +11,6 @@ Functions
 ---------
 - `contacts`: Extracts contact data from the input connection, including particle IDs, total forces
     and contact points.
-
 """
 
 

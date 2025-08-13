@@ -1,6 +1,7 @@
 """
 Branch Vectors Calculation Module
-================================
+=================================
+
 This module provides functions to calculate branch vectors and center-to-center vectors
 between particles in a simulation, considering periodic boundary conditions.
 It includes two main functions:
@@ -9,7 +10,6 @@ It includes two main functions:
 
 These functions handle periodic boundary corrections to ensure accurate vector calculations
 in simulations with periodic boundaries.
-
 """
 
 import numpy as np

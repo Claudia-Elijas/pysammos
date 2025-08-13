@@ -1,5 +1,4 @@
 r"""
-
 This module provides functions to compute coarse-grained scalar fields 
 from particle data using weighted averaging over local neighborhoods.
 
@@ -20,27 +19,27 @@ where:
 
 Functions 
 ---------
-- `scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_scale, Phase)`
+- `scalar_polydisperse_scaled`
   Computes coarse-grained scalar fields for polydisperse particles with
   an additional per-particle scaling factor.
 
-- `scalar_polydisperse(weights, visibility, grid_indices, Data, Phase)`
+- `scalar_polydisperse`
   Computes coarse-grained scalar fields for polydisperse particles without
   scaling.
 
-- `scalar_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_scale)`
+- `scalar_monodisperse_scaled`
   Computes coarse-grained scalar fields for monodisperse particles with
   an additional scaling factor.
 
-- `scalar_monodisperse(weights, visibility, grid_indices, Data)`
+- `scalar_monodisperse`
   Computes coarse-grained scalar fields for monodisperse particles without
   scaling.
 
-- `mean_grainsize(weights, visibility, grid_indices, Data, n_flag)`
+- `mean_grainsize`
   Computes a weighted mean grain size metric, where `n_flag` controls the
   moment order (e.g., 2 for area, 3 for volume).
 
-- `scalar_x_volume(weights, visibility, grid_indices, Data)`
+- `scalar_x_volume`
   Computes the coarse-grained average scalar field weighted by particle volume.
 
 
@@ -73,7 +72,7 @@ polydisperse particle systems, with optional per-particle scaling factors.
 Functions with `_scaled` apply an additional per-particle multiplicative factor
 (`Data_scale`), useful for scaling properties before coarse-graining.
 
-  Terminology
+Terminology
 -----------
 - **N_particles**: Number of particles in the simulation.
 - **N_vis**: Number of particle–grid point interactions (visible weights).
@@ -87,12 +86,11 @@ Performance Notes
 - Temporary arrays are allocated per grid point; results are accumulated into
   output arrays in a thread-safe manner.
 - Arrays must have consistent types and shapes to avoid recompilation overhead.
-
 """
 
 
 import numpy as np
-from numba import njit, prange, int32, float32, float64
+from numba import njit, prange, int32, float32, float64, int64
 
 
 # ======================================================================
@@ -318,7 +316,7 @@ def mean_grainsize(weights, visibility, grid_indices, Data, n_flag):
 
     return CG_Field
 
-@njit(float64[:](float64[:],int32[:], int32[:], float32[:]),parallel=True)
+@njit(float64[:](float64[:],int32[:], int32[:], int32[:]),parallel=True)
 def scalar_x_volume(weights, visibility, grid_indices, Data):
     """
     Compute the average of a scalar quantity weighted by particle volume.

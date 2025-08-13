@@ -30,8 +30,6 @@ Methods:
     Saves a single step of data to the HDF5 file at a specific index with a custom dimension value.
 - h5_to_xarray(dim_name: str = "time") -> xarray.Dataset:
     Loads the HDF5 file as an xarray Dataset, handling various data shapes and ensuring appropriate dimension names.
-
-
 """
 
 

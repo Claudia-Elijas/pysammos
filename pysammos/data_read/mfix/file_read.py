@@ -1,6 +1,6 @@
 """
 Read VTK files and determine their type (PolyData or UnstructuredGrid) for MFIX simulations.
-================================================================
+============================================================================================
 
 This module provides functionality to read VTK files and determine their type based on the file content.
 It supports both XML-based PolyData files (with .vtp extension) and legacy UnstructuredGrid files (with .vtk extension).
@@ -10,7 +10,6 @@ Functions
 ---------
 - `get_file_type`: Detects the type of VTK file by inspecting the file content.
 - `reader`: Reads the VTK file using the appropriate reader based on the detected file type.
-
 """
 
 

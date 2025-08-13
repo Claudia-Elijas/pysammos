@@ -25,7 +25,6 @@ Notes
 -----
 - Designed for flexibility in grid generation for scientific simulations.
 - Output includes grid points, node counts, spacing, and grid ranges.
-
 """
 
 

@@ -1,5 +1,4 @@
 r"""
-
 This module provides functions to compute coarse-grained vector fields 
 from particle data using weighted averaging over local neighborhoods.
 
@@ -76,7 +75,6 @@ Performance Notes
 - Temporary arrays are allocated per grid point; results are accumulated into
   output arrays in a thread-safe manner.
 - Arrays must have consistent types and shapes to avoid recompilation overhead.
-
 """
 
 import numpy as np

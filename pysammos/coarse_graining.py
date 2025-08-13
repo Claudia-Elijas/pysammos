@@ -38,7 +38,6 @@ Notes
 -----
 - Designed for extensibility and integration with DEM simulation workflows.
 - Output formats include HDF5 and VTKHDF for compatibility with scientific visualization tools.
-
 """
 
 
@@ -476,7 +475,7 @@ class CoarseGraining:
             "Volume": Volume,
             "Mass": Mass,
             "Phase_Array": self.Phase_Array,
-            "Coordination_Number": Coordination_Number,
+            "Coordination_Number": Coordination_Number.astype(np.int32),
             # contact data
             "Position_i": Position_i,
             "Force_i": Force_i,

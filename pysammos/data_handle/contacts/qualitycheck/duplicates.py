@@ -1,6 +1,7 @@
 """
 Duplicate Particle Pairs Handling
-========================
+=================================
+
 This module provides functionality to identify and remove duplicate particle pairs
 from contact data. It ensures that each unique pair of particles is represented only once,
 regardless of their order (i.e., (A, B) is considered the same as (B, A)).
@@ -10,7 +11,6 @@ may arise due to the use of ghost particles or other parallelization artifacts.
 This module contains two main functions:
 1. `get_unique_pairs`: Identifies and filters duplicate particle pairs from two arrays.
 2. `delete`: Removes duplicate particle pairs and their associated data from the original contact list.
-
 """
 
 

@@ -1,5 +1,4 @@
 r"""
-
 This module provides functions to compute coarse-grained tensor fields 
 from particle data using weighted averaging over local neighborhoods.
 
@@ -23,11 +22,10 @@ where:
 
 Functions 
 ---------
-- `tensor_polydisperse_scaled(weights, visibility, grid_indices, Data1, Data2, Data_scale, Phase)`
-  Computes coarse-grained tensor fields for polydisperse particles with
+- `tensor_polydisperse_scaled`: Computes coarse-grained tensor fields for polydisperse particles with
   an additional per-particle scaling factor.
 
-- `tensor_polydisperse(weights, visibility, grid_indices, Data1, Data2, Phase)`
+- `tensor_polydisperse`
   Computes coarse-grained tensor fields for polydisperse particles without
   scaling.
 
@@ -88,7 +86,6 @@ Performance Notes
 - Temporary arrays are allocated per grid point; results are accumulated into
   output arrays in a thread-safe manner.
 - Arrays must have consistent types and shapes to avoid recompilation overhead.
-
 """
 
 import numpy as np

@@ -10,7 +10,8 @@ It also includes functionality to set the origin and dimensions of the data grid
 It is particularly useful for visualizing simulation data in a format compatible with VTK and HDF5 standards.
 
 Class: VTKHDFWriter
-------------------
+-------------------
+
 This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
 It provides methods to write scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.
 It uses `pyvista` for creating the VTK data structure and `h5py` for writing the data to HDF5 files.
@@ -20,7 +21,6 @@ Methods:
 - `__init__`: Initializes the writer with node dimensions, spacing, origin, and file path.
 - `write`: Writes the provided data dictionary to a VTKHDF file, handling different data shapes (scalar, vector, tensor).
 - `write_polydisperse`: Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.
-
 """
 
 # importing necessary modules and libraries

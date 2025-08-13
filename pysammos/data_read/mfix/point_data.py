@@ -1,6 +1,6 @@
 """
 Point data reading functions for MFIX simulations.
-========================================
+==================================================
 
 This module provides functions to read and process point data from MFIX simulations.
 It extracts particle information such as position, global ID, velocity, diameter, density,
@@ -14,8 +14,6 @@ Functions
 - `contacts`: Extracts contact data from the input connection, including particle IDs, total forces
     and contact points.
 - `Reader_vtm`: Reads VTM files and extracts all PolyData blocks, merging them into a single PolyData object.
-
-
 """
 
 # import necessary libraries

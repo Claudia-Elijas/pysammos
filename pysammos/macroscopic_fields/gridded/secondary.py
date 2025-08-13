@@ -25,7 +25,6 @@ Notes
 -----
 - All array shapes are explicitly described in the function docstrings.
 - Functions decorated with `@njit` are JIT-compiled with Numba for performance.
-
 """
 
 

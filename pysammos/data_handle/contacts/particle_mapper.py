@@ -1,6 +1,6 @@
 """
 Particle Mapper Module
-===================
+======================
 
 This module provides functionality to map global particle data (positions, diameters, etc.) to contact
 pair data, duplicates the arrays to account for both directions (A→B and B→A),
@@ -12,8 +12,6 @@ Functions
 - `map_contact_data`: Maps particle and contact data for branch vector and fabric tensor analysis.
   Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases
   for each contact pair, accounting for both directions of interaction.
-
-
 """
 
 

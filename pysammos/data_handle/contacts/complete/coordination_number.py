@@ -1,6 +1,6 @@
 """
 Coordination Number Calculation
-========================
+===============================
 
 This module provides functionality to calculate the coordination number of particles
 based on their contacts. It counts the number of contacts for each particle and
@@ -12,8 +12,6 @@ Functions
 --------
 - `count`: Counts the number of contacts per particle and excludes isolated ones.   
 Returns both the full list and the filtered one (excluding particles with fewer than two contacts). 
-
-
 """
 
 # import necessary libraries

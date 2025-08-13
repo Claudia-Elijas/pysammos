@@ -18,7 +18,6 @@ Functions
 
 - `compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c)`:
     Computes Euclidean distances along a branch for multiple contact points and scalar steps.
-
 """
 
 # import relevant libraries

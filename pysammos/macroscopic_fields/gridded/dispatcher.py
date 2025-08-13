@@ -14,7 +14,6 @@ Modes
 -----
 - **Monodisperse**: All particles or elements are of the same size/type.
 - **Polydisperse**: Particles or elements have varying sizes/types.
-
 """
 
 from typing import Tuple, Optional
