@@ -217,7 +217,6 @@ class CoarseGraining:
         self.drms = np.sqrt(np.sum(counts*sizes**2)/np.sum(counts)) # calculate root mean square diameter        
         self.d50 = d50_calc(diameter_t0_sort, mass_t0_sort) # calculate median particle size
 
-    
     def get_particle_phases(self, diameter_t0:np.ndarray, density_t0:np.ndarray, 
                             global_id:np.ndarray, n_max_phases = 6, plot=True):
         """
@@ -513,12 +512,12 @@ class CoarseGraining:
         
         # write .h5 files 
         manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
-        manager.add_positions(self.GridPoints)
-        if self.cg_calc_mode == "Polydisperse":
-            phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
-            manager.add_phases(phase_labels)
+        if time_step == 0: # Only add positions and phases for the first time step
+            manager.add_positions(self.GridPoints)
+            if self.cg_calc_mode == "Polydisperse":
+                phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
+                manager.add_phases(phase_labels)
         manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
-        
         # write .VTKHDF files 
         writer = VTKHDFWriter(node_dimensions=self.Nodes,  
                         node_spacing=self.Spacing, 
@@ -732,6 +731,7 @@ class CoarseGraining:
                 Velocity_CG = MomentumDens_CG / DensityMixture_CG[:, np.newaxis] # Velocity CG
             if "velocity_gradient" in self.fields_to_compute:
                 GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG, self.Nodes, self.Spacing) # Velocity Gradient
+                print(f"shape of velocity gradient: {GradV_CG.shape}")
             if "kinetic_tensor" in self.fields_to_compute:
                 KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG, GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
         else:  # Polydisperse case
@@ -954,4 +954,115 @@ class CoarseGraining:
         
         return results
 
+    def run(self):
+        """
+        Execute the full coarse-graining workflow.
+
+        This method performs the following steps:
+        1. Samples initial particle data and computes particle size statistics.
+        2. Identifies particle phases.
+        3. Sets the coarse-graining resolution.
+        4. Generates the grid.
+        5. Iterates over each time step to compute and write coarse-grained fields.
+
+        """
+        print("Starting coarse-graining process...")
+
+        # 1. Sample initial particle data
+        bounds, diameter, density, mass, global_id = self.data_sampling()
+        print("... initial particle data sampled")
+
+        # 2. Compute particle size statistics
+        self.get_particle_size_statistics(diameter, mass)
+        print("... particle size statistics computed")
+
+        # 3. Identify particle phases
+        self.get_particle_phases(diameter, density, global_id)
+        print("... particle phases identified")
+
+        # 4. Set coarse-graining resolution
+        self.set_resolution(self.d50)
+        print("... coarse-graining resolution set")
+
+        # 5. Generate grid
+        self.generate_grid()
+        print("... grid generated")
+
+        # 6. Iterate over time steps
+        for t_idx, t in enumerate(self.time_steps):
+            print(f"Processing time step {t} ({t_idx+1}/{len(self.time_steps)})...")
+            data_t = self._load_data(t)
+            print("... data loaded")
+            cg_fields_t = self._fields_single_time(data_t)
+            print("... fields computed")
+            self._write_results(cg_fields_t, t_idx, t)
+            print("... results written\n")
+
+        print("Coarse-graining process completed.")
+
     
+    def sweep_CG_widths(self, w_d:np.ndarray):
+
+        """  
+        Perform a sweep over different coarse-graining resolutions (w values) for a specified time step.
+        This method iterates over a range of w values, computes the coarse-grained fields for each w, and writes the results to output files. The input w values are provided as an array of multiples of the characteristic particle diameter (here d43).
+        It does not consider different particle phases; all particles are treated as belonging to a single phase.
+
+        Inputs:
+        -------
+        w_d : np.ndarray
+            An array of w/d values to sweep over, where w is the coarse-graining half-width and d is the characteristic particle diameter measure of choice
+    
+               
+        """      
+        print("Starting coarse-graining resolution sweep...")
+        # 1. Sample initial particle data
+        bounds, diameter, density, mass, global_id = self.data_sampling()
+
+        # 2. Compute particle size statistics
+        self.get_particle_size_statistics(diameter, mass); print(f" >>> Particle size used: d43 = {self.d43}")
+
+        # 3. Set to monodisperse mode for the sweep
+        self.cg_calc_mode = "Monodisperse"
+        self.phases = np.array([[self.d43, np.mean(density)]])  # single phase with d50 and mean density
+        self.Phase_Array = None
+    
+        # 4. Set appropriate resolution
+        self.set_resolution(self.d43)
+
+        # 5. Generate grid of 9 points around the center of the domain
+        center = bounds[:,0] + 0.5 * (bounds[:,1] - bounds[:,0])
+        self.Nodes = (2,2,2) ; self.Spacing = (self.c, self.c, self.c)
+        x = np.linspace(center[0] - self.c, center[0] + self.c, self.Nodes[0])
+        y = np.linspace(center[1] - self.c, center[1] + self.c, self.Nodes[1])
+        z = np.linspace(center[2] - self.c, center[2] + self.c, self.Nodes[2])
+        X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
+        self.GridPoints = np.vstack([X.ravel(), Y.ravel(), Z.ravel()]).T 
+
+        # 6. Load data of the specified time step
+        t = self.time_steps[0]  
+        data_t = self._load_data(t)
+
+        # 7. Get values of w and c
+        w_values = w_d * self.d43
+        c_values = np.zeros_like(w_values)
+        for i in range(len(w_values)): 
+            c_values[i] = calc_cutoff(w_values[i], self.weight_function)
+        print(f" >>> Sweep of w/d = {w_d}")
+        print(f" >>> Sweep of w = {w_values}")
+        print(f" >>> Sweep of c = {c_values}")
+
+        # 8. Iterate over c values
+        for i in range(len(c_values)):
+            self.c = c_values[i]
+            print(f"       -> Processing w/d = {w_d[i]:.2f}")
+            cg_fields_t = self._fields_single_time(data_t)
+                
+            # write .h5 files 
+            manager = H5XarrayManager(f"{self.output_path}w_sweep_{self.weight_function}.h5") 
+            if i == 0: # Only add positions and phases for the first time step
+                manager.add_positions(self.GridPoints)
+            manager.update_h5py_file(cg_fields_t, dim_index=i, dim_value=w_values[i], dim_name="w")
+        
+        
+            print("Coarse-graining resolution sweep completed.")
