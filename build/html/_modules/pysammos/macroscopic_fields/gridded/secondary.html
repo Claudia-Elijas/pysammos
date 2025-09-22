@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.macroscopic_fields.gridded.secondary &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+        <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Pysammos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>pysammos.macroscopic_fields.gridded.secondary</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.macroscopic_fields.gridded.secondary</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions to compute velocity gradients, </span>
+<span class="sd">shear rate tensors, deviatoric tensors, tensor invariants, </span>
+<span class="sd">pressure, inertial numbers, granular temperature, and bulk fabric tensors </span>
+<span class="sd">for both monodisperse and polydisperse particulate systems.</span>
+
+<span class="sd">It supports 1D, 2D, and 3D grids and uses `NumPy` for array </span>
+<span class="sd">operations and `Numba` for accelerated numerical loops.</span>
+
+<span class="sd">The main functions include:</span>
+
+<span class="sd">    - :func:`compute_vector_bulk_gradient` : Calculate velocity gradient tensor from bulk velocity.</span>
+<span class="sd">    - :func:`compute_shear_rate_tensor` : Compute symmetric part of velocity gradient tensor.</span>
+<span class="sd">    - :func:`compute_deviatoric_tensor` : Compute deviatoric part of a stress tensor.</span>
+<span class="sd">    - :func:`compute_second_invariant` : Compute the second invariant of a deviatoric stress tensor.</span>
+<span class="sd">    - :func:`compute_pressure` : Compute pressure from a stress tensor.</span>
+<span class="sd">    - :func:`compute_inertial_number` : Compute dimensionless inertial number.</span>
+<span class="sd">    - :func:`compute_granular_temperature` : Compute granular temperature following Weinhart (2016).</span>
+<span class="sd">    - :func:`bulk_fabric_tensor_Sun2015` : Compute bulk fabric tensor following Sun et al. (2015).</span>
+
+<span class="sd">Notes</span>
+
+<span class="sd">    - All array shapes are explicitly described in the function docstrings.</span>
+<span class="sd">    - The functions handle both monodisperse and polydisperse cases: the number of phases is denoted by `P`.</span>
+<span class="sd">    - Functions decorated with `@njit` are JIT-compiled with Numba for performance.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">njit</span><span class="p">,</span> <span class="n">prange</span>
+
+<span class="c1"># ####################################################################################</span>
+
+<span class="c1"># BULK VECTOR GRADIENT (with physical units)</span>
+<div class="viewcode-block" id="compute_vector_bulk_gradient">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.secondary.compute_vector_bulk_gradient">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_vector_bulk_gradient</span><span class="p">(</span>
+    <span class="n">Velocity_bulk_CG</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">spacing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the gradient tensor of a bulk velocity field on a regular grid. The gradient</span>
+<span class="sd">    tensor is defined as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \nabla \mathbf{V}(\mathbf{r}, t) =</span>
+<span class="sd">        \begin{bmatrix}</span>
+<span class="sd">        \frac{\partial u}{\partial x} &amp; \frac{\partial u}{\partial y} &amp; \frac{\partial u}{\partial z} \\</span>
+<span class="sd">        \frac{\partial v}{\partial x} &amp; \frac{\partial v}{\partial y} &amp; \frac{\partial v}{\partial z} \\</span>
+<span class="sd">        \frac{\partial w}{\partial x} &amp; \frac{\partial w}{\partial y} &amp; \frac{\partial w}{\partial z}</span>
+<span class="sd">        \end{bmatrix}</span>
+
+<span class="sd">    where :math:`\mathbf{V} = (u, v, w)` is the velocity vector, and the partial derivatives are taken with respect to spatial coordinates.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    Velocity_bulk_CG : (N, 3) ndarray</span>
+<span class="sd">        Flattened velocity field with 3 components per grid point.</span>
+<span class="sd">    nodes : tuple of int</span>
+<span class="sd">        Shape of the grid. Can be (nx,), (nx, ny), or (nx, ny, nz).</span>
+<span class="sd">    spacing : tuple of float</span>
+<span class="sd">        Grid spacings along each dimension (dx,), (dx, dy), or (dx, dy, dz).</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    GradTen : (N, 3, ndim) ndarray</span>
+<span class="sd">        Velocity gradient tensor at each grid point, where `ndim` is </span>
+<span class="sd">        the number of spatial dimensions (1, 2, or 3).</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the dimensionality is not 1, 2, or 3.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function handles 1D, 2D, and 3D grids automatically.</span>
+<span class="sd">    - Output is flattened back to match the input node order.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+    <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">spacing</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">Velocity_bulk_CG</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">dUdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">dVdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">dWdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Stack into (nx, 3, 1): [component, grad_dir]</span>
+        <span class="n">GradTen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">GradTen</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dUdx</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">GradTen</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dVdx</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">GradTen</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dWdx</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">GradTen</span> <span class="o">=</span> <span class="n">GradTen</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">spacing</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">Velocity_bulk_CG</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="c1"># Each returns (nx, ny)</span>
+        <span class="n">dUdx</span><span class="p">,</span> <span class="n">dUdy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">dVdx</span><span class="p">,</span> <span class="n">dVdy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">dWdx</span><span class="p">,</span> <span class="n">dWdy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Stack into (nx, ny, 3, 2): [component, grad_dir]</span>
+        <span class="n">GradTen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dUdx</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dUdy</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dVdx</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dVdy</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dWdx</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dWdy</span>
+        <span class="n">GradTen</span> <span class="o">=</span> <span class="n">GradTen</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span> <span class="o">=</span> <span class="n">nodes</span>
+        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span> <span class="o">=</span> <span class="n">spacing</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">Velocity_bulk_CG</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">dUdx</span><span class="p">,</span> <span class="n">dUdy</span><span class="p">,</span> <span class="n">dUdz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">dVdx</span><span class="p">,</span> <span class="n">dVdy</span><span class="p">,</span> <span class="n">dVdz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">dWdx</span><span class="p">,</span> <span class="n">dWdy</span><span class="p">,</span> <span class="n">dWdz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="c1"># Stack into (nx, ny, nz, 3, 3): [component, grad_dir]</span>
+        <span class="n">GradTen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dUdx</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dUdy</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">dUdz</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dVdx</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dVdy</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">dVdz</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dWdx</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dWdy</span>
+        <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">dWdz</span>
+        <span class="n">GradTen</span> <span class="o">=</span> <span class="n">GradTen</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span> <span class="o">*</span> <span class="n">nz</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported dimensionality. Only 1D, 2D, and 3D grids are supported.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">GradTen</span></div>
+
+
+<span class="c1"># SHEAR RATE TENSOR</span>
+<span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_shear_rate_tensor</span><span class="p">(</span>
+    <span class="n">VelocityGrad</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the symmetric shear rate tensor from a velocity gradient tensor, given by:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \boldsymbol{\Gamma}(\mathbf{r}, t) := \frac{1}{2} \left( \nabla \mathbf{V}(\mathbf{r}, t) + \left[\nabla \mathbf{V}(\mathbf{r}, t)\right]^T \right)</span>
+
+<span class="sd">        </span>
+<span class="sd">    where :math:`\nabla \mathbf{V}` is the velocity gradient tensor.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    VelocityGrad : (N, 3, 3) ndarray</span>
+<span class="sd">        Velocity gradient tensor for N points.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    ShearRateTensor : (N, 3, 3) ndarray</span>
+<span class="sd">        Symmetric part of the velocity gradient tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># case for BULK property only</span>
+    <span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">VelocityGrad</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">ShearRateTensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+        <span class="n">ShearRateTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">VelocityGrad</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">VelocityGrad</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">ShearRateTensor</span>
+
+<span class="c1"># TENSOR DEVIATOR </span>
+<span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_deviatoric_tensor</span><span class="p">(</span>
+    <span class="n">Tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the deviatoric tensor by removing the mean normal stress, given by:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathbf{T}_{dev} = \mathbf{T} - \frac{1}{D} \text{tr}(\mathbf{T}) \mathbf{I}</span>
+
+<span class="sd">    where :math:`D` is the spatial dimension (2 or 3), :math:`\text{tr}(\mathbf{T})` is the trace of the tensor, and :math:`\mathbf{I}` is the identity matrix.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tensor : (N, 3, 3) or (N, P, 3, 3) ndarray</span>
+<span class="sd">        Stress tensor(s). P is number of phases.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    DeviatoricTensor : ndarray, shape (N, 3, 3) or (N, P, 3, 3)</span>
+<span class="sd">        Tensor(s) with isotropic part removed. Shape matches input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1. case for POLYDISPERSE ---------------------------------------</span>
+    <span class="k">if</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">DeviatoricTensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nphases</span><span class="p">):</span>
+                <span class="n">mean_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">Tensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">dims</span>
+                <span class="n">DeviatoricTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">mean_stress</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DeviatoricTensor</span>
+    <span class="c1"># 2. case for MONODISPERSE ---------------------------------------</span>
+    <span class="k">elif</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">DeviatoricTensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="n">mean_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">Tensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">dims</span>
+            <span class="n">DeviatoricTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">mean_stress</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DeviatoricTensor</span>
+
+<span class="c1"># TENSOR SECOND INVARIANT</span>
+<span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_second_invariant</span><span class="p">(</span>
+    <span class="n">Tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the second invariant of a deviatoric stress tensor, defined as:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        J_2(\mathbf{r}, t) := \alpha\, \mathrm{tr}\left( \mathbf{\Pi}^2(\mathbf{r}, t) \right), \quad \text{where} \quad</span>
+<span class="sd">        \alpha = </span>
+<span class="sd">        \begin{cases}</span>
+<span class="sd">        \frac{1}{2}, &amp; \text{if } \mathbf{\Pi} \neq \boldsymbol{\Gamma} \\[2mm]</span>
+<span class="sd">        2, &amp; \text{if } \mathbf{\Pi} = \boldsymbol{\Gamma}</span>
+<span class="sd">        \end{cases}</span>
+
+<span class="sd">    where :math:`\mathbf{\Pi}` is any tensor, and :math:`\boldsymbol{\Gamma}` is the shear rate tensor, which is related to the effective shear rate :math:`\dot \gamma_{\text{eff}} = \sqrt{2J_2}`, hence :math:`\alpha=2` when :math:`\mathbf{\Pi}=\boldsymbol{\Gamma}`.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    Tensor : (N, 3, 3), (N, 2, 2), (N, P, 3, 3), or (N, P, 2, 2) ndarray</span>
+<span class="sd">        Deviatoric stress tensor(s).</span>
+<span class="sd">    factor : float, optional</span>
+<span class="sd">        Multiplicative factor in the invariant calculation (default is 0.5).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    second_invariant : (N,) or (N, P) ndarray</span>
+<span class="sd">        Second invariant magnitude for each tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1. case for POLYDISPERSE ---------------------------------------</span>
+    <span class="k">if</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">second_invariant</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dims</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nphases</span><span class="p">):</span>
+                    <span class="n">tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+                    <span class="n">xx</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                    <span class="n">yy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">zz</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                    <span class="n">xy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">xz</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                    <span class="n">yz</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                    <span class="n">second_invariant</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                        <span class="n">factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">zz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">xy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">xz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yz</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+                    <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dims</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nphases</span><span class="p">):</span>
+                    <span class="n">tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+                    <span class="n">xx</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                    <span class="n">yy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">xy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">second_invariant</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                        <span class="n">factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">second_invariant</span>
+    <span class="c1"># 2. case for MONODISPERSE ---------------------------------------</span>
+    <span class="k">elif</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">Npoints</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
+        <span class="n">second_invariant</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Npoints</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dims</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+                <span class="n">tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">xx</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">yy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">zz</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">xy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">xz</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">yz</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">second_invariant</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                    <span class="n">factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">zz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">xy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">xz</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yz</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dims</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+                <span class="n">tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">xx</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">yy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">xy</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">second_invariant</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                    <span class="n">factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">xx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">second_invariant</span>
+
+<span class="c1"># PRESSURE </span>
+<span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_pressure</span><span class="p">(</span>
+    <span class="n">StressTensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute pressure from the stress tensor.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    StressTensor : (N, 3, 3) or (N, P, 3, 3) ndarray</span>
+<span class="sd">        Stress tensor(s), where P is the number of phases.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pressure : (N,) or (N, P) ndarray</span>
+<span class="sd">        Computed pressure(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 1. POLYDISPERSE case</span>
+    <span class="k">if</span> <span class="n">StressTensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">StressTensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">Pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nphases</span><span class="p">):</span>
+                <span class="n">Pressure</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">StressTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">dims</span>
+        <span class="k">return</span> <span class="n">Pressure</span>
+    <span class="c1"># 2. MONODISPERSE case</span>
+    <span class="k">elif</span> <span class="n">StressTensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">StressTensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">Pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Npoints</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="n">Pressure</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">StressTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">dims</span>
+        <span class="k">return</span> <span class="n">Pressure</span>
+
+<span class="c1"># INERTIAL NUMBER</span>
+<span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_inertial_number</span><span class="p">(</span>
+    <span class="n">shear_rate_tens_dev_mag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">particle_density_mix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">particle_diameter_mix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">density_phases</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">diameter_phases</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the inertial number for monodisperse or polydisperse systems, given by:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        I = \frac{\dot{\gamma} d \sqrt{\rho}}{\sqrt{|p|}}</span>
+<span class="sd">    </span>
+<span class="sd">    where :math:`\dot{\gamma}` is the magnitude of the deviatoric shear rate tensor, :math:`d` is the particle diameter, :math:`\rho` is the particle density, and :math:`p` is the pressure.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    shear_rate_tens_dev_mag : (N,) ndarray</span>
+<span class="sd">        Magnitude of the deviatoric shear rate tensor.</span>
+<span class="sd">    pressure : (N,) or (N, P) ndarray</span>
+<span class="sd">        Pressure values.</span>
+<span class="sd">    particle_density_mix : (N,) or (N, P) ndarray</span>
+<span class="sd">        Bulk particle density.</span>
+<span class="sd">    particle_diameter_mix : (N,) ndarray</span>
+<span class="sd">        Bulk particle diameter.</span>
+<span class="sd">    density_phases : (P-1,) ndarray</span>
+<span class="sd">        Densities for individual phases (polydisperse case).</span>
+<span class="sd">    diameter_phases : (P-1,) ndarray</span>
+<span class="sd">        Diameters for individual phases (polydisperse case).</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    Inertial_Number : (N,) or (N, P) ndarray</span>
+<span class="sd">        Dimensionless inertial number(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    
+    <span class="n">Npoints</span> <span class="o">=</span> <span class="n">pressure</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># 1. Monodisperse case</span>
+    <span class="k">if</span> <span class="n">pressure</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">Inertial_Number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Npoints</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pressure</span><span class="p">[</span><span class="n">g</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">denom</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">Inertial_Number</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">shear_rate_tens_dev_mag</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">particle_diameter_mix</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">particle_density_mix</span><span class="p">[</span><span class="n">g</span><span class="p">])</span> <span class="o">/</span> <span class="n">denom</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Inertial_Number</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">Inertial_Number</span>
+    <span class="c1"># 2. Polydisperse case</span>
+    <span class="k">elif</span> <span class="n">pressure</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">Nphases</span> <span class="o">=</span> <span class="n">pressure</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">Inertial_Number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nphases</span><span class="p">):</span>
+                <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pressure</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">denom</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">Inertial_Number</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">shear_rate_tens_dev_mag</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">particle_diameter_mix</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">particle_density_mix</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">])</span> <span class="o">/</span> <span class="n">denom</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">Inertial_Number</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">shear_rate_tens_dev_mag</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">diameter_phases</span><span class="p">[</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">density_phases</span><span class="p">[</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">denom</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">Inertial_Number</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">Inertial_Number</span>
+
+<span class="c1"># GRANULAR TEMPERATURE WEINHART 2016</span>
+<span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_granular_temperature</span><span class="p">(</span>
+    <span class="n">DensityMixture</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">KineticTensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Compute granular temperature following Weinhart (2016).</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+
+<span class="sd">        T_g = \frac{1}{D} \frac{\text{tr}(\mathbf{\sigma}^k)}{\rho_p} </span>
+
+<span class="sd">    where :math:`D` is the spatial dimension (2 or 3), :math:`\text{tr}(\mathbf{\sigma}^k)` is the trace of the kinetic energy tensor, and :math:`\rho_p` is the particle density. </span>
+
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    DensityMixture : (N,) or (N, P) ndarray</span>
+<span class="sd">        Bulk or phase-wise particle density.</span>
+<span class="sd">    KineticTensor : (N, 3, 3), (N, P, 3, 3), (N,), or (N, P) ndarray</span>
+<span class="sd">        Full kinetic energy tensor or scalar kinetic energy component.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    GranularTemperature : (N,) or (N, P) ndarray</span>
+<span class="sd">        Granular temperature(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># 1. cases for POLYDISPERSE ---------------------------------------</span>
+    <span class="c1"># a) full kinetic tensor is provided</span>
+    <span class="k">if</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">GranularTemperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nphases</span><span class="p">):</span>
+                <span class="n">denom</span> <span class="o">=</span> <span class="n">dims</span> <span class="o">*</span> <span class="n">DensityMixture</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">denom</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">KineticTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">denom</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">GranularTemperature</span>
+    <span class="c1"># b) 1 direction of the kinetic tensor is provided (i.e., 00 component)</span>
+    <span class="k">elif</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> 
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span> <span class="o">=</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">GranularTemperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nphases</span><span class="p">):</span>
+                <span class="n">denom</span> <span class="o">=</span> <span class="n">DensityMixture</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">denom</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">KineticTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">/</span> <span class="n">denom</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">GranularTemperature</span>
+    <span class="c1"># 2. cases for MONODISPERSE ---------------------------------------</span>
+    <span class="c1"># a) full kinetic tensor is provided</span>
+    <span class="k">elif</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">GranularTemperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Npoints</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="c1">#GranularTemperature[g] = np.trace(KineticTensor[g, :, :]) / (dims * DensityMixture[g])</span>
+            <span class="n">denom</span> <span class="o">=</span> <span class="n">dims</span> <span class="o">*</span> <span class="n">DensityMixture</span><span class="p">[</span><span class="n">g</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">denom</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">KineticTensor</span><span class="p">[</span><span class="n">g</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">denom</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># b) 1 direction of the kinetic tensor is provided (i.e., 00 component)</span>
+    <span class="k">elif</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">Npoints</span> <span class="o">=</span> <span class="n">KineticTensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">GranularTemperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">Npoints</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Npoints</span><span class="p">):</span>
+            <span class="c1">#GranularTemperature[g] = KineticTensor[g] / DensityMixture[g]</span>
+            <span class="n">denom</span> <span class="o">=</span> <span class="n">DensityMixture</span><span class="p">[</span><span class="n">g</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">denom</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="n">KineticTensor</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">/</span>  <span class="n">denom</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">GranularTemperature</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">GranularTemperature</span>
+
+<span class="c1"># BULK FABRIC TENSOR </span>
+<span class="nd">@njit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bulk_fabric_tensor_Sun2015</span><span class="p">(</span>
+    <span class="n">normalised_center_to_center_vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Compute the bulk fabric tensor following Sun et al. (2015).</span>
+
+<span class="sd">    .. math::    </span>
+
+<span class="sd">        \mathbf{A} = \frac{1}{N_c} \sum_{i=1}^{N_c} \left( \mathbf{l}_i \otimes \mathbf{l}_i - \frac{1}{3} \mathbf{I} \right)</span>
+<span class="sd">    </span>
+<span class="sd">    where :math:`N_c` is the number of contacts, :math:`\mathbf{l}_i` is the normalised contact vector between particle centers, and :math:`\mathbf{I}` is the identity matrix.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    normalised_center_to_center_vectors : (Nc, 3) ndarray</span>
+<span class="sd">        Normalised contact vectors between particle centers.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    A : (3, 3) ndarray</span>
+<span class="sd">        Bulk fabric tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">l</span> <span class="o">=</span> <span class="n">normalised_center_to_center_vectors</span>
+    <span class="n">Nc</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Compute the outer product for each vector, subtract (1/3)*I, and sum them</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prange</span><span class="p">(</span><span class="n">Nc</span><span class="p">):</span>
+        <span class="n">A</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">I</span>
+
+    <span class="n">A</span> <span class="o">/=</span> <span class="n">Nc</span>
+
+    <span class="k">return</span> <span class="n">A</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

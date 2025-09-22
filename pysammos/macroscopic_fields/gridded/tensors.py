@@ -2,90 +2,73 @@ r"""
 This module provides functions to compute coarse-grained tensor fields 
 from particle data using weighted averaging over local neighborhoods.
 
-Mathematically, the coarse-grained field \(\mathbf{F}(\mathbf{x})\) at a grid point \(\mathbf{x}\) 
+Mathematically, the coarse-grained field :math:`\mathbf{T}(\mathbf{x})` at a grid point :math:`\mathbf{x}` 
 is defined as follows:
 
-Tensor field (e.g. kinetic stress tensor):
----------------
-\[
-\mathbf{T}(\mathbf{x}) = \sum_{i \in \text{neigh}(\mathbf{x})} w_i \, \mathbf{d}_i \otimes \mathbf{d}_i
-\]
+.. math::
+
+    \mathbf{T}(\mathbf{x}) = \sum_{i \in \text{neigh}(\mathbf{x})} w_i \, \mathbf{d}_i \otimes \mathbf{d}_i
 
 where:
 
-- \(\mathbf{x}\) is a coarse-graining grid point,
-- \(\text{neigh}(\mathbf{x})\) is the set of particles contributing to the grid point \(\mathbf{x}\),
-- \(w_i\) is the coarse-graining weight for particle \(i\),
-- \(\mathbf{d}_i\) is a vector particle property,
-- \(\otimes\) denotes the outer product.
+    - :math:`\mathbf{x}` is a coarse-graining grid point,
+    - :math:`\text{neigh}(\mathbf{x})` is the set of particles contributing to the grid point :math:`\mathbf{x}`,
+    - :math:`w_i` is the coarse-graining weight for particle :math:`i`,
+    - :math:`\mathbf{d}_i` is a vector particle property,
+    - :math:`\otimes` denotes the outer product.
 
 
-Functions 
----------
-- `tensor_polydisperse_scaled`: Computes coarse-grained tensor fields for polydisperse particles with
-  an additional per-particle scaling factor.
 
-- `tensor_polydisperse`
-  Computes coarse-grained tensor fields for polydisperse particles without
-  scaling.
+Functions
 
-- `tensor_monodisperse_scaled(weights, visibility, grid_indices, Data1, Data2, Data_scale)`
-  Computes coarse-grained tensor fields for monodisperse particles with
-  an additional scaling factor.
+    - :func:`tensor_polydisperse_scaled`: Computes coarse-grained tensor fields for polydisperse particles with
+      an additional per-particle scaling factor.
+    - :func:`tensor_polydisperse`: Computes coarse-grained tensor fields for polydisperse particles without
+      scaling.
+    - :func:`tensor_monodisperse_scaled`: Computes coarse-grained tensor fields for monodisperse particles with
+      an additional scaling factor.
+    - :func:`tensor_monodisperse`: Computes coarse-grained tensor fields for monodisperse particle mixtures without
+      scaling.
+    - :func:`kinetic_tensor_interpolation_polydisperse`: Computes coarse-grained kinetic tensor for polydisperse mixtures 
+      by interpolating particle velocity fluctuations relative to a continuum velocity field.
+    - :func:`kinetic_tensor_interpolation_monodisperse`: Computes coarse-grained kinetic tensor for monodisperse mixtures 
+      by interpolating particle velocity fluctuations relative to a continuum velocity field.
 
-- `tensor_monodisperse(weights, visibility, grid_indices, Data1, Data2)`
-  Computes coarse-grained tensor fields for monodisperse particle mixtures without
-  scaling.
-
-- `kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices, displacement,
-                                     Particle_Velocity, Particle_Mass, 
-                                     Velocity_Field, Velocity_Field_Gradient, 
-                                     phase_array)`
-   Computes coarse-grained kinetic tensor for polydisperse mixtures 
-
-- `kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices, displacement,
-                                             Particle_Velocity, Particle_Mass, 
-                                             Velocity_Field, Velocity_Field_Gradient)`
-  Computes coarse-grained kinetic tensor for polydisperse mixtures 
 
 Overview
---------
+
 These functions transform particle-based quantities (e.g., mass, velocity
 components, diameters) into grid-based fields by applying a coarse-graining
 weighting scheme. The input typically consists of:
 
-- **weights**: Coarse-graining kernel weights per visible particle–grid point
-  interaction.
-- **visibility**: Mapping from weight entries back to particle indices.
-- **grid_indices**: Index offsets marking which particles contribute to each
-  grid point (with padding at start and end).
-- **Data**: Scalar quantities per particle.
-- **Phase** (polydisperse only): Phase identifiers for multi-phase simulations.
+    - **weights**: Coarse-graining kernel weights per visible particle–grid point interaction.
+    - **visibility**: Mapping from weight entries back to particle indices.
+    - **grid_indices**: Index offsets marking which particles contribute to each grid point (with padding at start and end).
+    - **Data**: Scalar quantities per particle.
+    - **Phase** (polydisperse only): Phase identifiers for multi-phase simulations.
 
 Monodisperse vs. Polydisperse
------------------------------
-- **Monodisperse**: All particles are treated identically; output is a single
-  tensor field per grid point.
-- **Polydisperse**: Particles are grouped by phase; output contains both
-  per-phase fields and a total field.
+
+    - **Monodisperse**: All particles are treated identically; output is a single tensor field per grid point.
+    - **Polydisperse**: Particles are grouped by phase; output contains both per-phase fields and a total field.
 
 Functions with `_scaled` apply an additional per-particle multiplicative factor
 (`Data_scale`), useful for scaling properties before coarse-graining.
 
-  Terminology
------------
-- **N_particles**: Number of particles in the simulation.
-- **N_vis**: Number of particle–grid point interactions (visible weights).
-- **N_points**: Number of grid points (excluding padding).
-- **Phase**: Integer labels identifying particle classes (e.g., material type).
+Terminology
+
+    - :math:`N_\mathrm{particles}`: Number of particles in the simulation.
+    - :math:`N_\mathrm{vis}`: Number of particle–grid point interactions (visible weights).
+    - :math:`N_\mathrm{points}`: Number of grid points (excluding padding).
+    - :math:`\mathrm{Phase}`: Integer labels identifying particle classes (e.g., material type).
 
 Performance Notes
------------------
-- All functions are Numba-jitted (`@njit`) with explicit type signatures.
-- `prange` is used to parallelize over grid points.
-- Temporary arrays are allocated per grid point; results are accumulated into
-  output arrays in a thread-safe manner.
-- Arrays must have consistent types and shapes to avoid recompilation overhead.
+
+    - All functions are Numba-jitted (`@njit`) with explicit type signatures.
+    - `prange` is used to parallelize over grid points.
+    - Temporary arrays are allocated per grid point; results are accumulated into output arrays in a thread-safe manner.
+    - Arrays must have consistent types and shapes to avoid recompilation overhead.
+
 """
 
 import numpy as np
@@ -100,8 +83,8 @@ def tensor_polydisperse_scaled(weights, visibility, grid_indices, Data1, Data2, 
     """
     Compute coarse-grained tensor fields for polydisperse systems with an additional scaling factor.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -153,8 +136,8 @@ def tensor_polydisperse(weights, visibility, grid_indices, Data1, Data2, Phase):
     """
     Compute coarse-grained tensor fields for polydisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -169,7 +152,7 @@ def tensor_polydisperse(weights, visibility, grid_indices, Data1, Data2, Phase):
     Phase : (N_particles,) int32 array
         Phase index (0..P-1) for each particle.
 
-    Returns
+    Outputs
     -------
     CG_Field : (N_points, N_phases + 1, 3, 3) float64 array
         Coarse-grained scalar field per phase (columns 1..P) and total (column 0).
@@ -207,8 +190,8 @@ def tensor_monodisperse_scaled(weights, visibility, grid_indices, Data1, Data2, 
     """
     Compute coarse-grained tensor fields for monodisperse systems with an additional scaling factor.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -223,7 +206,7 @@ def tensor_monodisperse_scaled(weights, visibility, grid_indices, Data1, Data2, 
     Data_scale : (N_particles,) float32 array
         Additional scaling factor per particle.
 
-    Returns
+    Outputs
     -------
     CG_Field : (N_points, 3, 3) float64 array
         Coarse-grained scalar field.
@@ -254,8 +237,8 @@ def tensor_monodisperse(weights, visibility, grid_indices, Data1, Data2):
     """
     Compute coarse-grained tensor fields for monodisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -272,7 +255,7 @@ def tensor_monodisperse(weights, visibility, grid_indices, Data1, Data2):
     Phase : (N_particles,) int32 array
         Phase index (0..P-1) for each particle.
 
-    Returns
+    Outputs
     -------
     CG_Field : (N_points, N_phases + 1, 3, 3) float64 array
         Coarse-grained scalar field per phase (columns 1..P) and total (column 0).
@@ -310,33 +293,25 @@ def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices,
     Compute the kinetic stress tensor for a polydisperse system by interpolating
     particle velocity fluctuations relative to a continuum velocity field.
 
-    The tensor is computed separately for each phase and summed to form a total tensor.
+    The tensor is computed separately for each phase and summed to form a total tensor. For each grid point \( g \) and phase \( p \), the kinetic tensor is:
 
-    Mathematical formulation:
+    .. math::
 
-    For each grid point \( g \) and phase \( p \), the kinetic tensor is:
-
-        \[
-        \mathbf{K}_{g,p} = \sum_{i \in I_g^{(p)}} m_i w_i (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}}) \otimes (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}})
-        \]
+        K_{g,p} = \sum_{i \in I_g^{(p)}} m_i w_i (v_i - v_g^{\text{interp}}) \otimes (v_i - v_g^{\text{interp}})
 
     where:
-      - \( I_g^{(p)} \) is the set of particles of phase \( p \) contributing to grid point \( g \)
-      - \( m_i \) is the mass of particle \( i \)
-      - \( w_i \) is the kernel weight of particle \( i \) for grid point \( g \)
-      - \( \mathbf{v}_i \) is the velocity of particle \( i \)
-      - \( \mathbf{v}_g^{\text{interp}} = \mathbf{v}_g + \mathbf{G}_g \cdot \mathbf{r}_{g,i} \) is the interpolated continuum velocity at particle \( i \) position
-      - \( \mathbf{r}_{g,i} \) is the displacement vector from grid point \( g \) to particle \( i \)
-      - \( \otimes \) denotes the outer product
 
-    The total tensor at grid point \( g \) is:
+      - :math:`I_g^{(p)}` is the set of particles of phase p contributing to grid point g
+      - :math:`m_i` is the mass of particle i
+      - :math:`w_i` is the kernel weight of particle i for grid point g
+      - :math:`v_i` is the velocity of particle i
+      - :math:`v_g^{interp} = v_g + G_g \cdot r_{g,i}` is the interpolated continuum velocity at particle i position
+      - :math:`r_{g,i}` is the displacement vector from grid point g to particle i
+      - :math:`\otimes` denotes the outer product
 
-        \[
-        \mathbf{K}_{g,0} = \sum_{p=1}^{N_{\text{phases}}} \mathbf{K}_{g,p}
-        \]
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -357,8 +332,8 @@ def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices,
     phase_array : (N_particles,) int32 array
         Phase index (0..P-1) for each particle.
 
-    Returns:
-    --------
+    Outputs
+    -------
     KineticTensor : (N_points, N_phases + 1, 3, 3) float64 array
         Kinetic stress tensor per grid point and phase. Index 0 is total over phases.
     """
@@ -425,7 +400,7 @@ def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices,
                                              Particle_Velocity, Particle_Mass, 
                                              Velocity_Field, Velocity_Field_Gradient):
     
-    r"""
+    """
     Compute the kinetic stress tensor for a monodisperse system by interpolating
     particle velocity fluctuations relative to a continuum velocity field.
 
@@ -433,21 +408,19 @@ def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices,
 
     For each grid point \( g \), the kinetic tensor is:
 
-        \[
+    .. math::
+
         \mathbf{K}_{g} = \sum_{i \in I_g} m_i w_i (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}}) \otimes (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}})
-        \]
-
     where:
-      - \( I_g \) is the set of particles contributing to grid point \( g \)
-      - \( m_i \) is the mass of particle \( i \)
-      - \( w_i \) is the kernel weight of particle \( i \) for grid point \( g \)
-      - \( \mathbf{v}_i \) is the velocity of particle \( i \)
-      - \( \mathbf{v}_g^{\text{interp}} = \mathbf{v}_g + \mathbf{G}_g \cdot \mathbf{r}_{g,i} \) is the interpolated continuum velocity at particle \( i \) position
-      - \( \mathbf{r}_{g,i} \) is the displacement vector from grid point \( g \) to particle \( i \)
-      - \( \otimes \) denotes the outer product
+      - :math:`I_g` is the set of particles contributing to grid point \( g \)
+      - :math:`m_i` is the mass of particle \( i \)
+      - :math:`w_i` is the kernel weight of particle \( i \) for grid point \( g \)
+      - :math:`\mathbf{v}_i` is the velocity of particle \( i \)
+      - :math:`\mathbf{v}_g^{\text{interp}} = \mathbf{v}_g + \mathbf{G}_g \cdot \mathbf{r}_{g,i}` is the interpolated continuum velocity at particle \( i \)
+      - :math:`\mathbf{r}_{g,i}` is the displacement vector from grid point \( g \) to particle \( i \)
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -466,8 +439,8 @@ def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices,
     Velocity_Field_Gradient : (N_points, 3, 3) float64 array
         Velocity gradient tensors at each grid point.
 
-    Returns:
-    --------
+    Outputs
+    -------
     KineticTensor : (N_points, 3, 3) float64 array
         Kinetic stress tensor per grid point.
     """

@@ -2,79 +2,68 @@ r"""
 This module provides functions to compute coarse-grained vector fields 
 from particle data using weighted averaging over local neighborhoods.
 
-Mathematically, the coarse-grained field \(\mathbf{F}(\mathbf{x})\) at a grid point \(\mathbf{x}\) 
-is defined as follows:
+Mathematically, the coarse-grained field :math:`\mathbf{F}(\mathbf{x})` at a grid point :math:`\mathbf{x}` is defined as:
 
-Vector field (e.g. momentum density):
----------------
-\[
-\mathbf{v}(\mathbf{x}) = \sum_{i \in \text{neigh}(\mathbf{x})} w_i \, \mathbf{d}_i
-\]
+.. math::
+
+    \mathbf{F}(\mathbf{x}) = \sum_{i \in \text{neigh}(\mathbf{x})} w_i \, \mathbf{d}_i
+
 
 where:
 
-- \(\mathbf{x}\) is a coarse-graining grid point,
-- \(\text{neigh}(\mathbf{x})\) is the set of particles contributing to the grid point \(\mathbf{x}\),
-- \(w_i\) is the coarse-graining weight for particle \(i\),
-- \(\mathbf{d}_i\) is a vector particle property,
+    - :math:`\mathbf{F}(\mathbf{x})` is the coarse-grained vector field at grid point :math:`\mathbf{x}`,
+    - :math:`w_i` is the coarse-graining weight for particle :math:`i`,
+    - :math:`\mathbf{d}_i` is a vector particle property (e.g., velocity, diameter).    
 
 
-Functions 
----------
-- `vector_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_scale, Phase)`
-  Computes coarse-grained vector fields for polydisperse particles with
-  an additional per-particle scaling factor.
 
-- `vector_polydisperse(weights, visibility, grid_indices, Data, Phase)`
-  Computes coarse-grained vector fields for polydisperse particles without
-  scaling.
+**Functions**
+    
+    - :func:`vector_polydisperse_scaled`: Computes coarse-grained vector fields for polydisperse particles with
+      an additional per-particle scaling factor.
+    - :func:`vector_polydisperse`: Computes coarse-grained vector fields for polydisperse particles without
+      scaling.
+    - :func:`vector_monodisperse_scaled`: Computes coarse-grained vector fields for monodisperse particles with
+      an additional scaling factor.
+    - :func:`vector_monodisperse`: Computes coarse-grained vector fields for monodisperse particle mixtures without
+      scaling.   
 
-- `vector_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_scale)`
-  Computes coarse-grained tensor fields for monodisperse particles with
-  an additional scaling factor.
+**Overview**
 
-- `vector_monodisperse(weights, visibility, grid_indices, Data)`
-  Computes coarse-grained vector fields for monodisperse particle mixtures without
-  scaling.
-
-Overview
---------
 These functions transform particle-based quantities (e.g., mass, velocity
 components, diameters) into grid-based fields by applying a coarse-graining
 weighting scheme. The input typically consists of:
 
-- **weights**: Coarse-graining kernel weights per visible particle–grid point
-  interaction.
-- **visibility**: Mapping from weight entries back to particle indices.
-- **grid_indices**: Index offsets marking which particles contribute to each
-  grid point (with padding at start and end).
-- **Data**: Scalar quantities per particle.
-- **Phase** (polydisperse only): Phase identifiers for multi-phase simulations.
+    - **weights**: Coarse-graining kernel weights per visible particle–grid point interaction.
+    - **visibility**: Mapping from weight entries back to particle indices.
+    - **grid_indices**: Index offsets marking which particles contribute to each grid point (with padding at start and end).
+    - **Data**: Scalar quantities per particle.
+    - **Phase** (polydisperse only): Phase identifiers for multi-phase simulations.
+    - **Data_scale** (scaled versions only): Additional per-particle scaling factors.
 
-Monodisperse vs. Polydisperse
------------------------------
-- **Monodisperse**: All particles are treated identically; output is a single
-  tensor field per grid point.
-- **Polydisperse**: Particles are grouped by phase; output contains both
-  per-phase fields and a total field.
+**Monodisperse vs. Polydisperse**
 
-Functions with `_scaled` apply an additional per-particle multiplicative factor
-(`Data_scale`), useful for scaling properties before coarse-graining.
+This module implements high-performance, parallelized functions for computing coarse-grained scalar fields from discrete particle data using Numba `@njit` and `prange` for loop-level parallelism. It supports both monodisperse and polydisperse particle systems, with optional per-particle scaling factors.
 
-  Terminology
------------
-- **N_particles**: Number of particles in the simulation.
-- **N_vis**: Number of particle–grid point interactions (visible weights).
-- **N_points**: Number of grid points (excluding padding).
-- **Phase**: Integer labels identifying particle classes (e.g., material type).
+    - **Monodisperse**: All particles are treated identically; output is a single scalar field per grid point.
+    - **Polydisperse**: Particles are grouped by phase; output contains both per-phase fields and a total field.
 
-Performance Notes
------------------
-- All functions are Numba-jitted (`@njit`) with explicit type signatures.
-- `prange` is used to parallelize over grid points.
-- Temporary arrays are allocated per grid point; results are accumulated into
-  output arrays in a thread-safe manner.
-- Arrays must have consistent types and shapes to avoid recompilation overhead.
+Functions with `_scaled` apply an additional per-particle multiplicative factor (:math:`\mathrm{Data\_scale}`), useful for scaling properties before coarse-graining.
+
+**Terminology**
+
+    - :math:`N_\mathrm{particles}`: Number of particles in the simulation.
+    - :math:`N_\mathrm{vis}`: Number of particle–grid point interactions (visible weights).
+    - :math:`N_\mathrm{points}`: Number of grid points (excluding padding).
+    - :math:`\mathrm{Phase}`: Integer labels identifying particle classes (e.g., material type).
+
+**Performance Notes**
+
+    - All functions are Numba-jitted (`@njit`) with explicit type signatures.
+    - `prange` is used to parallelize over grid points.
+    - Temporary arrays are allocated per grid point; results are accumulated into output arrays in a thread-safe manner.
+    - Arrays must have consistent types and shapes to avoid recompilation overhead.
+
 """
 
 import numpy as np

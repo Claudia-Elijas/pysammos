@@ -1,25 +1,14 @@
 """
-Kernel width and cutoff calculation utilities
-=============================================
-
 This module provides helper functions for determining characteristic length
 scales used in kernel-based coarse-graining, smoothing, and interpolation
 methods. These parameters are essential in defining the support domain of a
 kernel function and thus controlling the spatial resolution of computed
 fields.
 
-Functions
----------
-calc_half_width(Average_part_diam, w_mult=0.75)
-    Computes the kernel half-width `w` from an average particle diameter `D`
-    scaled by a user-defined multiplicative factor.
+This module includes the following functions:
+    - :func:`calc_half_width`: Computes the kernel half-width `w` from an average particle diameter `D` scaled by a user-defined multiplicative factor.
+    - :func:`calc_cutoff`: Computes the kernel cutoff radius `c` based on the half-width `w` and the chosen kernel type (Lucy, Gaussian, or HeavySide).
 
-calc_cutoff(w, function)
-    Computes the kernel cutoff radius `c` based on the half-width `w` and
-    the chosen kernel type (Lucy, Gaussian, or HeavySide).
-
-Typical use
------------
 These functions are often called during preprocessing to set consistent
 smoothing parameters for all particles in a simulation, ensuring that the
 kernel shape and support are appropriately scaled to particle size.
@@ -40,8 +29,8 @@ def calc_half_width(Average_part_diam, w_mult=0.75):
     where :math:`D` is the average particle diameter and :math:`w_{\text{mult}}` is
     the user-defined multiplicative scaling factor.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     Average_part_diam : float
         The average particle diameter :math:`D`.
 
@@ -49,7 +38,7 @@ def calc_half_width(Average_part_diam, w_mult=0.75):
         The multiplicative factor for calculating the half-width `w`.
         Default is 0.75.
 
-    Returns
+    Outputs
     -------
     w : float
         The computed half-width `w`.
@@ -72,8 +61,8 @@ def calc_cutoff(w, function):
     - For the Gaussian kernel: :math:`c = 3w`
     - For the Heaviside (step) function: :math:`c = w`
 
-    Parameters
-    ----------
+    Inputs
+    ------
     w : float
         The half-width parameter used in the kernel.
 
@@ -81,7 +70,7 @@ def calc_cutoff(w, function):
         The name of the kernel function. Must be one of:
         `'Lucy'`, `'Gaussian'`, or `'HeavySide'`.
 
-    Returns
+    Outputs
     -------
     c : float
         The calculated cutoff value.

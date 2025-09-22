@@ -1,6 +1,5 @@
 """
 vtkhdf_enhanced3_flexible.py - ECP Breard
-
 Enhanced VTK HDF ImageData format library with full vector and flexible tensor support.
 Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).
 """

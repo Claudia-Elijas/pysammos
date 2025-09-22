@@ -1,18 +1,17 @@
-pysammos.data\_read package
-===========================
+Data Read 
+==========
 
-Subpackages
------------
+pysammos.data\_read
 
-.. toctree::
-   :maxdepth: 4
-
-   pysammos.data_read.mfix
-
-Module contents
----------------
+Module for reading data from various DEM sources into pysammos.
 
 .. automodule:: pysammos.data_read
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+.. toctree::
+   :maxdepth: 4
+
+   pysammos.data_read.mfix

@@ -1,19 +1,16 @@
 """
-Point data reading functions for MFIX simulations.
-==================================================
-
 This module provides functions to read and process point data from MFIX simulations.
 It extracts particle information such as position, global ID, velocity, diameter, density,
 volume, mass, and coordination number from the point data, allowing for further analysis and manipulation.
 It is designed to work with VTK data structures, converting them into NumPy arrays for easier handling.
 
-Functions
----------
-- `particles`: Extracts particle data from the input connection, including position, global ID,
+The main functions provided in this module are:
+    1. :func:`particles`: Extracts particle data from the input connection, including position, global ID,
     velocity, diameter, density, volume, mass, and coordination number.
-- `contacts`: Extracts contact data from the input connection, including particle IDs, total forces
+    2. :func:`contacts`: Extracts contact data from the input connection, including particle IDs, total forces
     and contact points.
-- `Reader_vtm`: Reads VTM files and extracts all PolyData blocks, merging them into a single PolyData object.
+    3. :func:`Reader_vtm`: Reads VTM files and extracts all PolyData blocks, merging them into a single PolyData object.
+
 """
 
 # import necessary libraries
@@ -40,8 +37,8 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
     Extracts particle data from the input connection, including position, global ID,
     velocity, diameter, density, volume, mass, and coordination number.
 
-    Parameters:
-    ----------
+    Inputs
+    ------
     InputConnection : vtk.vtkAlgorithmOutput
         The input connection containing the VTK data.
     Global_ID_string : str, optional
@@ -61,7 +58,7 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
     Coordination_Number_string : str, optional
         The name of the coordination number variable in the point data (default is "Coordination_Number").
     
-    Returns:
+    Outputs
     --------
     Position_sorted : np.ndarray, shape (N, 3).
         The sorted positions of the particles.
@@ -87,14 +84,14 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
     ValueError
         If any of the required strings (Global_ID_string, Density_string, etc.) are None or not provided.
     
-    Notes:
+    Notes
     -----
-    - The function retrieves the point data from the input connection and extracts the specified variables.
-    - The global IDs are sorted, and the corresponding positions, velocities, diameters, densities
-      volumes, masses, and coordination numbers are also sorted based on the global IDs.
-    - If any optional variables (Velocity_string, Diameter_string, etc.) are not provided,
-      the corresponding output will be None.
-    - The function returns the sorted arrays and the bounds of the point data.  
+        - The function retrieves the point data from the input connection and extracts the specified variables.
+        - The global IDs are sorted, and the corresponding positions, velocities, diameters, densities
+        volumes, masses, and coordination numbers are also sorted based on the global IDs.
+        - If any optional variables (Velocity_string, Diameter_string, etc.) are not provided,
+        the corresponding output will be None.
+        - The function returns the sorted arrays and the bounds of the point data.  
 
 
     """
@@ -168,8 +165,8 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
     Extracts contact data from the input connection, including particle IDs, total forces
     and contact points.
 
-    Parameters:
-    ----------
+    Inputs
+    ------
     InputConnection : vtk.vtkAlgorithmOutput
         The input connection containing the VTK data.
     Particle_i_string : str, optional
@@ -181,7 +178,7 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
     Contact_ij_string : str, optional   
         The name of the contact points variable in the point data (default is None).
 
-    Returns:
+    Otuputs
     --------
     Particle_i : np.ndarray, shape (N,)
         The particle IDs of the first particles involved in the contacts.
@@ -192,6 +189,16 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
     Contact_ij : np.ndarray, shape (N, 3), optional
         The contact points between the particles, if available.
 
+    Raises
+    ------
+    ValueError
+        If any of the required strings (Particle_i_string, Particle_j_string, Force_ij_string) are None or not provided.
+    Notes
+    -----
+        - The function retrieves the point data from the input connection and extracts the specified variables.
+        - If any optional variables (Force_ij_string, Contact_ij_string) are not provided,
+        the corresponding output will be None.
+        - The function returns the arrays of particle IDs, total forces, and contact points.
 
     """
 

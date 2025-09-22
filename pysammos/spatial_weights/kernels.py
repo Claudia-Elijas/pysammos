@@ -1,25 +1,18 @@
 """
-Kernel functions module
-=======================
-
 This module provides a collection of commonly used kernel functions for
 smoothing, weighting, and interpolation in particle-based methods such as
 Smoothed Particle Hydrodynamics (SPH) or coarse-graining techniques.
 
-Included kernels:
+This module includes implementations of several kernel functions:
 
-- Lucy kernel: A smooth, compactly supported kernel with continuous derivatives.
-- Top-hat (step) function: A simple binary indicator function.
-- Heaviside kernel: Uniform weighting inside a spherical cutoff volume.
-- Gaussian kernel: A smooth, bell-shaped kernel with compact support truncated
-  at three standard deviations.
+    - :func:`lucy`: The Lucy kernel, a smooth, compactly supported kernel with continuous derivatives.
+    - :func:`h`: The top-hat (step) function, a simple binary indicator function.
+    - :func:`heavySide`: The Heaviside kernel, which provides uniform weighting inside a spherical cutoff volume.
+    - :func:`gaussian`: The Gaussian kernel, a smooth, bell-shaped kernel with compact support truncated at three standard deviations.
 
 Each kernel function computes a weight based on the distance from a kernel center
 and a cutoff radius, ensuring locality and normalization properties as appropriate.
 
-These kernels are useful for weighting contributions of particles or points
-within a neighborhood and are foundational in various numerical methods
-in computational physics, fluid dynamics, and materials science.
 """
 
 from scipy.special import erf
@@ -46,15 +39,15 @@ def lucy(c,dist):
         0 & \text{if } r > c
         \end{cases}
 
-    Parameters
-    ----------
+    Inputs
+    ------
     c : float
         Cutoff distance.
 
     dist : float
         Distance between the evaluation point and the kernel center.
 
-    Returns
+    Outputs
     -------
     W : float
         The weight computed from the Lucy kernel.
@@ -80,15 +73,16 @@ def h(dis):
         0 & \text{otherwise}
         \end{cases}
 
-    Parameters
-    ----------
+    Inputs
+    ------
     dis : float
         Input value.
 
-    Returns
+    Outputs
     -------
     int
         1 if `dis > 0`, otherwise 0.
+
     """ 
     if dis > 0:
         return 1
@@ -113,15 +107,15 @@ def heavySide(c, dist):
 
     where :math:`\Omega = \dfrac{4}{3}\pi c^3` is the normalization volume of a sphere.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     c : float
         Cutoff distance (radius of the uniform sphere).
 
     dist : float
         Distance from the kernel center.
 
-    Returns
+    Outputs
     -------
     HS : float
         The Heaviside kernel value.
@@ -164,15 +158,15 @@ def gaussian(c, dist):
         \operatorname{erf}\left(\dfrac{c\sqrt{2}}{2w}\right)
         - 4cw^2\pi \exp\left(-\dfrac{c^2}{2w^2}\right)
 
-    Parameters
-    ----------
+    Inputs
+    ------
     c : float
         Cutoff distance (typically `3σ`).
 
     dist : float
         Distance between the evaluation point and the kernel center.
 
-    Returns
+    Outputs
     -------
     W : float
         The Gaussian kernel value.

@@ -21,8 +21,10 @@ release = '0.1'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
-    "sphinx_autodoc_typehints"
+    "sphinx_autodoc_typehints", 
+    "sphinx.ext.viewcode"
 ]
+
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
@@ -32,10 +34,13 @@ exclude_patterns = []
 
 language = 'english'
 
+# Highlight style
+pygments_style = "sphinx"
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'furo'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # Mock heavy dependencies that cause import errors during doc build

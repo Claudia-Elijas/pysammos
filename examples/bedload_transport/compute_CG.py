@@ -68,7 +68,7 @@ print(">> Grid: ")
 print("       Grid Points: ", CG.GridPoints.shape, "First Point: ", CG.GridPoints[0])
 print("       Nodes: ", CG.Nodes)
 print("       Spacing: ", CG.Spacing)
-
+ 
 # 6. Calculate the CG fields
 CG.fields_in_time()
 

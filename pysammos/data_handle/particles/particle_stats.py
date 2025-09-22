@@ -1,10 +1,8 @@
 """
-Particle Statistics Module
-==========================
+This module provides functions to compute statistical properties of particle systems.
+Currently, it includes the following function:
+    1. :func:`d50_calc`: Computes the D50 (median diameter) from sorted particle diameters and their corresponding masses.
 
-Functions
---------
-- d50_calc: Computes the D50 (median diameter) from sorted particle diameters and their corresponding masses.
 """
 
 # import necessary libraries
@@ -13,21 +11,28 @@ import numpy as np
 
 def d50_calc(diameter_t0_sort:np.ndarray, mass_t0_sort:np.ndarray) -> float:
     r"""
+
     Calculate the D50 (median diameter) from sorted particle diameters and their corresponding masses.
     The D50 is the diameter at which 50% of the total mass is contained in particles smaller than this diameter.
+
     The mathematical formula is given by:
+
+    
     .. math::
+        
         D_{50} = \frac{d_{i-1} + (0.5 - F_{i-1}) \cdot (d_i - d_{i-1})}{F_i - F_{i-1}}
+
+
     where :math:`F_i` is the cumulative mass fraction at diameter :math:`d_i`, 
     and :math:`F_{i-1}` is the cumulative mass fraction at diameter :math:`d_{i-1}`.
     
-    Parameters
-    ----------
+    Inputs
+    ------
     diameter_t0_sort : ndarray, shape (N,).
         Sorted array of particle diameters.
     mass_t0_sort : ndarray, shape (N,).
         Sorted array of particle masses corresponding to the diameters.
-    Returns
+    Outputs
     -------
     d50 : float
         The D50 diameter value.
@@ -40,7 +45,8 @@ def d50_calc(diameter_t0_sort:np.ndarray, mass_t0_sort:np.ndarray) -> float:
     >>> d50 = d50_calc(diameters, masses)
     >>> print(d50)
     0.3 
-
+    This indicates that 50% of the total mass is contained 
+    in particles with diameters less than or equal to 0.3.
 
     """
     

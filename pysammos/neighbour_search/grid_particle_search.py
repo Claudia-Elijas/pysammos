@@ -1,21 +1,23 @@
 """
-Grid particle association
-=========================
+Module for efficiently matching particles to grid points within a cutoff radius and calculating displacement vectors and distances between them.
 
-Module for efficiently matching particles to grid points within a cutoff radius
-and calculating displacement vectors and distances between them.
+This module contains two main functions:
 
-Functions
----------
-
-- `particle_node_match`: Uses kd-tree spatial queries to find particles within a cutoff radius of each grid point, returning
-  start indices and a flattened array of matching particle indices.
-  
-- `calc_displacement`: Computes displacement vectors and distances between each grid point and its neighboring particles,
-  using the output of `particle_node_match`.
+    - :func:`particle_node_match`: Uses kd-tree spatial queries to find particles within a cutoff radius of each grid point, returning
+    start indices and a flattened array of matching particle indices.
+    
+    - :func:`calc_displacement`: Computes displacement vectors and distances between each grid point and its neighboring particles,
+    using the output of `particle_node_match`.
 
 These functions facilitate coarse-graining operations by quickly associating particles to grid points
 and calculating relative positional data in an optimized manner.
+
+**Terminology:**
+    - :math:`N_{points}`: Number of coarse-graining grid points.
+    - :math:`N_{particles}`: Number of particles in the system.
+    - :math:`N_{total\_neighbors}`: Total number of particle-grid point neighbor pairs found within the cutoff distance.
+    - :math:`c`: Cutoff distance for neighbor searching.
+
 """
 
 
@@ -32,8 +34,8 @@ def particle_node_match(GridPoints:np.ndarray, Particle_Position:np.ndarray, c:f
     """
     Find particles within a cutoff distance of each grid point using kd-tree queries.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     GridPoints : np.ndarray, shape(N_points, 3) 
         Coordinates of the coarse-graining grid points in 3D space.
     Particle_Position : np.ndarray, (N_particles, 3) 
@@ -41,7 +43,7 @@ def particle_node_match(GridPoints:np.ndarray, Particle_Position:np.ndarray, c:f
     c : float
         Cutoff distance within which particles are considered neighbors to grid points.
 
-    Returns
+    Outputs
     -------
     start_indices : np.ndarray, shape(N_points + 2,) 
         Array of start indices into the flattened particle indices array for each grid point.
@@ -74,8 +76,8 @@ def calc_displacement(GridPoints, Particle_Position, start_indices, visibility):
     """
     Calculate displacement vectors and distances between grid points and visible particles.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     GridPoints : np.ndarray, shape(N_points, 3) 
         Coordinates of coarse-graining grid points.
     Particle_Position : np.ndarray, shape(N_particles, 3)
@@ -86,7 +88,7 @@ def calc_displacement(GridPoints, Particle_Position, start_indices, visibility):
     visibility : np.ndarray, shape(N_total_neighbors,)
         Flattened array of particle indices visible to each grid point.
 
-    Returns
+    Outputs
     -------
     displacement_vectors : np.ndarray, shape(N_total_neighbors, 3) 
         Displacement vectors from each particle to the corresponding grid point.

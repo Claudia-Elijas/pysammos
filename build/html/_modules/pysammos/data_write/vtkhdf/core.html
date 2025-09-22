@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.data_write.vtkhdf.core &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+        <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Pysammos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>pysammos.data_write.vtkhdf.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.data_write.vtkhdf.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">vtkhdf_enhanced3_flexible.py - ECP Breard</span>
+<span class="sd">Enhanced VTK HDF ImageData format library with full vector and flexible tensor support.</span>
+<span class="sd">Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">vtk</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="c1"># Constants from vtkhdf.image</span>
+<span class="n">VTKHDF</span> <span class="o">=</span> <span class="s2">&quot;VTKHDF&quot;</span>
+<span class="n">IMAGEDATA</span> <span class="o">=</span> <span class="s2">&quot;ImageData&quot;</span>
+<span class="n">POINTDATA</span> <span class="o">=</span> <span class="s2">&quot;PointData&quot;</span>
+<span class="n">CELLDATA</span> <span class="o">=</span> <span class="s2">&quot;CellData&quot;</span>
+<span class="n">FIELDDATA</span> <span class="o">=</span> <span class="s2">&quot;FieldData&quot;</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s2">&quot;Version&quot;</span>
+<span class="n">TYPE</span> <span class="o">=</span> <span class="s2">&quot;Type&quot;</span>
+<span class="n">EXTENT</span> <span class="o">=</span> <span class="s2">&quot;WholeExtent&quot;</span>
+<span class="n">ORIGIN</span> <span class="o">=</span> <span class="s2">&quot;Origin&quot;</span>
+<span class="n">SPACING</span> <span class="o">=</span> <span class="s2">&quot;Spacing&quot;</span>
+<span class="n">DIRECTION</span> <span class="o">=</span> <span class="s2">&quot;Direction&quot;</span>
+<span class="n">SCALARS</span> <span class="o">=</span> <span class="s2">&quot;Scalars&quot;</span>
+<span class="n">VECTORS</span> <span class="o">=</span> <span class="s2">&quot;Vectors&quot;</span>
+<span class="n">TENSORS</span> <span class="o">=</span> <span class="s2">&quot;Tensors&quot;</span>  <span class="c1"># For standard 9-component tensors</span>
+<span class="n">DATA_ORDER</span> <span class="o">=</span> <span class="s2">&quot;DataOrder&quot;</span>  <span class="c1"># Track orientation</span>
+
+<span class="c1"># Common tensor sizes</span>
+<span class="n">TENSOR_SYMMETRIC</span> <span class="o">=</span> <span class="mi">6</span>  <span class="c1"># Symmetric 3x3: xx, yy, zz, xy, xz, yz</span>
+<span class="n">TENSOR_FULL</span> <span class="o">=</span> <span class="mi">9</span>       <span class="c1"># Full 3x3: xx, xy, xz, yx, yy, yz, zx, zy, zz</span>
+<span class="n">TENSOR_4D</span> <span class="o">=</span> <span class="mi">27</span>        <span class="c1"># 3x3x3 tensor</span>
+
+<span class="c1"># Utility functions from vtkhdf.image</span>
+<div class="viewcode-block" id="c2f_reshape">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.c2f_reshape">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">c2f_reshape</span><span class="p">(</span><span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert C-order array to Fortran-order.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asfortranarray</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="f2c_reshape">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.f2c_reshape">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">f2c_reshape</span><span class="p">(</span><span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert Fortran-order array to C-order.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extent2dimensions">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.extent2dimensions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extent2dimensions</span><span class="p">(</span><span class="n">extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert extent to dimensions.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">extent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">extent</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">extent</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> <span class="n">extent</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dimensions2extent">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.dimensions2extent">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dimensions2extent</span><span class="p">(</span><span class="n">dimensions</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert dimensions to extent.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="point2cell_extent">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.point2cell_extent">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">point2cell_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert point extent to cell extent.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">max</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">max</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">extent</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="nb">max</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="point2cell_dimensions">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.point2cell_dimensions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">point2cell_dimensions</span><span class="p">(</span><span class="n">dimensions</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert point dimensions to cell dimensions.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="create_field_dataset">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.create_field_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_field_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create field dataset.&quot;&quot;&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">FIELDDATA</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_field_array">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_field_array">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_field_array</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get field array from ImageData.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">image_data</span><span class="o">.</span><span class="n">field_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span></div>
+
+
+<span class="c1"># Enhanced functions</span>
+<div class="viewcode-block" id="initialize">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.initialize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">origin</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+               <span class="n">spacing</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+               <span class="n">direction</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+               <span class="n">data_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FortranOrder&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize VTK HDF file structure with orientation tracking.&quot;&quot;&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">VTKHDF</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">VERSION</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">TYPE</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">IMAGEDATA</span><span class="p">))</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">EXTENT</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">ORIGIN</span><span class="p">,</span> <span class="n">origin</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">SPACING</span><span class="p">,</span> <span class="n">spacing</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">DIRECTION</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">DATA_ORDER</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">data_order</span><span class="p">))</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">POINTDATA</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">CELLDATA</span><span class="p">)</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">FIELDDATA</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_point_data_shape">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_point_data_shape">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_point_data_shape</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get point data shape in C order.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">extent2dimensions</span><span class="p">(</span><span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">EXTENT</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_cell_data_shape">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_cell_data_shape">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cell_data_shape</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get cell data shape in C order.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">point2cell_dimensions</span><span class="p">(</span><span class="n">get_point_data_shape</span><span class="p">(</span><span class="n">h5_file</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="is_vector_data">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.is_vector_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_vector_data</span><span class="p">(</span><span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">expected_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if array is vector data (always 3 components).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> 
+            <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">expected_size</span> <span class="ow">and</span> 
+            <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_tensor_data">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.is_tensor_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_tensor_data</span><span class="p">(</span><span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">expected_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                   <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if array is tensor data.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        array: Input array</span>
+<span class="sd">        expected_size: Expected number of points/cells</span>
+<span class="sd">        components: If specified, check for exact component count.</span>
+<span class="sd">                   If None, return component count if it&#39;s tensor data, False otherwise.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        If components specified: bool indicating if array matches</span>
+<span class="sd">        If components is None: component count if tensor-like (&gt;3), False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected_size</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="n">n_components</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">components</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">n_components</span> <span class="o">==</span> <span class="n">components</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Consider anything &gt; 3 components as potential tensor data</span>
+        <span class="c1"># (3 components are vectors)</span>
+        <span class="k">return</span> <span class="n">n_components</span> <span class="k">if</span> <span class="n">n_components</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="create_adaptive_chunks">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.create_adaptive_chunks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_adaptive_chunks</span><span class="p">(</span><span class="n">shape_c</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">component_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                          <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create chunk shape adapted to grid asymmetry.&quot;&quot;&quot;</span>
+    <span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">shape_c</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+    
+    <span class="c1"># Target chunk size: 1-4 MB</span>
+    <span class="n">bytes_per_element</span> <span class="o">=</span> <span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="n">component_size</span>
+    <span class="n">target_bytes</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># 2 MB</span>
+    <span class="n">max_bytes</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>     <span class="c1"># 4 MB</span>
+    
+    <span class="c1"># Calculate slice size</span>
+    <span class="n">slice_bytes</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">*</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">bytes_per_element</span>
+    
+    <span class="k">if</span> <span class="n">slice_bytes</span> <span class="o">&lt;=</span> <span class="n">max_bytes</span><span class="p">:</span>
+        <span class="c1"># Use full XY slices</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Need to chunk within slices</span>
+        <span class="n">target_elements</span> <span class="o">=</span> <span class="n">target_bytes</span> <span class="o">//</span> <span class="n">bytes_per_element</span>
+        
+        <span class="k">if</span> <span class="n">nx</span> <span class="o">&gt;</span> <span class="n">ny</span><span class="p">:</span>
+            <span class="n">chunk_nx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_elements</span><span class="p">)))</span>
+            <span class="n">chunk_ny</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">target_elements</span> <span class="o">//</span> <span class="n">chunk_nx</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chunk_ny</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">target_elements</span><span class="p">)))</span>
+            <span class="n">chunk_nx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">target_elements</span> <span class="o">//</span> <span class="n">chunk_ny</span><span class="p">)</span>
+        
+        <span class="n">chunk_nx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">chunk_nx</span><span class="p">)</span>
+        <span class="n">chunk_ny</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">chunk_ny</span><span class="p">)</span>
+        
+        <span class="n">chunks</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">chunk_ny</span><span class="p">,</span> <span class="n">chunk_nx</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">component_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">chunks</span> <span class="o">+</span> <span class="p">(</span><span class="n">component_size</span><span class="p">,)</span>
+    
+    <span class="k">return</span> <span class="n">chunks</span></div>
+
+
+
+<div class="viewcode-block" id="create_point_dataset">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.create_point_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_point_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                         <span class="n">is_vector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                         <span class="n">is_tensor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                         <span class="n">tensor_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create point dataset with adaptive chunking and flexible tensor support.&quot;&quot;&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">POINTDATA</span><span class="p">]</span>
+    <span class="n">shape_c</span> <span class="o">=</span> <span class="n">get_point_data_shape</span><span class="p">(</span><span class="n">h5_file</span><span class="p">)</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dtype&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_tensor</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tensor_components</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tensor_components</span> <span class="o">=</span> <span class="n">TENSOR_FULL</span>  <span class="c1"># Default to 9 components</span>
+        <span class="n">shape_c</span> <span class="o">=</span> <span class="n">shape_c</span> <span class="o">+</span> <span class="p">(</span><span class="n">tensor_components</span><span class="p">,)</span>
+        <span class="n">chunk_shape</span> <span class="o">=</span> <span class="n">create_adaptive_chunks</span><span class="p">(</span><span class="n">shape_c</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">tensor_components</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        
+        <span class="c1"># Store tensor info in attributes</span>
+        <span class="k">if</span> <span class="n">tensor_components</span> <span class="o">==</span> <span class="n">TENSOR_FULL</span> <span class="ow">and</span> <span class="n">TENSORS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="c1"># Standard 9-component tensor for backward compatibility</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">TENSORS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Store component count for non-standard tensors</span>
+            <span class="n">attr_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Tensor</span><span class="si">{</span><span class="n">tensor_components</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+                
+    <span class="k">elif</span> <span class="n">is_vector</span><span class="p">:</span>
+        <span class="n">shape_c</span> <span class="o">=</span> <span class="n">shape_c</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+        <span class="n">chunk_shape</span> <span class="o">=</span> <span class="n">create_adaptive_chunks</span><span class="p">(</span><span class="n">shape_c</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">VECTORS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">VECTORS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">chunk_shape</span> <span class="o">=</span> <span class="n">create_adaptive_chunks</span><span class="p">(</span><span class="n">shape_c</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">SCALARS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">SCALARS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+        <span class="n">var</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_c</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">chunks</span><span class="o">=</span><span class="n">chunk_shape</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;dtype&#39;</span><span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_cell_dataset">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.create_cell_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_cell_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                       <span class="n">is_vector</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                       <span class="n">is_tensor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                       <span class="n">tensor_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                       <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create cell dataset with adaptive chunking and flexible tensor support.&quot;&quot;&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">CELLDATA</span><span class="p">]</span>
+    <span class="n">shape_c</span> <span class="o">=</span> <span class="n">get_cell_data_shape</span><span class="p">(</span><span class="n">h5_file</span><span class="p">)</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dtype&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">is_tensor</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tensor_components</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tensor_components</span> <span class="o">=</span> <span class="n">TENSOR_FULL</span>
+        <span class="n">shape_c</span> <span class="o">=</span> <span class="n">shape_c</span> <span class="o">+</span> <span class="p">(</span><span class="n">tensor_components</span><span class="p">,)</span>
+        <span class="n">chunk_shape</span> <span class="o">=</span> <span class="n">create_adaptive_chunks</span><span class="p">(</span><span class="n">shape_c</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">tensor_components</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">tensor_components</span> <span class="o">==</span> <span class="n">TENSOR_FULL</span> <span class="ow">and</span> <span class="n">TENSORS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">TENSORS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">attr_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Tensor</span><span class="si">{</span><span class="n">tensor_components</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+                
+    <span class="k">elif</span> <span class="n">is_vector</span><span class="p">:</span>
+        <span class="n">shape_c</span> <span class="o">=</span> <span class="n">shape_c</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+        <span class="n">chunk_shape</span> <span class="o">=</span> <span class="n">create_adaptive_chunks</span><span class="p">(</span><span class="n">shape_c</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">VECTORS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">VECTORS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">chunk_shape</span> <span class="o">=</span> <span class="n">create_adaptive_chunks</span><span class="p">(</span><span class="n">shape_c</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">SCALARS</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">group</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">SCALARS</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+        <span class="n">var</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape_c</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">chunks</span><span class="o">=</span><span class="n">chunk_shape</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;dtype&#39;</span><span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_data_order">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_data_order">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_order</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get data ordering from file metadata.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">DATA_ORDER</span> <span class="ow">in</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">DATA_ORDER</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">order</span>
+    <span class="k">return</span> <span class="s2">&quot;FortranOrder&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="write_scalar_slice">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.write_scalar_slice">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_scalar_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write scalar data slice.&quot;&quot;&quot;</span>
+    <span class="n">arr_c</span> <span class="o">=</span> <span class="n">f2c_reshape</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">f_contiguous</span> <span class="k">else</span> <span class="n">array</span>
+    <span class="n">dset</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">arr_c</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span></div>
+
+
+
+<div class="viewcode-block" id="write_vector_slice">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.write_vector_slice">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_vector_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                      <span class="n">data_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FortranOrder&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write vector data slice with explicit ordering.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected 3D vector array with shape (..., 3), got </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">expected_shape</span> <span class="o">=</span> <span class="n">dset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">data_order</span> <span class="o">==</span> <span class="s2">&quot;FortranOrder&quot;</span><span class="p">:</span>
+        <span class="n">arr_to_write</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">arr_to_write</span> <span class="o">=</span> <span class="n">array</span>
+    
+    <span class="k">if</span> <span class="n">arr_to_write</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected_shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Shape mismatch after reordering: got </span><span class="si">{</span><span class="n">arr_to_write</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;expected </span><span class="si">{</span><span class="n">expected_shape</span><span class="si">}</span><span class="s2">. Original array shape: </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;data order: </span><span class="si">{</span><span class="n">data_order</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    
+    <span class="n">arr_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">arr_to_write</span><span class="p">)</span>
+    <span class="n">dset</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">arr_c</span></div>
+
+
+
+<div class="viewcode-block" id="write_multicomponent_slice">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.write_multicomponent_slice">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_multicomponent_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                              <span class="n">data_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;FortranOrder&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write multi-component data slice (vectors or tensors) with explicit ordering.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected 3D array with shape (..., n_components), got </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">n_components</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">expected_shape</span> <span class="o">=</span> <span class="n">dset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">expected_components</span> <span class="o">=</span> <span class="n">dset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">n_components</span> <span class="o">!=</span> <span class="n">expected_components</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Component mismatch: array has </span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">, dataset expects </span><span class="si">{</span><span class="n">expected_components</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">data_order</span> <span class="o">==</span> <span class="s2">&quot;FortranOrder&quot;</span><span class="p">:</span>
+        <span class="n">arr_to_write</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">arr_to_write</span> <span class="o">=</span> <span class="n">array</span>
+    
+    <span class="k">if</span> <span class="n">arr_to_write</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">expected_shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Shape mismatch after reordering: got </span><span class="si">{</span><span class="n">arr_to_write</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;expected </span><span class="si">{</span><span class="n">expected_shape</span><span class="si">}</span><span class="s2">. Original array shape: </span><span class="si">{</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;data order: </span><span class="si">{</span><span class="n">data_order</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    
+    <span class="n">arr_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">arr_to_write</span><span class="p">)</span>
+    <span class="n">dset</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">arr_c</span></div>
+
+
+
+<div class="viewcode-block" id="get_point_array">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_point_array">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_point_array</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get point array from ImageData.&quot;&quot;&quot;</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Vectors or tensors</span>
+        <span class="k">return</span> <span class="n">arr</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># For scalars, reshape to 3D</span>
+        <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_cell_array">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_cell_array">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cell_array</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get cell array from ImageData.&quot;&quot;&quot;</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># Vectors or tensors</span>
+        <span class="k">return</span> <span class="n">arr</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># For scalars, reshape to 3D</span>
+        <span class="n">cell_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cell_dims</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="write_vtkhdf">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.write_vtkhdf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_vtkhdf</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">imagedata</span><span class="p">,</span>
+                 <span class="n">direction</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                 <span class="n">data_order</span><span class="o">=</span><span class="s2">&quot;FortranOrder&quot;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write ImageData to VTK HDF format with flexible tensor support.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">imagedata</span><span class="p">,</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkImageData</span><span class="p">):</span>
+        <span class="n">imagedata</span> <span class="o">=</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">imagedata</span><span class="p">)</span>
+
+    <span class="n">initialize</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">extent</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="n">imagedata</span><span class="o">.</span><span class="n">origin</span><span class="p">,</span>
+               <span class="n">spacing</span><span class="o">=</span><span class="n">imagedata</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+               <span class="n">data_order</span><span class="o">=</span><span class="n">data_order</span><span class="p">)</span>
+
+    <span class="n">n_points</span> <span class="o">=</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">n_points</span>
+    <span class="n">n_cells</span> <span class="o">=</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">n_cells</span>
+
+    <span class="c1"># Write point data</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">point_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        
+        <span class="c1"># Check what type of data this is</span>
+        <span class="n">tensor_components</span> <span class="o">=</span> <span class="n">is_tensor_data</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">n_points</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">tensor_components</span><span class="p">:</span>  <span class="c1"># Returns component count or False</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">create_point_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">is_tensor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                      <span class="n">tensor_components</span><span class="o">=</span><span class="n">tensor_components</span><span class="p">,</span>
+                                      <span class="n">dtype</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">arr_4d</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">tensor_components</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">write_multicomponent_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">arr_4d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="p">,</span> <span class="n">data_order</span><span class="p">)</span>
+                
+        <span class="k">elif</span> <span class="n">is_vector_data</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">n_points</span><span class="p">):</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">create_point_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">is_vector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                      <span class="n">dtype</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">arr_4d</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">write_vector_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">arr_4d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="p">,</span> <span class="n">data_order</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">create_point_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">is_vector</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                      <span class="n">dtype</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">arr_3d</span> <span class="o">=</span> <span class="n">get_point_array</span><span class="p">(</span><span class="n">imagedata</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">write_scalar_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">arr_3d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="c1"># Write cell data</span>
+    <span class="n">cell_dims</span> <span class="o">=</span> <span class="n">extent2dimensions</span><span class="p">(</span><span class="n">point2cell_extent</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">extent</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        
+        <span class="n">tensor_components</span> <span class="o">=</span> <span class="n">is_tensor_data</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">tensor_components</span><span class="p">:</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">create_cell_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">is_tensor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">tensor_components</span><span class="o">=</span><span class="n">tensor_components</span><span class="p">,</span>
+                                     <span class="n">dtype</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">arr_4d</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">cell_dims</span><span class="p">,</span> <span class="n">tensor_components</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cell_dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">write_multicomponent_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">arr_4d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="p">,</span> <span class="n">data_order</span><span class="p">)</span>
+                
+        <span class="k">elif</span> <span class="n">is_vector_data</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">):</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">create_cell_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">is_vector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                     <span class="n">dtype</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">arr_4d</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">cell_dims</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cell_dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">write_vector_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">arr_4d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">,</span> <span class="p">:],</span> <span class="n">k</span><span class="p">,</span> <span class="n">data_order</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">create_cell_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">is_vector</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">dtype</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">arr_3d</span> <span class="o">=</span> <span class="n">get_cell_array</span><span class="p">(</span><span class="n">imagedata</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cell_dims</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">write_scalar_slice</span><span class="p">(</span><span class="n">dset</span><span class="p">,</span> <span class="n">arr_3d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">],</span> <span class="n">k</span><span class="p">)</span>
+
+    <span class="c1"># Write field data</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">field_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">fdat</span> <span class="o">=</span> <span class="n">get_field_array</span><span class="p">(</span><span class="n">imagedata</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+        <span class="n">create_field_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">fdat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_vtkhdf">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.read_vtkhdf">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_vtkhdf</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read VTK HDF file with flexible tensor support.&quot;&quot;&quot;</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkHDFReader</span><span class="p">()</span>
+    <span class="n">reader</span><span class="o">.</span><span class="n">SetFileName</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">reader</span><span class="o">.</span><span class="n">Update</span><span class="p">()</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">()</span>
+    
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    
+    <span class="c1"># Set vector/tensor metadata</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data_order</span> <span class="o">=</span> <span class="n">get_data_order</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">POINTDATA</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">]:</span>
+            <span class="n">pd_group</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">POINTDATA</span><span class="p">]</span>
+            
+            <span class="c1"># Check for vectors</span>
+            <span class="k">if</span> <span class="n">VECTORS</span> <span class="ow">in</span> <span class="n">pd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">vector_name</span> <span class="o">=</span> <span class="n">pd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">VECTORS</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_name</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                    <span class="n">vector_name</span> <span class="o">=</span> <span class="n">vector_name</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">vector_name</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">:</span>
+                    <span class="n">mesh</span><span class="o">.</span><span class="n">point_data</span><span class="o">.</span><span class="n">set_vectors</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">vector_name</span><span class="p">],</span> <span class="n">vector_name</span><span class="p">)</span>
+            
+            <span class="c1"># Check for standard tensors</span>
+            <span class="k">if</span> <span class="n">TENSORS</span> <span class="ow">in</span> <span class="n">pd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">tensor_name</span> <span class="o">=</span> <span class="n">pd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">TENSORS</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor_name</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                    <span class="n">tensor_name</span> <span class="o">=</span> <span class="n">tensor_name</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="c1"># Standard 9-component tensors might be recognized by ParaView</span>
+                
+            <span class="c1"># Check for non-standard tensors</span>
+            <span class="k">for</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">pd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">attr_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Tensor&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr_name</span> <span class="o">!=</span> <span class="n">TENSORS</span><span class="p">:</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="n">pd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                        <span class="n">var_name</span> <span class="o">=</span> <span class="n">var_name</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                    <span class="c1"># Non-standard tensors won&#39;t be recognized as tensors by ParaView</span>
+                    <span class="c1"># but the data is preserved</span>
+        
+        <span class="c1"># Similar for cell data</span>
+        <span class="k">if</span> <span class="n">CELLDATA</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">]:</span>
+            <span class="n">cd_group</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">CELLDATA</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">VECTORS</span> <span class="ow">in</span> <span class="n">cd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">vector_name</span> <span class="o">=</span> <span class="n">cd_group</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">VECTORS</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector_name</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+                    <span class="n">vector_name</span> <span class="o">=</span> <span class="n">vector_name</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">vector_name</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="p">:</span>
+                    <span class="n">mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="o">.</span><span class="n">set_vectors</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">cell_data</span><span class="p">[</span><span class="n">vector_name</span><span class="p">],</span> <span class="n">vector_name</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">mesh</span></div>
+
+
+
+<div class="viewcode-block" id="set_point_scalar">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_scalar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_point_scalar</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> 
+                    <span class="n">scalar_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add scalar field to point data.&quot;&quot;&quot;</span>
+        
+    <span class="k">if</span> <span class="n">scalar_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Array dimensions </span><span class="si">{</span><span class="n">scalar_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> don&#39;t match &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;ImageData dimensions </span><span class="si">{</span><span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">image_data</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">scalar_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_point_vector">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_vector">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_point_vector</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> 
+                    <span class="n">vector_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add vector field to point data.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">vector_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">vector_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected 4D array with shape (..., 3), got </span><span class="si">{</span><span class="n">vector_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">vector_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Array dimensions </span><span class="si">{</span><span class="n">vector_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> don&#39;t match &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;ImageData dimensions </span><span class="si">{</span><span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">image_data</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="set_point_tensor">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_tensor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_point_tensor</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> 
+                     <span class="n">tensor_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                     <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add tensor field to point data with flexible component count.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        image_data: PyVista ImageData object</span>
+<span class="sd">        tensor_array: 4D array with shape (nx, ny, nz, n_components)</span>
+<span class="sd">        var: Variable name</span>
+<span class="sd">        components: Expected number of components (for validation).</span>
+<span class="sd">                   If None, accepts any component count &gt; 3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tensor_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected 4D tensor array, got </span><span class="si">{</span><span class="n">tensor_array</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D&quot;</span><span class="p">)</span>
+    
+    <span class="n">n_components</span> <span class="o">=</span> <span class="n">tensor_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">components</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_components</span> <span class="o">!=</span> <span class="n">components</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">components</span><span class="si">}</span><span class="s2"> components, got </span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">n_components</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tensor must have &gt;3 components, got </span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">. Use set_point_vector for 3-component data.&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">tensor_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tensor dimensions </span><span class="si">{</span><span class="n">tensor_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> don&#39;t match ImageData dimensions </span><span class="si">{</span><span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">image_data</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">tensor_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_point_vector">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_point_vector">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_point_vector</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get vector field as 4D array.&quot;&quot;&quot;</span>
+    <span class="n">vec_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">vec_data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">vec_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected vector data with shape (N, 3), got </span><span class="si">{</span><span class="n">vec_data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">vec_data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_point_tensor">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_point_tensor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_point_tensor</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                     <span class="n">components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get tensor field as 4D array with flexible component count.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        image_data: PyVista ImageData object</span>
+<span class="sd">        var: Variable name</span>
+<span class="sd">        components: Expected number of components (for validation).</span>
+<span class="sd">                   If None, accepts any component count &gt; 3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tensor_data</span> <span class="o">=</span> <span class="n">image_data</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">tensor_data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected 2D tensor data, got </span><span class="si">{</span><span class="n">tensor_data</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D&quot;</span><span class="p">)</span>
+    
+    <span class="n">n_components</span> <span class="o">=</span> <span class="n">tensor_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">components</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_components</span> <span class="o">!=</span> <span class="n">components</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected tensor with </span><span class="si">{</span><span class="n">components</span><span class="si">}</span><span class="s2"> components, got </span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">n_components</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data has only </span><span class="si">{</span><span class="n">n_components</span><span class="si">}</span><span class="s2"> components. Use get_point_vector for 3-component data.&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">tensor_data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">image_data</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">n_components</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;F&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="validate_imagedata_consistency">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.validate_imagedata_consistency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_imagedata_consistency</span><span class="p">(</span><span class="n">imagedata</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span> 
+                                 <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate ImageData consistency and return diagnostics.&quot;&quot;&quot;</span>
+    <span class="n">diagnostics</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;valid&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;issues&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s1">&#39;spacing_ratio&#39;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span> <span class="o">/</span> <span class="nb">min</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">spacing</span><span class="p">),</span>
+        <span class="s1">&#39;dimension_ratio&#39;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span> <span class="o">/</span> <span class="nb">min</span><span class="p">(</span><span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">),</span>
+        <span class="s1">&#39;dimensions&#39;</span><span class="p">:</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span>
+        <span class="s1">&#39;spacing&#39;</span><span class="p">:</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span>
+        <span class="s1">&#39;is_square_xy&#39;</span><span class="p">:</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s1">&#39;data_types&#39;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}</span>
+    
+    <span class="c1"># Check data types</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">point_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">point_data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">arr</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">components</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;data_types&#39;</span><span class="p">][</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;vector&#39;</span>
+            <span class="k">elif</span> <span class="n">components</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;data_types&#39;</span><span class="p">][</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;tensor</span><span class="si">{</span><span class="n">components</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;data_types&#39;</span><span class="p">][</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;scalar&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;data_types&#39;</span><span class="p">][</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;scalar&#39;</span>
+    
+    <span class="c1"># Check spacing ratio</span>
+    <span class="k">if</span> <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;spacing_ratio&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;issues&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Large spacing ratio: </span><span class="si">{</span><span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;spacing_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="c1"># Check dimension ratio</span>
+    <span class="k">if</span> <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;dimension_ratio&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;issues&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Large dimension ratio: </span><span class="si">{</span><span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;dimension_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="c1"># Check extent consistency</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">extent</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">expected_extent</span> <span class="o">=</span> <span class="n">imagedata</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">actual_extent</span> <span class="o">=</span> <span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">actual_extent</span> <span class="o">!=</span> <span class="n">expected_extent</span><span class="p">:</span>
+            <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;issues&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Extent mismatch in dimension </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: expected </span><span class="si">{</span><span class="n">expected_extent</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">actual_extent</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="c1"># Warn about square XY</span>
+    <span class="k">if</span> <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;is_square_xy&#39;</span><span class="p">]:</span>
+        <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;issues&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Square XY dimensions - orientation ambiguity possible&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;issues&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ImageData validation results:&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;issues&#39;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">issue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Recommendation: </span><span class="si">{</span><span class="s1">&#39;OK to proceed&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;Review data before writing&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Data types found:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">diagnostics</span><span class="p">[</span><span class="s1">&#39;data_types&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">diagnostics</span></div>
+
+
+
+<span class="c1"># Convenience functions for common tensor types</span>
+<div class="viewcode-block" id="set_point_symmetric_tensor">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_symmetric_tensor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_point_symmetric_tensor</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span>
+                              <span class="n">tensor_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add 6-component symmetric tensor to point data.&quot;&quot;&quot;</span>
+    <span class="n">set_point_tensor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">tensor_array</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="n">TENSOR_SYMMETRIC</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="set_point_4d_tensor">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_4d_tensor">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_point_4d_tensor</span><span class="p">(</span><span class="n">image_data</span><span class="p">:</span> <span class="n">pyvista</span><span class="o">.</span><span class="n">ImageData</span><span class="p">,</span>
+                       <span class="n">tensor_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add 27-component 3x3x3 tensor to point data.&quot;&quot;&quot;</span>
+    <span class="n">set_point_tensor</span><span class="p">(</span><span class="n">image_data</span><span class="p">,</span> <span class="n">tensor_array</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="n">TENSOR_4D</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Additional utility functions</span>
+<div class="viewcode-block" id="get_point_dataset">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_point_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_point_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get point dataset from HDF5 file.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">POINTDATA</span><span class="p">][</span><span class="n">var</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_cell_dataset">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_cell_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cell_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get cell dataset from HDF5 file.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">CELLDATA</span><span class="p">][</span><span class="n">var</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_field_dataset">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_field_dataset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_field_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">h5py</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get field dataset from HDF5 file.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">h5_file</span><span class="p">[</span><span class="n">VTKHDF</span><span class="p">][</span><span class="n">FIELDDATA</span><span class="p">][</span><span class="n">var</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="read_slice">
+<a class="viewcode-back" href="../../../../pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.read_slice">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_slice</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+               <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a single slice from dataset.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;point&quot;</span><span class="p">:</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="n">get_point_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;cell&quot;</span><span class="p">:</span>
+        <span class="n">dset</span> <span class="o">=</span> <span class="n">get_cell_dataset</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown data type: </span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">dset</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

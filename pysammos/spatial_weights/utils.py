@@ -1,23 +1,13 @@
 """
-Numerical Utilities for Integration and Distance Computation
-============================================================
-
 This module provides utility functions commonly used in numerical computations, particularly in physics and
 engineering simulations involving integration along branches or paths, and geometric distance calculations.
 
-Functions
----------
-- `first_significant_figure_position(number)`:
-    Computes the positional value of the first significant figure in a given number.
+This module includes the following functions:
 
-- `integration_scalar(s0, s1, n)`:
-    Generates a linearly spaced scalar array for integration purposes.
-
-- `trapezoidal_integration(s0, s1, n, W)`:
-    Performs trapezoidal numerical integration on a sampled function W over an interval.
-
-- `compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c)`:
-    Computes Euclidean distances along a branch for multiple contact points and scalar steps.
+    - :func:`first_significant_figure_position`: Computes the positional value of the first significant figure in a given number.
+    - :func:`integration_scalar`: Generates a linearly spaced scalar array for integration purposes.
+    - :func:`trapezoidal_integration`: Performs trapezoidal numerical integration on a sampled function W over an interval.
+    - :func:`compute_dist_along_branch`: Computes Euclidean distances along a branch for multiple contact points and scalar steps.
 """
 
 # import relevant libraries
@@ -29,12 +19,12 @@ def first_significant_figure_position(number:float)->float:
     """
     Calculate the position (value) of the first significant figure of a number.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     number : float
         Input number to analyze.
 
-    Returns
+    Outputs
     -------
     float
         The value of the first significant figure's position.
@@ -61,8 +51,8 @@ def integration_scalar(s0:float, s1:float, n:float)->np.ndarray:
     """
     Create a linearly spaced scalar array for integration over [s0, s1].
 
-    Parameters
-    ----------
+    Inputs
+    ------
     s0 : float
         Start of the integration interval.
     s1 : float
@@ -70,7 +60,7 @@ def integration_scalar(s0:float, s1:float, n:float)->np.ndarray:
     n : int
         Number of sample points.
 
-    Returns
+    Outputs
     -------
     np.ndarray, shape (n,)
         Linearly spaced array of scalars from s0 to s1.
@@ -88,21 +78,23 @@ def trapezoidal_integration(s0, s1, n, W):
     r"""
     Compute numerical integral of sampled function W using the trapezoidal rule.
 
-    \[
-    I_m = \int_{s_0}^{s_1} W_m(s) \, ds \approx \frac{\Delta s}{2} \left( W_m(s_0) + 2 \sum_{i=1}^{n-2} W_m(s_i) + W_m(s_{n-1}) \right)
-    \]
+    .. math::
 
-    \text{where:} \\
-    \quad s_0, s_1 \in \mathbb{R} \quad \text{integration bounds} \\
-    \quad n \quad \text{number of sample points} \\
-    \quad \Delta s = \frac{s_1 - s_0}{n-1} \quad \text{step size} \\
-    \quad W_m(s_i) \quad \text{value of function } W \text{ at point } s_i \text{ for component } m \\
-    \quad m = 0, \ldots, M-1 \quad \text{(if } W \text{ has } M \text{ columns)}
-    \]
+        I_m = \int_{s_0}^{s_1} W_m(s) \, ds
+        \approx \frac{\Delta s}{2} \left( W_m(s_0) + 2 \sum_{i=1}^{n-2} W_m(s_i) + W_m(s_{n-1}) \right) \\
+        \text{for } m = 0, \ldots, M-1
+
+    where:
+    :math:`I_m` is the integral of the m-th component of W,
+    :math:`W_m(s)` is the m-th component of the function W evaluated at s,
+    :math:`s_0` and :math:`s_1` are the integration bounds,
+    :math:`n` is the number of sample points,
+    :math:`\Delta s = \frac{s_1 - s_0}{n-1}` is the step size,
+    and :math:`M` is the number of components (columns) in W.
 
 
-    Parameters
-    ----------
+    Inputs
+    ------
     s0 : float
         Start of the integration interval.
     s1 : float
@@ -113,7 +105,7 @@ def trapezoidal_integration(s0, s1, n, W):
         Values of the function sampled at the points defined by s0, s1, and n.
         Integration is performed along the first axis.
 
-    Returns
+    Outputs
     -------
     np.ndarray, shape (m,)
         Resulting integral values for each column of W.
@@ -135,21 +127,20 @@ def compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c):
     r"""
     Compute Euclidean distances along a branch for multiple contact points and scalar steps.
 
-    \[
-    d_{ij} = \left\| \mathbf{r}_{ri}^{(j)} + s_i \, \mathbf{B}_{\text{part}}^{(k_j)} \right\|_2
-    \]
+    .. math::
 
-    \text{where:} \\
-    \quad i = 0, \ldots, n_s - 1 \quad \text{(scalar steps)} \\
-    \quad j = 0, \ldots, n_{\text{contacts}} - 1 \quad \text{(contact points)} \\
-    \quad \mathbf{r}_{ri}^{(j)} \in \mathbb{R}^3 \quad \text{is the displacement vector for contact } j \\
-    \quad s_i \in \mathbb{R} \quad \text{is the scalar step} \\
-    \quad \mathbf{B}_{\text{part}}^{(k_j)} \in \mathbb{R}^3 \quad \text{is the branch vector associated with particle } k_j \\
-    \quad k_j = \text{part_ind_c}[j] \quad \text{is the particle index for contact } j \\
-    \]
+        d_{ij} = \left\| \mathbf{r}_{ri}^{(j)} + s_i \, \mathbf{B}_{\text{part}}^{(k_j)} \right\|_2
+    
+    where:
 
-    Parameters
-    ----------
+    :math:`d_{ij}` is the distance for scalar step :math:`s_i` and contact point :math:`j`,
+    :math:`\mathbf{r}_{ri}^{(j)}` is the displacement vector from the reference point to contact point :math:`j`,
+    :math:`s_i` is the scalar step along the branch,
+    :math:`\mathbf{B}_{\text{part}}^{(k_j)}` is the branch direction vector associated with particle :math:`k_j`,
+    and :math:`k_j = \text{part_ind_c}[j]` is the index mapping contact points to particles.
+
+    Inputs
+    ------
     r_ri_c : np.ndarray, shape (n_contacts, 3)
         Displacement vectors from reference points to contact points.
     s : np.ndarray, shape (n_s,)
@@ -159,7 +150,7 @@ def compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c):
     part_ind_c : np.ndarray, shape (n_contacts,)
         Indices mapping contacts to corresponding particles in BranchVector_i.
 
-    Returns
+    Outputs
     -------
     np.ndarray, shape (n_s, n_contacts)
         Euclidean distances along the branch for each scalar step and contact.

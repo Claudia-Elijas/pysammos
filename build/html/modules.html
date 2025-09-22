@@ -1,359 +1,253 @@
-<!doctype html>
-<html class="no-js" lang="english" data-content_root="./">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2025.07.19 -->
-        <title>pysammos - pysammos 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=25af2a20" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
-    
-    
-
-
-<style>
-  body {
-    --color-code-background: #f2f2f2;
-  --color-code-foreground: #1e1e1e;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pysammos &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
-  }
-  @media not print {
-    body[data-theme="dark"] {
-      --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
-  
-    }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
-  
-      }
-    }
-  }
-</style></head>
-  <body>
-    
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
+        <script src="_static/documentation_options.js?v=ba7b510b"></script>
+        <script src="_static/doctools.js?v=9bcbadda"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Coarse Graining User Interface" href="pysammos.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+</head>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
-    <title>Auto light/dark, in light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
-      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
-      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
-      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
-      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
-      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
-      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
-      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
-      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
-      <circle cx="14.5" cy="9.55" r="3.6"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
-    <title>Auto light/dark, in dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
-      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
-      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
-      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
-      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
-      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
-      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
-      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-pencil" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
-      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-      <path d="M13.5 6.5l4 4" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-  <symbol id="svg-eye" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-      <path
-        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-</svg>
-
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
-
-<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
-      </label>
-    </div>
-    <div class="header-center">
-      <a href="index.html"><div class="brand">pysammos 0.1 documentation</div></a>
-    </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
-      </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
-      
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
-  <span class="sidebar-brand-text">pysammos 0.1 documentation</span>
-  
-</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
-</form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pysammos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
 
-      </div>
-      
-    </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container">
-          <div class="view-this-page">
-  <a class="muted-link" href="_sources/modules.rst.txt" title="View this page">
-    <svg><use href="#svg-eye"></use></svg>
-    <span class="visually-hidden">View this page</span>
-  </a>
-</div>
-<div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-          </label>
         </div>
-        <article role="main" id="furo-main-content">
-          <section id="pysammos">
-<h1>pysammos<a class="headerlink" href="#pysammos" title="Link to this heading">¶</a></h1>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Pysammos</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pysammos">
+<h1>Pysammos<a class="headerlink" href="#pysammos" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="pysammos.html">pysammos package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.html">pysammos.data_handle package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.data_handle.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.data_handle.html#module-pysammos.data_handle">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pysammos.html">Coarse Graining User Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining"><code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.data_sampling"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.data_sampling()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.fields_in_time"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.fields_in_time()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.generate_grid"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.generate_grid()</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.GridPoints"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.GridPoints</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.Nodes"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.Nodes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.Spacing"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.Spacing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.Ranges"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.Ranges</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.html">pysammos.data_read package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.data_read.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.data_read.html#module-pysammos.data_read">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.get_particle_phases"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.get_particle_phases()</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.phases"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.phases</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.Phase_Array"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.Phase_Array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.cg_calc_mode"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.cg_calc_mode</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.html">pysammos.data_write package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.data_write.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.data_write.html#module-pysammos.data_write">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.get_particle_size_statistics"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.get_particle_size_statistics()</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.d43"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.d43</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.d32"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.d32</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.dmax"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.dmax</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.drms"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.drms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.d50"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.d50</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html">pysammos.grid_generation package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.grid_generation.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.grid_generation.html#module-pysammos.grid_generation.regular_cuboid">pysammos.grid_generation.regular_cuboid module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.grid_generation.html#module-pysammos.grid_generation">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html">pysammos.macroscopic_fields package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.html#module-pysammos.macroscopic_fields.field_dependencies">pysammos.macroscopic_fields.field_dependencies module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.html#module-pysammos.macroscopic_fields">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">pysammos.neighbour_search package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.neighbour_search.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.neighbour_search.html#module-pysammos.neighbour_search.grid_particle_search">pysammos.neighbour_search.grid_particle_search module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.neighbour_search.html#module-pysammos.neighbour_search">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html">pysammos.particle_phase package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.particle_phase.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.particle_phase.html#module-pysammos.particle_phase.clustering">pysammos.particle_phase.clustering module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.particle_phase.html#module-pysammos.particle_phase">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html">pysammos.spatial_weights package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#module-pysammos.spatial_weights.hashtable_search">pysammos.spatial_weights.hashtable_search module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#module-pysammos.spatial_weights.kernels">pysammos.spatial_weights.kernels module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#module-pysammos.spatial_weights.resolution">pysammos.spatial_weights.resolution module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#module-pysammos.spatial_weights.utils">pysammos.spatial_weights.utils module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#module-pysammos.spatial_weights">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.set_resolution"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.set_resolution()</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.w"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.w</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.c"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.c</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pysammos.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pysammos.html#module-pysammos.coarse_graining">pysammos.coarse_graining module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.html#coarse-graining-module">Coarse Graining Module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#main-class">Main Class</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#key-methods">Key Methods</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining"><code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.data_sampling"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.data_sampling()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.fields_in_time"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.fields_in_time()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.generate_grid"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.generate_grid()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.get_particle_phases"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.get_particle_phases()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.get_particle_size_statistics"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.get_particle_size_statistics()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining.set_resolution"><code class="docutils literal notranslate"><span class="pre">CoarseGraining.set_resolution()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.contacts.html">Contacts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_handle.contacts.complete.html">Complete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_handle.contacts.qualitycheck.html">Quality Check</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_handle.contacts.html#particle-mapper-module">Particle Mapper module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.particles.html">Particles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_handle.particles.html#particle-statistics-module">Particle Statistics module</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pysammos.html#module-pysammos">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.data_read.html">Data Read</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.mfix.html">Mfix</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_read.mfix.html#cell-data-module">Cell Data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_read.mfix.html#file-read-module">File Read module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_read.mfix.html#point-data-module">Point Data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_read.mfix.html#utils-module">utils module</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="setup.html">setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.data_write.html">Data Write</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.h5.html">h5</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_write.h5.html#writer-module">Writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.vtkhdf.html">Vtkhdf</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_write.vtkhdf.html#core-module">Core module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_write.vtkhdf.html#writer-module">Writer module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.grid_generation.html">Grid Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html#pysammos.grid_generation.regular_cuboid.Grid_Generation"><code class="docutils literal notranslate"><span class="pre">Grid_Generation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.grid_generation.html#pysammos.grid_generation.regular_cuboid.Grid_Generation.Automatic_Range"><code class="docutils literal notranslate"><span class="pre">Grid_Generation.Automatic_Range()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.grid_generation.html#pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points"><code class="docutils literal notranslate"><span class="pre">Grid_Generation.Create_grid_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.grid_generation.html#pysammos.grid_generation.regular_cuboid.Grid_Generation.Generate"><code class="docutils literal notranslate"><span class="pre">Grid_Generation.Generate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.gridded.html">Gridded</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.gridded.html#dispatcher-module">Dispatcher module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.gridded.html#scalars-module">Scalars module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.gridded.html#vectors-module">Vectors module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.gridded.html#tensors-module">Tensors module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.gridded.html#secondary-module">Secondary module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.sliced.html">Sliced</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.sliced.html#granular-temperature-module">Granular Temperature module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.sliced.html#utils-module">Utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html#pysammos.macroscopic_fields.field_dependencies.get_fields_to_compute"><code class="docutils literal notranslate"><span class="pre">get_fields_to_compute()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html#grid-particle-search-module">Grid Particle Search module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.neighbour_search.html#pysammos.neighbour_search.grid_particle_search.calc_displacement"><code class="docutils literal notranslate"><span class="pre">calc_displacement()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.neighbour_search.html#pysammos.neighbour_search.grid_particle_search.particle_node_match"><code class="docutils literal notranslate"><span class="pre">particle_node_match()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.particle_phase.html">Particle Phase</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html#clustering-module">Clustering module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.particle_phase.html#pysammos.particle_phase.clustering.find_phases"><code class="docutils literal notranslate"><span class="pre">find_phases()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.particle_phase.html#pysammos.particle_phase.clustering.plot_phases"><code class="docutils literal notranslate"><span class="pre">plot_phases()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysammos.spatial_weights.html">Spatial Weights</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html#spatial-weights-module">Spatial Weights module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html#hashtable-search-module">Hashtable Search module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.hashtable_search.hash_table_search"><code class="docutils literal notranslate"><span class="pre">hash_table_search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.hashtable_search.hash_table_search_1d"><code class="docutils literal notranslate"><span class="pre">hash_table_search_1d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.hashtable_search.hash_table_search_2d"><code class="docutils literal notranslate"><span class="pre">hash_table_search_2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.hashtable_search.make_hash_table"><code class="docutils literal notranslate"><span class="pre">make_hash_table()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html#kernels-module">Kernels module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.gaussian"><code class="docutils literal notranslate"><span class="pre">gaussian()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.h"><code class="docutils literal notranslate"><span class="pre">h()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.heavySide"><code class="docutils literal notranslate"><span class="pre">heavySide()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.lucy"><code class="docutils literal notranslate"><span class="pre">lucy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html#resolution-module">Resolution module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.resolution.calc_cutoff"><code class="docutils literal notranslate"><span class="pre">calc_cutoff()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.resolution.calc_half_width"><code class="docutils literal notranslate"><span class="pre">calc_half_width()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.utils.compute_dist_along_branch"><code class="docutils literal notranslate"><span class="pre">compute_dist_along_branch()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.utils.first_significant_figure_position"><code class="docutils literal notranslate"><span class="pre">first_significant_figure_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.utils.integration_scalar"><code class="docutils literal notranslate"><span class="pre">integration_scalar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.spatial_weights.html#pysammos.spatial_weights.utils.trapezoidal_integration"><code class="docutils literal notranslate"><span class="pre">trapezoidal_integration()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
 
-        </article>
-      </div>
-      <footer>
-        
-        <div class="related-pages">
-          
-          
-        </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; 2025, Claudia Elijas-Parra
-            </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
-            
+
+           </div>
           </div>
-          <div class="right-details">
-            
-          </div>
-        </div>
-        
-      </footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pysammos.html" class="btn btn-neutral float-right" title="Coarse Graining User Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-    <aside class="toc-drawer no-toc">
-      
-      
-      
-    </aside>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
   </div>
-</div><script src="_static/documentation_options.js?v=ba7b510b"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    </body>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

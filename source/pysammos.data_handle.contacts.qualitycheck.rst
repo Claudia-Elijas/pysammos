@@ -1,21 +1,22 @@
+Quality Check
+=============
+
 pysammos.data\_handle.contacts.qualitycheck package
-===================================================
 
-Submodules
-----------
+Subpackage for performing quality checks on contact data.
 
-pysammos.data\_handle.contacts.qualitycheck.duplicates module
--------------------------------------------------------------
-
-.. automodule:: pysammos.data_handle.contacts.qualitycheck.duplicates
+.. automodule:: pysammos.data_handle.contacts.qualitycheck
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: pysammos.data_handle.contacts.qualitycheck
+Duplicates module 
+------------------
+
+pysammos.data\_handle.contacts.qualitycheck.duplicates module
+
+.. automodule:: pysammos.data_handle.contacts.qualitycheck.duplicates
    :members:
    :undoc-members:
    :show-inheritance:

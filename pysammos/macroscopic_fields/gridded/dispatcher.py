@@ -1,7 +1,4 @@
 """
-Module for Generic Scalar, Vector, Tensor, and Kinetic Tensor Calculations
-==========================================================================
-
 This module provides a unified interface for computing scalar, vector, 
 and tensor quantities for both *monodisperse* and *polydisperse* systems, 
 with or without data scaling. It also supports kinetic tensor calculations 
@@ -10,10 +7,10 @@ with interpolation.
 The functions here act as generic wrappers that delegate to specialized 
 implementations based on the `cg_calc_mode` parameter.
 
-Modes
------
-- **Monodisperse**: All particles or elements are of the same size/type.
-- **Polydisperse**: Particles or elements have varying sizes/types.
+There are two main modes of operation:
+    - **Monodisperse**: All particles or elements are of the same size/type.
+    - **Polydisperse**: Particles or elements have varying sizes/types.
+
 """
 
 from typing import Tuple, Optional
@@ -31,8 +28,8 @@ def scalar(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray,
     """
     Compute a SCALAR quantity for either monodisperse or polydisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : ndarray, shape(N,).
         Array of weights for each element/particle.
     visibility : ndarray, shape(N,).
@@ -48,10 +45,11 @@ def scalar(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray,
     cg_calc_mode : {'Monodisperse', 'Polydisperse'}
         Calculation mode.
 
-    Returns
+    Outputs
     -------
     ndarray
         Computed scalar values mapped to the grid. Options:
+
         - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints,)
         - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1)
 
@@ -76,8 +74,8 @@ def vector(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray, D
     """
     Compute a VECTOR quantity for either monodisperse or polydisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : ndarray, shape(N,).
         Array of weights for each element/particle.
     visibility : ndarray, shape(N,).
@@ -93,12 +91,13 @@ def vector(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray, D
     cg_calc_mode : {'Monodisperse', 'Polydisperse'}
         Calculation mode.
 
-    Returns
+    Outputs
     -------
     ndarray
         Computed vector values mapped to the grid. Options:
-        - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3)
-        - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3)
+
+            - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3)
+            - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3)
 
     """
     if cg_calc_mode == 'Monodisperse':
@@ -121,8 +120,8 @@ def tensor(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray,
     """
     Compute a TENSOR quantity for either monodisperse or polydisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : ndarray, shape(N,).
         Array of weights for each element/particle.
     visibility : ndarray, shape(N,).
@@ -140,12 +139,13 @@ def tensor(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray,
     cg_calc_mode : {'Monodisperse', 'Polydisperse'}
         Calculation mode.
 
-    Returns
+    Outputs
     -------
     ndarray
         Computed tensor values mapped to the grid. Options:
-        - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)
-        - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
+
+            - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)
+            - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
 
     """
     if cg_calc_mode == 'Monodisperse':
@@ -169,8 +169,8 @@ def kinetic_tensor(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.nd
     """
     Compute the kinetic tensor, including interpolation, for either monodisperse or polydisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : ndarray, shape (N,).
         Array of weights for each element/particle.
     visibility : ndarray, shape (N,).
@@ -192,12 +192,14 @@ def kinetic_tensor(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.nd
     cg_calc_mode : {'Monodisperse', 'Polydisperse'}
         Calculation mode.
 
-    Returns
+    Outputs
     -------
     ndarray
         Computed kinetic tensor values mapped to the grid. Options:
-        - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)
-        - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
+
+            - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)
+            - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
+
     """
     if cg_calc_mode == 'Monodisperse':
         return kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices, Displacement,

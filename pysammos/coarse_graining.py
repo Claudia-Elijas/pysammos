@@ -1,43 +1,7 @@
 """
-Coarse Graining Module
-======================
-
 This module provides functionality for coarse graining particle data from discrete element method (DEM) simulations.
 It includes methods for loading particle data, calculating particle size statistics, generating coarse-grained grids, 
 computing macroscopic fields, handling particle phases, and writing output data.
-
-Main Class
-----------
-CoarseGraining
-    Encapsulates the coarse graining process, including initialization, configuration, data sampling, phase identification, grid generation, and field computation.
-
-Key Methods
------------
-- data_sampling()
-    Loads particle data for the first time step.
-- get_particle_size_statistics()
-    Calculates particle size statistics such as d43, d32, dmax, drms, and d50.
-- get_particle_phases()
-    Identifies particle phases based on diameter and density.
-- generate_grid()
-    Generates a coarse-grained grid based on particle bounds and specified resolution.
-- fields_in_time()
-    Computes and writes macroscopic fields over specified time steps.
-- _load_data()
-    Loads particle and contact data for a given time step.
-- _fields_single_time()
-    Computes coarse-grained fields for a single time step.
-- _write_results()
-    Writes computed results to .h5 and .VTKHDF files.
-- _assign_particles_to_grid_nodes()
-    Assigns particles and contacts to grid nodes for coarse graining.
-- _compute_weights()
-    Computes spatial weights for particles and contacts based on the specified weight function.
-
-Notes
------
-- Designed for extensibility and integration with DEM simulation workflows.
-- Output formats include HDF5 and VTKHDF for compatibility with scientific visualization tools.
 """
 
 
@@ -78,11 +42,19 @@ from .macroscopic_fields.sliced import granular_temperature as sliced
 # data writing
 from .data_write.h5.writer import H5XarrayManager
 from .data_write.vtkhdf.writer import VTKHDFWriter
-
-
+ 
+# supress warnings 
+np.seterr(invalid='ignore')
 
 # Coarse Graining Class
 class CoarseGraining: 
+
+    """
+    Encapsulates the coarse graining process, including initialization, 
+    configuration, data sampling, phase identification, grid generation, 
+    and field computation.
+    
+    """
     def __init__(self, 
                  particle_path:str, contacts_path:str, output_path:str,
                  start_timestep:int, end_timestep:int, dt_time_step:int,
@@ -215,12 +187,6 @@ class CoarseGraining:
             The particle diameters.
         mass_t0 : np.ndarray, shape (N,)
             The particle masses.
-        Returns
-        -------
-        d43 : float
-            The volume-weighted mean diameter.
-        d32 : float
-            The surface-weighted mean diameter.
     
         Attributes
         ----------
@@ -251,7 +217,6 @@ class CoarseGraining:
         self.drms = np.sqrt(np.sum(counts*sizes**2)/np.sum(counts)) # calculate root mean square diameter        
         self.d50 = d50_calc(diameter_t0_sort, mass_t0_sort) # calculate median particle size
 
-        return self.d43, self.d32
     
     def get_particle_phases(self, diameter_t0:np.ndarray, density_t0:np.ndarray, 
                             global_id:np.ndarray, n_max_phases = 6, plot=True):
@@ -270,6 +235,7 @@ class CoarseGraining:
             The maximum number of phases to find. Default is 6.
         plot : bool, optional
             Whether to plot the phases. Default is True.
+        
         Attributes
         ----------
         phases : np.ndarray, shape (M, 2)
@@ -322,16 +288,11 @@ class CoarseGraining:
         self.w = calc_half_width(average_diameter, w_mult) # calculate the half width
         self.c = calc_cutoff(self.w, self.weight_function) # calculate the cutoff distance
 
-    def generate_grid(self, smoothing_length:float):
+    def generate_grid(self):
 
         """
-        Generate the CG grid based on the provided grid information.
-
-        Parameters
-        ----------
-        smoothing_length : float
-            The smoothing length for the grid generation. Can be set to the cutoff distance calculated 
-            in `set_resolution` or to a custom value.
+        Generate the CG grid based on the provided grid information. 
+        It takes into account the smoothing length calculated in :func:`set_resolution`.
         
         Attributes
         ----------
@@ -347,7 +308,7 @@ class CoarseGraining:
         """
         # generate the grid
         self.GridPoints, self.Nodes, self.Spacing, self.Ranges = regular_cuboid.Grid_Generation(
-                                                                        smoothing_length=smoothing_length, 
+                                                                        smoothing_length=self.c, 
                                                                         particle_bounds=self.BoundsData_t0, 
                                                                         grid_dimensions=self.grid_info["grid_dimension"], 
                                                                         grid_axes=self.grid_info["grid_axes"],
@@ -425,7 +386,7 @@ class CoarseGraining:
             The phase array of the particles involved in contacts.
         d_inContact_mean : float
             The mean distance of particles in contact.
-
+ 
         """
         print("Loading data ... ")
         # Load particle data ==========================================================
@@ -545,10 +506,11 @@ class CoarseGraining:
             in their names, such as "CG_Gaussian_Polydisperse_Phase_1.vtkhdf".
          
 
-        """
+        """ 
 
 
         print(f"Writing results for timestep {time_of_timestep}...")
+        
         # write .h5 files 
         manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
         manager.add_positions(self.GridPoints)
@@ -556,6 +518,7 @@ class CoarseGraining:
             phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
             manager.add_phases(phase_labels)
         manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+        
         # write .VTKHDF files 
         writer = VTKHDFWriter(node_dimensions=self.Nodes,  
                         node_spacing=self.Spacing, 
@@ -678,7 +641,7 @@ class CoarseGraining:
         elif self.weight_function == "HeavySide":
             WeightFunc = kernels.heavySide
         else:
-            raise ValueError("Invalid CG function")
+            raise ValueError("Invalid CG function") 
 
         # Particle weights
         hash_table_p, stepsize_p = make_hash_table(WeightFunc, self.c, sensitivity=1000)
@@ -861,6 +824,8 @@ class CoarseGraining:
  
         # inertial number
         if "inertial_number" in self.fields_to_compute:
+            # ADD INERTIAL NUMBER WITH DEVIATORIC SHEAR RATE TENSOR
+            
             InertialNumber_xy_Pxyz_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
             InertialNumber_xy_Pxy_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
             InertialNumber_xy_Py_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])

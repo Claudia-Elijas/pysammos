@@ -1,21 +1,21 @@
+Particles
+=========
+
 pysammos.data\_handle.particles package
-=======================================
 
-Submodules
-----------
+Subpackage for handling particle data.
 
-pysammos.data\_handle.particles.particle\_stats module
-------------------------------------------------------
-
-.. automodule:: pysammos.data_handle.particles.particle_stats
+.. automodule:: pysammos.data_handle.particles
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: pysammos.data_handle.particles
+Particle Statistics module
+--------------------------
+pysammos.data\_handle.particles.particle\_statistics module
+
+.. automodule:: pysammos.data_handle.particles.particle_stats
    :members:
    :undoc-members:
    :show-inheritance:

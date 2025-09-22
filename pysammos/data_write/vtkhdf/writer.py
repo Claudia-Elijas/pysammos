@@ -1,26 +1,20 @@
 
 """
-Module for writing VTKHDF files.
-================================
-
-This module provides the `VTKHDFWriter` class, which is used to write data to VTKHDF files.
-It supports writing scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.
-The writer uses the `pyvista` library for handling VTK data structures and `h5py` for writing HDF5 files.
+This module provides the :class:`VTKHDFWriter` class, which is used to write data to VTKHDF files.
 It also includes functionality to set the origin and dimensions of the data grid.
 It is particularly useful for visualizing simulation data in a format compatible with VTK and HDF5 standards.
 
-Class: VTKHDFWriter
--------------------
+This module contains the following class:
+    1. :class:`VTKHDFWriter`
+    This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
+    It provides methods to write scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.
+    It uses `pyvista` for creating the VTK data structure and `h5py` for writing the data to HDF5 files.
+    It is designed to ensure that the data is stored in a format that can be easily read and visualized using VTK-compatible tools. 
 
-This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
-It provides methods to write scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.
-It uses `pyvista` for creating the VTK data structure and `h5py` for writing the data to HDF5 files.
-It is designed to ensure that the data is stored in a format that can be easily read and visualized using VTK-compatible tools. 
+    Methods:
+        - :meth:`write`: Writes the provided data dictionary to a VTKHDF file, handling different data shapes (scalar, vector, tensor).
+        - :meth:`write_polydisperse`: Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.
 
-Methods:
-- `__init__`: Initializes the writer with node dimensions, spacing, origin, and file path.
-- `write`: Writes the provided data dictionary to a VTKHDF file, handling different data shapes (scalar, vector, tensor).
-- `write_polydisperse`: Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.
 """
 
 # importing necessary modules and libraries
@@ -31,12 +25,13 @@ from typing import Tuple
 
 
 class VTKHDFWriter:
-    def __init__(self, node_dimensions:Tuple, node_spacing:Tuple, origin:Tuple, path:str):
-        """
-        Initializes the VTKHDFWriter with node dimensions, spacing, origin, and file path.
+
+    """
+        This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
+        It provides methods to write scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.
         
-        Parameters
-        ----------
+        Inputs
+        ------
         node_dimensions : tuple
             Dimensions of the grid in number of nodes (e.g., (nx, ny, nz)).
         node_spacing : tuple
@@ -46,8 +41,8 @@ class VTKHDFWriter:
         path : str
             Path where the VTKHDF file will be saved.   
         
-        Attributes
-        ----------
+        Outputs
+        -------
         node_dimensions : tuple
             Dimensions of the grid in number of nodes.
         node_spacing : tuple
@@ -57,7 +52,18 @@ class VTKHDFWriter:
         origin : tuple
             Origin of the grid in the coordinate system.
 
+        Examples
+        --------
+        >>> writer = VTKHDFWriter((100, 100, 100), (1.0, 1.0, 1.0), (0.0, 0.0, 0.0), "output/data")
+        >>> writer.write(data_dict)
+        >>> writer.write_polydisperse(data_dict, n_phases=3, phase_indepen_field_names=['velocity', 'pressure'])
+        This initializes a VTKHDFWriter with a 100x100x100 grid, 1.0 spacing, origin at (0,0,0),
+        and saves the file to "output/data.vtkhdf". It then writes data to the file.
+        
+
         """
+    def __init__(self, node_dimensions:Tuple, node_spacing:Tuple, origin:Tuple, path:str):
+        
         self.node_dimensions = tuple(node_dimensions)
         self.node_spacing = tuple(node_spacing)
         self.path = path
@@ -68,14 +74,16 @@ class VTKHDFWriter:
         """
         Writes the provided data dictionary to a VTKHDF file, handling various data shapes (scalar, vector, tensor).
         
-        Parameters
-        ----------
+        Inputs
+        ------
         data_dict : dict
             Dictionary containing data to be written, where keys are variable names and values are numpy arrays.    
         The data arrays should be structured as follows:
-        - Scalar data: 1D array (shape: (n_nodes,))
-        - Vector data: 2D array (shape: (n_nodes, 3))
-        - Tensor data: 3D array (shape: (n_nodes, 3, 3))
+
+            - Scalar data: 1D array (shape: (n_nodes,))
+            - Vector data: 2D array (shape: (n_nodes, 3))
+            - Tensor data: 3D array (shape: (n_nodes, 3, 3))
+
         Each key in the dictionary corresponds to a variable name, and the values are the data arrays
         to be written to the VTKHDF file.
         If the data is not in the expected shape, it will be reshaped to fit the node dimensions.
@@ -111,21 +119,22 @@ class VTKHDFWriter:
         """
         Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.  
         
-        Parameters
-        ----------
+        Inputs
+        ------
         data_dict : dict  
             Dictionary containing data to be written, where keys are variable names and values are numpy arrays.
             The data arrays should be structured as follows:
-            - Phase-independent fields: 1D, 2D, or 3D arrays (shape: (n_nodes,) or (n_nodes, 3) or (n_nodes, 3, 3))
-            - Phase-dependent fields: 2D or 3D arrays with shape (n_nodes, n_phases, ...) for each phase (including
-               the bulk!)
+
+                - Phase-independent fields: 1D, 2D, or 3D arrays (shape: (n_nodes,) or (n_nodes, 3) or (n_nodes, 3, 3))
+                - Phase-dependent fields: 2D or 3D arrays with shape (n_nodes, n_phases, ...) for each phase (including the bulk!)
+
         n_phases : int
             Number of phases in the polydisperse system.
         phase_indepen_field_names : list
             List of field names that are independent of the phase. These fields will be written once for all phases.    
         
         Notes
-        -----
+        ------
         This method creates a pyvista ImageData object with the specified dimensions and spacing,
         iterates over the data dictionary, and writes each field to the ImageData object.
         It handles both phase-independent fields (written once) and phase-dependent fields (written for each phase).

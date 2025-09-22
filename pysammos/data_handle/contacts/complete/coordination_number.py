@@ -1,17 +1,13 @@
 """
-Coordination Number Calculation
-===============================
-
 This module provides functionality to calculate the coordination number of particles
 based on their contacts. It counts the number of contacts for each particle and
 excludes isolated particles (rattlers) that have fewer than two contacts.
 
 It uses Numba for efficient computation, especially for large datasets.
 
-Functions
---------
-- `count`: Counts the number of contacts per particle and excludes isolated ones.   
-Returns both the full list and the filtered one (excluding particles with fewer than two contacts). 
+It includes one main function:
+    1. :func:`count`: Counts the number of contacts per particle and excludes isolated ones. 
+
 """
 
 # import necessary libraries
@@ -31,21 +27,30 @@ def count(particle_inContacts_dup:np.ndarray, global_id_all:np.ndarray)-> Typing
     returning both the full list and the filtered one (excluding particles with
     fewer than two contacts).
 
-    Parameters
-    ----------
+    Inputs
+    -------
     particle_inContacts_dup : ndarray, shape (N,).
         Array of particle IDs involved in contacts (may contain duplicates).
 
     global_id_all : ndarray, shape (M,).
         List of all particle IDs for which coordination numbers are computed.
 
-    Returns
+    Outputs
     -------
     CN : ndarray, shape (M,).
         Coordination numbers (number of contacts) for each particle in `global_id_all`.
 
     CN_no_rattlers : ndarray, shape (K,).
         Coordination numbers excluding "rattlers" (particles with <= 1 contact).
+
+    Example
+    -------
+    >>> particle_inContacts_dup = np.array([1, 2, 1, 2, 1, 3])
+    >>> global_id_all = np.array([1, 2, 3])
+    >>> CN, CN_no_rattlers = count(particle_inContacts_dup, global_id_all)
+    >>> print(CN)  # Output: [3 2 1]
+    >>> print(CN_no_rattlers)  # Output: [3 2]
+    
     """
     max_id = int(np.max(particle_inContacts_dup))
     count_array = np.zeros(max_id + 1, dtype=np.int64)

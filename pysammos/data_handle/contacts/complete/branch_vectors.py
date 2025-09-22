@@ -1,12 +1,11 @@
 """
-Branch Vectors Calculation Module
-=================================
-
 This module provides functions to calculate branch vectors and center-to-center vectors
 between particles in a simulation, considering periodic boundary conditions.
 It includes two main functions:
-1. `from_contacts`: Computes branch vectors from contact positions.
-2. `from_diameters`: Computes branch vectors based on particle diameters.
+
+    1. :func:`from_contacts`: Computes branch vectors from contact positions.
+
+    2. :func:`from_diameters`: Computes branch vectors based on particle diameters.
 
 These functions handle periodic boundary corrections to ensure accurate vector calculations
 in simulations with periodic boundaries.
@@ -19,13 +18,11 @@ from typing import Tuple
 def from_contacts(r_A: np.ndarray, r_B: np.ndarray, contact_A: np.ndarray, 
                   L: np.ndarray, periodic: np.ndarray)-> Tuple[np.ndarray, np.ndarray]:
     r"""
-    
-    Calculate branch vectors from contact positions with periodic boundaries.
 
-    Computes the branch vector :math:`\mathbf{BV}` from the center of particle A
+    Computes the branch vector :math:`\mathbf{B_v}` from the center of particle A
     to its contact point, as well as the center-to-center vector :math:`\mathbf{d}`
-    between particles A and B. The function handles periodic boundary corrections
-    along each axis.
+    between particles A and B. It uses the position of the contact between the two particles.
+    The function handles periodic boundary corrections along each axis.
 
     Let:
 
@@ -38,7 +35,7 @@ def from_contacts(r_A: np.ndarray, r_B: np.ndarray, contact_A: np.ndarray,
 
     .. math::
 
-        \mathbf{BV} = \mathbf{r}_A - \mathbf{c}_A
+        \mathbf{B_v} = \mathbf{r}_A - \mathbf{c}_A
 
     And the center-to-center vector is:
 
@@ -53,31 +50,48 @@ def from_contacts(r_A: np.ndarray, r_B: np.ndarray, contact_A: np.ndarray,
         \mathbf{d}_i \leftarrow \mathbf{d}_i - L_i \cdot \mathrm{round}\left(\frac{\mathbf{d}_i}{L_i}\right)
 
     for each dimension :math:`i` where periodicity is enabled.
-
-    Parameters
-    ----------
-    r_A : ndarray, shape (N, 3).
+   
+    
+    Inputs
+    -------
+    r_A : ndarray, shape (N, 3)
         Center positions of particle A.
-
-    r_B : ndarray, shape (N, 3).
+    r_B : ndarray, shape (N, 3)
         Center positions of particle B.
-
-    contact_A : ndarray, shape (N, 3).
+    contact_A : ndarray, shape (N, 3)
         Contact points on particle A.
-
-    L : ndarray, shape (3,).
+    L : ndarray, shape (3,)
         Domain dimensions.
-
-    periodic : ndarray, shape (3,).
+    periodic : ndarray, shape (3,)
         Boolean array indicating periodicity in each spatial dimension.
 
-    Returns
+    Outputs
     -------
-    BV : ndarray, shape (N, 3).
+    BV : ndarray, shape (N, 3)
         Branch vectors from particle A center to contact point.
-
-    d : ndarray, shape (N, 3).
+    d : ndarray, shape (N, 3)
         Center-to-center vectors between particles A and B.
+
+    
+    Examples
+    --------
+
+    Given two particles A and B with positions and a contact point on A, the branch vector
+    and center-to-center vector can be computed as follows.
+
+        >>> r_A = np.array([[1, 2.0]])
+        >>> r_B = np.array([[2, 2.0]])
+        >>> contact_A = np.array([[1.5, 2.0]])
+        >>> L = np.array([3.0, 3.0])
+        >>> periodic = np.array([True, True])
+        >>> BV, d = from_contacts(r_A, r_B, contact_A, L, periodic)
+        >>> print("Branch Vectors:\n", BV)
+        Branch Vectors:
+        [[-0.5  0. ]]
+        >>> print("Center-to-Center Vectors:\n", d)
+        Center-to-Center Vectors:
+        [[-1.  0. ]]    
+
     """
     
     # Compute displacement vector from center to contact point
@@ -97,10 +111,11 @@ def from_diameters(r_A:np.ndarray, r_B:np.ndarray, d_A:np.ndarray, d_B:np.ndarra
                    L:np.ndarray, periodic:np.ndarray)-> Tuple[np.ndarray, np.ndarray]:
     r"""
     
-    Calculate branch vectors using particle diameters and periodic boundary corrections.
 
-    This function calculates the branch vector from the center of particle A to the
-    contact point along the line connecting particles A and B, based on their diameters.
+    Computes the branch vector :math:`\mathbf{B_v}` from the center of particle A
+    to its contact point, as well as the center-to-center vector :math:`\mathbf{d}`
+    between particles A and B. It uses the position of the two particles and their diameters.
+    The function handles periodic boundary corrections along each axis.
 
     Given:
 
@@ -127,8 +142,8 @@ def from_diameters(r_A:np.ndarray, r_B:np.ndarray, d_A:np.ndarray, d_B:np.ndarra
 
         \mathbf{BV} = \mathbf{d} \cdot \frac{d_A}{d_A + d_B}
 
-    Parameters
-    ----------
+    Inputs
+    ------
     r_A : ndarray, shape (N, 3).
         Center positions of particle A.
 
@@ -147,7 +162,7 @@ def from_diameters(r_A:np.ndarray, r_B:np.ndarray, d_A:np.ndarray, d_B:np.ndarra
     periodic : array_like, shape (3,).
         Periodicity flags (True/False) for each axis.
 
-    Returns
+    Outputs
     -------
     BV : ndarray, shape (N, 3).
         Branch vectors from particle A to contact points.

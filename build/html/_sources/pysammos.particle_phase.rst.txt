@@ -1,21 +1,20 @@
-pysammos.particle\_phase package
-================================
+Particle Phase
+==============
 
-Submodules
-----------
+pysammos.particle_phase package
 
-pysammos.particle\_phase.clustering module
-------------------------------------------
+Subpackage for particle phase analysis.
 
-.. automodule:: pysammos.particle_phase.clustering
+.. automodule:: pysammos.particle_phase
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+Clustering module
+-----------------
+pysammos.particle\_phase.clustering module
 
-.. automodule:: pysammos.particle_phase
+.. automodule:: pysammos.particle_phase.clustering
    :members:
    :undoc-members:
    :show-inheritance:

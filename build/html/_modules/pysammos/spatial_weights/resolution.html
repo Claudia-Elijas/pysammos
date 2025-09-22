@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.spatial_weights.resolution &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+        <script src="../../../_static/documentation_options.js?v=ba7b510b"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Pysammos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>pysammos.spatial_weights.resolution</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.spatial_weights.resolution</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides helper functions for determining characteristic length</span>
+<span class="sd">scales used in kernel-based coarse-graining, smoothing, and interpolation</span>
+<span class="sd">methods. These parameters are essential in defining the support domain of a</span>
+<span class="sd">kernel function and thus controlling the spatial resolution of computed</span>
+<span class="sd">fields.</span>
+
+<span class="sd">This module includes the following functions:</span>
+<span class="sd">    - :func:`calc_half_width`: Computes the kernel half-width `w` from an average particle diameter `D` scaled by a user-defined multiplicative factor.</span>
+<span class="sd">    - :func:`calc_cutoff`: Computes the kernel cutoff radius `c` based on the half-width `w` and the chosen kernel type (Lucy, Gaussian, or HeavySide).</span>
+
+<span class="sd">These functions are often called during preprocessing to set consistent</span>
+<span class="sd">smoothing parameters for all particles in a simulation, ensuring that the</span>
+<span class="sd">kernel shape and support are appropriately scaled to particle size.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># calculate w</span>
+<div class="viewcode-block" id="calc_half_width">
+<a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.resolution.calc_half_width">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_half_width</span><span class="p">(</span><span class="n">Average_part_diam</span><span class="p">,</span> <span class="n">w_mult</span><span class="o">=</span><span class="mf">0.75</span><span class="p">):</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculate the half-width parameter `w` based on average particle diameter.</span>
+
+<span class="sd">    This function computes the smoothing or weighting half-width `w` used in kernel</span>
+<span class="sd">    functions for back-projection or filtering processes. The value of `w` is</span>
+<span class="sd">    computed by scaling the average particle diameter by a multiplicative factor.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        w = w_{\text{mult}} \cdot D</span>
+
+<span class="sd">    where :math:`D` is the average particle diameter and :math:`w_{\text{mult}}` is</span>
+<span class="sd">    the user-defined multiplicative scaling factor.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    Average_part_diam : float</span>
+<span class="sd">        The average particle diameter :math:`D`.</span>
+
+<span class="sd">    w_mult : float, optional</span>
+<span class="sd">        The multiplicative factor for calculating the half-width `w`.</span>
+<span class="sd">        Default is 0.75.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    w : float</span>
+<span class="sd">        The computed half-width `w`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">w</span> <span class="o">=</span> <span class="n">w_mult</span> <span class="o">*</span> <span class="n">Average_part_diam</span>
+    <span class="k">return</span> <span class="n">w</span></div>
+
+
+<span class="c1"># calcualte c</span>
+<div class="viewcode-block" id="calc_cutoff">
+<a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.resolution.calc_cutoff">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_cutoff</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculate the cutoff radius `c` for a given kernel function.</span>
+
+<span class="sd">    This function determines the cutoff distance :math:`c` used to truncate the kernel</span>
+<span class="sd">    or filter function, based on the half-width `w` and the specified kernel type.</span>
+
+<span class="sd">    The cutoff `c` is calculated as:</span>
+
+<span class="sd">    - For the Lucy kernel: :math:`c = 2w`</span>
+<span class="sd">    - For the Gaussian kernel: :math:`c = 3w`</span>
+<span class="sd">    - For the Heaviside (step) function: :math:`c = w`</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    w : float</span>
+<span class="sd">        The half-width parameter used in the kernel.</span>
+
+<span class="sd">    function : str</span>
+<span class="sd">        The name of the kernel function. Must be one of:</span>
+<span class="sd">        `&#39;Lucy&#39;`, `&#39;Gaussian&#39;`, or `&#39;HeavySide&#39;`.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    c : float</span>
+<span class="sd">        The calculated cutoff value.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the `function` argument is not one of the supported types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;Lucy&#39;</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">w</span>
+    <span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;Gaussian&#39;</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="n">w</span>
+    <span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;HeavySide&#39;</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">w</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported function type: </span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">c</span></div>
+
+
+<span class="c1">####################################################################################</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,30 +1,18 @@
 """
-Regular Cuboid Grid Generation Module
-=====================================
-
-This module provides the `Grid_Generation` class for generating regular cuboid grids
+This module provides the :class:`Grid_Generation` class for generating regular cuboid grids
 for coarse graining in DEM simulations. It supports automatic and custom grid range
 determination, and can generate 1D, 2D, or 3D grids with user-specified axes and resolution.
 
-Main Class
-----------
-Grid_Generation
-    Handles the creation of grid points, nodes, and spacing for coarse-grained field calculations.
-    Supports both automatic and user-defined grid bounds and transects.
-
 Key Methods
------------
-- Automatic_Range()
-    Determines grid ranges automatically based on particle bounds and smoothing length.
-- Create_grid_points()
-    Static method to generate grid points and nodes for 1D, 2D, or 3D grids.
-- Generate()
-    Main method to generate the grid using either automatic or custom ranges.
 
-Notes
------
-- Designed for flexibility in grid generation for scientific simulations.
-- Output includes grid points, node counts, spacing, and grid ranges.
+    - :meth:`Automatic_Range`
+        Determines grid ranges automatically based on particle bounds and smoothing length.
+    - :meth:`Create_grid_points`
+        Static method to generate grid points and nodes for 1D, 2D, or 3D grids.
+    - :meth:`Generate`
+        Main method to generate the grid using either automatic or custom ranges.
+
+
 """
 
 
@@ -35,13 +23,10 @@ from typing import Tuple, Optional
 
 class Grid_Generation: 
 
-    def __init__(self, smoothing_length:float, particle_bounds:np.ndarray, grid_dimensions:int, 
-                 grid_axes:str, max_particle_diameter:float, automatic_range:bool, 
-                 custom_grid_range:Tuple, custom_grid_transects:Tuple):
-        """
+    r"""
         
-        Parameters
-        ----------
+        Inputs
+        ------
         smoothing_length : float
             Smoothing length (kernel size) for grid spacing calculations.
         particle_bounds : ndarray of shape (3, 2)
@@ -62,7 +47,29 @@ class Grid_Generation:
         custom_grid_transects : tuple of float or None
             Custom transect positions (x_transect, y_transect, z_transect) 
             if `automatic_range` is False.
+
+        Example
+        -------
+        >>> grid_gen = Grid_Generation(smoothing_length=0.1, 
+        ...                             particle_bounds=np.array([[0, 1], [0, 1], [0, 1]]), 
+        ...                             grid_dimensions=2, 
+        ...                             grid_axes='xy', 
+        ...                             max_particle_diameter=0.05, 
+        ...                             automatic_range=True, 
+        ...                             custom_grid_range=(None, None, None, None, None, None), 
+        ...                             custom_grid_transects=(None, None, None))
+        >>> GridPoints, Nodes, Spacing, Ranges_Length = grid_gen.Generate()
+        >>> print("Grid Points:\n", GridPoints)
+        >>> print("Nodes:", Nodes)
+        >>> print("Spacing:", Spacing)
+        >>> print("Ranges Length:", Ranges_Length)
+
         """
+
+    def __init__(self, smoothing_length:float, particle_bounds:np.ndarray, grid_dimensions:int, 
+                 grid_axes:str, max_particle_diameter:float, automatic_range:bool, 
+                 custom_grid_range:Tuple, custom_grid_transects:Tuple):
+    
         
         self.c = smoothing_length
         self.bounds = particle_bounds
@@ -79,7 +86,16 @@ class Grid_Generation:
             Automatically determine the grid coordinate ranges 
             based on domain bounds and kernel size.
 
-            Returns
+            Inputs
+            -------
+            x_range : list of float
+                Minimum and maximum x-coordinates for the grid.
+            y_range : list of float
+                Minimum and maximum y-coordinates for the grid.
+            z_range : list of float
+                Minimum and maximum z-coordinates for the grid.
+
+            Outputs
             -------
             x_range : list of float
                 Minimum and maximum x-coordinates for the grid.
@@ -90,13 +106,8 @@ class Grid_Generation:
 
             Notes
             -----
-            The method offsets the bounds by:
 
-            .. math::
-
-            2.5\,c + 0.5\,d_\mathrm{max}
-
-            where :math:`c` is the smoothing length and :math:`d_\mathrm{max}` is the maximum particle diameter, 
+            The method offsets the bounds by :math:`2.5\,c + 0.5\,d_\mathrm{max}`, where :math:`c` is the smoothing length and :math:`d_\mathrm{max}` is the maximum particle diameter, 
             to avoid boundary effects.
     
             
@@ -125,8 +136,8 @@ class Grid_Generation:
         """
         Create structured grid points in 1D, 2D, or 3D.
 
-        Parameters
-        ----------
+        Inputs
+        ------
         X_range, Y_range, Z_range : list of float or None
             Coordinate ranges for each axis, in the form [min, max]. 
             If None, that axis will be fixed at its transect value.
@@ -141,11 +152,12 @@ class Grid_Generation:
             Dimensionality of the generated grid.
         axes : str
             Axes along which to generate the grid. Options are:
-            - **3D**: 'xyz'
-            - **2D**: 'xy', 'xz', 'yz'
-            - **1D**: 'x', 'y', 'z'
 
-        Returns
+                - **3D**: 'xyz'
+                - **2D**: 'xy', 'xz', 'yz'
+                - **1D**: 'x', 'y', 'z'
+
+        Outputs
         -------
         grid_points : ndarray of shape (N, 3)
             Array of generated grid points in 3D coordinates.
@@ -162,11 +174,13 @@ class Grid_Generation:
 
         Notes
         -----
-        - Spacing along active axes is computed as:
-        ``c / high_res_scaling``.
-        - The output is always a set of points in 3D space, even for 
-        1D and 2D grids, to maintain compatibility with 3D data structures.
-        - This method uses `np.meshgrid` to create structured grids.
+
+            - Spacing along active axes is computed as ``c / high_res_scaling``.
+
+            - The output is always a set of points in 3D space, even for 1D and 2D grids, to maintain compatibility with 3D data structures.
+
+            - This method uses `np.meshgrid` to create structured grids.
+
         """
 
         # General grid parameters
@@ -339,7 +353,7 @@ class Grid_Generation:
         """
         Generate the computational grid points.
 
-        Returns
+        Outputs
         -------
         GridPoints : ndarray of shape (N, 3)
             Generated grid points in 3D coordinates.
@@ -352,11 +366,12 @@ class Grid_Generation:
 
         Notes
         -----
-        - If `automatic_range` is True, grid ranges are computed using 
-          :meth:`Automatic_Range` with domain padding.
-        - If `automatic_range` is False, ranges and transects are 
-          taken from `custom_grid_range` and `custom_grid_transects`.
-        - The method calls :meth:`Create_grid_points` to build the grid.
+            - If `automatic_range` is True, grid ranges are computed using :meth:`Automatic_Range` with domain padding.
+
+            - If `automatic_range` is False, ranges and transects are taken from `custom_grid_range` and `custom_grid_transects`.
+
+            - The method calls :meth:`Create_grid_points` to build the grid.
+
         """
      
         # 1. get ranges and or transects

@@ -1,254 +1,103 @@
-<!doctype html>
-<html class="no-js" lang="english" data-content_root="./">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2025.07.19 -->
-        <title>pysammos.data_write.vtkhdf package - pysammos 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=25af2a20" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
-    
-    
-
-
-<style>
-  body {
-    --color-code-background: #f2f2f2;
-  --color-code-foreground: #1e1e1e;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vtkhdf &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
-  }
-  @media not print {
-    body[data-theme="dark"] {
-      --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
-  
-    }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #2b2b2b;
-  --color-code-foreground: #f8f8f2;
-  
-      }
-    }
-  }
-</style></head>
-  <body>
-    
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
+        <script src="_static/documentation_options.js?v=ba7b510b"></script>
+        <script src="_static/doctools.js?v=9bcbadda"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Grid Generation" href="pysammos.grid_generation.html" />
+    <link rel="prev" title="h5" href="pysammos.data_write.h5.html" /> 
+</head>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
-    <title>Auto light/dark, in light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
-      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
-      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
-      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
-      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
-      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
-      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
-      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
-      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
-      <circle cx="14.5" cy="9.55" r="3.6"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
-    <title>Auto light/dark, in dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
-      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
-      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
-      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
-      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
-      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
-      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
-      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-pencil" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
-      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-      <path d="M13.5 6.5l4 4" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-  <symbol id="svg-eye" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-      <path
-        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-</svg>
-
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
-
-<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
-      </label>
-    </div>
-    <div class="header-center">
-      <a href="index.html"><div class="brand">pysammos 0.1 documentation</div></a>
-    </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
-      </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
-      
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
-  
-  <span class="sidebar-brand-text">pysammos 0.1 documentation</span>
-  
-</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
-</form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
-</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Pysammos</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User Interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.html">Data Read</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="pysammos.data_write.html">Data Write</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_write.h5.html">h5</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Vtkhdf</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html">Grid Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html">Particle Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html">Spatial Weights</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
 
-      </div>
-      
-    </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container">
-          <div class="view-this-page">
-  <a class="muted-link" href="_sources/pysammos.data_write.vtkhdf.rst.txt" title="View this page">
-    <svg><use href="#svg-eye"></use></svg>
-    <span class="visually-hidden">View this page</span>
-  </a>
-</div>
-<div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-          </label>
         </div>
-        <article role="main" id="furo-main-content">
-          <section id="pysammos-data-write-vtkhdf-package">
-<h1>pysammos.data_write.vtkhdf package<a class="headerlink" href="#pysammos-data-write-vtkhdf-package" title="Link to this heading">¶</a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
-</section>
-<section id="module-pysammos.data_write.vtkhdf.core">
-<span id="pysammos-data-write-vtkhdf-core-module"></span><h2>pysammos.data_write.vtkhdf.core module<a class="headerlink" href="#module-pysammos.data_write.vtkhdf.core" title="Link to this heading">¶</a></h2>
-<p>vtkhdf_enhanced3_flexible.py - ECP Breard</p>
-<p>Enhanced VTK HDF ImageData format library with full vector and flexible tensor support.
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">Pysammos</a> &raquo;</li>
+          <li><a href="pysammos.html">Coarse Graining User Interface</a> &raquo;</li>
+          <li><a href="pysammos.data_write.html">Data Write</a> &raquo;</li>
+      <li>Vtkhdf</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pysammos.data_write.vtkhdf.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vtkhdf">
+<h1>Vtkhdf<a class="headerlink" href="#vtkhdf" title="Link to this heading"></a></h1>
+<p>pysammos.data_write.vtkhdf package</p>
+<section id="core-module">
+<span id="module-pysammos.data_write.vtkhdf"></span><h2>Core module<a class="headerlink" href="#core-module" title="Link to this heading"></a></h2>
+<p>pysammos.data_write.vtkhdf.core module</p>
+<p id="module-pysammos.data_write.vtkhdf.core">vtkhdf_enhanced3_flexible.py - ECP Breard
+Enhanced VTK HDF ImageData format library with full vector and flexible tensor support.
 Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.c2f_reshape">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">c2f_reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.c2f_reshape" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">c2f_reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#c2f_reshape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.c2f_reshape" title="Link to this definition"></a></dt>
 <dd><p>Convert C-order array to Fortran-order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -259,7 +108,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.create_adaptive_chunks">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_adaptive_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_size=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_adaptive_chunks" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_adaptive_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_size=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#create_adaptive_chunks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_adaptive_chunks" title="Link to this definition"></a></dt>
 <dd><p>Create chunk shape adapted to grid asymmetry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -270,7 +119,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.create_cell_dataset">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_cell_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_cell_dataset" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_cell_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#create_cell_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_cell_dataset" title="Link to this definition"></a></dt>
 <dd><p>Create cell dataset with adaptive chunking and flexible tensor support.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -281,13 +130,13 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.create_field_dataset">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_field_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_field_dataset" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_field_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#create_field_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_field_dataset" title="Link to this definition"></a></dt>
 <dd><p>Create field dataset.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.create_point_dataset">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_point_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_point_dataset" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">create_point_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_tensor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#create_point_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.create_point_dataset" title="Link to this definition"></a></dt>
 <dd><p>Create point dataset with adaptive chunking and flexible tensor support.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -298,7 +147,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.dimensions2extent">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">dimensions2extent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.dimensions2extent" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">dimensions2extent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#dimensions2extent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.dimensions2extent" title="Link to this definition"></a></dt>
 <dd><p>Convert dimensions to extent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -309,7 +158,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.extent2dimensions">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">extent2dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.extent2dimensions" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">extent2dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#extent2dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.extent2dimensions" title="Link to this definition"></a></dt>
 <dd><p>Convert extent to dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -320,7 +169,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.f2c_reshape">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">f2c_reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.f2c_reshape" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">f2c_reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#f2c_reshape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.f2c_reshape" title="Link to this definition"></a></dt>
 <dd><p>Convert Fortran-order array to C-order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -331,13 +180,13 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_cell_array">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_cell_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_cell_array" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_cell_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_cell_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_cell_array" title="Link to this definition"></a></dt>
 <dd><p>Get cell array from ImageData.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_cell_data_shape">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_cell_data_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_cell_data_shape" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_cell_data_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_cell_data_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_cell_data_shape" title="Link to this definition"></a></dt>
 <dd><p>Get cell data shape in C order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -348,7 +197,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_cell_dataset">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_cell_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_cell_dataset" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_cell_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_cell_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_cell_dataset" title="Link to this definition"></a></dt>
 <dd><p>Get cell dataset from HDF5 file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -359,7 +208,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_data_order">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_data_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_data_order" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_data_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_data_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_data_order" title="Link to this definition"></a></dt>
 <dd><p>Get data ordering from file metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -370,7 +219,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_field_array">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_field_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_field_array" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_field_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_field_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_field_array" title="Link to this definition"></a></dt>
 <dd><p>Get field array from ImageData.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -381,7 +230,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_field_dataset">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_field_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_field_dataset" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_field_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_field_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_field_dataset" title="Link to this definition"></a></dt>
 <dd><p>Get field dataset from HDF5 file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -392,13 +241,13 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_point_array">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_array" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_point_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_array" title="Link to this definition"></a></dt>
 <dd><p>Get point array from ImageData.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_point_data_shape">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_data_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_data_shape" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_data_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_point_data_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_data_shape" title="Link to this definition"></a></dt>
 <dd><p>Get point data shape in C order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -409,7 +258,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_point_dataset">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_dataset" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_point_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_dataset" title="Link to this definition"></a></dt>
 <dd><p>Get point dataset from HDF5 file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -420,7 +269,7 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_point_tensor">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_tensor" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_point_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_tensor" title="Link to this definition"></a></dt>
 <dd><p>Get tensor field as 4D array with flexible component count.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -440,7 +289,7 @@ components: Expected number of components (for validation).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_point_vector">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_vector" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_point_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_vector" title="Link to this definition"></a></dt>
 <dd><p>Get vector field as 4D array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -451,13 +300,13 @@ components: Expected number of components (for validation).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.initialize">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.initialize" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.initialize" title="Link to this definition"></a></dt>
 <dd><p>Initialize VTK HDF file structure with orientation tracking.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.is_tensor_data">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">is_tensor_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.is_tensor_data" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">is_tensor_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#is_tensor_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.is_tensor_data" title="Link to this definition"></a></dt>
 <dd><p>Check if array is tensor data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -480,7 +329,7 @@ If components is None: component count if tensor-like (&gt;3), False otherwise</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.is_vector_data">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">is_vector_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.is_vector_data" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">is_vector_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#is_vector_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.is_vector_data" title="Link to this definition"></a></dt>
 <dd><p>Check if array is vector data (always 3 components).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -491,7 +340,7 @@ If components is None: component count if tensor-like (&gt;3), False otherwise</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.point2cell_dimensions">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">point2cell_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.point2cell_dimensions" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">point2cell_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#point2cell_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.point2cell_dimensions" title="Link to this definition"></a></dt>
 <dd><p>Convert point dimensions to cell dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -502,7 +351,7 @@ If components is None: component count if tensor-like (&gt;3), False otherwise</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.point2cell_extent">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">point2cell_extent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.point2cell_extent" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">point2cell_extent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#point2cell_extent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.point2cell_extent" title="Link to this definition"></a></dt>
 <dd><p>Convert point extent to cell extent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -513,7 +362,7 @@ If components is None: component count if tensor-like (&gt;3), False otherwise</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.read_slice">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">read_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'point'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.read_slice" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">read_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'point'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#read_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.read_slice" title="Link to this definition"></a></dt>
 <dd><p>Read a single slice from dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -524,31 +373,31 @@ If components is None: component count if tensor-like (&gt;3), False otherwise</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.read_vtkhdf">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">read_vtkhdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.read_vtkhdf" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">read_vtkhdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#read_vtkhdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.read_vtkhdf" title="Link to this definition"></a></dt>
 <dd><p>Read VTK HDF file with flexible tensor support.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.set_point_4d_tensor">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_4d_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_4d_tensor" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_4d_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#set_point_4d_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_4d_tensor" title="Link to this definition"></a></dt>
 <dd><p>Add 27-component 3x3x3 tensor to point data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.set_point_scalar">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_scalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalar_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_scalar" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_scalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalar_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#set_point_scalar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_scalar" title="Link to this definition"></a></dt>
 <dd><p>Add scalar field to point data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.set_point_symmetric_tensor">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_symmetric_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_symmetric_tensor" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_symmetric_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#set_point_symmetric_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_symmetric_tensor" title="Link to this definition"></a></dt>
 <dd><p>Add 6-component symmetric tensor to point data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.set_point_tensor">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_tensor" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#set_point_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_tensor" title="Link to this definition"></a></dt>
 <dd><p>Add tensor field to point data with flexible component count.</p>
 <dl>
 <dt>Args:</dt><dd><p>image_data: PyVista ImageData object
@@ -564,13 +413,13 @@ components: Expected number of components (for validation).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.set_point_vector">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_vector" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#set_point_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_vector" title="Link to this definition"></a></dt>
 <dd><p>Add vector field to point data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.validate_imagedata_consistency">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">validate_imagedata_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.validate_imagedata_consistency" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">validate_imagedata_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#validate_imagedata_consistency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.validate_imagedata_consistency" title="Link to this definition"></a></dt>
 <dd><p>Validate ImageData consistency and return diagnostics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -581,94 +430,132 @@ components: Expected number of components (for validation).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.write_multicomponent_slice">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_multicomponent_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_multicomponent_slice" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_multicomponent_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#write_multicomponent_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_multicomponent_slice" title="Link to this definition"></a></dt>
 <dd><p>Write multi-component data slice (vectors or tensors) with explicit ordering.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.write_scalar_slice">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_scalar_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_scalar_slice" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_scalar_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#write_scalar_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_scalar_slice" title="Link to this definition"></a></dt>
 <dd><p>Write scalar data slice.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.write_vector_slice">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_vector_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_vector_slice" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_vector_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#write_vector_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_vector_slice" title="Link to this definition"></a></dt>
 <dd><p>Write vector data slice with explicit ordering.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.write_vtkhdf">
-<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_vtkhdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imagedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_vtkhdf" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">write_vtkhdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imagedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FortranOrder'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#write_vtkhdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.write_vtkhdf" title="Link to this definition"></a></dt>
 <dd><p>Write ImageData to VTK HDF format with flexible tensor support.</p>
 </dd></dl>
 
 </section>
-<section id="module-pysammos.data_write.vtkhdf.writer">
-<span id="pysammos-data-write-vtkhdf-writer-module"></span><h2>pysammos.data_write.vtkhdf.writer module<a class="headerlink" href="#module-pysammos.data_write.vtkhdf.writer" title="Link to this heading">¶</a></h2>
-<section id="module-for-writing-vtkhdf-files">
-<h3>Module for writing VTKHDF files.<a class="headerlink" href="#module-for-writing-vtkhdf-files" title="Link to this heading">¶</a></h3>
-<p>This module provides the <cite>VTKHDFWriter</cite> class, which is used to write data to VTKHDF files.
-It supports writing scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.
-The writer uses the <cite>pyvista</cite> library for handling VTK data structures and <cite>h5py</cite> for writing HDF5 files.
+<section id="writer-module">
+<h2>Writer module<a class="headerlink" href="#writer-module" title="Link to this heading"></a></h2>
+<p>pysammos.data_write.vtkhdf.writer module</p>
+<p id="module-pysammos.data_write.vtkhdf.writer">This module provides the <a class="reference internal" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter" title="pysammos.data_write.vtkhdf.writer.VTKHDFWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VTKHDFWriter</span></code></a> class, which is used to write data to VTKHDF files.
 It also includes functionality to set the origin and dimensions of the data grid.
 It is particularly useful for visualizing simulation data in a format compatible with VTK and HDF5 standards.</p>
-<section id="class-vtkhdfwriter">
-<h4>Class: VTKHDFWriter<a class="headerlink" href="#class-vtkhdfwriter" title="Link to this heading">¶</a></h4>
-<p>This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
+<dl>
+<dt>This module contains the following class:</dt><dd><p>1. <a class="reference internal" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter" title="pysammos.data_write.vtkhdf.writer.VTKHDFWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">VTKHDFWriter</span></code></a>
+This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
 It provides methods to write scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.
 It uses <cite>pyvista</cite> for creating the VTK data structure and <cite>h5py</cite> for writing the data to HDF5 files.
 It is designed to ensure that the data is stored in a format that can be easily read and visualized using VTK-compatible tools.</p>
-<p>Methods:
-- <cite>__init__</cite>: Initializes the writer with node dimensions, spacing, origin, and file path.
-- <cite>write</cite>: Writes the provided data dictionary to a VTKHDF file, handling different data shapes (scalar, vector, tensor).
-- <cite>write_polydisperse</cite>: Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.</p>
-</section>
-</section>
-<dl class="py class">
-<dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.writer.VTKHDFWriter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.writer.</span></span><span class="sig-name descname"><span class="pre">VTKHDFWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_spacing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write" title="Link to this definition">¶</a></dt>
-<dd><p>Writes the provided data dictionary to a VTKHDF file, handling various data shapes (scalar, vector, tensor).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_dict</strong> (<em>dict</em>) -- Dictionary containing data to be written, where keys are variable names and values are numpy arrays.</p></li>
-<li><p><strong>follows</strong> (<em>The data arrays should be structured as</em>)</p></li>
-<li><p><strong>data</strong> (<em>- Tensor</em>)</p></li>
-<li><p><strong>data</strong></p></li>
-<li><p><strong>data</strong></p></li>
-<li><p><strong>name</strong> (<em>Each key in the dictionary corresponds to a variable</em>)</p></li>
-<li><p><strong>arrays</strong> (<em>and the values are the data</em>)</p></li>
-<li><p><strong>file.</strong> (<em>to be written to the VTKHDF</em>)</p></li>
-<li><p><strong>shape</strong> (<em>If the data is not in the expected</em>)</p></li>
-<li><p><strong>dimensions.</strong> (<em>it will be reshaped to fit the node</em>)</p></li>
+<dl class="simple">
+<dt>Methods:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code>: Writes the provided data dictionary to a VTKHDF file, handling different data shapes (scalar, vector, tensor).</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">write_polydisperse()</span></code>: Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.</p></li>
 </ul>
 </dd>
 </dl>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.writer.VTKHDFWriter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.writer.</span></span><span class="sig-name descname"><span class="pre">VTKHDFWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_spacing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/writer.html#VTKHDFWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
+It provides methods to write scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.</p>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>node_dimensions<span class="classifier">tuple</span></dt><dd><p>Dimensions of the grid in number of nodes (e.g., (nx, ny, nz)).</p>
+</dd>
+<dt>node_spacing<span class="classifier">tuple</span></dt><dd><p>Spacing between nodes in each dimension (e.g., (dx, dy, dz)).</p>
+</dd>
+<dt>origin<span class="classifier">tuple</span></dt><dd><p>Origin of the grid in the coordinate system (e.g., (ox, oy, oz)).</p>
+</dd>
+<dt>path<span class="classifier">str</span></dt><dd><p>Path where the VTKHDF file will be saved.</p>
+</dd>
+</dl>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>node_dimensions<span class="classifier">tuple</span></dt><dd><p>Dimensions of the grid in number of nodes.</p>
+</dd>
+<dt>node_spacing<span class="classifier">tuple</span></dt><dd><p>Spacing between nodes in each dimension.</p>
+</dd>
+<dt>path<span class="classifier">str</span></dt><dd><p>Path where the VTKHDF file will be saved.</p>
+</dd>
+<dt>origin<span class="classifier">tuple</span></dt><dd><p>Origin of the grid in the coordinate system.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span> <span class="o">=</span> <span class="n">VTKHDFWriter</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="s2">&quot;output/data&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span><span class="o">.</span><span class="n">write_polydisperse</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">n_phases</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">phase_indepen_field_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
+<span class="go">This initializes a VTKHDFWriter with a 100x100x100 grid, 1.0 spacing, origin at (0,0,0),</span>
+<span class="go">and saves the file to &quot;output/data.vtkhdf&quot;. It then writes data to the file.</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/writer.html#VTKHDFWriter.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write" title="Link to this definition"></a></dt>
+<dd><p>Writes the provided data dictionary to a VTKHDF file, handling various data shapes (scalar, vector, tensor).</p>
+<section id="id1">
+<h4>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>data_dict<span class="classifier">dict</span></dt><dd><p>Dictionary containing data to be written, where keys are variable names and values are numpy arrays.</p>
+</dd>
+</dl>
+<p>The data arrays should be structured as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Scalar data: 1D array (shape: (n_nodes,))</p></li>
+<li><p>Vector data: 2D array (shape: (n_nodes, 3))</p></li>
+<li><p>Tensor data: 3D array (shape: (n_nodes, 3, 3))</p></li>
+</ul>
+</div></blockquote>
+<p>Each key in the dictionary corresponds to a variable name, and the values are the data arrays
+to be written to the VTKHDF file.
+If the data is not in the expected shape, it will be reshaped to fit the node dimensions.</p>
+</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write_polydisperse">
-<span class="sig-name descname"><span class="pre">write_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_indepen_field_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write_polydisperse" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">write_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_indepen_field_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/writer.html#VTKHDFWriter.write_polydisperse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write_polydisperse" title="Link to this definition"></a></dt>
 <dd><p>Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_dict</strong> (<em>dict</em>) -- <p>Dictionary containing data to be written, where keys are variable names and values are numpy arrays.
-The data arrays should be structured as follows:
-- Phase-independent fields: 1D, 2D, or 3D arrays (shape: (n_nodes,) or (n_nodes, 3) or (n_nodes, 3, 3))
-- Phase-dependent fields: 2D or 3D arrays with shape (n_nodes, n_phases, ...) for each phase (including</p>
+<section id="id2">
+<h4>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<dl>
+<dt>data_dict<span class="classifier">dict</span></dt><dd><p>Dictionary containing data to be written, where keys are variable names and values are numpy arrays.
+The data arrays should be structured as follows:</p>
 <blockquote>
-<div><p>the bulk!)</p>
-</div></blockquote>
-</p></li>
-<li><p><strong>n_phases</strong> (<em>int</em>) -- Number of phases in the polydisperse system.</p></li>
-<li><p><strong>phase_indepen_field_names</strong> (<em>list</em>) -- List of field names that are independent of the phase. These fields will be written once for all phases.</p></li>
+<div><ul class="simple">
+<li><p>Phase-independent fields: 1D, 2D, or 3D arrays (shape: (n_nodes,) or (n_nodes, 3) or (n_nodes, 3, 3))</p></li>
+<li><p>Phase-dependent fields: 2D or 3D arrays with shape (n_nodes, n_phases, ...) for each phase (including the bulk!)</p></li>
 </ul>
+</div></blockquote>
+</dd>
+<dt>n_phases<span class="classifier">int</span></dt><dd><p>Number of phases in the polydisperse system.</p>
+</dd>
+<dt>phase_indepen_field_names<span class="classifier">list</span></dt><dd><p>List of field names that are independent of the phase. These fields will be written once for all phases.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -676,121 +563,44 @@ The data arrays should be structured as follows:
 iterates over the data dictionary, and writes each field to the ImageData object.
 It handles both phase-independent fields (written once) and phase-dependent fields (written for each phase).
 The resulting data is then written to a VTKHDF file with gzip compression.</p>
+</section>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 </section>
-<section id="module-pysammos.data_write.vtkhdf">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pysammos.data_write.vtkhdf" title="Link to this heading">¶</a></h2>
-</section>
 </section>
 
-        </article>
-      </div>
-      <footer>
-        
-        <div class="related-pages">
-          
-          
-        </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; 2025, Claudia Elijas-Parra
-            </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
-            
+
+           </div>
           </div>
-          <div class="right-details">
-            
-          </div>
-        </div>
-        
-      </footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pysammos.data_write.h5.html" class="btn btn-neutral float-left" title="h5" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pysammos.grid_generation.html" class="btn btn-neutral float-right" title="Grid Generation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-    <aside class="toc-drawer">
-      
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">pysammos.data_write.vtkhdf package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-pysammos.data_write.vtkhdf.core">pysammos.data_write.vtkhdf.core module</a><ul>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.c2f_reshape"><code class="docutils literal notranslate"><span class="pre">c2f_reshape()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.create_adaptive_chunks"><code class="docutils literal notranslate"><span class="pre">create_adaptive_chunks()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.create_cell_dataset"><code class="docutils literal notranslate"><span class="pre">create_cell_dataset()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.create_field_dataset"><code class="docutils literal notranslate"><span class="pre">create_field_dataset()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.create_point_dataset"><code class="docutils literal notranslate"><span class="pre">create_point_dataset()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.dimensions2extent"><code class="docutils literal notranslate"><span class="pre">dimensions2extent()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.extent2dimensions"><code class="docutils literal notranslate"><span class="pre">extent2dimensions()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.f2c_reshape"><code class="docutils literal notranslate"><span class="pre">f2c_reshape()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_cell_array"><code class="docutils literal notranslate"><span class="pre">get_cell_array()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_cell_data_shape"><code class="docutils literal notranslate"><span class="pre">get_cell_data_shape()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_cell_dataset"><code class="docutils literal notranslate"><span class="pre">get_cell_dataset()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_data_order"><code class="docutils literal notranslate"><span class="pre">get_data_order()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_field_array"><code class="docutils literal notranslate"><span class="pre">get_field_array()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_field_dataset"><code class="docutils literal notranslate"><span class="pre">get_field_dataset()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_point_array"><code class="docutils literal notranslate"><span class="pre">get_point_array()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_point_data_shape"><code class="docutils literal notranslate"><span class="pre">get_point_data_shape()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_point_dataset"><code class="docutils literal notranslate"><span class="pre">get_point_dataset()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_point_tensor"><code class="docutils literal notranslate"><span class="pre">get_point_tensor()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.get_point_vector"><code class="docutils literal notranslate"><span class="pre">get_point_vector()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.initialize"><code class="docutils literal notranslate"><span class="pre">initialize()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.is_tensor_data"><code class="docutils literal notranslate"><span class="pre">is_tensor_data()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.is_vector_data"><code class="docutils literal notranslate"><span class="pre">is_vector_data()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.point2cell_dimensions"><code class="docutils literal notranslate"><span class="pre">point2cell_dimensions()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.point2cell_extent"><code class="docutils literal notranslate"><span class="pre">point2cell_extent()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.read_slice"><code class="docutils literal notranslate"><span class="pre">read_slice()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.read_vtkhdf"><code class="docutils literal notranslate"><span class="pre">read_vtkhdf()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.set_point_4d_tensor"><code class="docutils literal notranslate"><span class="pre">set_point_4d_tensor()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.set_point_scalar"><code class="docutils literal notranslate"><span class="pre">set_point_scalar()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.set_point_symmetric_tensor"><code class="docutils literal notranslate"><span class="pre">set_point_symmetric_tensor()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.set_point_tensor"><code class="docutils literal notranslate"><span class="pre">set_point_tensor()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.set_point_vector"><code class="docutils literal notranslate"><span class="pre">set_point_vector()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.validate_imagedata_consistency"><code class="docutils literal notranslate"><span class="pre">validate_imagedata_consistency()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.write_multicomponent_slice"><code class="docutils literal notranslate"><span class="pre">write_multicomponent_slice()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.write_scalar_slice"><code class="docutils literal notranslate"><span class="pre">write_scalar_slice()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.write_vector_slice"><code class="docutils literal notranslate"><span class="pre">write_vector_slice()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.core.write_vtkhdf"><code class="docutils literal notranslate"><span class="pre">write_vtkhdf()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pysammos.data_write.vtkhdf.writer">pysammos.data_write.vtkhdf.writer module</a><ul>
-<li><a class="reference internal" href="#module-for-writing-vtkhdf-files">Module for writing VTKHDF files.</a><ul>
-<li><a class="reference internal" href="#class-vtkhdfwriter">Class: VTKHDFWriter</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter"><code class="docutils literal notranslate"><span class="pre">VTKHDFWriter</span></code></a><ul>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write"><code class="docutils literal notranslate"><span class="pre">VTKHDFWriter.write()</span></code></a></li>
-<li><a class="reference internal" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write_polydisperse"><code class="docutils literal notranslate"><span class="pre">VTKHDFWriter.write_polydisperse()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-pysammos.data_write.vtkhdf">Module contents</a></li>
-</ul>
-</li>
-</ul>
 
-          </div>
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      
-      
-    </aside>
+    </section>
   </div>
-</div><script src="_static/documentation_options.js?v=ba7b510b"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    </body>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

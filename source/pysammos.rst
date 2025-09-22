@@ -1,8 +1,23 @@
-pysammos package
-================
+
+.. automodule:: pysammos
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+
+Coarse Graining User Interface
+==============================
+
+.. automodule:: pysammos.coarse_graining
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 
 Subpackages
------------
+===========
 
 .. toctree::
    :maxdepth: 4
@@ -15,22 +30,3 @@ Subpackages
    pysammos.neighbour_search
    pysammos.particle_phase
    pysammos.spatial_weights
-
-Submodules
-----------
-
-pysammos.coarse\_graining module
---------------------------------
-
-.. automodule:: pysammos.coarse_graining
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pysammos
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.data_handle.particles.particle_stats &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+        <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Pysammos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>pysammos.data_handle.particles.particle_stats</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.data_handle.particles.particle_stats</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions to compute statistical properties of particle systems.</span>
+<span class="sd">Currently, it includes the following function:</span>
+<span class="sd">    1. :func:`d50_calc`: Computes the D50 (median diameter) from sorted particle diameters and their corresponding masses.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># import necessary libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<div class="viewcode-block" id="d50_calc">
+<a class="viewcode-back" href="../../../../pysammos.data_handle.particles.html#pysammos.data_handle.particles.particle_stats.d50_calc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">d50_calc</span><span class="p">(</span><span class="n">diameter_t0_sort</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mass_t0_sort</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Calculate the D50 (median diameter) from sorted particle diameters and their corresponding masses.</span>
+<span class="sd">    The D50 is the diameter at which 50% of the total mass is contained in particles smaller than this diameter.</span>
+
+<span class="sd">    The mathematical formula is given by:</span>
+
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        </span>
+<span class="sd">        D_{50} = \frac{d_{i-1} + (0.5 - F_{i-1}) \cdot (d_i - d_{i-1})}{F_i - F_{i-1}}</span>
+
+
+<span class="sd">    where :math:`F_i` is the cumulative mass fraction at diameter :math:`d_i`, </span>
+<span class="sd">    and :math:`F_{i-1}` is the cumulative mass fraction at diameter :math:`d_{i-1}`.</span>
+<span class="sd">    </span>
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    diameter_t0_sort : ndarray, shape (N,).</span>
+<span class="sd">        Sorted array of particle diameters.</span>
+<span class="sd">    mass_t0_sort : ndarray, shape (N,).</span>
+<span class="sd">        Sorted array of particle masses corresponding to the diameters.</span>
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    d50 : float</span>
+<span class="sd">        The D50 diameter value.</span>
+<span class="sd">   </span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; diameters = np.array([0.1, 0.2, 0.3, 0.4, 0.5])</span>
+<span class="sd">    &gt;&gt;&gt; masses = np.array([1, 2, 3, 4, 5])</span>
+<span class="sd">    &gt;&gt;&gt; d50 = d50_calc(diameters, masses)</span>
+<span class="sd">    &gt;&gt;&gt; print(d50)</span>
+<span class="sd">    0.3 </span>
+<span class="sd">    This indicates that 50% of the total mass is contained </span>
+<span class="sd">    in particles with diameters less than or equal to 0.3.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mass_t0_sort</span><span class="p">)</span> <span class="c1"># Calculate total mass</span>
+    <span class="n">cumulative_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">mass_t0_sort</span><span class="p">)</span> <span class="c1"># Calculate cumulative mass</span>
+    <span class="n">cumulative_fraction</span> <span class="o">=</span> <span class="n">cumulative_mass</span> <span class="o">/</span> <span class="n">total_mass</span> <span class="c1"># Normalize cumulative mass to get fraction</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">cumulative_fraction</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="c1"># Find where cumulative mass crosses 0.5 (D50)</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># If the first index is 0, return the first diameter</span>
+        <span class="n">d50</span> <span class="o">=</span> <span class="n">diameter_t0_sort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Handle edge cases</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># Linear interpolation</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">diameter_t0_sort</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">diameter_t0_sort</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="c1"># Diameters at indices idx-1 and idx</span>
+        <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">cumulative_fraction</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">cumulative_fraction</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="c1"># Cumulative fractions at those indices</span>
+        <span class="n">d50</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="c1"># Interpolate to find D50</span>
+    <span class="k">return</span> <span class="n">d50</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

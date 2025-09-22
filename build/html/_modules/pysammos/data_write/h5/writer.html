@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.data_write.h5.writer &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+        <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Pysammos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>pysammos.data_write.h5.writer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.data_write.h5.writer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides a manager class for reading and writing HDF5 files containing array data,</span>
+<span class="sd">and converting them to xarray Datasets. It supports adding grid point positions, phase labels,</span>
+<span class="sd">and saving data at specific indices with custom dimension values.</span>
+
+<span class="sd">It also includes functionality to load the HDF5 file as an xarray Dataset with appropriate</span>
+<span class="sd">coordinates and dimension names.</span>
+
+<span class="sd">It is designed to handle various data shapes, including scalar, vector, and tensor data,</span>
+<span class="sd">and to ensure unique dimension names for each variable.</span>
+
+<span class="sd">It is particularly useful for managing simulation data in a structured format,</span>
+<span class="sd">allowing for efficient storage and retrieval of large datasets, while providing a convenient</span>
+<span class="sd">interface for data analysis using xarray.</span>
+
+<span class="sd">This module contains the following class:</span>
+<span class="sd">    1. :class:`H5XarrayManager`:</span>
+
+<span class="sd">    This class manages HDF5 files and provides methods to add positions, phases, and update datasets</span>
+<span class="sd">    with new data. It also includes methods to convert the HDF5 file into an xarray Dataset,</span>
+<span class="sd">    handling various data shapes and ensuring appropriate dimension names.</span>
+<span class="sd">    Initializes the manager with the specified HDF5 file.   </span>
+<span class="sd">    </span>
+<span class="sd">    Methods:</span>
+<span class="sd">        - :meth:`add_positions`: Adds grid point positions to the HDF5 file</span>
+<span class="sd">        - :meth:`add_phases`: Adds phase labels to the HDF5 file</span>
+<span class="sd">        - :meth:`update_h5py_file`: Saves a single step of data to the HDF5 file at a specific index with a custom dimension value.</span>
+<span class="sd">        - :meth:`h5_to_xarray`: Loads the HDF5 file as an xarray Dataset, handling various data shapes and ensuring appropriate dimension names.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1"># import necessary libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+
+<div class="viewcode-block" id="H5XarrayManager">
+<a class="viewcode-back" href="../../../../pysammos.data_write.h5.html#pysammos.data_write.h5.writer.H5XarrayManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">H5XarrayManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manager for reading and writing HDF5 files with array data and converting to xarray Datasets.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Path to the HDF5 file to read/write.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; manager = H5XarrayManager(&quot;data.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; manager.add_positions(positions_array)</span>
+<span class="sd">    &gt;&gt;&gt; manager.add_phases(phase_labels)</span>
+<span class="sd">    &gt;&gt;&gt; manager.update_h5py_file(data_dict, dim_index=0, dim_value=0.0)</span>
+<span class="sd">    &gt;&gt;&gt; ds = manager.h5_to_xarray()</span>
+<span class="sd">    &gt;&gt;&gt; print(ds)</span>
+<span class="sd">    HDF5 file structure:</span>
+<span class="sd">        - positions: (n_points, 3) array of grid point positions</span>
+<span class="sd">        - phases: (n_phases,) array of phase labels</span>
+<span class="sd">        - data variables: (time, point, [phase], ...) arrays of data</span>
+<span class="sd">        - time: (n_times,) array of time values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the H5XarrayManager.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+<div class="viewcode-block" id="H5XarrayManager.add_positions">
+<a class="viewcode-back" href="../../../../pysammos.data_write.h5.html#pysammos.data_write.h5.writer.H5XarrayManager.add_positions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add grid point positions to the HDF5 file if not already present.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        positions : array-like, shape (n_points, 3)</span>
+<span class="sd">            Array of grid point positions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;positions&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;positions&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">positions</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="H5XarrayManager.add_phases">
+<a class="viewcode-back" href="../../../../pysammos.data_write.h5.html#pysammos.data_write.h5.writer.H5XarrayManager.add_phases">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_phases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phase_labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add phase labels to the HDF5 file if not already present.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        phase_labels : list or array-like of str</span>
+<span class="sd">            List of phase label names.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;phases&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;phases&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phase_labels</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="H5XarrayManager.update_h5py_file">
+<a class="viewcode-back" href="../../../../pysammos.data_write.h5.html#pysammos.data_write.h5.writer.H5XarrayManager.update_h5py_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_h5py_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">dim_index</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">dim_value</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">dim_name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a single step of data to an HDF5 file at a specific index, with a custom dimension value.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        data_dict : dict</span>
+<span class="sd">            Dictionary where keys are variable names and values are arrays to store.</span>
+<span class="sd">        dim_index : int</span>
+<span class="sd">            The index in the main dimension (e.g., time) to write to.</span>
+<span class="sd">        dim_value : float or int or str</span>
+<span class="sd">            The value for the main dimension at this index (e.g., the time value).</span>
+<span class="sd">        dim_name : str, optional</span>
+<span class="sd">            The name of the main dimension (default is &quot;time&quot;).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+                <span class="c1"># Expand to include dimension at axis 0</span>
+                <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">dset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dim_index</span><span class="p">:</span>
+                        <span class="n">new_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">dset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                        <span class="n">dset</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">new_shape</span><span class="p">)</span>
+                    <span class="n">dset</span><span class="p">[</span><span class="n">dim_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">maxshape</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">+</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                    <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                        <span class="n">key</span><span class="p">,</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span>
+                        <span class="n">maxshape</span><span class="o">=</span><span class="n">maxshape</span><span class="p">,</span>
+                        <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">dset</span><span class="p">[</span><span class="n">dim_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># Handle the dimension dataset</span>
+            <span class="k">if</span> <span class="n">dim_name</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">dset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dim_index</span><span class="p">:</span>
+                    <span class="n">dset</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">dim_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,))</span>
+                <span class="n">dset</span><span class="p">[</span><span class="n">dim_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,)</span>
+                <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">maxshape</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,),</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">dim_value</span><span class="p">))</span>
+                <span class="n">dset</span><span class="p">[</span><span class="n">dim_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_value</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  File successfully updated to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="H5XarrayManager.h5_to_xarray">
+<a class="viewcode-back" href="../../../../pysammos.data_write.h5.html#pysammos.data_write.h5.writer.H5XarrayManager.h5_to_xarray">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">h5_to_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim_name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the HDF5 file as an xarray Dataset.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        dim_name : str, optional</span>
+<span class="sd">            Name of the main dimension (default is &quot;time&quot;).</span>
+
+<span class="sd">        Outputs</span>
+<span class="sd">        -------</span>
+<span class="sd">        ds : xarray.Dataset</span>
+<span class="sd">            The loaded dataset with appropriate coordinates and dimension names:</span>
+
+<span class="sd">                - For 2x2 tensors, trailing dimensions are named &#39;dim1_2D&#39;, &#39;dim2_2D&#39;.</span>
+<span class="sd">                - For 3x3 tensors, trailing dimensions are named &#39;dim1_3D&#39;, &#39;dim2_3D&#39;.</span>
+<span class="sd">                - For other shapes, unique dimension names are generated per variable.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">dim_values</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">dim_name</span><span class="p">][:]</span>
+            <span class="n">coords</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dim_values</span>
+
+            <span class="c1"># Add positions as a coordinate for the &#39;point&#39; dimension</span>
+            <span class="k">if</span> <span class="s2">&quot;positions&quot;</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">positions</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">][:]</span>
+                <span class="n">Npoints</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">coords</span><span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Npoints</span><span class="p">)</span>
+                <span class="n">coords</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;xyz&quot;</span><span class="p">),</span> <span class="n">positions</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coords</span><span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Add phases as a coordinate if present</span>
+            <span class="k">if</span> <span class="s2">&quot;phases&quot;</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">phases</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;phases&quot;</span><span class="p">][:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="n">coords</span><span class="p">[</span><span class="s2">&quot;phase&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phases</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">phases</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing key: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;positions&quot;</span><span class="p">,</span> <span class="s2">&quot;phases&quot;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">key</span><span class="p">][:]</span>
+                <span class="c1"># POLYDISPERSE: Handle (time, point, phase, ...) shape</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">phases</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">phases</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="c1"># Scalar: (time, point, phase)</span>
+                        <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="c1"># Vector: (time, point, phase, 3)</span>
+                        <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">,</span> <span class="s2">&quot;dim1_3D&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                        <span class="c1"># 2x2 tensor: (time, point, phase, 2, 2)</span>
+                        <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">,</span> <span class="s2">&quot;dim1_2D&quot;</span><span class="p">,</span> <span class="s2">&quot;dim2_2D&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                        <span class="c1"># 3x3 tensor: (time, point, phase, 3, 3)</span>
+                        <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">,</span> <span class="s2">&quot;dim1_3D&quot;</span><span class="p">,</span> <span class="s2">&quot;dim2_3D&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Other: add unique trailing dims</span>
+                        <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dim_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
+                <span class="c1"># MONODISPERSE: Handle (time, point, ...) shape</span>
+                <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="s2">&quot;point&quot;</span> <span class="ow">in</span> <span class="n">coords</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">]):</span> <span class="c1"># scalar</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="c1"># 2x2 tensor</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dim_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;dim1_2D&quot;</span><span class="p">,</span> <span class="s2">&quot;dim2_2D&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="c1"># 3x3 tensor</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dim_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;dim1_3D&quot;</span><span class="p">,</span> <span class="s2">&quot;dim2_3D&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="c1"># For vectors (last dimension is 3)</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dim_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;dim1_3D&quot;</span><span class="p">,)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="n">dim_name</span><span class="p">,)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dim_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
+                
+                <span class="c1"># Ensure unique dimension names</span>
+                <span class="n">data_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">data_vars</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ds</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

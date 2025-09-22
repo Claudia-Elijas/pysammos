@@ -1,35 +1,17 @@
 """
-Hash Table Construction and Search Module
-=========================================
-
 This module provides functions to build and query hash tables for fast approximate evaluation of expensive functions.
 A hash table is constructed by precomputing function outputs at discrete input intervals. Queries on arbitrary inputs
 are answered by indexing into this table, trading some precision for speed.
 
-Functions
----------
-- make_hash_table(func, max_value, sensitivity):
-    Constructs a hash table of function values by sampling `func` over the range [step_size, max_value] with step_size
-    determined from the input range and a sensitivity parameter.
-
-- hash_table_search_1d(query_values, hash_table_outputs, step_size):
-    Efficiently searches the hash table for 1D arrays of query values, returning approximate function values.
-
-- hash_table_search_2d(query_values, hash_table_outputs, step_size):
-    Same as above but for 2D arrays of query values.
-
-- hash_table_search(query_values, hash_table_outputs, step_size):
-    Dispatcher that routes queries to the correct 1D or 2D search function based on the dimensionality of the input.
-
-Dependencies
-------------
-- numpy
-- numba (for just-in-time compilation and parallel execution)
-- a utility function `first_significant_figure_position` from `.utils`
+This module contains the following functions:
+    - :func:`make_hash_table`: Constructs a hash table of function values by sampling a given function over a specified range.
+    - :func:`hash_table_search_1d`: Efficiently searches the hash table for 1D arrays of query values.
+    - :func:`hash_table_search_2d`: Efficiently searches the hash table for 2D arrays of query values.
+    - :func:`hash_table_search`: Dispatcher that routes queries to the correct 1D or 2D search function based on input dimensionality.
 
 """
 
-# import relevant libraries
+# import relevant libraries 
 import numpy as np
 from numba import njit, prange, float64, float32, int64, int32
 from .utils import *
@@ -40,8 +22,8 @@ def make_hash_table(func, max_value, sensitivity):
     """
     Construct a hash table by sampling a function at discrete input intervals.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     func : callable
         The function to sample. Must accept two arguments: max_value and input_value.
     max_value : float
@@ -50,7 +32,7 @@ def make_hash_table(func, max_value, sensitivity):
         Controls the granularity of the hash table sampling by dividing the
         position of the first significant digit of max_value.
 
-    Returns
+    Outputs
     -------
     hash_table_outputs : np.ndarray
         Array of function values sampled at discrete points from step_size to max_value.
@@ -76,8 +58,8 @@ def hash_table_search_1d(query_values, hash_table_outputs, step_size):
     """
     Approximate function evaluation for 1D query arrays by indexing into the precomputed hash table.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     query_values : np.ndarray, shape (N,)
         1D array of input values to query.
     hash_table_outputs : np.ndarray, shape (M,)
@@ -85,7 +67,7 @@ def hash_table_search_1d(query_values, hash_table_outputs, step_size):
     step_size : float
         Sampling interval used to build the hash table.
 
-    Returns
+    Outputs
     -------
     query_results : np.ndarray, shape (N,)
         Approximated function values corresponding to each input query.
@@ -105,8 +87,8 @@ def hash_table_search_2d(query_values, hash_table_outputs, step_size):
     """
     Approximate function evaluation for 2D query arrays by indexing into the precomputed hash table.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     query_values : np.ndarray, shape (N, M)
         2D array of input values to query.
     hash_table_outputs : np.ndarray, shape (K,)
@@ -114,7 +96,7 @@ def hash_table_search_2d(query_values, hash_table_outputs, step_size):
     step_size : float
         Sampling interval used to build the hash table.
 
-    Returns
+    Outputs
     -------
     out : np.ndarray, shape (N, M)
         Approximated function values corresponding to each input query.
@@ -139,8 +121,8 @@ def hash_table_search(query_values, hash_table_outputs, step_size):
     Dispatch function to route query_values to the appropriate hash table search function
     based on dimensionality.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     query_values : np.ndarray
         Input values to query. Must be 1D or 2D array.
     hash_table_outputs : np.ndarray
@@ -148,7 +130,7 @@ def hash_table_search(query_values, hash_table_outputs, step_size):
     step_size : float
         Sampling interval used in hash table construction.
 
-    Returns
+    Outputs
     -------
     np.ndarray
         Approximated function values with same shape as query_values.

@@ -1,21 +1,22 @@
+Neighbour Search
+================
+
 pysammos.neighbour\_search package
-==================================
 
-Submodules
-----------
+Subpackage containing neighbour search algorithms applied to associate
+particles to grid points. 
 
-pysammos.neighbour\_search.grid\_particle\_search module
---------------------------------------------------------
-
-.. automodule:: pysammos.neighbour_search.grid_particle_search
+.. automodule:: pysammos.neighbour_search
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+Grid Particle Search module
+---------------------------
 
-.. automodule:: pysammos.neighbour_search
+pysammos.neighbour\_search.grid\_particle\_search module
+
+.. automodule:: pysammos.neighbour_search.grid_particle_search
    :members:
    :undoc-members:
    :show-inheritance:

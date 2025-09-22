@@ -2,90 +2,61 @@ r"""
 This module provides functions to compute coarse-grained scalar fields 
 from particle data using weighted averaging over local neighborhoods.
 
-Mathematically, the coarse-grained field \(\mathbf{F}(\mathbf{x})\) at a grid point \(\mathbf{x}\) is defined as follows:
+Mathematically, the coarse-grained field :math:`\phi(\mathbf{x})` at a grid point :math:`\mathbf{x}` is defined as:
+ 
+.. math::
 
-Scalar field \(\phi(\mathbf{x})\):
----------------------------------
-\[
-\phi(\mathbf{x}) = \sum_{i \in \text{neigh}(\mathbf{x})} w_i \, d_i
-\]
+    \phi(\mathbf{x}) = \sum_{i \in \mathrm{neigh}(\mathbf{x})} w_i\, d_i
 
-where: 
+where:
 
-- \(\mathbf{x}\) is a coarse-graining grid point,
-- \(\text{neigh}(\mathbf{x})\) is the set of particles contributing to the grid point \(\mathbf{x}\),
-- \(w_i\) is the coarse-graining weight for particle \(i\),
-- \(d_i\) is a scalar particle property,
+    - :math:`\mathbf{x}` is a coarse-graining grid point,
+    - :math:`\mathrm{neigh}(\mathbf{x})` is the set of particles contributing to the grid point :math:`\mathbf{x}`,
+    - :math:`w_i` is the coarse-graining weight for particle :math:`i`,
+    - :math:`d_i` is a scalar particle property.
 
-Functions 
----------
-- `scalar_polydisperse_scaled`
-  Computes coarse-grained scalar fields for polydisperse particles with
-  an additional per-particle scaling factor.
+**Functions**
 
-- `scalar_polydisperse`
-  Computes coarse-grained scalar fields for polydisperse particles without
-  scaling.
+    - :func:`scalar_polydisperse_scaled`: Computes coarse-grained scalar fields for polydisperse particles with an additional per-particle scaling factor.
+    - :func:`scalar_polydisperse`: Computes coarse-grained scalar fields for polydisperse particles without scaling.
+    - :func:`scalar_monodisperse_scaled`: Computes coarse-grained scalar fields for monodisperse particles with an additional scaling factor.
+    - :func:`scalar_monodisperse`: Computes coarse-grained scalar fields for monodisperse particles without scaling.
+    - :func:`mean_grainsize`: Computes a weighted mean grain size metric, where :math:`n_\mathrm{flag}` controls the moment order (e.g., $2$ for area, $3$ for volume).
+    - :func:`scalar_x_volume`: Computes the coarse-grained average scalar field weighted by particle volume.
 
-- `scalar_monodisperse_scaled`
-  Computes coarse-grained scalar fields for monodisperse particles with
-  an additional scaling factor.
+**Overview**
 
-- `scalar_monodisperse`
-  Computes coarse-grained scalar fields for monodisperse particles without
-  scaling.
+These functions transform particle-based quantities (e.g., mass, velocity components, diameters) into grid-based fields by applying a coarse-graining weighting scheme. The input typically consists of:
 
-- `mean_grainsize`
-  Computes a weighted mean grain size metric, where `n_flag` controls the
-  moment order (e.g., 2 for area, 3 for volume).
+    - **weights**: Coarse-graining kernel weights per visible particle–grid point interaction.
+    - **visibility**: Mapping from weight entries back to particle indices.
+    - **grid_indices**: Index offsets marking which particles contribute to each grid point (with padding at start and end).
+    - **Data**: Scalar quantities per particle.
+    - **Phase** (polydisperse only): Phase identifiers for multi-phase simulations.
 
-- `scalar_x_volume`
-  Computes the coarse-grained average scalar field weighted by particle volume.
+**Monodisperse vs. Polydisperse**
 
+This module implements high-performance, parallelized functions for computing coarse-grained scalar fields from discrete particle data using Numba `@njit` and `prange` for loop-level parallelism. It supports both monodisperse and polydisperse particle systems, with optional per-particle scaling factors.
 
-Overview
---------
-These functions transform particle-based quantities (e.g., mass, velocity
-components, diameters) into grid-based fields by applying a coarse-graining
-weighting scheme. The input typically consists of:
+    - **Monodisperse**: All particles are treated identically; output is a single scalar field per grid point.
+    - **Polydisperse**: Particles are grouped by phase; output contains both per-phase fields and a total field.
 
-- **weights**: Coarse-graining kernel weights per visible particle–grid point
-  interaction.
-- **visibility**: Mapping from weight entries back to particle indices.
-- **grid_indices**: Index offsets marking which particles contribute to each
-  grid point (with padding at start and end).
-- **Data**: Scalar quantities per particle.
-- **Phase** (polydisperse only): Phase identifiers for multi-phase simulations.
+Functions with `_scaled` apply an additional per-particle multiplicative factor (:math:`\mathrm{Data\_scale}`), useful for scaling properties before coarse-graining.
 
-Monodisperse vs. Polydisperse
------------------------------
-This module implements high-performance, parallelized functions for computing
-coarse-grained scalar fields from discrete particle data using Numba `@njit`
-and `prange` for loop-level parallelism. It supports both monodisperse and
-polydisperse particle systems, with optional per-particle scaling factors.
+**Terminology**
 
-- **Monodisperse**: All particles are treated identically; output is a single
-  scalar field per grid point.
-- **Polydisperse**: Particles are grouped by phase; output contains both
-  per-phase fields and a total field.
+    - :math:`N_\mathrm{particles}`: Number of particles in the simulation.
+    - :math:`N_\mathrm{vis}`: Number of particle–grid point interactions (visible weights).
+    - :math:`N_\mathrm{points}`: Number of grid points (excluding padding).
+    - :math:`\mathrm{Phase}`: Integer labels identifying particle classes (e.g., material type).
 
-Functions with `_scaled` apply an additional per-particle multiplicative factor
-(`Data_scale`), useful for scaling properties before coarse-graining.
+**Performance Notes**
 
-Terminology
------------
-- **N_particles**: Number of particles in the simulation.
-- **N_vis**: Number of particle–grid point interactions (visible weights).
-- **N_points**: Number of grid points (excluding padding).
-- **Phase**: Integer labels identifying particle classes (e.g., material type).
+    - All functions are Numba-jitted (`@njit`) with explicit type signatures.
+    - `prange` is used to parallelize over grid points.
+    - Temporary arrays are allocated per grid point; results are accumulated into output arrays in a thread-safe manner.
+    - Arrays must have consistent types and shapes to avoid recompilation overhead.
 
-Performance Notes
------------------
-- All functions are Numba-jitted (`@njit`) with explicit type signatures.
-- `prange` is used to parallelize over grid points.
-- Temporary arrays are allocated per grid point; results are accumulated into
-  output arrays in a thread-safe manner.
-- Arrays must have consistent types and shapes to avoid recompilation overhead.
 """
 
 
@@ -102,8 +73,8 @@ def scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
     """
     Compute coarse-grained scalar fields for polydisperse systems with an additional scaling factor.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -118,7 +89,7 @@ def scalar_polydisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
     Phase : (N_particles,) int32 array
         Phase index (0..P-1) for each particle.
 
-    Returns
+    Outputs
     -------
     CG_Field : (N_points, N_phases + 1) float64 array
         Coarse-grained scalar field per phase (columns 1..P) and total (column 0).
@@ -147,8 +118,8 @@ def scalar_polydisperse(weights, visibility, grid_indices, Data, Phase):
     """
     Compute coarse-grained scalar fields for polydisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -160,7 +131,7 @@ def scalar_polydisperse(weights, visibility, grid_indices, Data, Phase):
     Phase : (N_particles,) int32 array
         Phase index (0..P-1) for each particle.
 
-    Returns
+    Ouptuts
     -------
     CG_Field : (N_points, N_phases + 1) float64 array
         Coarse-grained scalar field per phase (columns 1..P) and total (column 0).
@@ -192,8 +163,8 @@ def scalar_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
     """
     Compute coarse-grained scalar fields for monodisperse systems with an additional scaling factor.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -205,7 +176,7 @@ def scalar_monodisperse_scaled(weights, visibility, grid_indices, Data, Data_sca
     Data_scale : (N_particles,) float32 array
         Additional scaling factor per particle.
 
-    Returns
+    Outputs
     -------
     CG_Field : (N_points,) float64 array
         Coarse-grained scalar field for each grid point.
@@ -231,8 +202,8 @@ def scalar_monodisperse(weights, visibility, grid_indices, Data):
     """
     Compute coarse-grained scalar fields for monodisperse systems.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -242,7 +213,7 @@ def scalar_monodisperse(weights, visibility, grid_indices, Data):
     Data : (N_particles,) float32 array
         Scalar quantity per particle.
 
-    Returns
+    Outputs
     -------
     CG_Field : (N_points,) float64 array
         Coarse-grained scalar field for each grid point.
@@ -271,8 +242,8 @@ def mean_grainsize(weights, visibility, grid_indices, Data, n_flag):
     """
     Compute mean grain size using a weighted average with a size exponent.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights for each visible particle.
     visibility : (N_vis,) int32 array
@@ -283,10 +254,11 @@ def mean_grainsize(weights, visibility, grid_indices, Data, n_flag):
         Particle diameters or characteristic sizes.
     n_flag : int
         Exponent flag:
-        - 3 for volume-weighted mean size.
-        - 2 for area-weighted mean size.
 
-    Returns
+            - 3 for volume-weighted mean size.
+            - 2 for area-weighted mean size.
+
+    Outputs
     -------
     CG_Field : (N_points,) float64 array
         Mean grain size for each grid point.
@@ -321,8 +293,8 @@ def scalar_x_volume(weights, visibility, grid_indices, Data):
     """
     Compute the average of a scalar quantity weighted by particle volume.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     weights : (N_vis,) float64 array
         Coarse-graining weights (often proportional to particle volume).
     visibility : (N_vis,) int32 array
@@ -332,7 +304,7 @@ def scalar_x_volume(weights, visibility, grid_indices, Data):
     Data : (N_particles,) float32 array
         Scalar quantity per particle.
 
-    Returns
+    Outputs
     -------
     CG_Field : (N_points,) float64 array
         Volume-weighted scalar average per grid point.

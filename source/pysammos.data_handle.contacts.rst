@@ -1,8 +1,16 @@
-pysammos.data\_handle.contacts package
-======================================
+Contacts
+========
 
-Subpackages
------------
+pysammos.data\_handle.contacts package
+
+Subpackage for handling contact data.
+
+.. automodule:: pysammos.data_handle.contacts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 
 .. toctree::
    :maxdepth: 4
@@ -10,21 +18,14 @@ Subpackages
    pysammos.data_handle.contacts.complete
    pysammos.data_handle.contacts.qualitycheck
 
-Submodules
-----------
+
+
+Particle Mapper module
+----------------------
 
 pysammos.data\_handle.contacts.particle\_mapper module
-------------------------------------------------------
 
 .. automodule:: pysammos.data_handle.contacts.particle_mapper
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: pysammos.data_handle.contacts
    :members:
    :undoc-members:
    :show-inheritance:

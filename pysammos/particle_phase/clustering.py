@@ -1,23 +1,15 @@
 """
-Particle Phase Identification and Visualization Module
-======================================================
-
 This module provides tools to identify distinct particle phases based on their physical properties,
 specifically particle diameter and density, using unsupervised clustering techniques.
 
-Functions:
-----------
-- find_phases:
-    Performs KMeans clustering on scaled particle diameter and density data to determine the
-    optimal number of phases (clusters) and assigns each particle to a phase.
-
-- plot_phases:
-    Visualizes the clustered particles in diameter-density space, color-coded by phase,
-    along with the cluster centroids for easy interpretation.
+This module contains two main functions:
+    - :func:`find_phases`: Applies KMeans clustering to particle diameter and density data to identify distinct phases.
+    - :func:`plot_phases`: Visualizes the clustered particles and their phase cent
 
 The clustering approach incorporates silhouette score evaluation and curvature analysis to 
 select the most meaningful number of phases, aiding in material characterization, mixture 
 analysis, or other particulate system studies.
+
 """
 
 
@@ -37,8 +29,8 @@ def find_phases(particle_diameters, particle_densities, n_max):
     based on silhouette scores and the curvature of the score plot, then applies KMeans
     clustering to assign particles to phases.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     particle_diameters : float array, shape(N_particles,) 
         Array of particle diameters.
     particle_densities : float array, shape(N_particles,) 
@@ -46,7 +38,7 @@ def find_phases(particle_diameters, particle_densities, n_max):
     n_max : int
         Maximum number of clusters to test for optimal clustering.
 
-    Returns
+    Outputs
     -------
     phases : float array, shape(n_clusters, 2) 
         Cluster centroids in the original feature space (diameter, density).
@@ -80,8 +72,8 @@ def plot_phases(particle_diameters, particle_densities, phases, phase_array):
     """
     Plot particle diameters vs densities colored by phase clusters with cluster centroids.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     particle_diameters :  float array, shape(N_particles,) 
         Array of particle diameters.
     particle_densities : float, shape(N_particles,) 
@@ -91,7 +83,7 @@ def plot_phases(particle_diameters, particle_densities, phases, phase_array):
     phase_array : int array, shape(N_particles,) 
         Cluster labels for each particle.
 
-    Returns
+    Outputs
     -------
     None
         Displays a scatter plot showing clustered particles and centroids.
