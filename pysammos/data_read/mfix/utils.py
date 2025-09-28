@@ -21,16 +21,28 @@ def get_point_data_variable(var_name, polydata):
     """
     Helper function to get point data variable from polydata.
     
-    Inputs
-    ------
+    Parameters
+    ----------
     var_name : str
         The name of the variable to extract from the point data.
     polydata : vtk.vtkPolyData
         The polydata object from which to extract the variable. 
     
-    Outputs
+    Returns
     -------
     np.ndarray
         The variable data as a NumPy array.
     """
-    return vtk_to_numpy(polydata.GetPointData().GetArray(var_name))
+    try:
+        array = polydata.GetPointData().GetArray(var_name)
+        return vtk_to_numpy(array)
+        
+    except:
+        # Get available variable names
+        point_data = polydata.GetPointData()
+        available_vars = [point_data.GetArrayName(i) for i in range(point_data.GetNumberOfArrays())]
+        
+        raise ValueError("get_point_data_variable: Unable to read point data variable.\n"
+            f"Variable '{var_name}' not found in point data.\n"
+            f"Available variables: {available_vars}"
+        )

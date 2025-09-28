@@ -228,6 +228,10 @@ class CoarseGraining:
             The coarse graining calculation mode, either "Monodisperse" or "Polydisperse".
         
         """
+        # raise error if self.d50 is not defined because it depends on running get_particle_size_statistics first
+        if not hasattr(self, 'd50'):
+            raise ValueError("d50 is not defined. Please run get_particle_size_statistics first.") 
+
         # IGNORE phases
         if self.ignore_phases:
             self.phases = np.array([[self.d50,density_t0.mean()]]) # use mean density and d50 as phase
@@ -288,6 +292,14 @@ class CoarseGraining:
             The ranges of the grid in each dimension, calculated from the bounds of the particle data.
     
         """
+                 
+        if not hasattr(self, 'BoundsData_t0'):
+            raise ValueError("BoundsData_t0 is not defined. Please run data_sampling first.")
+        if not hasattr(self, 'dmax'):
+            raise ValueError("dmax is not defined. Please run get_particle_size_statistics first.")
+        if not hasattr(self, 'c'):
+            raise ValueError("c is not defined. Please run set_resolution first.")
+    
         # generate the grid
         self.GridPoints, self.Nodes, self.Spacing, self.Ranges = regular_cuboid.Grid_Generation(
                                                                         smoothing_length=self.c, 
@@ -313,6 +325,12 @@ class CoarseGraining:
         3. Write the computed results to .h5 and .VTKHDF files, using the :func:`_write_results` method.
         
         """
+
+        if not hasattr(self, 'GridPoints'):
+            raise ValueError("GridPoints is not defined. Please run generate_grid first.")
+        
+        if not hasattr(self, 'Phase_Array'):
+            raise ValueError("Phase_Array is not defined. Please run get_particle_phases first.")
                                                                  
         print(" "); print("-------------------- Calculating Coarse Grained Fields --------------------"); print(" ")
         # time loop
@@ -989,7 +1007,6 @@ class CoarseGraining:
 
         print("Coarse-graining process completed.")
 
-    
     def sweep_CG_widths(self, w_d:np.ndarray):
 
         """  

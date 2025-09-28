@@ -42,20 +42,20 @@ def get_file_type(path:str) -> str:
             print("Legacy UnstructuredGrid detected.")
             return "vtk"  # Legacy UnstructuredGrid
         else:
-            raise ValueError("Unsupported or unknown file format.")
+            raise ValueError("get_file_type: Unsupported or unknown file format.")
 
-def reader(file_type:str, path:str) -> vtk.vtkAlgorithmOutput:
+def reader(file_type: str, path: str) -> vtk.vtkAlgorithmOutput:
     """
     Reads the VTK file using the appropriate reader based on the detected file type.
 
-    Inputs
-    ------
+    Parameters
+    ----------
     file_type : str
         The type of VTK file: "vtp" for PolyData or "vtk" for UnstructuredGrid.
     path : str
         The path to the VTK file.
 
-    Outputs
+    Returns
     -------
     vtk.vtkAlgorithmOutput
         The output data from the VTK reader.
@@ -63,7 +63,11 @@ def reader(file_type:str, path:str) -> vtk.vtkAlgorithmOutput:
     Raises
     ------
     ValueError
-        If the file format is unsupported.  
+        If the file format is unsupported.
+    FileNotFoundError
+        If the specified file does not exist.
+    IOError
+        If the file cannot be opened or read.
     
     Examples
     --------
@@ -82,7 +86,18 @@ def reader(file_type:str, path:str) -> vtk.vtkAlgorithmOutput:
     elif file_type == "vtk":
         reader = vtk.vtkUnstructuredGridReader()
     else:
-        raise ValueError("Unsupported file format.")
+        raise ValueError(f"(reader) Unsupported file format, '{file_type}'. Supported formats: 'vtp', 'vtk'")
+
+    # Check if the file exists and is accessible
+    try:
+        with open(path, 'r'):
+            pass
+    except FileNotFoundError:
+        raise FileNotFoundError(f"(reader) The file at path '{path}' was not found.")
+    except PermissionError:
+        raise IOError(f"(reader) Permission denied: cannot access file '{path}'.")
+    except IOError as e:
+        raise IOError(f"(reader) The file at path '{path}' could not be opened: {e}")
 
     # Read the file
     reader.SetFileName(path)
@@ -90,3 +105,4 @@ def reader(file_type:str, path:str) -> vtk.vtkAlgorithmOutput:
 
     # Return the output data
     return reader
+

@@ -99,6 +99,8 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
     poly_output = InputConnection.GetOutput()
 
     if Global_ID_string is not None:
+        # raise an error if Global_ID_string is not found in the file
+        
         Global_ID = get_point_data_variable(Global_ID_string, poly_output)
         sorted_idx = np.argsort(Global_ID)
         Global_ID_sorted = Global_ID[sorted_idx].astype(np.int32)

@@ -1,7 +1,14 @@
 import numpy as np 
 
-array = np.array([2,3,4], dtype=np.int64)
-print(f'array: {array}, dtype: {array.dtype}')
-array32 = array.astype(np.int32)
+def test_function(a, b):
+    if not (isinstance(a, (int, float, str)) and isinstance(b, type(a))):
+        raise TypeError("test_function: Incompatible types in input: a and b must be int or float")
+    return a + b
 
-print(f'array: {array32}, dtype: {array32.dtype}')
+
+
+
+if __name__ == "__main__":
+    a = 1
+    b = 'A'
+    print(test_function(a,b))

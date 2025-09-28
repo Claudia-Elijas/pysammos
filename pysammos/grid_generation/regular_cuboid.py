@@ -69,7 +69,39 @@ class Grid_Generation:
     def __init__(self, smoothing_length:float, particle_bounds:np.ndarray, grid_dimensions:int, 
                  grid_axes:str, max_particle_diameter:float, automatic_range:bool, 
                  custom_grid_range:Tuple, custom_grid_transects:Tuple):
-    
+   
+        
+        # Validate smoothing_length
+        if smoothing_length <= 0:
+            raise ValueError(f"smoothing_length must be positive, got {smoothing_length}")
+        
+        # Validate particle_bounds
+        if particle_bounds.shape != (3, 2):
+            raise ValueError(f"particle_bounds must have shape (3, 2), got {particle_bounds.shape}")
+        
+        for i, axis in enumerate(['x', 'y', 'z']):
+            if particle_bounds[i, 1] < particle_bounds[i, 0]:
+                raise ValueError(f"Invalid bounds for {axis}-axis: max ({particle_bounds[i, 1]}) must be > min ({particle_bounds[i, 0]})")
+        
+        # Validate grid_dimensions
+        if grid_dimensions not in [1, 2, 3]:
+            raise ValueError(f"grid_dimensions must be 1, 2, or 3, got {grid_dimensions}")
+        
+        # Validate grid_axes
+        valid_axes = {1: ['x', 'y', 'z'], 2: ['xy', 'xz', 'yz'], 3: ['xyz']}
+        if grid_axes not in valid_axes[grid_dimensions]:
+            raise ValueError(f"For {grid_dimensions}D grid, axes must be one of {valid_axes[grid_dimensions]}, got '{grid_axes}'")
+        
+        # Validate max_particle_diameter
+        if max_particle_diameter <= 0:
+            raise ValueError(f"max_particle_diameter must be positive, got {max_particle_diameter}")
+        
+        # Validate custom ranges when automatic_range is False
+        if not automatic_range:
+            if custom_grid_range == (None,)*len(custom_grid_range):
+                raise ValueError("custom_grid_range must be provided when automatic_range=False")
+            if custom_grid_transects == (None,)*len(custom_grid_transects):
+                raise ValueError("custom_grid_transects must be provided when automatic_range=False")
         
         self.c = smoothing_length
         self.bounds = particle_bounds

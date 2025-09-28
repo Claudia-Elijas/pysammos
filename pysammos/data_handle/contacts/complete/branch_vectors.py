@@ -93,7 +93,8 @@ def from_contacts(r_A: np.ndarray, r_B: np.ndarray, contact_A: np.ndarray,
         [[-1.  0. ]]    
 
     """
-    
+
+
     # Compute displacement vector from center to contact point
     BV = r_A - contact_A
     d = r_A - r_B  # Center-to-center vector
