@@ -108,7 +108,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.h5.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5XarrayManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.vtkhdf.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">VTKHDFWriter</span>
  
-
+<span class="c1"># supress warnings </span>
+<span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
 <span class="c1"># Coarse Graining Class</span>
 <div class="viewcode-block" id="CoarseGraining">
@@ -119,6 +120,33 @@
 <span class="sd">    Encapsulates the coarse graining process, including initialization, </span>
 <span class="sd">    configuration, data sampling, phase identification, grid generation, </span>
 <span class="sd">    and field computation.</span>
+<span class="sd">   </span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    particle_path : str</span>
+<span class="sd">        Path to the particle data files.</span>
+<span class="sd">    contacts_path : str</span>
+<span class="sd">        Path to the contact data files.</span>
+<span class="sd">    output_path : str</span>
+<span class="sd">        Path where the output files will be saved.</span>
+<span class="sd">    start_timestep : int</span>
+<span class="sd">        The starting timestep for the simulation.</span>
+<span class="sd">    end_timestep : int</span>
+<span class="sd">        The ending timestep for the simulation.</span>
+<span class="sd">    dt_time_step : int          </span>
+<span class="sd">        The time step interval for the simulation.</span>
+<span class="sd">    DEM_keymap : dict</span>
+<span class="sd">        Mapping DEM data keys to their variable names.</span>
+<span class="sd">    grid_info : dict</span>
+<span class="sd">        Grid information such as dimensions, axes, and ranges.</span>
+<span class="sd">    weight_function : str</span>
+<span class="sd">        Type of weight function to use for coarse graining.</span>
+<span class="sd">    fields_to_export : dict</span>
+<span class="sd">        Fields to be exported.</span>
+<span class="sd">    ignore_phases : bool</span>
+<span class="sd">        Whether to ignore particle phases.  </span>
+
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
@@ -129,58 +157,7 @@
                  <span class="n">weight_function</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> 
                  <span class="n">fields_to_export</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> 
                  <span class="n">ignore_phases</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the CoarseGraining class with necessary parameters.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        particle_path : str</span>
-<span class="sd">            Path to the particle data files.</span>
-<span class="sd">        contacts_path : str</span>
-<span class="sd">            Path to the contact data files.</span>
-<span class="sd">        output_path : str</span>
-<span class="sd">            Path where the output files will be saved.</span>
-<span class="sd">        start_timestep : int</span>
-<span class="sd">            The starting timestep for the simulation.</span>
-<span class="sd">        end_timestep : int</span>
-<span class="sd">            The ending timestep for the simulation.</span>
-<span class="sd">        dt_time_step : int          </span>
-<span class="sd">            The time step interval for the simulation.</span>
-<span class="sd">        DEM_keymap : dict</span>
-<span class="sd">            Mapping DEM data keys to their variable names.</span>
-<span class="sd">        grid_info : dict</span>
-<span class="sd">            Grid information such as dimensions, axes, and ranges.</span>
-<span class="sd">        weight_function : str</span>
-<span class="sd">            Type of weight function to use for coarse graining.</span>
-<span class="sd">        fields_to_export : dict</span>
-<span class="sd">            Fields to be exported.</span>
-<span class="sd">        ignore_phases : bool</span>
-<span class="sd">            Whether to ignore particle phases.  </span>
-
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
-<span class="sd">        particle_path : str</span>
-<span class="sd">            Path to the particle data files.</span>
-<span class="sd">        contacts_path : str </span>
-<span class="sd">            Path to the contact data files.</span>
-<span class="sd">        time_steps : np.ndarray </span>
-<span class="sd">            Array of time steps for the simulation.</span>
-<span class="sd">        DEM_keymap : dict</span>
-<span class="sd">            Mapping DEM data keys to their variable names.</span>
-<span class="sd">        grid_info : dict</span>
-<span class="sd">            Grid information such as dimensions, axes, and ranges.</span>
-<span class="sd">        weight_function : str</span>
-<span class="sd">            Type of weight function to use for coarse graining.</span>
-<span class="sd">        ignore_phases : bool</span>
-<span class="sd">            Whether to ignore particle phases.</span>
-<span class="sd">        field_to_export : dict</span>
-<span class="sd">            Fields to be exported.</span>
-<span class="sd">        fields_to_compute : dict</span>
-<span class="sd">            Fields that need to be computed based on dependencies.</span>
-<span class="sd">        output_path : str</span>
-<span class="sd">            Path where the output files will be saved.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+       
         <span class="c1"># data info</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">particle_path</span> <span class="o">=</span> <span class="n">particle_path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">contacts_path</span> <span class="o">=</span> <span class="n">contacts_path</span>
@@ -210,7 +187,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Load the particle data for the first time step to obtain particle data.</span>
 
-<span class="sd">            Returns</span>
+<span class="sd">            Outputs</span>
 <span class="sd">            -------</span>
 <span class="sd">            BoundsData_t0 : np.ndarray, shape (3, 2)</span>
 <span class="sd">                The bounds of the particle data for the first time step.</span>
@@ -222,6 +199,13 @@
 <span class="sd">                The masses of the particles for the first time step.</span>
 <span class="sd">            GlobalID_t0 : np.ndarray, shape (N,)</span>
 <span class="sd">                The global IDs of the particles for the first time step.</span>
+
+<span class="sd">            **It generates the following attributes:**</span>
+<span class="sd">            </span>
+<span class="sd">            BoundsData_t0 : np.ndarray, shape (3, 2)</span>
+<span class="sd">                The bounds of the particle data for the first time step.</span>
+<span class="sd">            file_type : str</span>
+<span class="sd">                The file type of the particle data files.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
                 
         <span class="c1"># READ TIME STEP 0</span>
@@ -252,21 +236,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate particle size statistics based on particle diameter and mass.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        diameter_t0 : np.ndarray, shape (N,)</span>
 <span class="sd">            The particle diameters.</span>
 <span class="sd">        mass_t0 : np.ndarray, shape (N,)</span>
 <span class="sd">            The particle masses.</span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        d43 : float</span>
-<span class="sd">            The volume-weighted mean diameter.</span>
-<span class="sd">        d32 : float</span>
-<span class="sd">            The surface-weighted mean diameter.</span>
-<span class="sd">    </span>
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
+
+<span class="sd">        **It generates the following attributes:**</span>
+
 <span class="sd">        d43 : float</span>
 <span class="sd">            The volume-weighted mean diameter.</span>
 <span class="sd">        d32 : float</span>
@@ -292,11 +270,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">d43</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="o">*</span><span class="n">sizes</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="o">*</span><span class="n">sizes</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># calculate volume-weighted mean diameter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">d32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="o">*</span><span class="n">sizes</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="o">*</span><span class="n">sizes</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># calculate surface-weighted mean diameter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="o">*</span><span class="n">sizes</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="c1"># calculate root mean square diameter        </span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d50</span> <span class="o">=</span> <span class="n">d50_calc</span><span class="p">(</span><span class="n">diameter_t0_sort</span><span class="p">,</span> <span class="n">mass_t0_sort</span><span class="p">)</span> <span class="c1"># calculate median particle size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d50</span> <span class="o">=</span> <span class="n">d50_calc</span><span class="p">(</span><span class="n">diameter_t0_sort</span><span class="p">,</span> <span class="n">mass_t0_sort</span><span class="p">)</span> <span class="c1"># calculate median particle size</span></div>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d32</span></div>
 
-    
 <div class="viewcode-block" id="CoarseGraining.get_particle_phases">
 <a class="viewcode-back" href="../../pysammos.html#pysammos.coarse_graining.CoarseGraining.get_particle_phases">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_particle_phases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">diameter_t0</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">density_t0</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
@@ -304,8 +280,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Obtain particle phases based on diameter and density of a given time step (e.g., 0).</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        diameter_t0 : np.ndarray, shape (N,)</span>
 <span class="sd">            The particle diameters. Sorted by global ID.</span>
 <span class="sd">        density_t0 : np.ndarray, shape (N,)</span>
@@ -316,8 +292,9 @@
 <span class="sd">            The maximum number of phases to find. Default is 6.</span>
 <span class="sd">        plot : bool, optional</span>
 <span class="sd">            Whether to plot the phases. Default is True.</span>
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
+
+<span class="sd">        **It generates the following attributes:**</span>
+
 <span class="sd">        phases : np.ndarray, shape (M, 2)</span>
 <span class="sd">            The identified phases, each represented by a tuple of (diameter, density).</span>
 <span class="sd">        Phase_Array : np.ndarray, shape (N,)</span>
@@ -352,16 +329,16 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">average_diameter</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">w_mult</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the resolution for coarse graining based on the average particle diameter.</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        average_diameter : float</span>
 <span class="sd">            The average particle diameter. Can be any representative diameter: d50, d32, d43, or drms.</span>
 <span class="sd">        w_mult : float, optional</span>
 <span class="sd">            The multiplier for the half-width of the smoothing kernel. Default is 0.75.</span>
-<span class="sd">        </span>
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
+
+<span class="sd">        **It generates the following attributes:**</span>
+
 <span class="sd">        w : float</span>
 <span class="sd">            The half-width of the smoothing kernel.</span>
 <span class="sd">        c : float</span>
@@ -374,19 +351,14 @@
 
 <div class="viewcode-block" id="CoarseGraining.generate_grid">
 <a class="viewcode-back" href="../../pysammos.html#pysammos.coarse_graining.CoarseGraining.generate_grid">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">generate_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoothing_length</span><span class="p">:</span><span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate the CG grid based on the provided grid information.</span>
+<span class="sd">        Generate the CG grid based on the provided grid information. </span>
+<span class="sd">        It takes into account the smoothing length calculated in :func:`set_resolution`.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        smoothing_length : float</span>
-<span class="sd">            The smoothing length for the grid generation. Can be set to the cutoff distance calculated </span>
-<span class="sd">            in `set_resolution` or to a custom value.</span>
-<span class="sd">        </span>
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
+<span class="sd">        **It generates the following attributes:**</span>
+
 <span class="sd">        GridPoints : np.ndarray, shape (N, 3)</span>
 <span class="sd">            The grid points coordinates for the coarse graining.</span>
 <span class="sd">        Nodes : np.ndarray, shape (D1, D2, D3)</span>
@@ -399,7 +371,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># generate the grid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ranges</span> <span class="o">=</span> <span class="n">regular_cuboid</span><span class="o">.</span><span class="n">Grid_Generation</span><span class="p">(</span>
-                                                                        <span class="n">smoothing_length</span><span class="o">=</span><span class="n">smoothing_length</span><span class="p">,</span> 
+                                                                        <span class="n">smoothing_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> 
                                                                         <span class="n">particle_bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BoundsData_t0</span><span class="p">,</span> 
                                                                         <span class="n">grid_dimensions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">&quot;grid_dimension&quot;</span><span class="p">],</span> 
                                                                         <span class="n">grid_axes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">&quot;grid_axes&quot;</span><span class="p">],</span>
@@ -419,9 +391,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Calculate coarse-grained fields over time steps. This method performs the following steps for each time step:</span>
-<span class="sd">        1. Load particle and contact data for the current time step, using the `_load_data` method.</span>
-<span class="sd">        2. Compute coarse-grained fields based on the loaded data, using the `_fields_single_time` method.</span>
-<span class="sd">        3. Write the computed results to .h5 and .VTKHDF files, using the `_write_results` method.</span>
+
+<span class="sd">        1. Load particle and contact data for the current time step, using the :func:`_load_data` method.</span>
+<span class="sd">        2. Compute coarse-grained fields based on the loaded data, using the :func:`_fields_single_time` method.</span>
+<span class="sd">        3. Write the computed results to .h5 and .VTKHDF files, using the :func:`_write_results` method.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
                                                                  
@@ -445,41 +418,42 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load particle and contact data for a given timestep.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        time_of_timestep : int</span>
 <span class="sd">            The timestep for which to load the data.</span>
-<span class="sd">        Returns</span>
+
+<span class="sd">        Outputs</span>
 <span class="sd">        -------</span>
 <span class="sd">        data : dict</span>
 <span class="sd">            A dictionary containing the loaded particle and contact data containing the following fields:</span>
-<span class="sd">        Position : np.ndarray</span>
+<span class="sd">        Position : np.ndarray (N, 3)</span>
 <span class="sd">            The positions of the particles.</span>
-<span class="sd">        Velocity : np.ndarray</span>
+<span class="sd">        Velocity : np.ndarray (N, 3)</span>
 <span class="sd">            The velocities of the particles.</span>
-<span class="sd">        Diameter : np.ndarray</span>
+<span class="sd">        Diameter : np.ndarray (N,)</span>
 <span class="sd">            The diameters of the particles.</span>
-<span class="sd">        Density : np.ndarray</span>
+<span class="sd">        Density : np.ndarray (N,)</span>
 <span class="sd">            The densities of the particles.</span>
-<span class="sd">        Volume : np.ndarray</span>
+<span class="sd">        Volume : np.ndarray (N,)</span>
 <span class="sd">            The volumes of the particles.</span>
-<span class="sd">        Mass : np.ndarray   </span>
+<span class="sd">        Mass : np.ndarray (N,)</span>
 <span class="sd">            The masses of the particles.</span>
-<span class="sd">        Coordination_Number : np.ndarray</span>
+<span class="sd">        Coordination_Number : np.ndarray (N,)</span>
 <span class="sd">            The coordination numbers of the particles.</span>
-<span class="sd">        Position_i : np.ndarray</span>
+<span class="sd">        Position_i : np.ndarray (M, 3)</span>
 <span class="sd">            The positions of the particles involved in contacts.</span>
-<span class="sd">        Force_i : np.ndarray</span>
+<span class="sd">        Force_i : np.ndarray (M, 3)</span>
 <span class="sd">            The forces acting on the particles involved in contacts.</span>
-<span class="sd">        BranchVector_i : np.ndarray</span>
+<span class="sd">        BranchVector_i : np.ndarray (M, 3)</span>
 <span class="sd">            The branch vectors of the contacts.</span>
-<span class="sd">        CenterToCenterVector_LL : np.ndarray</span>
+<span class="sd">        CenterToCenterVector_LL : np.ndarray (M, 3)</span>
 <span class="sd">            The center-to-center vectors of the contacts.</span>
-<span class="sd">        Volume_i : np.ndarray</span>
+<span class="sd">        Volume_i : np.ndarray (M,)</span>
 <span class="sd">            The volumes of the particles involved in contacts.</span>
-<span class="sd">        PhaseArray_i : np.ndarray</span>
+<span class="sd">        PhaseArray_i : np.ndarray (M,)</span>
 <span class="sd">            The phase array of the particles involved in contacts.</span>
-<span class="sd">        d_inContact_mean : float</span>
+<span class="sd">        d_inContact_mean : float </span>
 <span class="sd">            The mean distance of particles in contact.</span>
 <span class="sd"> </span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -546,20 +520,21 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Calculate coarse-grained fields for a single time step. This method performs the following steps:</span>
+
 <span class="sd">        1. Assign particles to grid nodes using the `_assign_particles_to_grid_nodes` method.</span>
 <span class="sd">        2. Compute weights for particles and contacts using the `_compute_weights` method.</span>
 <span class="sd">        3. Compute coarse-grained fields based on the dependencies defined in `field_dependencies.py` </span>
-<span class="sd">           using the `_compute_fields` method.</span>
+<span class="sd">           using the :func:`_compute_fields` method.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        data : dict</span>
 <span class="sd">            A dictionary containing the particle and contact data for the current </span>
-<span class="sd">            time step returned by `_load_data`.</span>
-<span class="sd">        Returns</span>
+<span class="sd">            time step returned by :func:`_load_data`.</span>
+<span class="sd">        Outputs</span>
 <span class="sd">        -------</span>
 <span class="sd">        cg_fields : dict</span>
-<span class="sd">            A dictionary containing the coarse-grained fields, specified in `fields_to_export`, </span>
+<span class="sd">            A dictionary containing the coarse-grained fields, specified in :func:`fields_to_export`, </span>
 <span class="sd">            computed for the current time step</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -578,15 +553,14 @@
 <span class="sd">        Write the computed coarse-grained fields to .h5 and .VTKHDF files </span>
 <span class="sd">        for a given time step  in the specified output path.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        results_timestep : dict</span>
-<span class="sd">            A dictionary containing the coarse-grained fields computed for the current time step, ret</span>
-<span class="sd">            urned by `_fields_single_time`.</span>
+<span class="sd">            A dictionary containing the coarse-grained fields computed for the current time step, returned by :func:`_fields_single_time`.</span>
 <span class="sd">        time_step : int</span>
 <span class="sd">            The index of the current time step in the simulation.</span>
 <span class="sd">        time_of_timestep : int</span>
-<span class="sd">            The actual time value corresponding to the current time step as given in `time_steps`.</span>
+<span class="sd">            The actual time value corresponding to the current time step as given in :func:`time_steps`.</span>
 <span class="sd">    </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -608,12 +582,12 @@
         
         <span class="c1"># write .h5 files </span>
         <span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">CG_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="si">}</span><span class="s2">.h5&quot;</span><span class="p">)</span> 
-        <span class="n">manager</span><span class="o">.</span><span class="n">add_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">&quot;Polydisperse&quot;</span><span class="p">:</span>
-            <span class="n">phase_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Bulk&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Phase_</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">]</span>
-            <span class="n">manager</span><span class="o">.</span><span class="n">add_phases</span><span class="p">(</span><span class="n">phase_labels</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">time_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Only add positions and phases for the first time step</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">add_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">&quot;Polydisperse&quot;</span><span class="p">:</span>
+                <span class="n">phase_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Bulk&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Phase_</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">]</span>
+                <span class="n">manager</span><span class="o">.</span><span class="n">add_phases</span><span class="p">(</span><span class="n">phase_labels</span><span class="p">)</span>
         <span class="n">manager</span><span class="o">.</span><span class="n">update_h5py_file</span><span class="p">(</span><span class="n">results_timestep</span><span class="p">,</span> <span class="n">dim_index</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">dim_value</span><span class="o">=</span><span class="n">time_of_timestep</span><span class="p">,</span> <span class="n">dim_name</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
-        
         <span class="c1"># write .VTKHDF files </span>
         <span class="n">writer</span> <span class="o">=</span> <span class="n">VTKHDFWriter</span><span class="p">(</span><span class="n">node_dimensions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span>  
                         <span class="n">node_spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">,</span> 
@@ -638,35 +612,39 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign particles to grid nodes and calculate displacements and distances.</span>
 <span class="sd">        This method performs the following steps:</span>
-<span class="sd">        1. Match particles to grid points using a kd-tree function.</span>
-<span class="sd">        2. Calculate the displacement and distance between particles and grid points.</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+
+<span class="sd">            1. Match particles to grid points using a kd-tree function.</span>
+<span class="sd">            2. Calculate the displacement and distance between particles and grid points.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        data : dict</span>
 <span class="sd">            A dictionary containing the particle and contact data for the current time step, </span>
 <span class="sd">            returned by `_load_data`.</span>
-<span class="sd">        Returns</span>
+<span class="sd">        Outputs</span>
 <span class="sd">        -------</span>
 <span class="sd">        particle_map : dict</span>
 <span class="sd">        A dictionary containing the following keys:</span>
-<span class="sd">        - grid_ind_p: np.ndarray, shape (N,), Indices of the grid points corresponding to particles.</span>
-<span class="sd">        - part_ind_p: np.ndarray, shape (N,), Indices of the particles corresponding to grid points.</span>
-<span class="sd">        - r_ri: np.ndarray, shape (N, 3), Displacement vectors from grid points to particles.</span>
-<span class="sd">        - r_ri_dist: np.ndarray, shape (N,), Distances from grid points to particles.</span>
-<span class="sd">        - grid_ind_c: np.ndarray, shape (M,), Indices of the grid points corresponding to contacts.</span>
-<span class="sd">        - part_ind_c: np.ndarray, shape (M,), Indices of the contacts corresponding to grid points.</span>
-<span class="sd">        - r_ri_c: np.ndarray, shape (M, 3)</span>
-<span class="sd">            Displacement vectors from grid points to contacts.</span>
+
+<span class="sd">            - grid_ind_p: np.ndarray, shape (N,), Indices of the grid points corresponding to particles.</span>
+<span class="sd">            - part_ind_p: np.ndarray, shape (N,), Indices of the particles corresponding to grid points.</span>
+<span class="sd">            - r_ri: np.ndarray, shape (N, 3), Displacement vectors from grid points to particles.</span>
+<span class="sd">            - r_ri_dist: np.ndarray, shape (N,), Distances from grid points to particles.</span>
+<span class="sd">            - grid_ind_c: np.ndarray, shape (M,), Indices of the grid points corresponding to contacts.</span>
+<span class="sd">            - part_ind_c: np.ndarray, shape (M,), Indices of the contacts corresponding to grid points.</span>
+<span class="sd">            - r_ri_c: np.ndarray, shape (M, 3)</span>
+<span class="sd">                Displacement vectors from grid points to contacts.</span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        This method uses the `particle_node_match` function to find the nearest grid points for each particle and contact.</span>
-<span class="sd">        It also calculates the displacement vectors and distances between the grid points and the particles or contacts.</span>
-<span class="sd">        The results are stored in a dictionary for further processing.</span>
-<span class="sd">        The grid points are generated based on the bounds of the particle data and the specified grid dimensions and axes.</span>
-<span class="sd">        The grid points are used to assign particles and contacts to the grid nodes, allowing for coarse graining of the data.</span>
-<span class="sd">        The method prints progress messages to indicate the status of the matching and calculation processes.</span>
-<span class="sd">        The method assumes that the grid points have already been generated and stored in `self.GridPoints`.    </span>
-<span class="sd">        The method is designed to handle both particle and contact data, allowing for a comprehensive coarse graining process.  </span>
+<span class="sd">            This method uses the `particle_node_match` function to find the nearest grid points for each particle and contact.</span>
+<span class="sd">            It also calculates the displacement vectors and distances between the grid points and the particles or contacts.</span>
+<span class="sd">            The results are stored in a dictionary for further processing.</span>
+<span class="sd">            The grid points are generated based on the bounds of the particle data and the specified grid dimensions and axes.</span>
+<span class="sd">            The grid points are used to assign particles and contacts to the grid nodes, allowing for coarse graining of the data.</span>
+<span class="sd">            The method prints progress messages to indicate the status of the matching and calculation processes.</span>
+<span class="sd">            The method assumes that the grid points have already been generated and stored in `self.GridPoints`.    </span>
+<span class="sd">            The method is designed to handle both particle and contact data, allowing for a comprehensive coarse graining process.  </span>
 
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -695,16 +673,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the weights for particles and contacts based on the specified weight function.</span>
 <span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        particle_map : dict</span>
 <span class="sd">            A dictionary containing the particle and contact data for the current time step,</span>
-<span class="sd">            returned by `_assign_particles_to_grid_nodes`.</span>
+<span class="sd">            returned by :func:`_assign_particles_to_grid_nodes`.</span>
 <span class="sd">        data : dict</span>
 <span class="sd">            A dictionary containing the particle and contact data for the current time step,</span>
-<span class="sd">            returned by `_load_data`.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
+<span class="sd">            returned by :func:`_load_data`.</span>
+
+<span class="sd">        Outputs</span>
 <span class="sd">        -------</span>
 <span class="sd">        W_p : np.ndarray, shape (N,)</span>
 <span class="sd">            The weights for particles, where N is the number of particles.</span>
@@ -714,16 +692,16 @@
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        This method uses the specified weight function (Gaussian, Lucy, or HeavySide) to compute</span>
-<span class="sd">        the weights for particles and contacts. The weights are computed based on the distances</span>
-<span class="sd">        between the grid points and the particles or contacts.</span>
-<span class="sd">        The method first selects the appropriate weight function based on the `weight_function` attribute.</span>
-<span class="sd">        It then creates a hash table for the weight function and uses it to compute the weights for</span>
-<span class="sd">        particles and contacts. The weights for particles are computed using the distances from the grid points</span>
-<span class="sd">        to the particles, while the weights for contacts are computed using the distances along the branch vectors</span>
-<span class="sd">        of the contacts.</span>
-<span class="sd">        The method also performs trapezoidal integration for the contact weights to obtain a single integral value</span>
-<span class="sd">        for the contacts.   </span>
+<span class="sd">            This method uses the specified weight function (Gaussian, Lucy, or HeavySide) to compute</span>
+<span class="sd">            the weights for particles and contacts. The weights are computed based on the distances</span>
+<span class="sd">            between the grid points and the particles or contacts.</span>
+<span class="sd">            The method first selects the appropriate weight function based on the `weight_function` attribute.</span>
+<span class="sd">            It then creates a hash table for the weight function and uses it to compute the weights for</span>
+<span class="sd">            particles and contacts. The weights for particles are computed using the distances from the grid points</span>
+<span class="sd">            to the particles, while the weights for contacts are computed using the distances along the branch vectors</span>
+<span class="sd">            of the contacts.</span>
+<span class="sd">            The method also performs trapezoidal integration for the contact weights to obtain a single integral value</span>
+<span class="sd">            for the contacts.   </span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -755,27 +733,26 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_compute_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">W_p</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Wint_c</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Compute coarse-grained fields for a given time step that are specified in `fields_to_compute`.</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Compute coarse-grained fields for a given time step that are specified in :func:`fields_to_compute`.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
 <span class="sd">        data : dict</span>
 <span class="sd">            A dictionary containing the particle and contact data for the current time step,</span>
-<span class="sd">            returned by `_load_data`.</span>
+<span class="sd">            returned by :func:`_load_data`.</span>
 <span class="sd">        g : dict</span>
-<span class="sd">            A dictionary containing the particle mapping information, returned by `_assign_particles_to_grid_nodes`.</span>
+<span class="sd">            A dictionary containing the particle mapping information, returned by :func:`_assign_particles_to_grid_nodes`.</span>
 <span class="sd">        W_p : np.ndarray, shape (N,)</span>
-<span class="sd">            The weights for particles, where N is the number of particles, computed in `_compute_weights`.</span>
+<span class="sd">            The weights for particles, where N is the number of particles, computed in :func:`_compute_weights`.</span>
 <span class="sd">        Wint_c : np.ndarray, shape (M,)</span>
-<span class="sd">            The integral of the weights for contacts, where M is the number of contacts, computed in `_compute_weights`.    </span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
+<span class="sd">            The integral of the weights for contacts, where M is the number of contacts, computed in :func:`_compute_weights`.</span>
+
+<span class="sd">        Outputs</span>
 <span class="sd">        -------</span>
 <span class="sd">        cg_fields : dict</span>
 <span class="sd">            A dictionary containing the coarse-grained fields computed for the current time step,</span>
-<span class="sd">            based on the specified fields to export in `fields_to_export`. Note that the fields to</span>
-<span class="sd">            compute are defined in `fields_to_compute`, which is derived from `fields_to_export`.    </span>
-<span class="sd">        </span>
+<span class="sd">            based on the specified fields to export in :func:`fields_to_export`. Note that the fields to</span>
+<span class="sd">            compute are defined in :func:`fields_to_compute`, which is derived from :func:`fields_to_export`.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         
@@ -827,6 +804,7 @@
                 <span class="n">Velocity_CG</span> <span class="o">=</span> <span class="n">MomentumDens_CG</span> <span class="o">/</span> <span class="n">DensityMixture_CG</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># Velocity CG</span>
             <span class="k">if</span> <span class="s2">&quot;velocity_gradient&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
                 <span class="n">GradV_CG</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_vector_bulk_gradient</span><span class="p">(</span><span class="n">Velocity_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">)</span> <span class="c1"># Velocity Gradient</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;shape of velocity gradient: </span><span class="si">{</span><span class="n">GradV_CG</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s2">&quot;kinetic_tensor&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
                 <span class="n">KineticTensor_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">kinetic_tensor</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Velocity_CG</span><span class="p">,</span> <span class="n">GradV_CG</span><span class="p">,</span> <span class="n">Phase_Array_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span> <span class="c1"># Kinetic tensor</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Polydisperse case</span>
@@ -1047,10 +1025,128 @@
        
                     
         
-        <span class="k">return</span> <span class="n">results</span></div>
+        <span class="k">return</span> <span class="n">results</span>
+
+<div class="viewcode-block" id="CoarseGraining.run">
+<a class="viewcode-back" href="../../pysammos.html#pysammos.coarse_graining.CoarseGraining.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the full coarse-graining workflow.</span>
+
+<span class="sd">        This method performs the following steps:</span>
+<span class="sd">        </span>
+<span class="sd">        1. Samples initial particle data and computes particle size statistics (:func:`data_sampling` and :func:`get_particle_size_statistics`).</span>
+<span class="sd">        2. Identifies particle phases (:func:`get_particle_phases`).</span>
+<span class="sd">        3. Sets the coarse-graining resolution (:func:`set_resolution`).</span>
+<span class="sd">        4. Generates the grid (:func:`generate_grid`).</span>
+<span class="sd">        5. Iterates over each time step to compute and write coarse-grained fields (:func:`_fields_single_time` and :func:`_write_results`).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting coarse-graining process...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 1. Sample initial particle data</span>
+        <span class="n">bounds</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">global_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_sampling</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... initial particle data sampled&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 2. Compute particle size statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_particle_size_statistics</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">mass</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... particle size statistics computed&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 3. Identify particle phases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_particle_phases</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">global_id</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... particle phases identified&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 4. Set coarse-graining resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d50</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... coarse-graining resolution set&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 5. Generate grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_grid</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... grid generated&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 6. Iterate over time steps</span>
+        <span class="k">for</span> <span class="n">t_idx</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing time step </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">t_idx</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">)</span><span class="si">}</span><span class="s2">)...&quot;</span><span class="p">)</span>
+            <span class="n">data_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... data loaded&quot;</span><span class="p">)</span>
+            <span class="n">cg_fields_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data_t</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... fields computed&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_results</span><span class="p">(</span><span class="n">cg_fields_t</span><span class="p">,</span> <span class="n">t_idx</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... results written</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Coarse-graining process completed.&quot;</span><span class="p">)</span></div>
 
 
     
+<div class="viewcode-block" id="CoarseGraining.sweep_CG_widths">
+<a class="viewcode-back" href="../../pysammos.html#pysammos.coarse_graining.CoarseGraining.sweep_CG_widths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sweep_CG_widths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w_d</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">        Perform a sweep over different coarse-graining resolutions (w values) for a specified time step.</span>
+<span class="sd">        This method iterates over a range of w values, computes the coarse-grained fields for each w, and writes the results to output files. The input w values are provided as an array of multiples of the characteristic particle diameter (here d43).</span>
+<span class="sd">        It does not consider different particle phases; all particles are treated as belonging to a single phase.</span>
+
+<span class="sd">        Inputs:</span>
+<span class="sd">        -------</span>
+<span class="sd">        w_d : np.ndarray</span>
+<span class="sd">            An array of w/d values to sweep over, where w is the coarse-graining half-width and d is the characteristic particle diameter measure of choice</span>
+<span class="sd">    </span>
+<span class="sd">               </span>
+<span class="sd">        &quot;&quot;&quot;</span>      
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting coarse-graining resolution sweep...&quot;</span><span class="p">)</span>
+        <span class="c1"># 1. Sample initial particle data</span>
+        <span class="n">bounds</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">global_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_sampling</span><span class="p">()</span>
+
+        <span class="c1"># 2. Compute particle size statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_particle_size_statistics</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">mass</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &gt;&gt;&gt; Particle size used: d43 = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 3. Set to monodisperse mode for the sweep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">=</span> <span class="s2">&quot;Monodisperse&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">density</span><span class="p">)]])</span>  <span class="c1"># single phase with d50 and mean density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Phase_Array</span> <span class="o">=</span> <span class="kc">None</span>
+    
+        <span class="c1"># 4. Set appropriate resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="p">)</span>
+
+        <span class="c1"># 5. Generate grid of 9 points around the center of the domain</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">bounds</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bounds</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">Y</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">Z</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span> 
+
+        <span class="c1"># 6. Load data of the specified time step</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  
+        <span class="n">data_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="c1"># 7. Get values of w and c</span>
+        <span class="n">w_values</span> <span class="o">=</span> <span class="n">w_d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">d43</span>
+        <span class="n">c_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">w_values</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">w_values</span><span class="p">)):</span> 
+            <span class="n">c_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_cutoff</span><span class="p">(</span><span class="n">w_values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &gt;&gt;&gt; Sweep of w/d = </span><span class="si">{</span><span class="n">w_d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &gt;&gt;&gt; Sweep of w = </span><span class="si">{</span><span class="n">w_values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; &gt;&gt;&gt; Sweep of c = </span><span class="si">{</span><span class="n">c_values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 8. Iterate over c values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c_values</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">c_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;       -&gt; Processing w/d = </span><span class="si">{</span><span class="n">w_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">cg_fields_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data_t</span><span class="p">)</span>
+                
+            <span class="c1"># write .h5 files </span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">w_sweep_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="si">}</span><span class="s2">.h5&quot;</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Only add positions and phases for the first time step</span>
+                <span class="n">manager</span><span class="o">.</span><span class="n">add_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">)</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">update_h5py_file</span><span class="p">(</span><span class="n">cg_fields_t</span><span class="p">,</span> <span class="n">dim_index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">dim_value</span><span class="o">=</span><span class="n">w_values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dim_name</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        
+        
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Coarse-graining resolution sweep completed.&quot;</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

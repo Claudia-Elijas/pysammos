@@ -53,6 +53,33 @@ class CoarseGraining:
     Encapsulates the coarse graining process, including initialization, 
     configuration, data sampling, phase identification, grid generation, 
     and field computation.
+   
+
+    Inputs
+    ------
+    particle_path : str
+        Path to the particle data files.
+    contacts_path : str
+        Path to the contact data files.
+    output_path : str
+        Path where the output files will be saved.
+    start_timestep : int
+        The starting timestep for the simulation.
+    end_timestep : int
+        The ending timestep for the simulation.
+    dt_time_step : int          
+        The time step interval for the simulation.
+    DEM_keymap : dict
+        Mapping DEM data keys to their variable names.
+    grid_info : dict
+        Grid information such as dimensions, axes, and ranges.
+    weight_function : str
+        Type of weight function to use for coarse graining.
+    fields_to_export : dict
+        Fields to be exported.
+    ignore_phases : bool
+        Whether to ignore particle phases.  
+
     
     """
     def __init__(self, 
@@ -63,58 +90,7 @@ class CoarseGraining:
                  weight_function:str, 
                  fields_to_export:dict, 
                  ignore_phases:bool):
-        """
-        Initialize the CoarseGraining class with necessary parameters.
-
-        Parameters
-        ----------
-        particle_path : str
-            Path to the particle data files.
-        contacts_path : str
-            Path to the contact data files.
-        output_path : str
-            Path where the output files will be saved.
-        start_timestep : int
-            The starting timestep for the simulation.
-        end_timestep : int
-            The ending timestep for the simulation.
-        dt_time_step : int          
-            The time step interval for the simulation.
-        DEM_keymap : dict
-            Mapping DEM data keys to their variable names.
-        grid_info : dict
-            Grid information such as dimensions, axes, and ranges.
-        weight_function : str
-            Type of weight function to use for coarse graining.
-        fields_to_export : dict
-            Fields to be exported.
-        ignore_phases : bool
-            Whether to ignore particle phases.  
-
-        Attributes
-        ----------
-        particle_path : str
-            Path to the particle data files.
-        contacts_path : str 
-            Path to the contact data files.
-        time_steps : np.ndarray 
-            Array of time steps for the simulation.
-        DEM_keymap : dict
-            Mapping DEM data keys to their variable names.
-        grid_info : dict
-            Grid information such as dimensions, axes, and ranges.
-        weight_function : str
-            Type of weight function to use for coarse graining.
-        ignore_phases : bool
-            Whether to ignore particle phases.
-        field_to_export : dict
-            Fields to be exported.
-        fields_to_compute : dict
-            Fields that need to be computed based on dependencies.
-        output_path : str
-            Path where the output files will be saved.
-
-        """
+       
         # data info
         self.particle_path = particle_path
         self.contacts_path = contacts_path
@@ -142,7 +118,7 @@ class CoarseGraining:
         """
             Load the particle data for the first time step to obtain particle data.
 
-            Returns
+            Outputs
             -------
             BoundsData_t0 : np.ndarray, shape (3, 2)
                 The bounds of the particle data for the first time step.
@@ -154,6 +130,13 @@ class CoarseGraining:
                 The masses of the particles for the first time step.
             GlobalID_t0 : np.ndarray, shape (N,)
                 The global IDs of the particles for the first time step.
+
+            **It generates the following attributes:**
+            
+            BoundsData_t0 : np.ndarray, shape (3, 2)
+                The bounds of the particle data for the first time step.
+            file_type : str
+                The file type of the particle data files.
         """
                 
         # READ TIME STEP 0
@@ -181,15 +164,15 @@ class CoarseGraining:
         """
         Calculate particle size statistics based on particle diameter and mass.
 
-        Parameters
-        ----------
+        Inputs
+        ------
         diameter_t0 : np.ndarray, shape (N,)
             The particle diameters.
         mass_t0 : np.ndarray, shape (N,)
             The particle masses.
-    
-        Attributes
-        ----------
+
+        **It generates the following attributes:**
+
         d43 : float
             The volume-weighted mean diameter.
         d32 : float
@@ -222,8 +205,8 @@ class CoarseGraining:
         """
         Obtain particle phases based on diameter and density of a given time step (e.g., 0).
 
-        Parameters
-        ----------
+        Inputs
+        ------
         diameter_t0 : np.ndarray, shape (N,)
             The particle diameters. Sorted by global ID.
         density_t0 : np.ndarray, shape (N,)
@@ -234,9 +217,9 @@ class CoarseGraining:
             The maximum number of phases to find. Default is 6.
         plot : bool, optional
             Whether to plot the phases. Default is True.
-        
-        Attributes
-        ----------
+
+        **It generates the following attributes:**
+
         phases : np.ndarray, shape (M, 2)
             The identified phases, each represented by a tuple of (diameter, density).
         Phase_Array : np.ndarray, shape (N,)
@@ -268,16 +251,16 @@ class CoarseGraining:
     def set_resolution(self, average_diameter:float, w_mult = 0.75):
         """
         Set the resolution for coarse graining based on the average particle diameter.
-        
-        Parameters
-        ----------
+
+        Inputs
+        ------
         average_diameter : float
             The average particle diameter. Can be any representative diameter: d50, d32, d43, or drms.
         w_mult : float, optional
             The multiplier for the half-width of the smoothing kernel. Default is 0.75.
-        
-        Attributes
-        ----------
+
+        **It generates the following attributes:**
+
         w : float
             The half-width of the smoothing kernel.
         c : float
@@ -292,9 +275,9 @@ class CoarseGraining:
         """
         Generate the CG grid based on the provided grid information. 
         It takes into account the smoothing length calculated in :func:`set_resolution`.
-        
-        Attributes
-        ----------
+
+        **It generates the following attributes:**
+
         GridPoints : np.ndarray, shape (N, 3)
             The grid points coordinates for the coarse graining.
         Nodes : np.ndarray, shape (D1, D2, D3)
@@ -324,9 +307,10 @@ class CoarseGraining:
         """
 
         Calculate coarse-grained fields over time steps. This method performs the following steps for each time step:
-        1. Load particle and contact data for the current time step, using the `_load_data` method.
-        2. Compute coarse-grained fields based on the loaded data, using the `_fields_single_time` method.
-        3. Write the computed results to .h5 and .VTKHDF files, using the `_write_results` method.
+
+        1. Load particle and contact data for the current time step, using the :func:`_load_data` method.
+        2. Compute coarse-grained fields based on the loaded data, using the :func:`_fields_single_time` method.
+        3. Write the computed results to .h5 and .VTKHDF files, using the :func:`_write_results` method.
         
         """
                                                                  
@@ -349,41 +333,42 @@ class CoarseGraining:
         """
         Load particle and contact data for a given timestep.
 
-        Parameters
-        ----------
+        Inputs
+        ------
         time_of_timestep : int
             The timestep for which to load the data.
-        Returns
+
+        Outputs
         -------
         data : dict
             A dictionary containing the loaded particle and contact data containing the following fields:
-        Position : np.ndarray
+        Position : np.ndarray (N, 3)
             The positions of the particles.
-        Velocity : np.ndarray
+        Velocity : np.ndarray (N, 3)
             The velocities of the particles.
-        Diameter : np.ndarray
+        Diameter : np.ndarray (N,)
             The diameters of the particles.
-        Density : np.ndarray
+        Density : np.ndarray (N,)
             The densities of the particles.
-        Volume : np.ndarray
+        Volume : np.ndarray (N,)
             The volumes of the particles.
-        Mass : np.ndarray   
+        Mass : np.ndarray (N,)
             The masses of the particles.
-        Coordination_Number : np.ndarray
+        Coordination_Number : np.ndarray (N,)
             The coordination numbers of the particles.
-        Position_i : np.ndarray
+        Position_i : np.ndarray (M, 3)
             The positions of the particles involved in contacts.
-        Force_i : np.ndarray
+        Force_i : np.ndarray (M, 3)
             The forces acting on the particles involved in contacts.
-        BranchVector_i : np.ndarray
+        BranchVector_i : np.ndarray (M, 3)
             The branch vectors of the contacts.
-        CenterToCenterVector_LL : np.ndarray
+        CenterToCenterVector_LL : np.ndarray (M, 3)
             The center-to-center vectors of the contacts.
-        Volume_i : np.ndarray
+        Volume_i : np.ndarray (M,)
             The volumes of the particles involved in contacts.
-        PhaseArray_i : np.ndarray
+        PhaseArray_i : np.ndarray (M,)
             The phase array of the particles involved in contacts.
-        d_inContact_mean : float
+        d_inContact_mean : float 
             The mean distance of particles in contact.
  
         """
@@ -450,20 +435,21 @@ class CoarseGraining:
         """
 
         Calculate coarse-grained fields for a single time step. This method performs the following steps:
+
         1. Assign particles to grid nodes using the `_assign_particles_to_grid_nodes` method.
         2. Compute weights for particles and contacts using the `_compute_weights` method.
         3. Compute coarse-grained fields based on the dependencies defined in `field_dependencies.py` 
-           using the `_compute_fields` method.
+           using the :func:`_compute_fields` method.
 
-        Parameters
-        ----------
+        Inputs
+        ------
         data : dict
             A dictionary containing the particle and contact data for the current 
-            time step returned by `_load_data`.
-        Returns
+            time step returned by :func:`_load_data`.
+        Outputs
         -------
         cg_fields : dict
-            A dictionary containing the coarse-grained fields, specified in `fields_to_export`, 
+            A dictionary containing the coarse-grained fields, specified in :func:`fields_to_export`, 
             computed for the current time step
             
         """
@@ -482,15 +468,14 @@ class CoarseGraining:
         Write the computed coarse-grained fields to .h5 and .VTKHDF files 
         for a given time step  in the specified output path.
 
-        Parameters
-        ----------
+        Inputs
+        ------
         results_timestep : dict
-            A dictionary containing the coarse-grained fields computed for the current time step, ret
-            urned by `_fields_single_time`.
+            A dictionary containing the coarse-grained fields computed for the current time step, returned by :func:`_fields_single_time`.
         time_step : int
             The index of the current time step in the simulation.
         time_of_timestep : int
-            The actual time value corresponding to the current time step as given in `time_steps`.
+            The actual time value corresponding to the current time step as given in :func:`time_steps`.
     
         Notes
         -----
@@ -542,35 +527,39 @@ class CoarseGraining:
         """
         Assign particles to grid nodes and calculate displacements and distances.
         This method performs the following steps:
-        1. Match particles to grid points using a kd-tree function.
-        2. Calculate the displacement and distance between particles and grid points.
-        Parameters
-        ----------
+
+            1. Match particles to grid points using a kd-tree function.
+            2. Calculate the displacement and distance between particles and grid points.
+
+        Inputs
+        ------
         data : dict
             A dictionary containing the particle and contact data for the current time step, 
             returned by `_load_data`.
-        Returns
+        Outputs
         -------
         particle_map : dict
         A dictionary containing the following keys:
-        - grid_ind_p: np.ndarray, shape (N,), Indices of the grid points corresponding to particles.
-        - part_ind_p: np.ndarray, shape (N,), Indices of the particles corresponding to grid points.
-        - r_ri: np.ndarray, shape (N, 3), Displacement vectors from grid points to particles.
-        - r_ri_dist: np.ndarray, shape (N,), Distances from grid points to particles.
-        - grid_ind_c: np.ndarray, shape (M,), Indices of the grid points corresponding to contacts.
-        - part_ind_c: np.ndarray, shape (M,), Indices of the contacts corresponding to grid points.
-        - r_ri_c: np.ndarray, shape (M, 3)
-            Displacement vectors from grid points to contacts.
+
+            - grid_ind_p: np.ndarray, shape (N,), Indices of the grid points corresponding to particles.
+            - part_ind_p: np.ndarray, shape (N,), Indices of the particles corresponding to grid points.
+            - r_ri: np.ndarray, shape (N, 3), Displacement vectors from grid points to particles.
+            - r_ri_dist: np.ndarray, shape (N,), Distances from grid points to particles.
+            - grid_ind_c: np.ndarray, shape (M,), Indices of the grid points corresponding to contacts.
+            - part_ind_c: np.ndarray, shape (M,), Indices of the contacts corresponding to grid points.
+            - r_ri_c: np.ndarray, shape (M, 3)
+                Displacement vectors from grid points to contacts.
+
         Notes
         -----
-        This method uses the `particle_node_match` function to find the nearest grid points for each particle and contact.
-        It also calculates the displacement vectors and distances between the grid points and the particles or contacts.
-        The results are stored in a dictionary for further processing.
-        The grid points are generated based on the bounds of the particle data and the specified grid dimensions and axes.
-        The grid points are used to assign particles and contacts to the grid nodes, allowing for coarse graining of the data.
-        The method prints progress messages to indicate the status of the matching and calculation processes.
-        The method assumes that the grid points have already been generated and stored in `self.GridPoints`.    
-        The method is designed to handle both particle and contact data, allowing for a comprehensive coarse graining process.  
+            This method uses the `particle_node_match` function to find the nearest grid points for each particle and contact.
+            It also calculates the displacement vectors and distances between the grid points and the particles or contacts.
+            The results are stored in a dictionary for further processing.
+            The grid points are generated based on the bounds of the particle data and the specified grid dimensions and axes.
+            The grid points are used to assign particles and contacts to the grid nodes, allowing for coarse graining of the data.
+            The method prints progress messages to indicate the status of the matching and calculation processes.
+            The method assumes that the grid points have already been generated and stored in `self.GridPoints`.    
+            The method is designed to handle both particle and contact data, allowing for a comprehensive coarse graining process.  
 
 
         """
@@ -599,16 +588,16 @@ class CoarseGraining:
         """
         Compute the weights for particles and contacts based on the specified weight function.
         
-        Parameters
-        ----------
+        Inputs
+        ------
         particle_map : dict
             A dictionary containing the particle and contact data for the current time step,
-            returned by `_assign_particles_to_grid_nodes`.
+            returned by :func:`_assign_particles_to_grid_nodes`.
         data : dict
             A dictionary containing the particle and contact data for the current time step,
-            returned by `_load_data`.
-        
-        Returns
+            returned by :func:`_load_data`.
+
+        Outputs
         -------
         W_p : np.ndarray, shape (N,)
             The weights for particles, where N is the number of particles.
@@ -618,16 +607,16 @@ class CoarseGraining:
         
         Notes
         -----
-        This method uses the specified weight function (Gaussian, Lucy, or HeavySide) to compute
-        the weights for particles and contacts. The weights are computed based on the distances
-        between the grid points and the particles or contacts.
-        The method first selects the appropriate weight function based on the `weight_function` attribute.
-        It then creates a hash table for the weight function and uses it to compute the weights for
-        particles and contacts. The weights for particles are computed using the distances from the grid points
-        to the particles, while the weights for contacts are computed using the distances along the branch vectors
-        of the contacts.
-        The method also performs trapezoidal integration for the contact weights to obtain a single integral value
-        for the contacts.   
+            This method uses the specified weight function (Gaussian, Lucy, or HeavySide) to compute
+            the weights for particles and contacts. The weights are computed based on the distances
+            between the grid points and the particles or contacts.
+            The method first selects the appropriate weight function based on the `weight_function` attribute.
+            It then creates a hash table for the weight function and uses it to compute the weights for
+            particles and contacts. The weights for particles are computed using the distances from the grid points
+            to the particles, while the weights for contacts are computed using the distances along the branch vectors
+            of the contacts.
+            The method also performs trapezoidal integration for the contact weights to obtain a single integral value
+            for the contacts.   
 
         """
 
@@ -659,27 +648,26 @@ class CoarseGraining:
     def _compute_fields(self, data:dict, g:dict, W_p:np.ndarray, Wint_c:np.ndarray) -> dict:
 
         """
-        Compute coarse-grained fields for a given time step that are specified in `fields_to_compute`.
-        
-        Parameters
-        ----------
+        Compute coarse-grained fields for a given time step that are specified in :func:`fields_to_compute`.
+
+        Inputs
+        ------
         data : dict
             A dictionary containing the particle and contact data for the current time step,
-            returned by `_load_data`.
+            returned by :func:`_load_data`.
         g : dict
-            A dictionary containing the particle mapping information, returned by `_assign_particles_to_grid_nodes`.
+            A dictionary containing the particle mapping information, returned by :func:`_assign_particles_to_grid_nodes`.
         W_p : np.ndarray, shape (N,)
-            The weights for particles, where N is the number of particles, computed in `_compute_weights`.
+            The weights for particles, where N is the number of particles, computed in :func:`_compute_weights`.
         Wint_c : np.ndarray, shape (M,)
-            The integral of the weights for contacts, where M is the number of contacts, computed in `_compute_weights`.    
-        
-        Returns
+            The integral of the weights for contacts, where M is the number of contacts, computed in :func:`_compute_weights`.
+
+        Outputs
         -------
         cg_fields : dict
             A dictionary containing the coarse-grained fields computed for the current time step,
-            based on the specified fields to export in `fields_to_export`. Note that the fields to
-            compute are defined in `fields_to_compute`, which is derived from `fields_to_export`.    
-        
+            based on the specified fields to export in :func:`fields_to_export`. Note that the fields to
+            compute are defined in :func:`fields_to_compute`, which is derived from :func:`fields_to_export`.
 
         """
         
@@ -959,11 +947,12 @@ class CoarseGraining:
         Execute the full coarse-graining workflow.
 
         This method performs the following steps:
-        1. Samples initial particle data and computes particle size statistics.
-        2. Identifies particle phases.
-        3. Sets the coarse-graining resolution.
-        4. Generates the grid.
-        5. Iterates over each time step to compute and write coarse-grained fields.
+        
+        1. Samples initial particle data and computes particle size statistics (:func:`data_sampling` and :func:`get_particle_size_statistics`).
+        2. Identifies particle phases (:func:`get_particle_phases`).
+        3. Sets the coarse-graining resolution (:func:`set_resolution`).
+        4. Generates the grid (:func:`generate_grid`).
+        5. Iterates over each time step to compute and write coarse-grained fields (:func:`_fields_single_time` and :func:`_write_results`).
 
         """
         print("Starting coarse-graining process...")
