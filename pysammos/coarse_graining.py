@@ -333,6 +333,7 @@ class CoarseGraining:
             raise ValueError("Phase_Array is not defined. Please run get_particle_phases first.")
                                                                  
         print(" "); print("-------------------- Calculating Coarse Grained Fields --------------------"); print(" ")
+        
         # time loop
         for t in range(len(self.time_steps)):
             print(f"---> Time step {t}: time {self.time_steps[t]:04d} ................................................")
@@ -342,6 +343,9 @@ class CoarseGraining:
             data = self._load_data(time_of_timestep); print("... data loaded") # Read the data for the current time step
             results = self._fields_single_time(data) # Calculate the CG fields for that time step
             self._write_results(results, t, time_of_timestep); print("... results written") # Write the results to .h5 and .VTKHDF files
+            # calculate and write sliced granular temperature if specified
+            if self.field_to_export.get("granular_temperature_slices", True):
+                self._granular_temperature_sliced_calc_and_write(data, t, time_of_timestep)
             # ========================================================================
             time_end = time.time()
             print(f">> time step {t} took {time_end - time_start} to run."); print("  ")
@@ -426,6 +430,10 @@ class CoarseGraining:
             if Coordination_Number is None:
                 print("  Coordination number not provided. Calculating it.")
                 Coordination_Number, _ = coordination_number.count(np.concatenate((Particle_i.astype(np.int64), Particle_j.astype(np.int64))),Global_ID.astype(np.int64))
+                Coordination_Number = Coordination_Number.astype(np.int32)
+        else:
+            print("  Coordination number not required. Skipping its calculation.")
+            Coordination_Number = None
         # Flush or delete the of contact data
         del Particle_i, Particle_j, F_ij, Contact_ij, Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og 
         # ================================================================================
@@ -438,7 +446,7 @@ class CoarseGraining:
             "Volume": Volume,
             "Mass": Mass,
             "Phase_Array": self.Phase_Array,
-            "Coordination_Number": Coordination_Number.astype(np.int32),
+            "Coordination_Number": Coordination_Number,
             # contact data
             "Position_i": Position_i,
             "Force_i": Force_i,
@@ -737,7 +745,6 @@ class CoarseGraining:
                 Velocity_CG = MomentumDens_CG / DensityMixture_CG[:, np.newaxis] # Velocity CG
             if "velocity_gradient" in self.fields_to_compute:
                 GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG, self.Nodes, self.Spacing) # Velocity Gradient
-                print(f"shape of velocity gradient: {GradV_CG.shape}")
             if "kinetic_tensor" in self.fields_to_compute:
                 KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG, GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
         else:  # Polydisperse case
@@ -959,6 +966,72 @@ class CoarseGraining:
                     
         
         return results
+
+    def _granular_temperature_sliced_calc_and_write(self, data:dict, time_step:int, time_of_timestep:int):
+    
+        """
+        Write the sliced granular temperature results to .h5 files for a given time step.
+
+        Inputs
+        ------
+        time_step : int
+            The index of the current time step in the simulation.
+        time_of_timestep : int
+            The actual time value corresponding to the current time step as given in :func:`time_steps`.
+        data : dict
+            A dictionary containing the particle and contact data for the current time step,
+            returned by :func:`_load_data`.
+
+        Notes
+        -----
+            The output files are written in .h5 format, allowing for easy access and visualization of the granular temperature data.
+            The .h5 file contains the granular temperature values computed using both methods, named according to the weight function and coarse-graining calculation mode.
+            For example, if the weight function is "Gaussian" and the calculation mode is "Monodisperse", 
+            the output file will be named "CG_GranularTemperature_{weight_function}_{cg_calc_mode}.h5".
+            The method prints progress messages to indicate the status of the writing process.
+
+        """ 
+        # get mass
+        Mass = data["Mass"]
+        Diameter = data["Diameter"]
+        Density = data["Density"]
+        Position = data["Position"]
+        Velocity = data["Velocity"]
+        # calculate slices only once and store as attributes
+        if time_step == 0:
+            self.Z_k, self.Z_k_m, self.m = sliced.calc_slices(
+            y0=self.GridPoints[:,1].min(), 
+            y1=self.GridPoints[:,1].max(), 
+            dy=self.Spacing[1], 
+            n=5
+            )
+        # use precalculated slices for subsequent timesteps
+        GranularTemperature_KimKamrin20, GranularTemperature_LAMMPS, slices_y = sliced.granular_temperature(
+            Z_k=self.Z_k, 
+            Z_k_m=self.Z_k_m,
+            W=self.Spacing[1], 
+            n=5, 
+            m=self.m,
+            velocity_all=Velocity, 
+            diam_all=Diameter, 
+            density_all=Density, 
+            mass_all=Mass, 
+            particle_positions_all=Position
+        )
+        print(np.mean(GranularTemperature_KimKamrin20), np.mean(GranularTemperature_LAMMPS))
+        print(f"shapes: {GranularTemperature_KimKamrin20.shape}, {GranularTemperature_LAMMPS.shape}")
+        # write .h5 files
+        print(f"Writing sliced granular temperature results for timestep {time_of_timestep}...")
+        manager = H5XarrayManager(f"{self.output_path}CG_GranularTemperature_slices.h5")
+        if time_step == 0: # Only add positions for the first time step
+            # make the x and z positions the middle of the range 
+            x_middle = np.full(len(slices_y), (self.GridPoints[:,0].min() + self.GridPoints[:,0].max()) / 2)
+            z_middle = np.full(len(slices_y), (self.GridPoints[:,2].min() + self.GridPoints[:,2].max()) / 2)
+            manager.add_positions(np.column_stack((x_middle, slices_y, z_middle)))
+        manager.update_h5py_file({"granular_temperature_Kamrin": GranularTemperature_KimKamrin20, 
+                                  "granular_temperature_LAMMPS": GranularTemperature_LAMMPS}, 
+                                  dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+        print("...sliced granular temperature results written")
 
     def run(self):
         """

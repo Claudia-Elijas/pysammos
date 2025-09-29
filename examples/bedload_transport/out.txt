@@ -40,7 +40,7 @@ Loading data ...
   Particle data loaded
   Repeated pairs in contact data:  1142
   Contact data loaded and mapped
-  Coordination number not provided. Calculating it.
+  Coordination number not required. Skipping its calculation.
 ... data loaded
 Matching particles to grid points ...
 ... particles assigned to grid nodes
@@ -48,33 +48,24 @@ Computing weights ...
 ... weights computed
 Computing Coarse Graining fields...
   volume fraction done
-  mixture density done
-  momentum density done
-  contact tensor done
-  particle density done
-  total stress done
-  d43 done
-  d32 done
-  Z done
-  pressure done
-  granular temp done
-  shear rate done
-  inertial number done
-  mu done
-  frabric tensor done
 ... fields computed
 Writing results for timestep 150...
   File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
   File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0150.vtkhdf
 ... results written
->> time step 0 took 6.687149524688721 to run.
+0.00037587619829389896 0.0003484585030927132
+shapes: (21, 3), (21, 3)
+Writing sliced granular temperature results for timestep 150...
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+...sliced granular temperature results written
+>> time step 0 took 2.227059841156006 to run.
   
 ---> Time step 1: time 0151 ................................................
 Loading data ... 
   Particle data loaded
   Repeated pairs in contact data:  1140
   Contact data loaded and mapped
-  Coordination number not provided. Calculating it.
+  Coordination number not required. Skipping its calculation.
 ... data loaded
 Matching particles to grid points ...
 ... particles assigned to grid nodes
@@ -82,33 +73,24 @@ Computing weights ...
 ... weights computed
 Computing Coarse Graining fields...
   volume fraction done
-  mixture density done
-  momentum density done
-  contact tensor done
-  particle density done
-  total stress done
-  d43 done
-  d32 done
-  Z done
-  pressure done
-  granular temp done
-  shear rate done
-  inertial number done
-  mu done
-  frabric tensor done
 ... fields computed
 Writing results for timestep 151...
   File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
   File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0151.vtkhdf
 ... results written
->> time step 1 took 0.22973966598510742 to run.
+0.00046206515578619894 0.00044389717364261646
+shapes: (21, 3), (21, 3)
+Writing sliced granular temperature results for timestep 151...
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+...sliced granular temperature results written
+>> time step 1 took 0.07527279853820801 to run.
   
 ---> Time step 2: time 0152 ................................................
 Loading data ... 
   Particle data loaded
   Repeated pairs in contact data:  1165
   Contact data loaded and mapped
-  Coordination number not provided. Calculating it.
+  Coordination number not required. Skipping its calculation.
 ... data loaded
 Matching particles to grid points ...
 ... particles assigned to grid nodes
@@ -116,33 +98,24 @@ Computing weights ...
 ... weights computed
 Computing Coarse Graining fields...
   volume fraction done
-  mixture density done
-  momentum density done
-  contact tensor done
-  particle density done
-  total stress done
-  d43 done
-  d32 done
-  Z done
-  pressure done
-  granular temp done
-  shear rate done
-  inertial number done
-  mu done
-  frabric tensor done
 ... fields computed
 Writing results for timestep 152...
   File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
   File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0152.vtkhdf
 ... results written
->> time step 2 took 0.2273712158203125 to run.
+0.0011284876483646658 0.0011027928896120427
+shapes: (21, 3), (21, 3)
+Writing sliced granular temperature results for timestep 152...
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+...sliced granular temperature results written
+>> time step 2 took 0.09239363670349121 to run.
   
 ---> Time step 3: time 0153 ................................................
 Loading data ... 
   Particle data loaded
   Repeated pairs in contact data:  1151
   Contact data loaded and mapped
-  Coordination number not provided. Calculating it.
+  Coordination number not required. Skipping its calculation.
 ... data loaded
 Matching particles to grid points ...
 ... particles assigned to grid nodes
@@ -150,33 +123,24 @@ Computing weights ...
 ... weights computed
 Computing Coarse Graining fields...
   volume fraction done
-  mixture density done
-  momentum density done
-  contact tensor done
-  particle density done
-  total stress done
-  d43 done
-  d32 done
-  Z done
-  pressure done
-  granular temp done
-  shear rate done
-  inertial number done
-  mu done
-  frabric tensor done
 ... fields computed
 Writing results for timestep 153...
   File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
   File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0153.vtkhdf
 ... results written
->> time step 3 took 0.2263338565826416 to run.
+0.0003294308296452512 0.00031598652394058675
+shapes: (21, 3), (21, 3)
+Writing sliced granular temperature results for timestep 153...
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+...sliced granular temperature results written
+>> time step 3 took 0.07958722114562988 to run.
   
 ---> Time step 4: time 0154 ................................................
 Loading data ... 
   Particle data loaded
   Repeated pairs in contact data:  1159
   Contact data loaded and mapped
-  Coordination number not provided. Calculating it.
+  Coordination number not required. Skipping its calculation.
 ... data loaded
 Matching particles to grid points ...
 ... particles assigned to grid nodes
@@ -184,29 +148,20 @@ Computing weights ...
 ... weights computed
 Computing Coarse Graining fields...
   volume fraction done
-  mixture density done
-  momentum density done
-  contact tensor done
-  particle density done
-  total stress done
-  d43 done
-  d32 done
-  Z done
-  pressure done
-  granular temp done
-  shear rate done
-  inertial number done
-  mu done
-  frabric tensor done
 ... fields computed
 Writing results for timestep 154...
   File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
   File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0154.vtkhdf
 ... results written
->> time step 4 took 0.22444820404052734 to run.
+0.0002226074004270223 0.0002149224995523928
+shapes: (21, 3), (21, 3)
+Writing sliced granular temperature results for timestep 154...
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+...sliced granular temperature results written
+>> time step 4 took 0.07850050926208496 to run.
   
  
-Coarse Graining completed in 7.60 seconds
+Coarse Graining completed in 2.56 seconds
  
 ------------------------------------------------------------
 >>> Coarse Graining completed successfully <<<

@@ -2,22 +2,82 @@ import numpy as np
 from numba import njit, prange
 from .utils import *
 
-@njit
-def granular_temperature(dy, y0, y1, velocity_all, diam_all, density_all, mass_all, particle_positions_all):
-    rad = diam_all / 2
-    position_y = particle_positions_all[:, 1]
-    rho_particle = density_all.flatten()
-    mi = mass_all
+def calc_slices(y0, y1, dy, n=5):
+    """
+    Calculate the slice positions in the y-direction.
 
-    W = dy
-    n = 5
+    Parameters
+    ----------
+    y0 : float
+        The minimum y position of the domain.
+    y1 : float
+        The maximum y position of the domain.
+    dy : float
+        The slice height.
+
+    Returns
+    -------
+    slices_y : np.ndarray
+        The y positions of the slices.
+    """
+  
     m = np.arange(1, 2 * n + 2)  # length 11
-    bands = np.arange(y0 - W / 2, y1 + W, W)
+    bands = np.arange(y0 - dy / 2, y1 + dy, dy)
     Z_k = (bands[:-1] + bands[1:]) / 2
     Z_k_m = np.zeros((Z_k.shape[0], m.shape[0]))
     for j in range(Z_k.shape[0]):
         for i in range(m.shape[0]):
-            Z_k_m[j, i] = Z_k[j] - W / 2 + (m[i] - 1) * W / (2 * n)
+            Z_k_m[j, i] = Z_k[j] - dy / 2 + (m[i] - 1) * dy / (2 * n)
+
+    return Z_k, Z_k_m, m
+
+@njit 
+def granular_temperature(Z_k, Z_k_m, W, n, m, velocity_all, diam_all, density_all, mass_all, particle_positions_all):
+    
+    """
+    Inputs
+    ------
+    dy : float
+        The slice height.
+    y0 : float
+        The minimum y position of the domain.
+    y1 : float
+        The maximum y position of the domain.
+    velocity_all : np.ndarray
+        The particle velocities.    
+    diam_all : np.ndarray
+        The particle diameters.
+    density_all : np.ndarray
+        The particle densities.
+    mass_all : np.ndarray
+        The particle masses.
+    particle_positions_all : np.ndarray
+        The particle positions.
+
+    Outputs
+    -------
+    k_WeightedT_N : np.ndarray
+        The granular temperature computed using the Kim & Kamrin (2020) method.
+    k_WeightedT_LAMMPS : np.ndarray
+        The granular temperature computed using the LAMMPS method.
+    
+    Notes
+    -----
+    The granular temperature is computed using two methods:
+
+        1. The Kim & Kamrin (2020) method, which uses a weighted average of the velocity fluctuations.
+        2. The LAMMPS method, which uses the average of the squared velocity fluctuations.
+    
+    References
+    ----------
+    .. [1] Zhang & Kamrin (2017), Microscopic Description of the Granular Fluidity Field in Nonlocal Flow Modeling. Phys. Rev. Lett. 118, 058001
+
+    """
+    
+    rad = diam_all / 2
+    position_y = particle_positions_all[:, 1]
+    rho_particle = density_all.flatten()
+    mi = mass_all
 
     half_sublayer_width = W / (2 * n) / 2
 
@@ -104,6 +164,6 @@ def granular_temperature(dy, y0, y1, velocity_all, diam_all, density_all, mass_a
             k_WeightedT_LAMMPS[j, d] = np.sum(m_WeightedT_LAMMPS[j, :, d]) / len(m)
             k_WeightedT_N[j, d] = np.sum(wm_vals * m_WeightedT_N[j, :, d]) / np.sum(wm_vals)
 
-    return k_WeightedT_N, k_WeightedT_LAMMPS
+    return k_WeightedT_N, k_WeightedT_LAMMPS, Z_k
 
 

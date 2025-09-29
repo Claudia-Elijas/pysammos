@@ -9,7 +9,7 @@ field_dependencies = {
                 "pressure": ["total_stress_tensor"],
                 "inertial_number": ["shear_rate_tensor", "pressure", "density_particle", "d43", "d32"],
                 "frictional_coefficient": ["total_stress_tensor", "pressure"],
-                "granular_temperature": ["kinetic_tensor", "density_mixture"],
+                "granular_temperature": ["kinetic_tensor", "density_mixture"]
                             }
 
 
