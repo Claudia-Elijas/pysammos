@@ -349,7 +349,7 @@ def get_cell_array(image_data: pyvista.ImageData, var: str):
 def write_vtkhdf(h5_file: h5py.File, imagedata,
                  direction=(1, 0, 0, 0, 1, 0, 0, 0, 1),
                  data_order="FortranOrder",
-                 **kwargs):
+                 **kwargs): 
     """Write ImageData to VTK HDF format with flexible tensor support."""
     if isinstance(imagedata, vtk.vtkImageData):
         imagedata = pyvista.wrap(imagedata)

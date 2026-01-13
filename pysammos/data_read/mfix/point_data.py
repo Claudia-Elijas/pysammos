@@ -106,55 +106,56 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
         Global_ID_sorted = Global_ID[sorted_idx].astype(np.int32)
 
         Position = vtk_to_numpy(poly_output.GetPoints().GetData())
-        Position_sorted = Position[sorted_idx]
+        Position_sorted = Position[sorted_idx].astype(np.float32)
     else:
         raise ValueError("Global_ID_string is None. Please provide a valid string.")
     
     if Velocity_string is not None:
         Velocity = get_point_data_variable(Velocity_string, poly_output)
-        Velocity_sorted = Velocity[sorted_idx]
+        Velocity_sorted = Velocity[sorted_idx].astype(np.float32)
     else:
         Velocity_sorted = None
 
     if Diameter_string is not None:
         Diameter = get_point_data_variable(Diameter_string, poly_output)
-        Diameter_sorted = Diameter[sorted_idx]
+        Diameter_sorted = Diameter[sorted_idx].astype(np.float32)
     else:
 
         if Radius_string is not None:
             Radius = get_point_data_variable(Radius_string, poly_output)
-            Radius_sorted = Radius[sorted_idx]
+            Radius_sorted = Radius[sorted_idx].astype(np.float32)
             Diameter_sorted = 2 * Radius_sorted
         if Radius_string is None: 
             raise ValueError("Diameter_string is None. Please provide a valid string.")
 
     if Density_string is not None:
         Density = get_point_data_variable(Density_string, poly_output)
-        Density_sorted = Density[sorted_idx]
+        Density_sorted = Density[sorted_idx].astype(np.float32)
     else:
         raise ValueError("Density_string is None. Please provide a valid string.")
 
     if Volume_string is not None:
         Volume = get_point_data_variable(Volume_string, poly_output)
-        Volume_sorted = Volume[sorted_idx]
+        Volume_sorted = Volume[sorted_idx].astype(np.float32)
     else:
         Volume_sorted = None
 
     if Mass_string is not None:
         Mass = get_point_data_variable(Mass_string, poly_output)
-        Mass_sorted = Mass[sorted_idx]
+        Mass_sorted = Mass[sorted_idx].astype(np.float32)
     else:
         Mass_sorted = None
 
     if Coordination_Number_string is not None:
         Coordination_Number = get_point_data_variable(Coordination_Number_string, poly_output)
-        Coordination_Number_sorted = Coordination_Number[sorted_idx]
+        Coordination_Number_sorted = Coordination_Number[sorted_idx].astype(np.float32)
     else:
         Coordination_Number_sorted = None
         Coordination_Number = None
     Bounds_t = get_bounds(poly_output)
+    
     return Position_sorted, Global_ID_sorted, Velocity_sorted, Diameter_sorted, Density_sorted, Volume_sorted, Mass_sorted, Coordination_Number_sorted, Bounds_t
-    #return Position, Global_ID, Velocity, Diameter, Density, Volume, Mass, Radius
+    
 
 def contacts(InputConnection:vtk.vtkAlgorithmOutput,    
                 Particle_i_string:Optional[str]="Particle_ID_1", 
@@ -192,7 +193,7 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
         The contact points between the particles, if available.
 
     Raises
-    ------
+    ------ 
     ValueError
         If any of the required strings (Particle_i_string, Particle_j_string, Force_ij_string) are None or not provided.
     Notes
@@ -205,12 +206,37 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
     """
 
     poly_output = InputConnection.GetOutput()
-    F_ij = get_point_data_variable(Force_ij_string, poly_output) if Force_ij_string else None
-    Particle_i = get_point_data_variable(Particle_i_string, poly_output) if Particle_i_string else None
-    Particle_j = get_point_data_variable(Particle_j_string, poly_output) if Particle_j_string else None
-    Contact_ij = get_point_data_variable(Contact_ij_string, poly_output) if Contact_ij_string else None
+    F_ij = get_point_data_variable(Force_ij_string, poly_output).astype(np.float32) if Force_ij_string else None
+    Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.float32) if Particle_i_string else None
+    Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.float32) if Particle_j_string else None
+    Contact_ij = get_point_data_variable(Contact_ij_string, poly_output).astype(np.float32) if Contact_ij_string else None
+    print("type of output (e.g., inter, float etc, 64, 32): ", F_ij.dtype, Particle_i.dtype, Particle_j.dtype, Contact_ij.dtype)
+
+    # only to benchmark with JP's contact data reader
+    # poly_output = InputConnection.GetOutput().GetCellData(); print("Contact Data loaded as Cell Data")
+    # F_ij = vtk_to_numpy(poly_output.GetArray(Force_ij_string)).astype(np.float32)
+    # contact_ids = vtk_to_numpy(poly_output.GetArray(Particle_i_string)).astype(np.float32)
+    # Particle_i = contact_ids[:, 0]
+    # Particle_j = contact_ids[:, 1]
+    # Contact_ij = vtk_to_numpy(poly_output.GetArray(Contact_ij_string)).astype(np.float32)
+
 
     return Particle_i, Particle_j, F_ij, Contact_ij
+
+# Read his contact data
+def ContactData__JP(InputConnection, 
+    Part_ids_string="contact_ids", 
+    Force_ij_string="total_force", 
+    Contact_ij_string="contact_points"): 
+
+    cell_data_ct = InputConnection.GetOutput().GetCellData(); print("Contact Data loaded as Cell Data")
+    total_force = vtk_to_numpy(cell_data_ct.GetArray(Force_ij_string))
+    contact_ids = vtk_to_numpy(cell_data_ct.GetArray(Part_ids_string))
+    particle_i = contact_ids[:, 0]
+    particle_j = contact_ids[:, 1]
+    contact_points = vtk_to_numpy(cell_data_ct.GetArray(Contact_ij_string))
+
+    return particle_i, particle_j, total_force, contact_points
 
 
 

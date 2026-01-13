@@ -16,7 +16,7 @@ analysis, or other particulate system studies.
 # import relevant libraries
 import numpy as np
 from sklearn.cluster import KMeans
-from sklearn import metrics
+from sklearn import metrics 
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 

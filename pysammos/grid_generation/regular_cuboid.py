@@ -286,7 +286,7 @@ class Grid_Generation:
                 grid_points_y = y
                 grid_points = np.column_stack((np.full_like(grid_points_y, X_transect), grid_points_y, np.full_like(grid_points_y, Z_transect)))
                 nodes = np.array([1, Ny, 1])
-                spacing = np.array([dy])
+                spacing = np.array([dy]) 
             
             elif axes == 'z':
                 # Check that transect values are provided

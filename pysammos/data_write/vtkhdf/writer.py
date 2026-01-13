@@ -22,6 +22,7 @@ from . import core as v5i
 import h5py
 import pyvista as pv
 from typing import Tuple
+import numpy as np
 
 
 class VTKHDFWriter:
@@ -64,11 +65,123 @@ class VTKHDFWriter:
         """
     def __init__(self, node_dimensions:Tuple, node_spacing:Tuple, origin:Tuple, path:str):
         
+        # --- Store attributes ---
         self.node_dimensions = tuple(node_dimensions)
         self.node_spacing = tuple(node_spacing)
         self.path = path
         self.origin = origin #v5i.origin_of_centered_image(self.node_dimensions, self.node_spacing, 2)
         
+        # --- Detect and handle 2D ImageData ---
+        self.x_is_2d = self.node_dimensions[0] == 1 # Detect 2D ImageData (nx == 1)
+        self.y_is_2d = self.node_dimensions[1] == 1 # Detect 2D ImageData (ny == 1)
+        self.z_is_2d = self.node_dimensions[2] == 1 # Detect 2D ImageData (nz == 1)
+        if self.x_is_2d or self.y_is_2d or self.z_is_2d:
+            self.is_2d = True # Flag indicating 2D data
+            self._promote_2d_to_thin_3d() # Promote 2D to thin 3D for VTK compatibility with ParaView
+
+    def _promote_2d_to_thin_3d(self):
+
+        """
+        Promote 2D ImageData to thin 3D by adding an extra slice in the collapsed dimension.
+        
+        """
+
+        # Add one extra slice in direction of 2D and ensure non-zero spacing in that direction
+        self.node_dimensions = list(self.node_dimensions)
+        self.node_spacing = list(self.node_spacing)
+        
+        ds = 1e-8  # small spacing value to avoid zero spacing
+
+        if self.x_is_2d:
+            print("  Warning: VTKHDFWriter promoting 2D ImageData (nx=1) to thin 3D (nx=2) for VTK compatibility.")
+            self.node_dimensions[0] = 2
+            self.node_spacing = [ds] + self.node_spacing # add a small spacing to the node spacing in X
+        if self.y_is_2d:
+            print("  Warning: VTKHDFWriter promoting 2D ImageData (ny=1) to thin 3D (ny=2) for VTK compatibility.")
+            self.node_dimensions[1] = 2
+            self.node_spacing = self.node_spacing[:1] + [ds] + self.node_spacing[1:] # add a small spacing to the node spacing in Y
+        if self.z_is_2d:
+            print("  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.")
+            self.node_dimensions[2] = 2
+            self.node_spacing = self.node_spacing[:2] + [ds] # add a small spacing to the node spacing in Z
+
+        # convert back to tuples
+        self.node_dimensions = tuple(self.node_dimensions)
+        self.node_spacing = tuple(self.node_spacing)   
+    
+    def _promote_2d_point_data(self, value):
+        """
+        Promote flattened 2D point data (scalar, vector, or tensor)
+        to thin 3D by duplicating the collapsed spatial dimension.
+
+        Inputs
+        ------
+        value : np.ndarray
+            Numpy array containing the point data to be promoted.
+        Outputs
+        -------
+        np.ndarray
+            Numpy array with the promoted point data.
+        Notes
+        ------
+        This method handles the promotion of 2D point data to thin 3D by duplicating the collapsed spatial dimension.
+        It supports scalar, vector, and tensor data formats. 
+        The input data is expected to be in a flattened format, and the output will have the appropriate shape for thin 3D representation.
+        2D data is identified based on the node dimensions of the VTKHDFWriter instance.
+        The output array will have the same number of components as the input array, but with the spatial dimensions adjusted for thin 3D.
+        2D data is identified based on the node dimensions of the VTKHDFWriter instance.
+
+        """
+
+        # promoted (3D) dimensions
+        nx, ny, nz = self.node_dimensions  
+
+        # original (pre-promotion) dimensions
+        ox = 1 if self.x_is_2d else nx
+        oy = 1 if self.y_is_2d else ny
+        oz = 1 if self.z_is_2d else nz
+
+        # ---- separate spatial and component dimensions ----
+        if value.ndim == 1:
+            # scalar
+            ncomp = None
+            spatial_shape = (ox, oy, oz)
+            arr_resh = value.reshape(spatial_shape, order="C")
+
+        elif value.ndim == 2:
+            # vector or flattened tensor
+            ncomp = value.shape[1]
+            spatial_shape = (ox, oy, oz, ncomp)
+            arr_resh = value.reshape(spatial_shape, order="C")
+
+        elif value.ndim == 3:
+            # true tensor (e.g. 3x3)
+            ncomp = value.shape[1] * value.shape[2]
+            spatial_shape = (ox, oy, oz, ncomp)
+            arr_resh = value.reshape(spatial_shape, order="C") # reshape to (ox, oy, oz, ncomp)
+
+        else:
+            raise ValueError(f"Unsupported value shape: {value.shape}")
+        print(arr_resh.shape)
+
+        # ---- duplicate along collapsed axis ----
+        if self.x_is_2d:
+            arr_rep = np.repeat(arr_resh, 2, axis=0)
+        elif self.y_is_2d:
+            arr_rep = np.repeat(arr_resh, 2, axis=1)
+        elif self.z_is_2d:
+            arr_rep = np.repeat(arr_resh, 2, axis=2)
+
+        # ---- flatten spatial dimensions only ----
+        if value.ndim == 1:
+            return arr_rep.reshape(-1, order="C")
+        elif value.ndim == 2:
+            return arr_rep.reshape(-1, arr_resh.shape[-1], order="C")
+        elif value.ndim == 3:
+            return arr_rep.reshape(-1, arr_resh.shape[-2], arr_resh.shape[-1], order="C")
+
+
+
     def write(self, data_dict:dict):
 
         """
@@ -95,7 +208,12 @@ class VTKHDFWriter:
 
         for key, value in data_dict.items(): # Iterate over each key-value pair in the data dictionary
             if value is not None: # Check if the value is not None
-                dims = value.ndim
+
+                # Handle 2D data promotion
+                if self.is_2d:
+                    value = self._promote_2d_point_data(value)
+
+                dims = value.ndim # Get the number of dimensions of the data array
                 if dims == 1: # Scalar data
                     data = value.reshape(*self.node_dimensions, order='C') # Reshape to match node dimensions
                     v5i.set_point_scalar(box, data, key) # Set scalar data in the ImageData object
@@ -147,6 +265,11 @@ class VTKHDFWriter:
         for key, value in data_dict.items(): 
             if key in phase_indepen_field_names: # phase-independent fields
                 if value is not None:
+
+                    # Handle 2D data promotion
+                    if self.is_2d:
+                        value = self._promote_2d_point_data(value)
+                    
                     dims = value.ndim
                     if dims == 1:
                         data = value.reshape(*self.node_dimensions, order='C')
@@ -163,7 +286,13 @@ class VTKHDFWriter:
             else: # phase-dependent fields
                 if value is not None:
                     for p in range(n_phases):
+                        
                         value_phase = value[:, p, ...]
+
+                        # Handle 2D data promotion
+                        if self.is_2d:
+                            value_phase = self._promote_2d_point_data(value_phase)
+
                         dims = value_phase.ndim
                         key_suffix = key + suffixes[p]
                         if dims == 1:

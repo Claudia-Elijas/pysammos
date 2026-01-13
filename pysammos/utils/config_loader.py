@@ -43,11 +43,17 @@ def load_config(path_to_ini="config.ini"):
         "output_path": config["paths"]["output_path"],
         "t0": int(config["timesteps"]["t0"]),
         "tf": int(config["timesteps"]["tf"]),
+        "dt": int(config["timesteps"]["dt"]),
         "partialignore": str2bool(config["flags"]["partialignore"]),
         "key_mapping": parse_dict("key_mapping", config),   # Keys will now keep their capitalization
         "grid_info": parse_grid_info(config),
         "fields_to_export": parse_bool_dict("fields_to_export", config),
+        "smoothing_function": config["smoothing_function"]["type"],
+        "h5_output": str2bool(config["output_options"]["h5_output"]),
+        "vkthdf_output": str2bool(config["output_options"]["vkthdf_output"]),
     }
 
     return config_data
+
+
 

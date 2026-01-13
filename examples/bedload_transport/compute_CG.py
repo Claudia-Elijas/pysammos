@@ -27,12 +27,15 @@ CG = CoarseGraining(
     output_path=cfg["output_path"],
     start_timestep=cfg["t0"],
     end_timestep=cfg["tf"],
-    dt_time_step=1,
+    dt_time_step=cfg["dt"],
     DEM_keymap=cfg["key_mapping"],
     grid_info=cfg["grid_info"],
-    weight_function='Lucy',
+    weight_function=cfg["smoothing_function"],
     fields_to_export=cfg["fields_to_export"],
-    ignore_phases=cfg["partialignore"]
+    ignore_phases=cfg["partialignore"],
+    vtk_hdf_output=cfg["vkthdf_output"],
+    h5_output=cfg["h5_output"],
+
                     ) 
 print("  ") ; print("-------------------- CoarseGraining class initialised --------------------")
                         

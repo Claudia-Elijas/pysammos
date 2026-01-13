@@ -6,6 +6,7 @@ computing macroscopic fields, handling particle phases, and writing output data.
 
 
 # import standard libraries ----------------------------------------------
+from numba import get_num_threads
 import numpy as np
 import os
 from vtk.util.numpy_support import vtk_to_numpy
@@ -74,11 +75,17 @@ class CoarseGraining:
     grid_info : dict
         Grid information such as dimensions, axes, and ranges.
     weight_function : str
-        Type of weight function to use for coarse graining.
+        Type of weight function to use for coarse graining. It can be one of the following: 'Gaussian', 'Lucy', 'HeavySide'.
     fields_to_export : dict
         Fields to be exported.
     ignore_phases : bool
         Whether to ignore particle phases.  
+    vkthdf_output : bool, optional
+        Whether to output VTKHDF files. Default is True.
+    h5_output : bool, optional
+        Whether to output H5 files. Default is True.
+    search_sampling_factor : int, optional
+        Factor to control the sampling rate for neighbor search. It is the factor that divides the first significant figure of the search space. Default is 1000.
 
     
     """
@@ -89,7 +96,10 @@ class CoarseGraining:
                  grid_info:dict,
                  weight_function:str, 
                  fields_to_export:dict, 
-                 ignore_phases:bool):
+                 ignore_phases:bool,
+                 vkthdf_output:bool = True,
+                 h5_output:bool = True,
+                 search_sampling_factor:int = 1000):
        
         # data info
         self.particle_path = particle_path
@@ -113,6 +123,9 @@ class CoarseGraining:
             print(f"Output path created: {self.output_path}")
         else:
             print(f"Output path already exists: {self.output_path}")
+        self.vkthdf_output = vkthdf_output
+        self.h5_output = h5_output
+        self.search_sampling_factor = search_sampling_factor
 
     def data_sampling(self)-> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -343,7 +356,7 @@ class CoarseGraining:
             data = self._load_data(time_of_timestep); print("... data loaded") # Read the data for the current time step
             results = self._fields_single_time(data) # Calculate the CG fields for that time step
             self._write_results(results, t, time_of_timestep); print("... results written") # Write the results to .h5 and .VTKHDF files
-            # calculate and write sliced granular temperature if specified
+            # sliced granular temperature if specified
             if self.field_to_export.get("granular_temperature_slices", True):
                 self._granular_temperature_sliced_calc_and_write(data, t, time_of_timestep)
             # ========================================================================
@@ -430,6 +443,9 @@ class CoarseGraining:
             if Coordination_Number is None:
                 print("  Coordination number not provided. Calculating it.")
                 Coordination_Number, _ = coordination_number.count(np.concatenate((Particle_i.astype(np.int64), Particle_j.astype(np.int64))),Global_ID.astype(np.int64))
+                Coordination_Number = Coordination_Number.astype(np.int32)
+                
+            else:
                 Coordination_Number = Coordination_Number.astype(np.int32)
         else:
             print("  Coordination number not required. Skipping its calculation.")
@@ -521,33 +537,36 @@ class CoarseGraining:
 
         print(f"Writing results for timestep {time_of_timestep}...")
         
-        # write .h5 files 
-        manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
-        if time_step == 0: # Only add positions and phases for the first time step
-            manager.add_positions(self.GridPoints)
-            if self.cg_calc_mode == "Polydisperse":
-                phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
-                manager.add_phases(phase_labels)
-        manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+        # write .h5 files
+        if self.h5_output: 
+            manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
+            if time_step == 0: # Only add positions and phases for the first time step
+                manager.add_positions(self.GridPoints)
+                if self.cg_calc_mode == "Polydisperse":
+                    phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
+                    manager.add_phases(phase_labels)
+            manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+        
         # write .VTKHDF files 
-        writer = VTKHDFWriter(node_dimensions=self.Nodes,  
-                        node_spacing=self.Spacing, 
-                        origin=self.GridPoints[0,:],
-                        path=f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{time_of_timestep:04d}")
-        if self.cg_calc_mode == "Monodisperse":
-            writer.write(data_dict=results_timestep)
-        elif self.cg_calc_mode == "Polydisperse": 
-            writer.write_polydisperse(data_dict=results_timestep,
-                                        n_phases=len(self.phases)+1, 
-                                        phase_indepen_field_names=["d32", "d43", 
-                                                                    "coordination_number", 
-                                                                    "velocity_gradient",
-                                                                    "fabric_tensor", 
-                                                                    "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
-                                                                    "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
-                                                                    "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
-                                                                    "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
-                                                                    ])
+        if self.vkthdf_output: 
+            writer = VTKHDFWriter(node_dimensions=self.Nodes,  
+                            node_spacing=self.Spacing, 
+                            origin=self.GridPoints[0,:],
+                            path=f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{time_of_timestep:04d}")
+            if self.cg_calc_mode == "Monodisperse":
+                writer.write(data_dict=results_timestep)
+            elif self.cg_calc_mode == "Polydisperse": 
+                writer.write_polydisperse(data_dict=results_timestep,
+                                            n_phases=len(self.phases)+1, 
+                                            phase_indepen_field_names=["d32", "d43", 
+                                                                        "coordination_number", 
+                                                                        "velocity_gradient",
+                                                                        "fabric_tensor", 
+                                                                        "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                                                                        "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                                                                        "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                                                                        "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
+                                                                        ])
 
     def _assign_particles_to_grid_nodes(self, data:dict) -> dict:
         """
@@ -655,16 +674,17 @@ class CoarseGraining:
         elif self.weight_function == "HeavySide":
             WeightFunc = kernels.heavySide
         else:
-            raise ValueError("Invalid CG function") 
+            raise ValueError("Invalid CG function: choose from 'Gaussian', 'Lucy', or 'HeavySide'.") 
 
+        print(f"  Using {self.weight_function} kernel with cutoff {self.c} and search sampling factor {self.search_sampling_factor}")
         # Particle weights
-        hash_table_p, stepsize_p = make_hash_table(WeightFunc, self.c, sensitivity=1000)
+        hash_table_p, stepsize_p = make_hash_table(WeightFunc, self.c, sensitivity=self.search_sampling_factor)
         W_p = hash_table_search(particle_map["r_ri_dist"], hash_table_p, stepsize_p)
 
         # Contact weights
         s = integration_scalar(0, 1, 10)
         dist_along_branch = compute_dist_along_branch(particle_map["r_ri_c"], s, data["BranchVector_i"], particle_map["part_ind_c"])
-        hash_table_c, stepsize_c = make_hash_table(WeightFunc, self.c, sensitivity=1000)
+        hash_table_c, stepsize_c = make_hash_table(WeightFunc, self.c, sensitivity=self.search_sampling_factor)
         W_c = hash_table_search(dist_along_branch, hash_table_c, stepsize_c)
         Wint_c = trapezoidal_integration(0, 1, 10, W_c)
 
@@ -1018,10 +1038,7 @@ class CoarseGraining:
             mass_all=Mass, 
             particle_positions_all=Position
         )
-        print(np.mean(GranularTemperature_KimKamrin20), np.mean(GranularTemperature_LAMMPS))
-        print(f"shapes: {GranularTemperature_KimKamrin20.shape}, {GranularTemperature_LAMMPS.shape}")
         # write .h5 files
-        print(f"Writing sliced granular temperature results for timestep {time_of_timestep}...")
         manager = H5XarrayManager(f"{self.output_path}CG_GranularTemperature_slices.h5")
         if time_step == 0: # Only add positions for the first time step
             # make the x and z positions the middle of the range 
@@ -1031,7 +1048,7 @@ class CoarseGraining:
         manager.update_h5py_file({"granular_temperature_Kamrin": GranularTemperature_KimKamrin20, 
                                   "granular_temperature_LAMMPS": GranularTemperature_LAMMPS}, 
                                   dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
-        print("...sliced granular temperature results written")
+        print(f"  File successfully written to {manager.filename}")
 
     def run(self):
         """
@@ -1047,6 +1064,8 @@ class CoarseGraining:
 
         """
         print("Starting coarse-graining process...")
+        # time the entire process
+        prep_start = time.time()
 
         # 1. Sample initial particle data
         bounds, diameter, density, mass, global_id = self.data_sampling()
@@ -1068,17 +1087,32 @@ class CoarseGraining:
         self.generate_grid()
         print("... grid generated")
 
+        prep_end = time.time()
+    
+
+        time_timesteps = []
         # 6. Iterate over time steps
         for t_idx, t in enumerate(self.time_steps):
+            # time a single timestep
+            timestep_start = time.time()
+
             print(f"Processing time step {t} ({t_idx+1}/{len(self.time_steps)})...")
             data_t = self._load_data(t)
             print("... data loaded")
             cg_fields_t = self._fields_single_time(data_t)
-            print("... fields computed")
             self._write_results(cg_fields_t, t_idx, t)
             print("... results written\n")
 
-        print("Coarse-graining process completed.")
+            timestep_end = time.time()
+            time_timesteps.append(timestep_end - timestep_start)
+            
+        print("Coarse-graining process completed, summary:")
+        print(f">>> Number of grid points: {self.GridPoints.shape[0]}")
+        print(f">>> Total preparation time: {prep_end - prep_start:.2f} seconds")
+        print(f">>> Average time per time step: {np.mean(time_timesteps):.2f} seconds")
+        print(f"       >> duration per time step: {time_timesteps}")
+        cores = get_num_threads()
+        print(f">>> Number of cores used:  {cores}")
 
     def sweep_CG_widths(self, w_d:np.ndarray):
 
@@ -1110,13 +1144,19 @@ class CoarseGraining:
         self.set_resolution(self.d43)
 
         # 5. Generate grid of 9 points around the center of the domain
-        center = bounds[:,0] + 0.5 * (bounds[:,1] - bounds[:,0])
-        self.Nodes = (2,2,2) ; self.Spacing = (self.c, self.c, self.c)
-        x = np.linspace(center[0] - self.c, center[0] + self.c, self.Nodes[0])
-        y = np.linspace(center[1] - self.c, center[1] + self.c, self.Nodes[1])
-        z = np.linspace(center[2] - self.c, center[2] + self.c, self.Nodes[2])
+        # center = bounds[:,0] + 0.5 * (bounds[:,1] - bounds[:,0])
+        # self.Nodes = (2,2,2) ; self.Spacing = (self.c, self.c, self.c)
+        # x = np.linspace(center[0] - self.c, center[0] + self.c, self.Nodes[0])
+        # y = np.linspace(center[1] - self.c, center[1] + self.c, self.Nodes[1])
+        # z = np.linspace(center[2] - self.c, center[2] + self.c, self.Nodes[2])
+
+        x = np.arange(self.grid_info["x_min"], self.grid_info["x_max"], self.c)
+        y = np.array([self.grid_info["y_transect"]])
+        z = np.array([self.grid_info["z_transect"]])
         X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
         self.GridPoints = np.vstack([X.ravel(), Y.ravel(), Z.ravel()]).T 
+        self.Nodes = (len(x), len(y), len(z)) ; self.Spacing = (self.c, self.c, self.c)
+
 
         # 6. Load data of the specified time step
         t = self.time_steps[0]  
@@ -1127,6 +1167,8 @@ class CoarseGraining:
         c_values = np.zeros_like(w_values)
         for i in range(len(w_values)): 
             c_values[i] = calc_cutoff(w_values[i], self.weight_function)
+
+        # present this as a table: 
         print(f" >>> Sweep of w/d = {w_d}")
         print(f" >>> Sweep of w = {w_values}")
         print(f" >>> Sweep of c = {c_values}")

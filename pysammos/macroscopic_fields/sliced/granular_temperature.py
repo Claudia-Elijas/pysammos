@@ -6,19 +6,30 @@ def calc_slices(y0, y1, dy, n=5):
     """
     Calculate the slice positions in the y-direction.
 
-    Parameters
-    ----------
+    Inputs
+    ------
     y0 : float
         The minimum y position of the domain.
     y1 : float
         The maximum y position of the domain.
     dy : float
         The slice height.
+    n : int, optional
 
-    Returns
+    Outputs
     -------
-    slices_y : np.ndarray
-        The y positions of the slices.
+    Z_k : np.ndarray
+        The center positions of the slices.
+    Z_k_m : np.ndarray
+        The sub-slice positions within each slice.
+    m : np.ndarray
+        The sub-slice indices.
+    
+    Notes
+    -----
+    The slices are defined from y0 to y1 with a height of dy. Each slice is further divided into 2n sub-slices for more detailed calculations.
+    Each slice center Z_k is calculated as the average of the top and bottom of the slice. The sub-slice positions Z_k_m are calculated based on the sub-slice indices m.
+
     """
   
     m = np.arange(1, 2 * n + 2)  # length 11

@@ -16,7 +16,7 @@ import numpy as np
 from numba import njit, prange, float64, float32, int64, int32
 from .utils import *
 
-
+ 
 # Build hash table
 def make_hash_table(func, max_value, sensitivity):
     """
