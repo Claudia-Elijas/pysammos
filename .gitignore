@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# Sphinx docs
+build/
+build.log
+*.doctree
+objects.inv
+searchindex.js
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated data
+*.h5
+*.vtkhdf
+*.log
