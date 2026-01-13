@@ -1,5 +1,5 @@
-Examples
-========
+Tutorials and Examples
+======================
 
 Here are some example usages of the code:
 

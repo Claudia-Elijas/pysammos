@@ -24,8 +24,6 @@ pysammos.macroscopic\_fields.sliced.granular\_temperature module
 Utils module
 ------------------------------------------------
 
-pysammos.macroscopic\_fields.sliced.utils module
-
 .. automodule:: pysammos.macroscopic_fields.sliced.utils
    :members:
    :undoc-members:

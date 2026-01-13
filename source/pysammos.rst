@@ -1,19 +1,10 @@
-
-.. automodule:: pysammos
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-
-Coarse Graining User Interface
+Coarse Graining User-interface
 ==============================
 
 .. automodule:: pysammos.coarse_graining
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 
 Subpackages
@@ -29,4 +20,6 @@ Subpackages
    pysammos.macroscopic_fields
    pysammos.neighbour_search
    pysammos.particle_phase
+   pysammos.post_averaging
    pysammos.spatial_weights
+

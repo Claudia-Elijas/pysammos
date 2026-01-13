@@ -23,9 +23,6 @@ pysammos.data\_handle.contacts.complete.branch\_vectors module
    :undoc-members:
    :show-inheritance:
 
-Coordination Number module
----------------------------
-
 pysammos.data\_handle.contacts.complete.coordination\_number module
 
 .. automodule:: pysammos.data_handle.contacts.complete.coordination_number

@@ -79,8 +79,6 @@ def granular_temperature(Z_k, Z_k_m, W, n, m, velocity_all, diam_all, density_al
         1. The Kim & Kamrin (2020) method, which uses a weighted average of the velocity fluctuations.
         2. The LAMMPS method, which uses the average of the squared velocity fluctuations.
     
-    References
-    ----------
     .. [1] Zhang & Kamrin (2017), Microscopic Description of the Granular Fluidity Field in Nonlocal Flow Modeling. Phys. Rev. Lett. 118, 058001
 
     """

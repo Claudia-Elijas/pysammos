@@ -8,6 +8,8 @@ pysammos.grid\_generation package
    :undoc-members:
    :show-inheritance:
 
+Regular Cuboid module
+---------------------
 
 .. automodule:: pysammos.grid_generation.regular_cuboid
    :members:

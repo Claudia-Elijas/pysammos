@@ -38,12 +38,12 @@ fact, the more, the *myriar*.
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    installation
-   examples
    modules
+   examples
    license
    
 
