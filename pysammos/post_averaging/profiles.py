@@ -30,17 +30,17 @@ class VerticalIntegrator:
     def get_position_data(self):
         
         if self.profile_dim == 'y':
-            dim_prof = self.ds['positions'].sel(xyz=1)
-            dim_1 = self.ds['positions'].sel(xyz=0)
-            dim_2 = self.ds['positions'].sel(xyz=2)
+            dim_prof = self.ds['positions'].sel(xyz=1) # y
+            dim_1 = self.ds['positions'].sel(xyz=0) # x
+            dim_2 = self.ds['positions'].sel(xyz=2) # z
         elif self.profile_dim == 'x':
-            dim_prof = self.ds['positions'].sel(xyz=0)
-            dim_1 = self.ds['positions'].sel(xyz=1)
-            dim_2 = self.ds['positions'].sel(xyz=2)
+            dim_prof = self.ds['positions'].sel(xyz=0) # x
+            dim_1 = self.ds['positions'].sel(xyz=1) # y
+            dim_2 = self.ds['positions'].sel(xyz=2) # z
         elif self.profile_dim == 'z':
-            dim_prof = self.ds['positions'].sel(xyz=2)
-            dim_1 = self.ds['positions'].sel(xyz=0)
-            dim_2 = self.ds['positions'].sel(xyz=1)
+            dim_prof = self.ds['positions'].sel(xyz=2) # z
+            dim_1 = self.ds['positions'].sel(xyz=0) # x
+            dim_2 = self.ds['positions'].sel(xyz=1) # y
         else:
             raise ValueError("profile_dim must be one of 'x', 'y', or 'z'")
         
@@ -51,7 +51,8 @@ class VerticalIntegrator:
     def get_area_factor(self): 
         '''
 
-        Calculate area element factor for normalization.
+        Calculate area element factor for normalization. 
+
         Inputs
         ------
         coords_1 : xarray.DataArray
@@ -65,16 +66,15 @@ class VerticalIntegrator:
 
         '''
 
-        # Get spacing in each direction
-        d_1 = np.mean(np.diff(np.unique(self.coords_1)))
-        d_2 = np.mean(np.diff(np.unique(self.coords_2)))
-
-        # Get domain size 
-        delta_1 = self.coords_1.max().item() - self.coords_1.min().item()
-        delta_2 = self.coords_2.max().item() - self.coords_2.min().item()
-
-        # Calculate area element
-        area_element = d_1 * d_2 / delta_1 / delta_2
+        factors = []
+        for coords in (self.coords_1, self.coords_2):
+            unique = np.unique(coords) # get unique coordinate values
+            if unique.size < 2:
+                continue  # collapsed dimension → ignore
+            d = np.mean(np.diff(unique)) # average spacing between unique coordinates
+            delta = unique.max() - unique.min() # total extent of the coordinate
+            factors.append(d / delta) # factor for this dimension
+        area_element = np.prod(factors) if factors else 1.0 # default to 1.0 if no factors
 
         return area_element
 

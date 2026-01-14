@@ -162,7 +162,6 @@ class VTKHDFWriter:
 
         else:
             raise ValueError(f"Unsupported value shape: {value.shape}")
-        print(arr_resh.shape)
 
         # ---- duplicate along collapsed axis ----
         if self.x_is_2d:

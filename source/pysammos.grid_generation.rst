@@ -1,3 +1,4 @@
+.. _grid_generation:
 Grid Generation
 ===============
 
