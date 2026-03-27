@@ -13,31 +13,66 @@ Find detailed documentation of the code here:
 
 https://Claudia-Elijas.github.io/pysammos/
 
-## Quick Installation:
+## Installation
 
-To install Pysammos in your local machine from GitHub, follow the steps below:
+There are several ways to install Pysammos, depending on your preferences and needs.
 
-1. Create a conda environment from the `pysammos_env.yml` file:
+### 1. Using the GitHub Repository
 
-   ```
-   `conda env create -f pysammos_env.yml`
-   ```
-2. Activate the environment:
+You can clone the Pysammos repository from GitHub and install it locally. This method allows you to access the latest version of the code and contribute to its development if you wish.
 
-   ```
-   conda activate Pysammos_Env
-   ```
-3. Install `pysammos` locally in the `./pysammos/` directory, which contains the code folder `pysammos` and other folders (e.g., `examples`). 
+Clone the repository and navigate to the project directory:
+```bash
+git clone https://github.com/Claudia-Elijas/pysammos.git
+cd pysammos
+```
 
-   ```
-   pip install -e .
-   ```
-Note that the -e allows you run Pysammos after editting the source code. You may ommit the -e if you are not going to be developing the code.
+Create a conda environment from the `pysammos_env.yml` file:
+```bash
+conda env create -f pysammos_env.yml
+```
 
-4. Now you are ready to run the example in `./examples/bedload_transport/`. Note that you will need to fetch the example data as described in the README.md file. There's the option to run it in a Jupyter notebook (`.ipynb`) or in a Python script (`.py`). To run the Python script, simply:
+Activate the environment:
+```bash
+conda activate Pysammos_Env
+```
 
-   ```
-   python3 ./examples/bedload_transport/compute_CG.py
-   ```
+Install the package in editable mode:
+```bash
+pip install -e .
+```
+
+> **Note:** The `-e` flag installs the package in editable mode, meaning any changes you make to the source code will be reflected immediately without needing to reinstall. You may omit `-e` if you are not developing the code.
+
+### 2. Using pip *(coming soon)*
+
+Pysammos will be available on PyPI soon. Once available, you can install it with:
+```bash
+pip install --upgrade pip
+pip install pysammos
+```
+
+---
+
+## Quick Start 
+
+Once installed, you are ready to run the examples. Note that you will need to download the example data separately — see the [Examples README](examples/README.rst) for instructions.
+
+Navigate to the bedload transport example:
+```bash
+cd examples/bedload_transport
+```
+
+Run as a Python script:
+```bash
+python3 compute_CG.py
+```
+
+Or open the Jupyter notebook:
+```bash
+jupyter notebook compute_CG.ipynb
+```
+
+---
 
 
