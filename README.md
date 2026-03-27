@@ -56,7 +56,7 @@ pip install pysammos
 
 ## Quick Start 
 
-Once installed, you are ready to run the examples. Note that you will need to download the example data separately — see the [Examples README](examples/README.rst) for instructions.
+Once installed, you are ready to run the examples. Note that you will need to download the example data separately — see the [Examples README](examples/README.md) for instructions.
 
 Navigate to the bedload transport example:
 ```bash
