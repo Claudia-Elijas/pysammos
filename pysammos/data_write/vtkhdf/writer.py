@@ -78,6 +78,8 @@ class VTKHDFWriter:
         if self.x_is_2d or self.y_is_2d or self.z_is_2d:
             self.is_2d = True # Flag indicating 2D data
             self._promote_2d_to_thin_3d() # Promote 2D to thin 3D for VTK compatibility with ParaView
+        else:
+            self.is_2d = False # Flag indicating 3D data
 
     def _promote_2d_to_thin_3d(self):
 

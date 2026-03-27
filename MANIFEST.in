@@ -1,0 +1,12 @@
+# Essential project files
+include README.rst
+include LICENSE
+include requirements.txt
+
+# Example scripts and notebooks only (no data)
+recursive-include examples *.py *.ipynb *.rst
+
+# Exclude clutter
+global-exclude __pycache__
+global-exclude *.pyc
+global-exclude .DS_Store

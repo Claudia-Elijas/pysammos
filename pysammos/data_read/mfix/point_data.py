@@ -210,7 +210,6 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
     Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.float32) if Particle_i_string else None
     Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.float32) if Particle_j_string else None
     Contact_ij = get_point_data_variable(Contact_ij_string, poly_output).astype(np.float32) if Contact_ij_string else None
-    print("type of output (e.g., inter, float etc, 64, 32): ", F_ij.dtype, Particle_i.dtype, Particle_j.dtype, Contact_ij.dtype)
 
     # only to benchmark with JP's contact data reader
     # poly_output = InputConnection.GetOutput().GetCellData(); print("Contact Data loaded as Cell Data")
@@ -219,7 +218,6 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
     # Particle_i = contact_ids[:, 0]
     # Particle_j = contact_ids[:, 1]
     # Contact_ij = vtk_to_numpy(poly_output.GetArray(Contact_ij_string)).astype(np.float32)
-
 
     return Particle_i, Particle_j, F_ij, Contact_ij
 

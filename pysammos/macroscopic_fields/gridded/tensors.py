@@ -72,7 +72,7 @@ Performance Notes
 """
 
 import numpy as np
-from numba import njit, prange, int32, float32, float64
+from numba import njit, prange, int32, float32, float64, types
 
 
 # ======================================================================
@@ -283,7 +283,7 @@ def tensor_monodisperse(weights, visibility, grid_indices, Data1, Data2):
 # ======================================================================
 # Kinetic Tensor coarse-graining functions
 # ======================================================================
-@njit(float64[:,:,:,:](float64[:],int32[:], int32[:], float64[:,:], float32[:,:], float32[:], float64[:,:], float64[:,:,:], int32[:]), parallel=True)
+@njit(types.UniTuple(float64[:,:,:,:], 2)(float64[:],int32[:], int32[:], float64[:,:], float32[:,:], float32[:], float64[:,:], float64[:,:,:], int32[:]), parallel=True)
 def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices, displacement,
                                      Particle_Velocity, Particle_Mass, 
                                      Velocity_Field, Velocity_Field_Gradient, 
@@ -335,7 +335,9 @@ def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices,
     Outputs
     -------
     KineticTensor : (N_points, N_phases + 1, 3, 3) float64 array
-        Kinetic stress tensor per grid point and phase. Index 0 is total over phases.
+        Kinetic stress tensor per grid point and phase. Index 0 is total over phases. No interpolation is applied to the velocity fluctuations for this tensor.
+    FluctuationTensor : (N_points, N_phases + 1, 3, 3) float64 array
+        Fluctuation tensor for granular temperature calculation. Interpolation is applied to the velocity fluctuations for this tensor.
     """
     
     Ngridpoints = len(grid_indices) - 2
@@ -345,16 +347,20 @@ def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices,
             Nphases = phase_array[i]
     Nphases += 1
 
-    KineticTensor = np.zeros((Ngridpoints, Nphases + 1, 3, 3), dtype=np.float64)
+    KineticTensor = np.zeros((Ngridpoints, Nphases + 1, 3, 3), dtype=np.float64) # kinetic tensor (no-interpolation)
+    FluctuationTensor = np.zeros((Ngridpoints, Nphases + 1, 3, 3), dtype=np.float64) # fluctuation tensor for Granular Temp. calc (interpolation)
 
+    # >> Loop over visible particles for each grid point
     for g in prange(Ngridpoints):
         start = grid_indices[g]
         end = grid_indices[g + 1]
         Velocity_Field_g = Velocity_Field[g]
         GradV_g = Velocity_Field_Gradient[g]
 
-        phase_tensor = np.zeros((Nphases, 3, 3), dtype=np.float64)
+        phase_kinetic_tensor = np.zeros((Nphases, 3, 3), dtype=np.float64)
+        phase_fluctuation_tensor = np.zeros((Nphases, 3, 3), dtype=np.float64)
 
+        # >> Loop over visible particles for this grid point
         for i in range(start, end):
             idx = visibility[i]
             phase = phase_array[idx]
@@ -364,43 +370,43 @@ def kinetic_tensor_interpolation_polydisperse(weights, visibility, grid_indices,
                 w = weights[i]
                 v_particle = Particle_Velocity[idx]
                 m_particle = Particle_Mass[idx]
-
-                # interpolated_velocity = np.zeros(3, dtype=np.float64)
-                # for j in range(3):
-                #     interpolated_velocity[j] = Velocity_Field_g[j]
-                #     for k in range(3):
-                #         interpolated_velocity[j] += r_ri[k] * GradV_g[k, j]
     
+                # >> Interpolate velocity (for granular temperature calc ONLY)
                 interpolated_velocity = np.zeros(3, dtype=np.float64)
                 for j in range(3):
                     interpolated_velocity_j = Velocity_Field_g[j]
                     for k in range(3):
-                        interpolated_velocity_j += r_ri[k] * GradV_g[k, j]
+                        interpolated_velocity_j -=  GradV_g[j, k] * r_ri[k]  
                     interpolated_velocity[j] = interpolated_velocity_j
 
-                velocity_fluctuation = np.zeros(3, dtype=np.float64)
+                # >> Velocity fluctuation
+                v_fluc_kin = np.zeros(3, dtype=np.float64) ; v_fluc_tem = np.zeros(3, dtype=np.float64)
                 for j in range(3):
-                    velocity_fluctuation[j] = v_particle[j] - interpolated_velocity[j]
+                    v_fluc_kin[j] = v_particle[j] - Velocity_Field_g[j]      # for kinetic tensor (no interpolation)
+                    v_fluc_tem[j] = v_particle[j] - interpolated_velocity[j] # for granular temperature (interpolation)
 
                 for j in range(3):
                     for k in range(3):
-                        phase_tensor[phase, j, k] += m_particle * velocity_fluctuation[j] * velocity_fluctuation[k] * w
+                        phase_kinetic_tensor[phase, j, k] += m_particle * v_fluc_kin[j] * v_fluc_kin[k] * w # for kinetic tensor
+                        phase_fluctuation_tensor[phase, j, k] += m_particle * v_fluc_tem[j] * v_fluc_tem[k] * w # for granular temperature
 
         for p in range(Nphases):
             for j in range(3):
                 for k in range(3):
-                    KineticTensor[g, p + 1, j, k] = phase_tensor[p, j, k]
-                    KineticTensor[g, 0, j, k] += phase_tensor[p, j, k]
+                    KineticTensor[g, p + 1, j, k] = phase_kinetic_tensor[p, j, k]
+                    KineticTensor[g, 0, j, k] += phase_kinetic_tensor[p, j, k]
+                    FluctuationTensor[g, p + 1, j, k] = phase_fluctuation_tensor[p, j, k]
+                    FluctuationTensor[g, 0, j, k] += phase_fluctuation_tensor[p, j, k]
 
-    return KineticTensor
+    return KineticTensor, FluctuationTensor
 
 # kinetic tensor for monodisperse case
-@njit(float64[:,:,:](float64[:],int32[:], int32[:], float64[:,:], float32[:,:], float32[:], float64[:,:], float64[:,:,:]),parallel=True)
+@njit(types.UniTuple(float64[:,:,:], 2)(float64[:],int32[:], int32[:], float64[:,:], float32[:,:], float32[:], float64[:,:], float64[:,:,:]),parallel=True)
 def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices, displacement,
                                              Particle_Velocity, Particle_Mass, 
                                              Velocity_Field, Velocity_Field_Gradient):
     
-    """
+    r"""
     Compute the kinetic stress tensor for a monodisperse system by interpolating
     particle velocity fluctuations relative to a continuum velocity field.
 
@@ -442,20 +448,26 @@ def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices,
     Outputs
     -------
     KineticTensor : (N_points, 3, 3) float64 array
-        Kinetic stress tensor per grid point.
+        Kinetic stress tensor per grid point. No interpolation is applied to the velocity fluctuations for this tensor.
+    FluctuationTensor : (N_points, 3, 3) float64 array
+        Fluctuation tensor for granular temperature calculation. Interpolation is applied to the velocity fluctuations for this tensor.
+    
     """
 
     Ngridpoints = len(grid_indices) - 2
-    KineticTensor = np.zeros((Ngridpoints, 3, 3), dtype=np.float64)  # Only one tensor per grid point
+    KineticTensor = np.zeros((Ngridpoints, 3, 3), dtype=np.float64)  # kinetic tensor (no-interpolation)
+    FluctuationTensor = np.zeros((Ngridpoints, 3, 3), dtype=np.float64) # fluctuation tensor for Granular Temp. calc (interpolation)
 
     for g in prange(Ngridpoints):
         start = grid_indices[g]
         end = grid_indices[g + 1]
-        tensor = np.zeros((3, 3))
+        tensor_kin = np.zeros((3, 3))
+        tensor_tem = np.zeros((3, 3))
 
         Velocity_Field_g = Velocity_Field[g]
         GradV_g = Velocity_Field_Gradient[g]
 
+        # >> Loop over visible particles for this grid point
         for i in range(start, end):
             idx = visibility[i]
             r_ri = displacement[i]
@@ -463,30 +475,30 @@ def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices,
             v_particle = Particle_Velocity[idx]
             m_particle = Particle_Mass[idx]
 
-            # Interpolate velocity
-            # interpolated_velocity = Velocity_Field_g.copy()
-            # for j in range(3):
-            #     for k in range(3):
-            #         interpolated_velocity[j] += r_ri[k] * GradV_g[k, j]
+            # >> Interpolate velocity (for granular temperature calc ONLY)
             interpolated_velocity = np.zeros(3, dtype=np.float64)
             for j in range(3):
                 interpolated_velocity_j = Velocity_Field_g[j]
                 for k in range(3):
-                    interpolated_velocity_j += r_ri[k] * GradV_g[k, j]
+                    interpolated_velocity_j -= GradV_g[j, k] * r_ri[k] 
                 interpolated_velocity[j] = interpolated_velocity_j
-
-            # Velocity fluctuation
-            v_fluc = np.zeros(3)
+            
+            # >> Velocity fluctuation
+            v_fluc_kin = np.zeros(3) ; v_fluc_tem = np.zeros(3)
             for j in range(3):
-                v_fluc[j] = v_particle[j] - interpolated_velocity[j]
-
-            # Outer product for tensor
+                v_fluc_kin[j] = v_particle[j] - Velocity_Field_g[j]      # for kinetic tensor (no interpolation)
+                v_fluc_tem[j] = v_particle[j] - interpolated_velocity[j] # for granular temperature (interpolation)
+                
+            # >> Outer product for tensor
             for j in range(3):
                 for k in range(3):
-                    tensor[j, k] += m_particle * v_fluc[j] * v_fluc[k] * w
+                    tensor_kin[j, k] += m_particle * v_fluc_kin[j] * v_fluc_kin[k] * w # for kinetic tensor
+                    tensor_tem[j, k] += m_particle * v_fluc_tem[j] * v_fluc_tem[k] * w # for granular temperature
 
+        # >> Store results in output arrays
         for j in range(3):
             for k in range(3):
-                KineticTensor[g, j, k] = tensor[j, k]
+                KineticTensor[g, j, k] = tensor_kin[j, k] # for kinetic tensor
+                FluctuationTensor[g, j, k] = tensor_tem[j, k] # for granular temperature
 
-    return KineticTensor
+    return KineticTensor, FluctuationTensor

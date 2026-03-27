@@ -88,7 +88,7 @@ def calc_cutoff(w, function):
     elif function == 'HeavySide':
         c = 1*w
     else:
-        raise ValueError(f"Unsupported function type: {function}")
+        raise ValueError(f"Unsupported function type: {function}.The name of the kernel function. Must be one of: Lucy, Gaussian, or HeavySide.")
 
     return c
 

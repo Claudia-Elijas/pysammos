@@ -36,7 +36,7 @@ CG = CoarseGraining(
     vtk_hdf_output=cfg["vkthdf_output"],
     h5_output=cfg["h5_output"],
 
-                    ) 
+                    )  
 print("  ") ; print("-------------------- CoarseGraining class initialised --------------------")
                         
 # -------------------  COARSE-GRAINING WORK FLOW  ------------------------- # 

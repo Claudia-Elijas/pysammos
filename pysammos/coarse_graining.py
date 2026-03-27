@@ -6,6 +6,7 @@ computing macroscopic fields, handling particle phases, and writing output data.
 
 
 # import standard libraries ----------------------------------------------
+from matplotlib.pyplot import grid
 from numba import get_num_threads
 import numpy as np
 import os
@@ -86,6 +87,9 @@ class CoarseGraining:
         Whether to output H5 files. Default is True.
     search_sampling_factor : int, optional
         Factor to control the sampling rate for neighbor search. It is the factor that divides the first significant figure of the search space. Default is 1000.
+        For a roubust benchmarking at different w/d ratios, use a higher value like 10'000. 
+    velocity_gradient_method : str, optional
+        Method to calculate velocity gradient. It can be either "finite_difference" or "least_squares". Default is "finite_difference". The "finite_difference" method calculates the velocity gradient using finite difference approximations, while the "least_squares" method uses a least squares approach to fit a velocity gradient tensor to the velocity field. 
 
     
     """
@@ -99,7 +103,8 @@ class CoarseGraining:
                  ignore_phases:bool,
                  vkthdf_output:bool = True,
                  h5_output:bool = True,
-                 search_sampling_factor:int = 1000):
+                 search_sampling_factor:int = 1000,
+                 velocity_gradient_method:str = "finite_difference"):
        
         # data info
         self.particle_path = particle_path
@@ -125,7 +130,10 @@ class CoarseGraining:
             print(f"Output path already exists: {self.output_path}")
         self.vkthdf_output = vkthdf_output
         self.h5_output = h5_output
+        # particel search sampling factor for the weight function hash table search
         self.search_sampling_factor = search_sampling_factor
+        # interpolation method to calculate the velocity fluctuation  
+        self.velocity_gradient_method = velocity_gradient_method # "finite_difference" or "least_squares"
 
     def data_sampling(self)-> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -758,25 +766,43 @@ class CoarseGraining:
             MomentumDens_CG = dispatcher.vector(W_p, part_ind_p, grid_ind_p, Velocity, Mass,  Phase_Array_p, self.cg_calc_mode)
             print('  momentum density done')
 
-        # velocity and kinetic tensor    
+        # velocity and kinetic tensor  
+        # Check what velocity gradient method is specified
+        if self.velocity_gradient_method not in ["finite_difference", "least_squares"]:
+            raise ValueError("Invalid velocity_gradient_method input in CoarseGraining class: choose from 'finite_difference' or 'least_squares'.")  
         # Check if we have phase information
         if self.cg_calc_mode == 'Monodisperse':  # Monodisperse case
             if "velocity" in self.fields_to_compute:
                 Velocity_CG = MomentumDens_CG / DensityMixture_CG[:, np.newaxis] # Velocity CG
+                print('  velocity done')
+
             if "velocity_gradient" in self.fields_to_compute:
-                GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG, self.Nodes, self.Spacing) # Velocity Gradient
+                if self.velocity_gradient_method == "least_squares":
+                    GradV_CG = secondary.compute_velgrad_leastsquares(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG) # Velocity Gradient  least squares
+                elif self.velocity_gradient_method == "finite_difference":
+                    GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG, self.Nodes, self.Spacing) # Velocity Gradient finite difference
+                print('  velocity gradient done')
+
             if "kinetic_tensor" in self.fields_to_compute:
-                KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG, GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
+                KineticTensor_CG, FluctuationTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG, GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
+                print('  kinetic tensor done')
+
         else:  # Polydisperse case
             if "velocity" in self.fields_to_compute:
                 Velocity_CG = MomentumDens_CG / DensityMixture_CG[..., np.newaxis] # Velocity CG
                 print('  velocity done')
+
             if "velocity_gradient" in self.fields_to_compute:
-                GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG[:,0,:], self.Nodes, self.Spacing) # Velocity Gradient
+                if self.velocity_gradient_method == "least_squares":
+                    GradV_CG = secondary.compute_velgrad_leastsquares(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:,0,:]) # Velocity Gradient  least squares
+                elif self.velocity_gradient_method == "finite_difference":
+                    GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG[:,0,:], self.Nodes, self.Spacing) # Velocity Gradient
                 print('  velocity gradient done')
+
             if "kinetic_tensor" in self.fields_to_compute:
-                KineticTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:, 0, :], GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
+                KineticTensor_CG, FluctuationTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:, 0, :], GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
                 print('  kinetic tensor done')
+
 
         # contact tensor
         if "contact_tensor" in self.fields_to_compute:
@@ -823,21 +849,12 @@ class CoarseGraining:
 
         # granular temperature
         if "granular_temperature" in self.fields_to_compute:
-            GranularTemperature_xyz = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG) 
-            GranularTemperature_x = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG[...,0,0]) 
-            GranularTemperature_y = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG[...,1,1]) 
-            GranularTemperature_z = secondary.compute_granular_temperature(DensityMixture_CG, KineticTensor_CG[...,2,2]) 
+            GranularTemperature_xyz = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG) 
+            GranularTemperature_x = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG[...,0,0]) 
+            GranularTemperature_y = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG[...,1,1]) 
+            GranularTemperature_z = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG[...,2,2]) 
             print('  granular temp done')
-        if "granular_temperature_alternatives" in self.fields_to_compute:
-            GranularTemperature_KimKamrin20, GranularTemperature_LAMMPS = sliced.granular_temperature(dy=self.Spacing[1], 
-                                                                                                    y0=self.GridPoints[:,1].min(),
-                                                                                                    y1=self.GridPoints[:,1].max(),
-                                                                                                    velocity_all=Velocity, 
-                                                                                                    diam_all=Diameter, 
-                                                                                                    density_all=Density, 
-                                                                                                    mass_all=Mass, 
-                                                                                                    particle_positions_all=Position)
-    
+
         # shear rate tensor 
         if "shear_rate_tensor" in self.fields_to_compute:
             # 2d - grid
@@ -1114,7 +1131,7 @@ class CoarseGraining:
         cores = get_num_threads()
         print(f">>> Number of cores used:  {cores}")
 
-    def sweep_CG_widths(self, w_d:np.ndarray):
+    def sweep_CG_widths(self, w_d:np.ndarray, center:np.ndarray):
 
         """  
         Perform a sweep over different coarse-graining resolutions (w values) for a specified time step.
@@ -1125,10 +1142,13 @@ class CoarseGraining:
         -------
         w_d : np.ndarray
             An array of w/d values to sweep over, where w is the coarse-graining half-width and d is the characteristic particle diameter measure of choice
+        center : np.ndarray
+            A 3-element array specifying the center point around which to generate the grid of points.
     
                
         """      
         print("Starting coarse-graining resolution sweep...")
+        
         # 1. Sample initial particle data
         bounds, diameter, density, mass, global_id = self.data_sampling()
 
@@ -1141,22 +1161,18 @@ class CoarseGraining:
         self.Phase_Array = None
     
         # 4. Set appropriate resolution
-        self.set_resolution(self.d43)
+        self.set_resolution(self.d43) ; print("CG range: c = ", self.c)
 
-        # 5. Generate grid of 9 points around the center of the domain
-        # center = bounds[:,0] + 0.5 * (bounds[:,1] - bounds[:,0])
-        # self.Nodes = (2,2,2) ; self.Spacing = (self.c, self.c, self.c)
-        # x = np.linspace(center[0] - self.c, center[0] + self.c, self.Nodes[0])
-        # y = np.linspace(center[1] - self.c, center[1] + self.c, self.Nodes[1])
-        # z = np.linspace(center[2] - self.c, center[2] + self.c, self.Nodes[2])
-
-        x = np.arange(self.grid_info["x_min"], self.grid_info["x_max"], self.c)
-        y = np.array([self.grid_info["y_transect"]])
-        z = np.array([self.grid_info["z_transect"]])
-        X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
-        self.GridPoints = np.vstack([X.ravel(), Y.ravel(), Z.ravel()]).T 
-        self.Nodes = (len(x), len(y), len(z)) ; self.Spacing = (self.c, self.c, self.c)
-
+        # 5. Generate (3D) grid
+        n = 3 # Number of points per direction
+        half = n // 2  
+        offsets = (np.arange(n) - half) * self.c   # [-7c, ..., 0, ..., +7c]
+        grid = np.meshgrid(offsets, offsets, offsets, indexing="ij")
+        self.GridPoints =  np.stack(grid, axis=-1).reshape(-1, 3) + center 
+        self.Nodes = (n,n,n) ; self.Spacing = (self.c, self.c, self.c)
+        print(f" >>> Grid generated with {self.GridPoints.shape[0]} points.")
+        idx = np.where(np.all(np.isclose(self.GridPoints, center, atol=1e-8), axis=1))[0]
+        print(f" >>> Benchmark point index in grid: {idx[0]} at position {self.GridPoints[idx[0]]}")
 
         # 6. Load data of the specified time step
         t = self.time_steps[0]  
@@ -1167,23 +1183,19 @@ class CoarseGraining:
         c_values = np.zeros_like(w_values)
         for i in range(len(w_values)): 
             c_values[i] = calc_cutoff(w_values[i], self.weight_function)
-
-        # present this as a table: 
-        print(f" >>> Sweep of w/d = {w_d}")
-        print(f" >>> Sweep of w = {w_values}")
-        print(f" >>> Sweep of c = {c_values}")
+        c_d = c_values / self.d43 # added to match JP's benchmark models convention
 
         # 8. Iterate over c values
         for i in range(len(c_values)):
             self.c = c_values[i]
-            print(f"       -> Processing w/d = {w_d[i]:.2f}")
+            print(f"       -> Processing c/d = {c_d[i]:.4f})") #print(f"       -> Processing w/d = {w_d[i]:.2f}")
             cg_fields_t = self._fields_single_time(data_t)
                 
             # write .h5 files 
             manager = H5XarrayManager(f"{self.output_path}w_sweep_{self.weight_function}.h5") 
             if i == 0: # Only add positions and phases for the first time step
                 manager.add_positions(self.GridPoints)
-            manager.update_h5py_file(cg_fields_t, dim_index=i, dim_value=w_values[i], dim_name="w")
-        
+            manager.update_h5py_file(cg_fields_t, dim_index=i, dim_value=c_values[i], dim_name="w") # added to match JP's convention #manager.update_h5py_file(cg_fields_t, dim_index=i, dim_value=w_values[i], dim_name="w")
+
         
             print("Coarse-graining resolution sweep completed.")

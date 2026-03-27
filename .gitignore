@@ -17,3 +17,8 @@ searchindex.js
 *.vtkhdf
 *.log
 *.vtp
+
+# Large data directories
+examples/performance_test/
+examples/*/VTU/
+examples/*/DEM_data/

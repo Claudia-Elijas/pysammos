@@ -1,0 +1,1 @@
+Example of application of Pysammos to an erodible column simulation in MFiX. The provided DEM data consists only of 1 time step. However, Pysammos post-process data for 145 time steps is provided in the `Pysammos_data_paper` folder. This data is used to run the `visualisation_erodible_bed.ipynb` notebook, as it involves time averaging.

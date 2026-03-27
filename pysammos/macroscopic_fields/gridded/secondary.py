@@ -32,6 +32,112 @@ from numba import njit, prange
 
 # ####################################################################################
 
+ 
+# KERNEL CONSISTENT GRADIENTS
+@njit
+def compute_velgrad_leastsquares(weights, visibility, grid_indices, displacement, Particle_Velocity, Particle_Mass, Velocity_Field):
+    
+    r'''
+    Compute the velocity gradient tensor at grid points using a least-squares approach based on particle contributions. 
+
+    Assuming that the velocity field can be locally approximated as a linear function of position around each grid point, the method minimizes the error in the velocity approximation for particles contributing to that grid point. 
+    The velocity field at a particle position is approximated as:
+
+
+    :math:`\mathbf{V}(\mathbf{r}_i(t), t) := \mathbf{V}(\mathbf{r}, t) - \nabla \mathbf{V}(\mathbf{r}, t)\cdot(\mathbf{r}-\mathbf{r}_i)`
+
+    The velocity gradient tensor is then obtained by minimizing the error function:
+
+    .. math::
+
+        \varepsilon(\mathbf{G}(\mathbf{r})) :=
+        \sum_i \Psi m_i
+        \left|
+        \mathbf{v}_i - \mathbf{V}(\mathbf{r}, t)
+        + \mathbf{G}(\mathbf{r}) \cdot (\mathbf{r} - \mathbf{r}_i)
+        \right|^2
+
+    For which the optimal gradient tensor is given by:
+
+    .. math::
+
+        \mathbf{G}(\mathbf{r}) =
+        \left(
+        \sum_i \Psi m_i
+        (\mathbf{r} - \mathbf{r}_i) \otimes (\mathbf{r} - \mathbf{r}_i)
+        \right)^{-1}
+        \left(
+        \sum_i \Psi m_i
+        (\mathbf{v}_i - \mathbf{V}(\mathbf{r}, t))
+        \times (\mathbf{r} - \mathbf{r}_i)
+        \right)
+
+
+    Inputs
+    ------
+    weights : (N,) ndarray
+        Coarse-graining weights for each particle contribution. 
+    visibility : (N,) ndarray
+        Indices of particles contributing to each grid point, flattened.
+    grid_indices : (G+1,) ndarray
+        Start and end indices in `visibility` for each grid point, where G is the number of grid points.
+    displacement : (N, 3) ndarray
+        Displacement vectors from grid points to particles for each contribution.   
+    Particle_Velocity : (N, 3) ndarray
+        Velocities of particles for each contribution.
+    Particle_Mass : (N,) ndarray
+        Masses of particles for each contribution.
+    Velocity_Field : (G, 3) ndarray
+        Velocity field at grid points, used to compute relative velocities.
+
+    Outputs 
+    -------
+    GradV : (G, 3, 3) ndarray
+        Velocity gradient tensor at each grid point.
+    '''
+
+    Ngrid = len(grid_indices) - 2
+    GradV = np.zeros((Ngrid, 3, 3), dtype=np.float64)
+
+    for g in range(Ngrid):
+        start = grid_indices[g]
+        end   = grid_indices[g + 1]
+
+        A = np.zeros((3, 3), dtype=np.float64)
+        B = np.zeros((3, 3), dtype=np.float64)
+
+        v_g = Velocity_Field[g]
+
+        for i in range(start, end):
+            idx = visibility[i]
+            r   = displacement[i]
+            w   = weights[i]
+            m   = Particle_Mass[idx]
+
+            dv = -(Particle_Velocity[idx] - v_g) # relative velocity from grid to particle, with sign convention for gradient calculation
+
+            for a in range(3):
+                for b in range(3):
+                    A[a, b] += m * w * r[a] * r[b]
+                    B[a, b] += m * w * dv[a] * r[b]
+
+        # Solve A G = B
+        # Add tiny regularization if needed
+        detA = (
+            A[0,0]*(A[1,1]*A[2,2] - A[1,2]*A[2,1])
+          - A[0,1]*(A[1,0]*A[2,2] - A[1,2]*A[2,0])
+          + A[0,2]*(A[1,0]*A[2,1] - A[1,1]*A[2,0])
+        )
+
+        if np.isclose(detA, 0.0):
+            # leave gradient zero if ill-conditioned
+            pass
+        else:
+            GradV[g] = np.linalg.solve(A, B)
+
+    return GradV
+
+
 # BULK VECTOR GRADIENT (with physical units)
 def compute_vector_bulk_gradient(
     Velocity_bulk_CG: np.ndarray,

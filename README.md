@@ -1,6 +1,6 @@
 # Pysammos
 
-**Pysammos** is a Python package to compute macroscopic continuum fields from discrete element method simulations.
+Pysammos is a Python package designed with the outlook of providing a user-friendly CG workflow to post-process data form the MFiX open-source DEM software, and provide a streamlined visualisation in widely-used open-source visualisation software, Paraview. This code package provides flexibility in the output variable selection, mesh parametrisation, and data analysis of the obtained results. Pysammmos is also designed to invite geoscientists to incorporate DEM in their research, as many processes studied in geosciences involve discrete elements that are currently modelled as a continuum could benefit from a discrete insight. Similarly, to enhance DEM analysis by extracting continuum fields without the need to handle inner-level source code. The efficient algorithmic complexity exhibited by Pysammos avoids the requirement of extensive computational resources, making it a programme that can be ran on at the same time as other processes.
 
 This library is distributed under the GNU General Public License v3.0. Contributions are welcome, and can be made via pull requests on the GitHub repository.
 
@@ -27,8 +27,4 @@ This library is distributed under the GNU General Public License v3.0. Contribut
    python3 ./examples/bedload_transport/compute_CG.py
    ```
 
-## Documentation:
 
-I have started creating documentation html from the docstrings in my code, you can find it in:
-
-`./build/html/index.html`
