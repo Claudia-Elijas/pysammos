@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grid Generation &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Macroscopic Fields" href="pysammos.macroscopic_fields.html" />
+    <link rel="prev" title="Vtkhdf" href="pysammos.data_write.vtkhdf.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Pysammos Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User-interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.html">Data Read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.html">Data Write</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Grid Generation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-pysammos.grid_generation.regular_cuboid">Regular Cuboid module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html">Particle Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.post_averaging.html">Post Averaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html">Spatial Weights</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Pysammos Documentation</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.html">Coarse Graining User-interface</a></li>
+      <li class="breadcrumb-item active">Grid Generation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pysammos.grid_generation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="grid-generation">
+<span id="id1"></span><h1>Grid Generation<a class="headerlink" href="#grid-generation" title="Link to this heading"></a></h1>
+<p>pysammos.grid_generation package</p>
+<section id="module-pysammos.grid_generation.regular_cuboid">
+<span id="regular-cuboid-module"></span><span id="module-pysammos.grid_generation"></span><h2>Regular Cuboid module<a class="headerlink" href="#module-pysammos.grid_generation.regular_cuboid" title="Link to this heading"></a></h2>
+<p>This module provides the <a class="reference internal" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation" title="pysammos.grid_generation.regular_cuboid.Grid_Generation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Grid_Generation</span></code></a> class for generating regular cuboid grids
+for coarse graining in DEM simulations. It supports automatic and custom grid range
+determination, and can generate 1D, 2D, or 3D grids with user-specified axes and resolution.</p>
+<p>Key Methods</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt><code class="xref py py-meth docutils literal notranslate"><span class="pre">Automatic_Range()</span></code></dt><dd><p>Determines grid ranges automatically based on particle bounds and smoothing length.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="xref py py-meth docutils literal notranslate"><span class="pre">Create_grid_points()</span></code></dt><dd><p>Static method to generate grid points and nodes for 1D, 2D, or 3D grids.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="xref py py-meth docutils literal notranslate"><span class="pre">Generate()</span></code></dt><dd><p>Main method to generate the grid using either automatic or custom ranges.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<dl class="py class">
+<dt class="sig sig-object py" id="pysammos.grid_generation.regular_cuboid.Grid_Generation">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pysammos.grid_generation.regular_cuboid.</span></span><span class="sig-name descname"><span class="pre">Grid_Generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smoothing_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_bounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_particle_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_grid_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_grid_transects</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/grid_generation/regular_cuboid.html#Grid_Generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>smoothing_length<span class="classifier">float</span></dt><dd><p>Smoothing length (kernel size) for grid spacing calculations.</p>
+</dd>
+<dt>particle_bounds<span class="classifier">ndarray of shape (3, 2)</span></dt><dd><p>Minimum and maximum coordinates for the particle domain along x, y, z.</p>
+</dd>
+<dt>grid_dimensions<span class="classifier">int</span></dt><dd><p>Dimensionality of the grid: 1, 2, or 3.</p>
+</dd>
+<dt>grid_axes<span class="classifier">str</span></dt><dd><p>Axes along which the grid will be generated.
+For 1D: 'x', 'y', or 'z'.
+For 2D: 'xy', 'xz', or 'yz'.
+For 3D: 'xyz' (implicitly used).</p>
+</dd>
+<dt>max_particle_diameter<span class="classifier">float</span></dt><dd><p>Maximum particle diameter used for domain buffer calculations.</p>
+</dd>
+<dt>automatic_range<span class="classifier">bool</span></dt><dd><p>If True, automatically determine the grid range with domain padding.</p>
+</dd>
+<dt>custom_grid_range<span class="classifier">tuple of float or None</span></dt><dd><p>Custom range (x0, x1, y0, y1, z0, z1) if <cite>automatic_range</cite> is False.</p>
+</dd>
+<dt>custom_grid_transects<span class="classifier">tuple of float or None</span></dt><dd><p>Custom transect positions (x_transect, y_transect, z_transect)
+if <cite>automatic_range</cite> is False.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">grid_gen</span> <span class="o">=</span> <span class="n">Grid_Generation</span><span class="p">(</span><span class="n">smoothing_length</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">particle_bounds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span>
+<span class="gp">... </span>                            <span class="n">grid_dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">grid_axes</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">max_particle_diameter</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">automatic_range</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">custom_grid_range</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="gp">... </span>                            <span class="n">custom_grid_transects</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">Nodes</span><span class="p">,</span> <span class="n">Spacing</span><span class="p">,</span> <span class="n">Ranges_Length</span> <span class="o">=</span> <span class="n">grid_gen</span><span class="o">.</span><span class="n">Generate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Grid Points:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">GridPoints</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nodes:&quot;</span><span class="p">,</span> <span class="n">Nodes</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Spacing:&quot;</span><span class="p">,</span> <span class="n">Spacing</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ranges Length:&quot;</span><span class="p">,</span> <span class="n">Ranges_Length</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pysammos.grid_generation.regular_cuboid.Grid_Generation.Automatic_Range">
+<span class="sig-name descname"><span class="pre">Automatic_Range</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/grid_generation/regular_cuboid.html#Grid_Generation.Automatic_Range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Automatic_Range" title="Link to this definition"></a></dt>
+<dd><p>Automatically determine the grid coordinate ranges
+based on domain bounds and kernel size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</span></p>
+</dd>
+</dl>
+<section id="id2">
+<h4>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>x_range<span class="classifier">list of float</span></dt><dd><p>Minimum and maximum x-coordinates for the grid.</p>
+</dd>
+<dt>y_range<span class="classifier">list of float</span></dt><dd><p>Minimum and maximum y-coordinates for the grid.</p>
+</dd>
+<dt>z_range<span class="classifier">list of float</span></dt><dd><p>Minimum and maximum z-coordinates for the grid.</p>
+</dd>
+</dl>
+</section>
+<section id="outputs">
+<h4>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>x_range<span class="classifier">list of float</span></dt><dd><p>Minimum and maximum x-coordinates for the grid.</p>
+</dd>
+<dt>y_range<span class="classifier">list of float</span></dt><dd><p>Minimum and maximum y-coordinates for the grid.</p>
+</dd>
+<dt>z_range<span class="classifier">list of float</span></dt><dd><p>Minimum and maximum z-coordinates for the grid.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The method offsets the bounds by <span class="math notranslate nohighlight">\(2.5\,c + 0.5\,d_\mathrm{max}\)</span>, where <span class="math notranslate nohighlight">\(c\)</span> is the smoothing length and <span class="math notranslate nohighlight">\(d_\mathrm{max}\)</span> is the maximum particle diameter,
+to avoid boundary effects.</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Create_grid_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_res_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xyz'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/grid_generation/regular_cuboid.html#Grid_Generation.Create_grid_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points" title="Link to this definition"></a></dt>
+<dd><p>Create structured grid points in 1D, 2D, or 3D.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+<section id="id3">
+<h4>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<dl>
+<dt>X_range, Y_range, Z_range<span class="classifier">list of float or None</span></dt><dd><p>Coordinate ranges for each axis, in the form [min, max].
+If None, that axis will be fixed at its transect value.</p>
+</dd>
+<dt>X_transect, Y_transect, Z_transect<span class="classifier">float or None</span></dt><dd><p>Transect positions for fixed coordinates when not
+generating points along that axis.</p>
+</dd>
+<dt>c<span class="classifier">float</span></dt><dd><p>Smoothing length used for grid spacing calculation.</p>
+</dd>
+<dt>high_res_scaling<span class="classifier">float, optional</span></dt><dd><p>Scaling factor for grid density (default is 1.5).</p>
+</dd>
+<dt>dimensions<span class="classifier">int, {1, 2, 3}</span></dt><dd><p>Dimensionality of the generated grid.</p>
+</dd>
+<dt>axes<span class="classifier">str</span></dt><dd><p>Axes along which to generate the grid. Options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>3D</strong>: 'xyz'</p></li>
+<li><p><strong>2D</strong>: 'xy', 'xz', 'yz'</p></li>
+<li><p><strong>1D</strong>: 'x', 'y', 'z'</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h4>Outputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>grid_points<span class="classifier">ndarray of shape (N, 3)</span></dt><dd><p>Array of generated grid points in 3D coordinates.</p>
+</dd>
+<dt>nodes<span class="classifier">ndarray of shape (3,)</span></dt><dd><p>Number of nodes along each axis (0 if fixed).</p>
+</dd>
+<dt>spacing<span class="classifier">ndarray</span></dt><dd><p>Grid spacing along each active axis.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If the number of grid points in a direction is &lt;= 1,
+    or if <cite>dimensions</cite>/<cite>axes</cite> combination is invalid.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Spacing along active axes is computed as <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">/</span> <span class="pre">high_res_scaling</span></code>.</p></li>
+<li><p>The output is always a set of points in 3D space, even for 1D and 2D grids, to maintain compatibility with 3D data structures.</p></li>
+<li><p>This method uses <cite>np.meshgrid</cite> to create structured grids.</p></li>
+</ul>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pysammos.grid_generation.regular_cuboid.Grid_Generation.Generate">
+<span class="sig-name descname"><span class="pre">Generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/grid_generation/regular_cuboid.html#Grid_Generation.Generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Generate" title="Link to this definition"></a></dt>
+<dd><p>Generate the computational grid points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+<section id="id5">
+<h4>Outputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>GridPoints<span class="classifier">ndarray of shape (N, 3)</span></dt><dd><p>Generated grid points in 3D coordinates.</p>
+</dd>
+<dt>Nodes<span class="classifier">ndarray of shape (3,)</span></dt><dd><p>Number of nodes along each axis.</p>
+</dd>
+<dt>Spacing<span class="classifier">ndarray</span></dt><dd><p>Grid spacing along each active axis.</p>
+</dd>
+<dt>Ranges_Length<span class="classifier">ndarray of shape (3,)</span></dt><dd><p>Length of each coordinate range. Zero if the axis is fixed.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If <cite>automatic_range</cite> is True, grid ranges are computed using <a class="reference internal" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Automatic_Range" title="pysammos.grid_generation.regular_cuboid.Grid_Generation.Automatic_Range"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Automatic_Range()</span></code></a> with domain padding.</p></li>
+<li><p>If <cite>automatic_range</cite> is False, ranges and transects are taken from <cite>custom_grid_range</cite> and <cite>custom_grid_transects</cite>.</p></li>
+<li><p>The method calls <a class="reference internal" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points" title="pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Create_grid_points()</span></code></a> to build the grid.</p></li>
+</ul>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pysammos.data_write.vtkhdf.html" class="btn btn-neutral float-left" title="Vtkhdf" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pysammos.macroscopic_fields.html" class="btn btn-neutral float-right" title="Macroscopic Fields" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gridded &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Sliced" href="pysammos.macroscopic_fields.sliced.html" />
+    <link rel="prev" title="Macroscopic Fields" href="pysammos.macroscopic_fields.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Pysammos Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User-interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.html">Data Read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.html">Data Write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html">Grid Generation</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Gridded</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.sliced.html">Sliced</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.macroscopic_fields.html#pysammos.macroscopic_fields.field_dependencies.get_fields_to_compute"><code class="docutils literal notranslate"><span class="pre">get_fields_to_compute()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html">Particle Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.post_averaging.html">Post Averaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html">Spatial Weights</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Pysammos Documentation</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.html">Coarse Graining User-interface</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.macroscopic_fields.html">Macroscopic Fields</a></li>
+      <li class="breadcrumb-item active">Gridded</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pysammos.macroscopic_fields.gridded.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gridded">
+<h1>Gridded<a class="headerlink" href="#gridded" title="Link to this heading"></a></h1>
+<p>pysammos.macroscopic_fields.gridded package</p>
+<p>Subpackage for computing macroscopic fields on regular grids.</p>
+<p id="module-pysammos.macroscopic_fields.gridded">This subpackage contains the following modules:</p>
+<p><a class="reference internal" href="#dipatcher"><span class="std std-ref">Dispatcher module</span></a></p>
+<p><a class="reference internal" href="#scalars"><span class="std std-ref">Scalars module</span></a></p>
+<p><a class="reference internal" href="#vectors"><span class="std std-ref">Vectors module</span></a></p>
+<p><a class="reference internal" href="#tensors"><span class="std std-ref">Tensors module</span></a></p>
+<p><a class="reference internal" href="#secondary"><span class="std std-ref">Secondary module</span></a></p>
+<section id="dispatcher-module">
+<span id="dipatcher"></span><h2>Dispatcher module<a class="headerlink" href="#dispatcher-module" title="Link to this heading"></a></h2>
+<p>pysammos.macroscopic_fields.gridded.dispatcher module</p>
+<p id="module-pysammos.macroscopic_fields.gridded.dispatcher">This module provides a unified interface for computing scalar, vector,
+and tensor quantities for both <em>monodisperse</em> and <em>polydisperse</em> systems,
+with or without data scaling. It also supports kinetic tensor calculations
+with interpolation.</p>
+<p>The functions here act as generic wrappers that delegate to specialized
+implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
+<dl class="simple">
+<dt>There are two main modes of operation:</dt><dd><ul class="simple">
+<li><p><strong>Monodisperse</strong>: All particles or elements are of the same size/type.</p></li>
+<li><p><strong>Polydisperse</strong>: Particles or elements have varying sizes/types.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.kinetic_tensor">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">kinetic_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Displacement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field_Gradient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#kinetic_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.kinetic_tensor" title="Link to this definition"></a></dt>
+<dd><p>Compute the kinetic tensor, including interpolation, for either monodisperse or polydisperse systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">ndarray, shape (N,).</span></dt><dd><p>Array of weights for each element/particle.</p>
+</dd>
+<dt>visibility<span class="classifier">ndarray, shape (N,).</span></dt><dd><p>Visibility mask array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">ndarray, shape (N,).</span></dt><dd><p>Indices mapping elements to grid locations.</p>
+</dd>
+<dt>Displacement<span class="classifier">ndarray, shape (N,3).</span></dt><dd><p>Displacement vectors for particles/elements.</p>
+</dd>
+<dt>Particle_Velocity<span class="classifier">ndarray, shape (Nparticles,3).</span></dt><dd><p>Velocities of particles.</p>
+</dd>
+<dt>Particle_Mass<span class="classifier">ndarray, shape (Nparticles,3).</span></dt><dd><p>Mass of particles.</p>
+</dd>
+<dt>Velocity_Field<span class="classifier">ndarray, shape (Npoints,3).</span></dt><dd><p>Velocity field on the grid.</p>
+</dd>
+<dt>Velocity_Field_Gradient<span class="classifier">ndarray, shape (Npoints,3,3).</span></dt><dd><p>Gradient of the velocity field.</p>
+</dd>
+<dt>phase_array<span class="classifier">ndarray, shape (Nparticles).</span></dt><dd><p>Phase values, used only in polydisperse mode.</p>
+</dd>
+<dt>cg_calc_mode<span class="classifier">{'Monodisperse', 'Polydisperse'}</span></dt><dd><p>Calculation mode.</p>
+</dd>
+</dl>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<dl>
+<dt>ndarray</dt><dd><p>Computed kinetic tensor values mapped to the grid. Options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a href="#id1"><span class="problematic" id="id2">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)</p></li>
+<li><p><a href="#id3"><span class="problematic" id="id4">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.scalar">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">scalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#scalar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.scalar" title="Link to this definition"></a></dt>
+<dd><p>Compute a SCALAR quantity for either monodisperse or polydisperse systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+<section id="id5">
+<h3>Inputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Array of weights for each element/particle.</p>
+</dd>
+<dt>visibility<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Visibility mask array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Indices mapping elements to grid locations.</p>
+</dd>
+<dt>Data<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Primary scalar data values.</p>
+</dd>
+<dt>Data_scale<span class="classifier">ndarray or None, shape(N,).</span></dt><dd><p>Scaling factors for the data. If None, unscaled computation is used.</p>
+</dd>
+<dt>Phase<span class="classifier">ndarray or None, shape(N,).</span></dt><dd><p>Phase values, used only in polydisperse mode.</p>
+</dd>
+<dt>cg_calc_mode<span class="classifier">{'Monodisperse', 'Polydisperse'}</span></dt><dd><p>Calculation mode.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h3>Outputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>ndarray</dt><dd><p>Computed scalar values mapped to the grid. Options:</p>
+<ul class="simple">
+<li><p><a href="#id7"><span class="problematic" id="id8">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints,)</p></li>
+<li><p><a href="#id9"><span class="problematic" id="id10">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1)</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.tensor">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.tensor" title="Link to this definition"></a></dt>
+<dd><p>Compute a TENSOR quantity for either monodisperse or polydisperse systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+<section id="id11">
+<h3>Inputs<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Array of weights for each element/particle.</p>
+</dd>
+<dt>visibility<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Visibility mask array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Indices mapping elements to grid locations.</p>
+</dd>
+<dt>Data1<span class="classifier">ndarray, shape(N,3).</span></dt><dd><p>Primary scalar data values.</p>
+</dd>
+<dt>Data2<span class="classifier">ndarray, shape(N,3).</span></dt><dd><p>Primary scalar data values.</p>
+</dd>
+<dt>Data_scale<span class="classifier">ndarray or None, shape(N,).</span></dt><dd><p>Scaling factors for the data. If None, unscaled computation is used.</p>
+</dd>
+<dt>Phase<span class="classifier">ndarray or None, shape(N,).</span></dt><dd><p>Phase values, used only in polydisperse mode.</p>
+</dd>
+<dt>cg_calc_mode<span class="classifier">{'Monodisperse', 'Polydisperse'}</span></dt><dd><p>Calculation mode.</p>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h3>Outputs<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<dl>
+<dt>ndarray</dt><dd><p>Computed tensor values mapped to the grid. Options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a href="#id13"><span class="problematic" id="id14">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)</p></li>
+<li><p><a href="#id15"><span class="problematic" id="id16">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.vector">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.vector" title="Link to this definition"></a></dt>
+<dd><p>Compute a VECTOR quantity for either monodisperse or polydisperse systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+<section id="id17">
+<h3>Inputs<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Array of weights for each element/particle.</p>
+</dd>
+<dt>visibility<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Visibility mask array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Indices mapping elements to grid locations.</p>
+</dd>
+<dt>Data<span class="classifier">ndarray, shape(N,3).</span></dt><dd><p>Primary scalar data values.</p>
+</dd>
+<dt>Data_scale<span class="classifier">ndarray or None, shape(N,).</span></dt><dd><p>Scaling factors for the data. If None, unscaled computation is used.</p>
+</dd>
+<dt>Phase<span class="classifier">ndarray or None, shape(N,).</span></dt><dd><p>Phase values, used only in polydisperse mode.</p>
+</dd>
+<dt>cg_calc_mode<span class="classifier">{'Monodisperse', 'Polydisperse'}</span></dt><dd><p>Calculation mode.</p>
+</dd>
+</dl>
+</section>
+<section id="id18">
+<h3>Outputs<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<dl>
+<dt>ndarray</dt><dd><p>Computed vector values mapped to the grid. Options:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a href="#id19"><span class="problematic" id="id20">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3)</p></li>
+<li><p><a href="#id21"><span class="problematic" id="id22">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3)</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="scalars-module">
+<span id="scalars"></span><h2>Scalars module<a class="headerlink" href="#scalars-module" title="Link to this heading"></a></h2>
+<p>pysammos.macroscopic_fields.gridded.scalars module</p>
+<p id="module-pysammos.macroscopic_fields.gridded.scalars">This module provides functions to compute coarse-grained scalar fields
+from particle data using weighted averaging over local neighborhoods.</p>
+<p>Mathematically, the coarse-grained field <span class="math notranslate nohighlight">\(\phi(\mathbf{x})\)</span> at a grid point <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\phi(\mathbf{x}) = \sum_{i \in \mathrm{neigh}(\mathbf{x})} w_i\, d_i\]</div>
+<p>where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is a coarse-graining grid point,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathrm{neigh}(\mathbf{x})\)</span> is the set of particles contributing to the grid point <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(w_i\)</span> is the coarse-graining weight for particle <span class="math notranslate nohighlight">\(i\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(d_i\)</span> is a scalar particle property.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Functions</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse_scaled" title="pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse_scaled"><code class="xref py py-func docutils literal notranslate"><span class="pre">scalar_polydisperse_scaled()</span></code></a>: Computes coarse-grained scalar fields for polydisperse particles with an additional per-particle scaling factor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse" title="pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">scalar_polydisperse()</span></code></a>: Computes coarse-grained scalar fields for polydisperse particles without scaling.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse_scaled" title="pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse_scaled"><code class="xref py py-func docutils literal notranslate"><span class="pre">scalar_monodisperse_scaled()</span></code></a>: Computes coarse-grained scalar fields for monodisperse particles with an additional scaling factor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse" title="pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">scalar_monodisperse()</span></code></a>: Computes coarse-grained scalar fields for monodisperse particles without scaling.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.scalars.mean_grainsize" title="pysammos.macroscopic_fields.gridded.scalars.mean_grainsize"><code class="xref py py-func docutils literal notranslate"><span class="pre">mean_grainsize()</span></code></a>: Computes a weighted mean grain size metric, where <span class="math notranslate nohighlight">\(n_\mathrm{flag}\)</span> controls the moment order (e.g., $2$ for area, $3$ for volume).</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_x_volume" title="pysammos.macroscopic_fields.gridded.scalars.scalar_x_volume"><code class="xref py py-func docutils literal notranslate"><span class="pre">scalar_x_volume()</span></code></a>: Computes the coarse-grained average scalar field weighted by particle volume.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Overview</strong></p>
+<p>These functions transform particle-based quantities (e.g., mass, velocity components, diameters) into grid-based fields by applying a coarse-graining weighting scheme. The input typically consists of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>weights</strong>: Coarse-graining kernel weights per visible particle–grid point interaction.</p></li>
+<li><p><strong>visibility</strong>: Mapping from weight entries back to particle indices.</p></li>
+<li><p><strong>grid_indices</strong>: Index offsets marking which particles contribute to each grid point (with padding at start and end).</p></li>
+<li><p><strong>Data</strong>: Scalar quantities per particle.</p></li>
+<li><p><strong>Phase</strong> (polydisperse only): Phase identifiers for multi-phase simulations.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Monodisperse vs. Polydisperse</strong></p>
+<p>This module implements high-performance, parallelized functions for computing coarse-grained scalar fields from discrete particle data using Numba <cite>&#64;njit</cite> and <cite>prange</cite> for loop-level parallelism. It supports both monodisperse and polydisperse particle systems, with optional per-particle scaling factors.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Monodisperse</strong>: All particles are treated identically; output is a single scalar field per grid point.</p></li>
+<li><p><strong>Polydisperse</strong>: Particles are grouped by phase; output contains both per-phase fields and a total field.</p></li>
+</ul>
+</div></blockquote>
+<p>Functions with <cite>_scaled</cite> apply an additional per-particle multiplicative factor (<span class="math notranslate nohighlight">\(\mathrm{Data\_scale}\)</span>), useful for scaling properties before coarse-graining.</p>
+<p><strong>Terminology</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{particles}\)</span>: Number of particles in the simulation.</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{vis}\)</span>: Number of particle–grid point interactions (visible weights).</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{points}\)</span>: Number of grid points (excluding padding).</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathrm{Phase}\)</span>: Integer labels identifying particle classes (e.g., material type).</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Performance Notes</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>All functions are Numba-jitted (<cite>&#64;njit</cite>) with explicit type signatures.</p></li>
+<li><p><cite>prange</cite> is used to parallelize over grid points.</p></li>
+<li><p>Temporary arrays are allocated per grid point; results are accumulated into output arrays in a thread-safe manner.</p></li>
+<li><p>Arrays must have consistent types and shapes to avoid recompilation overhead.</p></li>
+</ul>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.mean_grainsize">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">mean_grainsize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.mean_grainsize" title="Link to this definition"></a></dt>
+<dd><p>Compute mean grain size using a weighted average with a size exponent.</p>
+<section id="id23">
+<h3>Inputs<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<dl>
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.</p>
+</dd>
+<dt>Data<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Particle diameters or characteristic sizes.</p>
+</dd>
+<dt>n_flag<span class="classifier">int</span></dt><dd><p>Exponent flag:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>3 for volume-weighted mean size.</p></li>
+<li><p>2 for area-weighted mean size.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</section>
+<section id="id24">
+<h3>Outputs<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Mean grain size for each grid point.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_monodisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained scalar fields for monodisperse systems.</p>
+<section id="id25">
+<h3>Inputs<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.</p>
+</dd>
+<dt>Data<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Scalar quantity per particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id26">
+<h3>Outputs<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Coarse-grained scalar field for each grid point.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse_scaled">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_monodisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse_scaled" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained scalar fields for monodisperse systems with an additional scaling factor.</p>
+<section id="id27">
+<h3>Inputs<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.</p>
+</dd>
+<dt>Data<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Scalar quantity per particle.</p>
+</dd>
+<dt>Data_scale<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Additional scaling factor per particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id28">
+<h3>Outputs<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Coarse-grained scalar field for each grid point.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained scalar fields for polydisperse systems.</p>
+<section id="id29">
+<h3>Inputs<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.</p>
+</dd>
+<dt>Data<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Scalar quantity per particle (e.g., mass, velocity component).</p>
+</dd>
+<dt>Phase<span class="classifier">(N_particles,) int32 array</span></dt><dd><p>Phase index (0..P-1) for each particle.</p>
+</dd>
+</dl>
+</section>
+<section id="ouptuts">
+<h3>Ouptuts<a class="headerlink" href="#ouptuts" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points, N_phases + 1) float64 array</span></dt><dd><p>Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse_scaled">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_polydisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse_scaled" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained scalar fields for polydisperse systems with an additional scaling factor.</p>
+<section id="id30">
+<h3>Inputs<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p>
+</dd>
+<dt>Data<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Scalar quantity per particle (e.g., mass, velocity component).</p>
+</dd>
+<dt>Data_scale<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Additional scaling factor per particle.</p>
+</dd>
+<dt>Phase<span class="classifier">(N_particles,) int32 array</span></dt><dd><p>Phase index (0..P-1) for each particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id31">
+<h3>Outputs<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points, N_phases + 1) float64 array</span></dt><dd><p>Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_x_volume">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_x_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_x_volume" title="Link to this definition"></a></dt>
+<dd><p>Compute the average of a scalar quantity weighted by particle volume.</p>
+<section id="id32">
+<h3>Inputs<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights (often proportional to particle volume).</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_grid + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.</p>
+</dd>
+<dt>Data<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Scalar quantity per particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id33">
+<h3>Outputs<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Volume-weighted scalar average per grid point.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="vectors-module">
+<span id="vectors"></span><h2>Vectors module<a class="headerlink" href="#vectors-module" title="Link to this heading"></a></h2>
+<p>pysammos.macroscopic_fields.gridded.vectors module</p>
+<p id="module-pysammos.macroscopic_fields.gridded.vectors">This module provides functions to compute coarse-grained vector fields
+from particle data using weighted averaging over local neighborhoods.</p>
+<p>Mathematically, the coarse-grained field <span class="math notranslate nohighlight">\(\mathbf{F}(\mathbf{x})\)</span> at a grid point <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{F}(\mathbf{x}) = \sum_{i \in \text{neigh}(\mathbf{x})} w_i \, \mathbf{d}_i\]</div>
+<p>where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{F}(\mathbf{x})\)</span> is the coarse-grained vector field at grid point <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(w_i\)</span> is the coarse-graining weight for particle <span class="math notranslate nohighlight">\(i\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{d}_i\)</span> is a vector particle property (e.g., velocity, diameter).</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Functions</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse_scaled" title="pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse_scaled"><code class="xref py py-func docutils literal notranslate"><span class="pre">vector_polydisperse_scaled()</span></code></a>: Computes coarse-grained vector fields for polydisperse particles with
+an additional per-particle scaling factor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse" title="pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">vector_polydisperse()</span></code></a>: Computes coarse-grained vector fields for polydisperse particles without
+scaling.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse_scaled" title="pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse_scaled"><code class="xref py py-func docutils literal notranslate"><span class="pre">vector_monodisperse_scaled()</span></code></a>: Computes coarse-grained vector fields for monodisperse particles with
+an additional scaling factor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse" title="pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">vector_monodisperse()</span></code></a>: Computes coarse-grained vector fields for monodisperse particle mixtures without
+scaling.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Overview</strong></p>
+<p>These functions transform particle-based quantities (e.g., mass, velocity
+components, diameters) into grid-based fields by applying a coarse-graining
+weighting scheme. The input typically consists of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>weights</strong>: Coarse-graining kernel weights per visible particle–grid point interaction.</p></li>
+<li><p><strong>visibility</strong>: Mapping from weight entries back to particle indices.</p></li>
+<li><p><strong>grid_indices</strong>: Index offsets marking which particles contribute to each grid point (with padding at start and end).</p></li>
+<li><p><strong>Data</strong>: Scalar quantities per particle.</p></li>
+<li><p><strong>Phase</strong> (polydisperse only): Phase identifiers for multi-phase simulations.</p></li>
+<li><p><strong>Data_scale</strong> (scaled versions only): Additional per-particle scaling factors.</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Monodisperse vs. Polydisperse</strong></p>
+<p>This module implements high-performance, parallelized functions for computing coarse-grained scalar fields from discrete particle data using Numba <cite>&#64;njit</cite> and <cite>prange</cite> for loop-level parallelism. It supports both monodisperse and polydisperse particle systems, with optional per-particle scaling factors.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Monodisperse</strong>: All particles are treated identically; output is a single scalar field per grid point.</p></li>
+<li><p><strong>Polydisperse</strong>: Particles are grouped by phase; output contains both per-phase fields and a total field.</p></li>
+</ul>
+</div></blockquote>
+<p>Functions with <cite>_scaled</cite> apply an additional per-particle multiplicative factor (<span class="math notranslate nohighlight">\(\mathrm{Data\_scale}\)</span>), useful for scaling properties before coarse-graining.</p>
+<p><strong>Terminology</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{particles}\)</span>: Number of particles in the simulation.</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{vis}\)</span>: Number of particle–grid point interactions (visible weights).</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{points}\)</span>: Number of grid points (excluding padding).</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathrm{Phase}\)</span>: Integer labels identifying particle classes (e.g., material type).</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Performance Notes</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>All functions are Numba-jitted (<cite>&#64;njit</cite>) with explicit type signatures.</p></li>
+<li><p><cite>prange</cite> is used to parallelize over grid points.</p></li>
+<li><p>Temporary arrays are allocated per grid point; results are accumulated into output arrays in a thread-safe manner.</p></li>
+<li><p>Arrays must have consistent types and shapes to avoid recompilation overhead.</p></li>
+</ul>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.vectors.</span></span><span class="sig-name descname"><span class="pre">vector_monodisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained vector fields for monodisperse systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>float64 array</em>) -- Coarse-graining weights for each visible particle.</p></li>
+<li><p><strong>visibility</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>int32 array</em>) -- Particle indices corresponding to each entry in the weights array.</p></li>
+<li><p><strong>grid_indices</strong> (<em>(</em><em>N_points + 2</em><em>,</em><em>) </em><em>int32 array</em>) -- Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p></li>
+<li><p><strong>Data</strong> (<em>(</em><em>N_particles</em><em>,</em><em>3</em><em>) </em><em>float32 array</em>) -- Vector quantity per particle.</p></li>
+<li><p><strong>Data_scale</strong> (<em>(</em><em>N_particles</em><em>,</em><em>) </em><em>float32 array</em>) -- Additional scaling factor per particle.</p></li>
+<li><p><strong>Phase</strong> (<em>(</em><em>N_particles</em><em>,</em><em>) </em><em>int32 array</em>) -- Phase index (0..P-1) for each particle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>CG_Field</strong> -- Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(N_points, N_phases + 1, 3) float64 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse_scaled">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.vectors.</span></span><span class="sig-name descname"><span class="pre">vector_monodisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.vectors.vector_monodisperse_scaled" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained vector fields for monodisperse systems with an additional scaling factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>float64 array</em>) -- Coarse-graining weights for each visible particle.</p></li>
+<li><p><strong>visibility</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>int32 array</em>) -- Particle indices corresponding to each entry in the weights array.</p></li>
+<li><p><strong>grid_indices</strong> (<em>(</em><em>N_points + 2</em><em>,</em><em>) </em><em>int32 array</em>) -- Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p></li>
+<li><p><strong>Data</strong> (<em>(</em><em>N_particles</em><em>,</em><em>3</em><em>) </em><em>float32 array</em>) -- Vector quantity per particle.</p></li>
+<li><p><strong>Data_scale</strong> (<em>(</em><em>N_particles</em><em>,</em><em>) </em><em>float32 array</em>) -- Additional scaling factor per particle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>CG_Field</strong> -- Coarse-grained scalar field.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(N_points, 3) float64 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.vectors.</span></span><span class="sig-name descname"><span class="pre">vector_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained vector fields for polydisperse systems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>float64 array</em>) -- Coarse-graining weights for each visible particle.</p></li>
+<li><p><strong>visibility</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>int32 array</em>) -- Particle indices corresponding to each entry in the weights array.</p></li>
+<li><p><strong>grid_indices</strong> (<em>(</em><em>N_points + 2</em><em>,</em><em>) </em><em>int32 array</em>) -- Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p></li>
+<li><p><strong>Data</strong> (<em>(</em><em>N_particles</em><em>,</em><em>3</em><em>) </em><em>float32 array</em>) -- Vector quantity per particle.</p></li>
+<li><p><strong>Phase</strong> (<em>(</em><em>N_particles</em><em>,</em><em>) </em><em>int32 array</em>) -- Phase index (0..P-1) for each particle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>CG_Field</strong> -- Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(N_points, N_phases + 1, 3) float64 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse_scaled">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.vectors.</span></span><span class="sig-name descname"><span class="pre">vector_polydisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.vectors.vector_polydisperse_scaled" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained vector fields for polydisperse systems with an additional scaling factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weights</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>float64 array</em>) -- Coarse-graining weights for each visible particle.</p></li>
+<li><p><strong>visibility</strong> (<em>(</em><em>N_vis</em><em>,</em><em>) </em><em>int32 array</em>) -- Particle indices corresponding to each entry in the weights array.</p></li>
+<li><p><strong>grid_indices</strong> (<em>(</em><em>N_points + 2</em><em>,</em><em>) </em><em>int32 array</em>) -- Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p></li>
+<li><p><strong>Data</strong> (<em>(</em><em>N_particles</em><em>,</em><em>3</em><em>) </em><em>float32 array</em>) -- Vector quantity per particle.</p></li>
+<li><p><strong>Data_scale</strong> (<em>(</em><em>N_particles</em><em>,</em><em>) </em><em>float32 array</em>) -- Additional scaling factor per particle.</p></li>
+<li><p><strong>Phase</strong> (<em>(</em><em>N_particles</em><em>,</em><em>) </em><em>int32 array</em>) -- Phase index (0..P-1) for each particle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>CG_Field</strong> -- Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(N_points, N_phases + 1, 3) float64 array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="tensors-module">
+<span id="tensors"></span><h2>Tensors module<a class="headerlink" href="#tensors-module" title="Link to this heading"></a></h2>
+<p>pysammos.macroscopic_fields.gridded.tensors module</p>
+<p id="module-pysammos.macroscopic_fields.gridded.tensors">This module provides functions to compute coarse-grained tensor fields
+from particle data using weighted averaging over local neighborhoods.</p>
+<p>Mathematically, the coarse-grained field <span class="math notranslate nohighlight">\(\mathbf{T}(\mathbf{x})\)</span> at a grid point <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>
+is defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{T}(\mathbf{x}) = \sum_{i \in \text{neigh}(\mathbf{x})} w_i \, \mathbf{d}_i \otimes \mathbf{d}_i\]</div>
+<p>where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is a coarse-graining grid point,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{neigh}(\mathbf{x})\)</span> is the set of particles contributing to the grid point <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(w_i\)</span> is the coarse-graining weight for particle <span class="math notranslate nohighlight">\(i\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{d}_i\)</span> is a vector particle property,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\otimes\)</span> denotes the outer product.</p></li>
+</ul>
+</div></blockquote>
+<p>Functions</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse_scaled" title="pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse_scaled"><code class="xref py py-func docutils literal notranslate"><span class="pre">tensor_polydisperse_scaled()</span></code></a>: Computes coarse-grained tensor fields for polydisperse particles with
+an additional per-particle scaling factor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse" title="pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">tensor_polydisperse()</span></code></a>: Computes coarse-grained tensor fields for polydisperse particles without
+scaling.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse_scaled" title="pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse_scaled"><code class="xref py py-func docutils literal notranslate"><span class="pre">tensor_monodisperse_scaled()</span></code></a>: Computes coarse-grained tensor fields for monodisperse particles with
+an additional scaling factor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse" title="pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">tensor_monodisperse()</span></code></a>: Computes coarse-grained tensor fields for monodisperse particle mixtures without
+scaling.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_polydisperse" title="pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_polydisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">kinetic_tensor_interpolation_polydisperse()</span></code></a>: Computes coarse-grained kinetic tensor for polydisperse mixtures
+by interpolating particle velocity fluctuations relative to a continuum velocity field.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_monodisperse" title="pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_monodisperse"><code class="xref py py-func docutils literal notranslate"><span class="pre">kinetic_tensor_interpolation_monodisperse()</span></code></a>: Computes coarse-grained kinetic tensor for monodisperse mixtures
+by interpolating particle velocity fluctuations relative to a continuum velocity field.</p></li>
+</ul>
+</div></blockquote>
+<p>Overview</p>
+<p>These functions transform particle-based quantities (e.g., mass, velocity
+components, diameters) into grid-based fields by applying a coarse-graining
+weighting scheme. The input typically consists of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>weights</strong>: Coarse-graining kernel weights per visible particle–grid point interaction.</p></li>
+<li><p><strong>visibility</strong>: Mapping from weight entries back to particle indices.</p></li>
+<li><p><strong>grid_indices</strong>: Index offsets marking which particles contribute to each grid point (with padding at start and end).</p></li>
+<li><p><strong>Data</strong>: Scalar quantities per particle.</p></li>
+<li><p><strong>Phase</strong> (polydisperse only): Phase identifiers for multi-phase simulations.</p></li>
+</ul>
+</div></blockquote>
+<p>Monodisperse vs. Polydisperse</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Monodisperse</strong>: All particles are treated identically; output is a single tensor field per grid point.</p></li>
+<li><p><strong>Polydisperse</strong>: Particles are grouped by phase; output contains both per-phase fields and a total field.</p></li>
+</ul>
+</div></blockquote>
+<p>Functions with <cite>_scaled</cite> apply an additional per-particle multiplicative factor
+(<cite>Data_scale</cite>), useful for scaling properties before coarse-graining.</p>
+<p>Terminology</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{particles}\)</span>: Number of particles in the simulation.</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{vis}\)</span>: Number of particle–grid point interactions (visible weights).</p></li>
+<li><p><span class="math notranslate nohighlight">\(N_\mathrm{points}\)</span>: Number of grid points (excluding padding).</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathrm{Phase}\)</span>: Integer labels identifying particle classes (e.g., material type).</p></li>
+</ul>
+</div></blockquote>
+<p>Performance Notes</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>All functions are Numba-jitted (<cite>&#64;njit</cite>) with explicit type signatures.</p></li>
+<li><p><cite>prange</cite> is used to parallelize over grid points.</p></li>
+<li><p>Temporary arrays are allocated per grid point; results are accumulated into output arrays in a thread-safe manner.</p></li>
+<li><p>Arrays must have consistent types and shapes to avoid recompilation overhead.</p></li>
+</ul>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_monodisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">kinetic_tensor_interpolation_monodisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field_Gradient</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_monodisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute the kinetic stress tensor for a monodisperse system by interpolating
+particle velocity fluctuations relative to a continuum velocity field.</p>
+<p>Mathematical formulation:</p>
+<p>For each grid point ( g ), the kinetic tensor is:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{K}_{g} = \sum_{i \in I_g} m_i w_i (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}}) \otimes (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}})\]</div>
+<dl class="simple">
+<dt>where:</dt><dd><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(I_g\)</span> is the set of particles contributing to grid point ( g )</p></li>
+<li><p><span class="math notranslate nohighlight">\(m_i\)</span> is the mass of particle ( i )</p></li>
+<li><p><span class="math notranslate nohighlight">\(w_i\)</span> is the kernel weight of particle ( i ) for grid point ( g )</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{v}_i\)</span> is the velocity of particle ( i )</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{v}_g^{\text{interp}} = \mathbf{v}_g + \mathbf{G}_g \cdot \mathbf{r}_{g,i}\)</span> is the interpolated continuum velocity at particle ( i )</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{r}_{g,i}\)</span> is the displacement vector from grid point ( g ) to particle ( i )</p></li>
+</ul>
+</dd>
+</dl>
+<section id="id34">
+<h3>Inputs<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p>
+</dd>
+<dt>displacement<span class="classifier">(N_vis, 3) float64 array</span></dt><dd><p>Displacement vectors from grid points to visible particles.</p>
+</dd>
+<dt>Particle_Velocity<span class="classifier">(N_particles, 3) float64 array</span></dt><dd><p>Velocity vectors of all particles.</p>
+</dd>
+<dt>Particle_Mass<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Mass of each particle.</p>
+</dd>
+<dt>Velocity_Field<span class="classifier">(N_points, 3) float64 array</span></dt><dd><p>Velocity field values at each grid point.</p>
+</dd>
+<dt>Velocity_Field_Gradient<span class="classifier">(N_points, 3, 3) float64 array</span></dt><dd><p>Velocity gradient tensors at each grid point.</p>
+</dd>
+</dl>
+</section>
+<section id="id35">
+<h3>Outputs<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>KineticTensor<span class="classifier">(N_points, 3, 3) float64 array</span></dt><dd><p>Kinetic stress tensor per grid point. No interpolation is applied to the velocity fluctuations for this tensor.</p>
+</dd>
+<dt>FluctuationTensor<span class="classifier">(N_points, 3, 3) float64 array</span></dt><dd><p>Fluctuation tensor for granular temperature calculation. Interpolation is applied to the velocity fluctuations for this tensor.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_polydisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">kinetic_tensor_interpolation_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field_Gradient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.kinetic_tensor_interpolation_polydisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute the kinetic stress tensor for a polydisperse system by interpolating
+particle velocity fluctuations relative to a continuum velocity field.</p>
+<p>The tensor is computed separately for each phase and summed to form a total tensor. For each grid point ( g ) and phase ( p ), the kinetic tensor is:</p>
+<div class="math notranslate nohighlight">
+\[K_{g,p} = \sum_{i \in I_g^{(p)}} m_i w_i (v_i - v_g^{\text{interp}}) \otimes (v_i - v_g^{\text{interp}})\]</div>
+<p>where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(I_g^{(p)}\)</span> is the set of particles of phase p contributing to grid point g</p></li>
+<li><p><span class="math notranslate nohighlight">\(m_i\)</span> is the mass of particle i</p></li>
+<li><p><span class="math notranslate nohighlight">\(w_i\)</span> is the kernel weight of particle i for grid point g</p></li>
+<li><p><span class="math notranslate nohighlight">\(v_i\)</span> is the velocity of particle i</p></li>
+<li><p><span class="math notranslate nohighlight">\(v_g^{interp} = v_g + G_g \cdot r_{g,i}\)</span> is the interpolated continuum velocity at particle i position</p></li>
+<li><p><span class="math notranslate nohighlight">\(r_{g,i}\)</span> is the displacement vector from grid point g to particle i</p></li>
+<li><p><span class="math notranslate nohighlight">\(\otimes\)</span> denotes the outer product</p></li>
+</ul>
+</div></blockquote>
+<section id="id36">
+<h3>Inputs<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p>
+</dd>
+<dt>displacement<span class="classifier">(N_vis, 3) float64 array</span></dt><dd><p>Displacement vectors from grid points to visible particles.</p>
+</dd>
+<dt>Particle_Velocity<span class="classifier">(N_particles, 3) float64 array</span></dt><dd><p>Velocity vectors of all particles.</p>
+</dd>
+<dt>Particle_Mass<span class="classifier">(N_particles,) float64 array</span></dt><dd><p>Mass of each particle.</p>
+</dd>
+<dt>Velocity_Field<span class="classifier">(N_points, 3) float64 array</span></dt><dd><p>Velocity field values at each grid point.</p>
+</dd>
+<dt>Velocity_Field_Gradient<span class="classifier">(N_points, 3, 3) float32 array</span></dt><dd><p>Velocity gradient tensors at each grid point.</p>
+</dd>
+<dt>phase_array<span class="classifier">(N_particles,) int32 array</span></dt><dd><p>Phase index (0..P-1) for each particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id37">
+<h3>Outputs<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>KineticTensor<span class="classifier">(N_points, N_phases + 1, 3, 3) float64 array</span></dt><dd><p>Kinetic stress tensor per grid point and phase. Index 0 is total over phases. No interpolation is applied to the velocity fluctuations for this tensor.</p>
+</dd>
+<dt>FluctuationTensor<span class="classifier">(N_points, N_phases + 1, 3, 3) float64 array</span></dt><dd><p>Fluctuation tensor for granular temperature calculation. Interpolation is applied to the velocity fluctuations for this tensor.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_monodisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained tensor fields for monodisperse systems.</p>
+<section id="id38">
+<h3>Inputs<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p>
+</dd>
+<dt>Data1<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Data2<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Data_scale<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Additional scaling factor per particle.</p>
+</dd>
+<dt>Phase<span class="classifier">(N_particles,) int32 array</span></dt><dd><p>Phase index (0..P-1) for each particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id39">
+<h3>Outputs<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points, N_phases + 1, 3, 3) float64 array</span></dt><dd><p>Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse_scaled">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_monodisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse_scaled" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained tensor fields for monodisperse systems with an additional scaling factor.</p>
+<section id="id40">
+<h3>Inputs<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p>
+</dd>
+<dt>Data1<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Data2<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Data_scale<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Additional scaling factor per particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id41">
+<h3>Outputs<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points, 3, 3) float64 array</span></dt><dd><p>Coarse-grained scalar field.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained tensor fields for polydisperse systems.</p>
+<section id="id42">
+<h3>Inputs<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p>
+</dd>
+<dt>Data1<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Data2<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Phase<span class="classifier">(N_particles,) int32 array</span></dt><dd><p>Phase index (0..P-1) for each particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id43">
+<h3>Outputs<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CG_Field<span class="classifier">(N_points, N_phases + 1, 3, 3) float64 array</span></dt><dd><p>Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse_scaled">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_polydisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse_scaled" title="Link to this definition"></a></dt>
+<dd><p>Compute coarse-grained tensor fields for polydisperse systems with an additional scaling factor.</p>
+<section id="id44">
+<h3>Inputs<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
+</dd>
+<dt>visibility<span class="classifier">(N_vis,) int32 array</span></dt><dd><p>Particle indices corresponding to each entry in the weights array.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(N_points + 2,) int32 array</span></dt><dd><p>Start/end indices into the visibility array for each grid point.
+Assumes padding: first = 0, last = len(visibility).</p>
+</dd>
+<dt>Data1<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Data2<span class="classifier">(N_particles,3) float32 array</span></dt><dd><p>Vector quantity per particle.</p>
+</dd>
+<dt>Data_scale<span class="classifier">(N_particles,) float32 array</span></dt><dd><p>Additional scaling factor per particle.</p>
+</dd>
+<dt>Phase<span class="classifier">(N_particles,) int32 array</span></dt><dd><p>Phase index (0..P-1) for each particle.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>CG_Field</strong> -- Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>(N_points, N_phases + 1, 3, 3) float64 array</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="secondary-module">
+<span id="secondary"></span><h2>Secondary module<a class="headerlink" href="#secondary-module" title="Link to this heading"></a></h2>
+<p>pysammos.macroscopic_fields.gridded.secondary module</p>
+<p id="module-pysammos.macroscopic_fields.gridded.secondary">This module provides functions to compute velocity gradients,
+shear rate tensors, deviatoric tensors, tensor invariants,
+pressure, inertial numbers, granular temperature, and bulk fabric tensors
+for both monodisperse and polydisperse particulate systems.</p>
+<p>It supports 1D, 2D, and 3D grids and uses <cite>NumPy</cite> for array
+operations and <cite>Numba</cite> for accelerated numerical loops.</p>
+<p>The main functions include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.compute_vector_bulk_gradient" title="pysammos.macroscopic_fields.gridded.secondary.compute_vector_bulk_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_vector_bulk_gradient()</span></code></a> : Calculate velocity gradient tensor from bulk velocity.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.compute_shear_rate_tensor" title="pysammos.macroscopic_fields.gridded.secondary.compute_shear_rate_tensor"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_shear_rate_tensor()</span></code></a> : Compute symmetric part of velocity gradient tensor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.compute_deviatoric_tensor" title="pysammos.macroscopic_fields.gridded.secondary.compute_deviatoric_tensor"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_deviatoric_tensor()</span></code></a> : Compute deviatoric part of a stress tensor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.compute_second_invariant" title="pysammos.macroscopic_fields.gridded.secondary.compute_second_invariant"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_second_invariant()</span></code></a> : Compute the second invariant of a deviatoric stress tensor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.compute_pressure" title="pysammos.macroscopic_fields.gridded.secondary.compute_pressure"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_pressure()</span></code></a> : Compute pressure from a stress tensor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.compute_inertial_number" title="pysammos.macroscopic_fields.gridded.secondary.compute_inertial_number"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_inertial_number()</span></code></a> : Compute dimensionless inertial number.</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.compute_granular_temperature" title="pysammos.macroscopic_fields.gridded.secondary.compute_granular_temperature"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_granular_temperature()</span></code></a> : Compute granular temperature following Weinhart (2016).</p></li>
+<li><p><a class="reference internal" href="#pysammos.macroscopic_fields.gridded.secondary.bulk_fabric_tensor_Sun2015" title="pysammos.macroscopic_fields.gridded.secondary.bulk_fabric_tensor_Sun2015"><code class="xref py py-func docutils literal notranslate"><span class="pre">bulk_fabric_tensor_Sun2015()</span></code></a> : Compute bulk fabric tensor following Sun et al. (2015).</p></li>
+</ul>
+</div></blockquote>
+<p>Notes</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>All array shapes are explicitly described in the function docstrings.</p></li>
+<li><p>The functions handle both monodisperse and polydisperse cases: the number of phases is denoted by <cite>P</cite>.</p></li>
+<li><p>Functions decorated with <cite>&#64;njit</cite> are JIT-compiled with Numba for performance.</p></li>
+</ul>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.bulk_fabric_tensor_Sun2015">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">bulk_fabric_tensor_Sun2015</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalised_center_to_center_vectors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.bulk_fabric_tensor_Sun2015" title="Link to this definition"></a></dt>
+<dd><p>Compute the bulk fabric tensor following Sun et al. (2015).</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{A} = \frac{1}{N_c} \sum_{i=1}^{N_c} \left( \mathbf{l}_i \otimes \mathbf{l}_i - \frac{1}{3} \mathbf{I} \right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(N_c\)</span> is the number of contacts, <span class="math notranslate nohighlight">\(\mathbf{l}_i\)</span> is the normalised contact vector between particle centers, and <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> is the identity matrix.</p>
+<section id="id45">
+<h3>Inputs<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>normalised_center_to_center_vectors<span class="classifier">(Nc, 3) ndarray</span></dt><dd><p>Normalised contact vectors between particle centers.</p>
+</dd>
+</dl>
+</section>
+<section id="id46">
+<h3>Outputs<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>A<span class="classifier">(3, 3) ndarray</span></dt><dd><p>Bulk fabric tensor.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_deviatoric_tensor">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_deviatoric_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_deviatoric_tensor" title="Link to this definition"></a></dt>
+<dd><p>Compute the deviatoric tensor by removing the mean normal stress, given by:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{T}_{dev} = \mathbf{T} - \frac{1}{D} \text{tr}(\mathbf{T}) \mathbf{I}\]</div>
+<p>where <span class="math notranslate nohighlight">\(D\)</span> is the spatial dimension (2 or 3), <span class="math notranslate nohighlight">\(\text{tr}(\mathbf{T})\)</span> is the trace of the tensor, and <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> is the identity matrix.</p>
+<section id="id47">
+<h3>Inputs<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Tensor<span class="classifier">(N, 3, 3) or (N, P, 3, 3) ndarray</span></dt><dd><p>Stress tensor(s). P is number of phases.</p>
+</dd>
+</dl>
+</section>
+<section id="id48">
+<h3>Outputs<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>DeviatoricTensor<span class="classifier">ndarray, shape (N, 3, 3) or (N, P, 3, 3)</span></dt><dd><p>Tensor(s) with isotropic part removed. Shape matches input.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_granular_temperature">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_granular_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">DensityMixture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">KineticTensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_granular_temperature" title="Link to this definition"></a></dt>
+<dd><p>Compute granular temperature following Weinhart (2016).</p>
+<div class="math notranslate nohighlight">
+\[T_g = \frac{1}{D} \frac{\text{tr}(\mathbf{\sigma}^k)}{\rho_p}\]</div>
+<p>where <span class="math notranslate nohighlight">\(D\)</span> is the spatial dimension (2 or 3), <span class="math notranslate nohighlight">\(\text{tr}(\mathbf{\sigma}^k)\)</span> is the trace of the kinetic energy tensor, and <span class="math notranslate nohighlight">\(\rho_p\)</span> is the particle density.</p>
+<section id="id49">
+<h3>Inputs<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>DensityMixture<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Bulk or phase-wise particle density.</p>
+</dd>
+<dt>KineticTensor<span class="classifier">(N, 3, 3), (N, P, 3, 3), (N,), or (N, P) ndarray</span></dt><dd><p>Full kinetic energy tensor or scalar kinetic energy component.</p>
+</dd>
+</dl>
+</section>
+<section id="id50">
+<h3>Outputs<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>GranularTemperature<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Granular temperature(s).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_inertial_number">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_inertial_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shear_rate_tens_dev_mag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_density_mix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_diameter_mix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density_phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter_phases</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_inertial_number" title="Link to this definition"></a></dt>
+<dd><p>Compute the inertial number for monodisperse or polydisperse systems, given by:</p>
+<div class="math notranslate nohighlight">
+\[I = \frac{\dot{\gamma} d \sqrt{\rho}}{\sqrt{|p|}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\dot{\gamma}\)</span> is the magnitude of the deviatoric shear rate tensor, <span class="math notranslate nohighlight">\(d\)</span> is the particle diameter, <span class="math notranslate nohighlight">\(\rho\)</span> is the particle density, and <span class="math notranslate nohighlight">\(p\)</span> is the pressure.</p>
+<section id="id51">
+<h3>Inputs<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>shear_rate_tens_dev_mag<span class="classifier">(N,) ndarray</span></dt><dd><p>Magnitude of the deviatoric shear rate tensor.</p>
+</dd>
+<dt>pressure<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Pressure values.</p>
+</dd>
+<dt>particle_density_mix<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Bulk particle density.</p>
+</dd>
+<dt>particle_diameter_mix<span class="classifier">(N,) ndarray</span></dt><dd><p>Bulk particle diameter.</p>
+</dd>
+<dt>density_phases<span class="classifier">(P-1,) ndarray</span></dt><dd><p>Densities for individual phases (polydisperse case).</p>
+</dd>
+<dt>diameter_phases<span class="classifier">(P-1,) ndarray</span></dt><dd><p>Diameters for individual phases (polydisperse case).</p>
+</dd>
+</dl>
+</section>
+<section id="id52">
+<h3>Outputs<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Inertial_Number<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Dimensionless inertial number(s).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_pressure">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">StressTensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_pressure" title="Link to this definition"></a></dt>
+<dd><p>Compute pressure from the stress tensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+<section id="id53">
+<h3>Inputs<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>StressTensor<span class="classifier">(N, 3, 3) or (N, P, 3, 3) ndarray</span></dt><dd><p>Stress tensor(s), where P is the number of phases.</p>
+</dd>
+</dl>
+</section>
+<section id="id54">
+<h3>Outputs<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Pressure<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Computed pressure(s).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_second_invariant">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_second_invariant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_second_invariant" title="Link to this definition"></a></dt>
+<dd><p>Compute the second invariant of a deviatoric stress tensor, defined as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}J_2(\mathbf{r}, t) := \alpha\, \mathrm{tr}\left( \mathbf{\Pi}^2(\mathbf{r}, t) \right), \quad \text{where} \quad
+\alpha =
+\begin{cases}
+\frac{1}{2}, &amp; \text{if } \mathbf{\Pi} \neq \boldsymbol{\Gamma} \\[2mm]
+2, &amp; \text{if } \mathbf{\Pi} = \boldsymbol{\Gamma}
+\end{cases}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{\Pi}\)</span> is any tensor, and <span class="math notranslate nohighlight">\(\boldsymbol{\Gamma}\)</span> is the shear rate tensor, which is related to the effective shear rate <span class="math notranslate nohighlight">\(\dot \gamma_{\text{eff}} = \sqrt{2J_2}\)</span>, hence <span class="math notranslate nohighlight">\(\alpha=2\)</span> when <span class="math notranslate nohighlight">\(\mathbf{\Pi}=\boldsymbol{\Gamma}\)</span>.</p>
+<section id="id55">
+<h3>Inputs<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Tensor<span class="classifier">(N, 3, 3), (N, 2, 2), (N, P, 3, 3), or (N, P, 2, 2) ndarray</span></dt><dd><p>Deviatoric stress tensor(s).</p>
+</dd>
+<dt>factor<span class="classifier">float, optional</span></dt><dd><p>Multiplicative factor in the invariant calculation (default is 0.5).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>second_invariant</strong> -- Second invariant magnitude for each tensor.</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_shear_rate_tensor">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_shear_rate_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">VelocityGrad</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_shear_rate_tensor" title="Link to this definition"></a></dt>
+<dd><p>Compute the symmetric shear rate tensor from a velocity gradient tensor, given by:</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\Gamma}(\mathbf{r}, t) := \frac{1}{2} \left( \nabla \mathbf{V}(\mathbf{r}, t) + \left[\nabla \mathbf{V}(\mathbf{r}, t)\right]^T \right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\nabla \mathbf{V}\)</span> is the velocity gradient tensor.</p>
+<section id="id56">
+<h3>Inputs<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>VelocityGrad<span class="classifier">(N, 3, 3) ndarray</span></dt><dd><p>Velocity gradient tensor for N points.</p>
+</dd>
+</dl>
+</section>
+<section id="id57">
+<h3>Outputs<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>ShearRateTensor<span class="classifier">(N, 3, 3) ndarray</span></dt><dd><p>Symmetric part of the velocity gradient tensor.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_vector_bulk_gradient">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_vector_bulk_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Velocity_bulk_CG</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/secondary.html#compute_vector_bulk_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_vector_bulk_gradient" title="Link to this definition"></a></dt>
+<dd><p>Compute the gradient tensor of a bulk velocity field on a regular grid. The gradient
+tensor is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\nabla \mathbf{V}(\mathbf{r}, t) =
+\begin{bmatrix}
+\frac{\partial u}{\partial x} &amp; \frac{\partial u}{\partial y} &amp; \frac{\partial u}{\partial z} \\
+\frac{\partial v}{\partial x} &amp; \frac{\partial v}{\partial y} &amp; \frac{\partial v}{\partial z} \\
+\frac{\partial w}{\partial x} &amp; \frac{\partial w}{\partial y} &amp; \frac{\partial w}{\partial z}
+\end{bmatrix}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{V} = (u, v, w)\)</span> is the velocity vector, and the partial derivatives are taken with respect to spatial coordinates.</p>
+<section id="id58">
+<h3>Inputs<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Velocity_bulk_CG<span class="classifier">(N, 3) ndarray</span></dt><dd><p>Flattened velocity field with 3 components per grid point.</p>
+</dd>
+<dt>nodes<span class="classifier">tuple of int</span></dt><dd><p>Shape of the grid. Can be (nx,), (nx, ny), or (nx, ny, nz).</p>
+</dd>
+<dt>spacing<span class="classifier">tuple of float</span></dt><dd><p>Grid spacings along each dimension (dx,), (dx, dy), or (dx, dy, dz).</p>
+</dd>
+</dl>
+</section>
+<section id="id59">
+<h3>Outputs<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>GradTen<span class="classifier">(N, 3, ndim) ndarray</span></dt><dd><p>Velocity gradient tensor at each grid point, where <cite>ndim</cite> is
+the number of spatial dimensions (1, 2, or 3).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If the dimensionality is not 1, 2, or 3.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function handles 1D, 2D, and 3D grids automatically.</p></li>
+<li><p>Output is flattened back to match the input node order.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_velgrad_leastsquares">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_velgrad_leastsquares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">displacement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_velgrad_leastsquares" title="Link to this definition"></a></dt>
+<dd><p>Compute the velocity gradient tensor at grid points using a least-squares approach based on particle contributions.</p>
+<p>Assuming that the velocity field can be locally approximated as a linear function of position around each grid point, the method minimizes the error in the velocity approximation for particles contributing to that grid point.
+The velocity field at a particle position is approximated as:</p>
+<p><span class="math notranslate nohighlight">\(\mathbf{V}(\mathbf{r}_i(t), t) := \mathbf{V}(\mathbf{r}, t) - \nabla \mathbf{V}(\mathbf{r}, t)\cdot(\mathbf{r}-\mathbf{r}_i)\)</span></p>
+<p>The velocity gradient tensor is then obtained by minimizing the error function:</p>
+<div class="math notranslate nohighlight">
+\[\varepsilon(\mathbf{G}(\mathbf{r})) :=
+\sum_i \Psi m_i
+\left|
+\mathbf{v}_i - \mathbf{V}(\mathbf{r}, t)
++ \mathbf{G}(\mathbf{r}) \cdot (\mathbf{r} - \mathbf{r}_i)
+\right|^2\]</div>
+<p>For which the optimal gradient tensor is given by:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{G}(\mathbf{r}) =
+\left(
+\sum_i \Psi m_i
+(\mathbf{r} - \mathbf{r}_i) \otimes (\mathbf{r} - \mathbf{r}_i)
+\right)^{-1}
+\left(
+\sum_i \Psi m_i
+(\mathbf{v}_i - \mathbf{V}(\mathbf{r}, t))
+\times (\mathbf{r} - \mathbf{r}_i)
+\right)\]</div>
+<section id="id60">
+<h3>Inputs<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>weights<span class="classifier">(N,) ndarray</span></dt><dd><p>Coarse-graining weights for each particle contribution.</p>
+</dd>
+<dt>visibility<span class="classifier">(N,) ndarray</span></dt><dd><p>Indices of particles contributing to each grid point, flattened.</p>
+</dd>
+<dt>grid_indices<span class="classifier">(G+1,) ndarray</span></dt><dd><p>Start and end indices in <cite>visibility</cite> for each grid point, where G is the number of grid points.</p>
+</dd>
+<dt>displacement<span class="classifier">(N, 3) ndarray</span></dt><dd><p>Displacement vectors from grid points to particles for each contribution.</p>
+</dd>
+<dt>Particle_Velocity<span class="classifier">(N, 3) ndarray</span></dt><dd><p>Velocities of particles for each contribution.</p>
+</dd>
+<dt>Particle_Mass<span class="classifier">(N,) ndarray</span></dt><dd><p>Masses of particles for each contribution.</p>
+</dd>
+<dt>Velocity_Field<span class="classifier">(G, 3) ndarray</span></dt><dd><p>Velocity field at grid points, used to compute relative velocities.</p>
+</dd>
+</dl>
+</section>
+<section id="id61">
+<h3>Outputs<a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>GradV<span class="classifier">(G, 3, 3) ndarray</span></dt><dd><p>Velocity gradient tensor at each grid point.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pysammos.macroscopic_fields.html" class="btn btn-neutral float-left" title="Macroscopic Fields" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pysammos.macroscopic_fields.sliced.html" class="btn btn-neutral float-right" title="Sliced" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

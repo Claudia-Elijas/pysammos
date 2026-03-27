@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.post_averaging.profiles &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pysammos.post_averaging.profiles</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.post_averaging.profiles</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functionality to perform vertical integration of variables</span>
+<span class="sd">in an xarray.Dataset along a specified profile dimension (x, y, or z).</span>
+<span class="sd">The integration is done by grouping data points based on their coordinate values</span>
+<span class="sd">along the profile dimension and summing the values of variables that have a &#39;point&#39;</span>
+<span class="sd">dimension. The summed values are then normalized by an area element factor calculated</span>
+<span class="sd">from the spacing and extent of the other two spatial dimensions.</span>
+
+<span class="sd">This module contains the `VerticalIntegrator` class with methods to:</span>
+<span class="sd">    - :func:`get_position_data` to extract position data for the specified profile dimension.</span>
+<span class="sd">    - :func:`get_area_factor` to calculate the area element factor for normalization.</span>
+<span class="sd">    - :func:`integration` to perform the vertical integration of relevant variables in the dataset.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+
+<div class="viewcode-block" id="VerticalIntegrator">
+<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VerticalIntegrator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">profile_dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">=</span> <span class="n">profile_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position_data</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_area_factor</span><span class="p">()</span>
+
+<div class="viewcode-block" id="VerticalIntegrator.get_position_data">
+<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.get_position_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_position_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+            <span class="n">dim_prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># y</span>
+            <span class="n">dim_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># x</span>
+            <span class="n">dim_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># z</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+            <span class="n">dim_prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># x</span>
+            <span class="n">dim_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># y</span>
+            <span class="n">dim_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># z</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">==</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span>
+            <span class="n">dim_prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># z</span>
+            <span class="n">dim_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># x</span>
+            <span class="n">dim_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;profile_dim must be one of &#39;x&#39;, &#39;y&#39;, or &#39;z&#39;&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">dim_prof</span><span class="p">,</span> <span class="n">dim_1</span><span class="p">,</span> <span class="n">dim_2</span></div>
+
+        
+        
+    <span class="c1"># get area factor: general version</span>
+<div class="viewcode-block" id="VerticalIntegrator.get_area_factor">
+<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.get_area_factor">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_area_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">        Calculate area element factor for normalization. </span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        coords_1 : xarray.DataArray</span>
+<span class="sd">            First coordinate array of coarse-grained data.</span>
+<span class="sd">        coords_2 : xarray.DataArray</span>
+<span class="sd">            Second coordinate array of coarse-grained data.</span>
+<span class="sd">        Outputs</span>
+<span class="sd">        -------</span>
+<span class="sd">        area_element : float</span>
+<span class="sd">            Area element factor for normalization.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">factors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_2</span><span class="p">):</span>
+            <span class="n">unique</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="c1"># get unique coordinate values</span>
+            <span class="k">if</span> <span class="n">unique</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># collapsed dimension → ignore</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">unique</span><span class="p">))</span> <span class="c1"># average spacing between unique coordinates</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="n">unique</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">unique</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="c1"># total extent of the coordinate</span>
+            <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="n">delta</span><span class="p">)</span> <span class="c1"># factor for this dimension</span>
+        <span class="n">area_element</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span> <span class="k">if</span> <span class="n">factors</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="c1"># default to 1.0 if no factors</span>
+
+        <span class="k">return</span> <span class="n">area_element</span></div>
+
+
+
+    <span class="c1"># general vertical integrate function</span>
+<div class="viewcode-block" id="VerticalIntegrator.integration">
+<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.integration">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">integration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Integrate all variables with a &#39;point&#39; dimension by grouping along the y coordinate</span>
+<span class="sd">        (either exact values or bins) and summing over the grouped &#39;point&#39;s, then multiply by area.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        ds : xr.Dataset</span>
+<span class="sd">            Input dataset containing variables, some of which have a &#39;point&#39; dim.</span>
+<span class="sd">        area_element : float</span>
+<span class="sd">            Area element to multiply the integrated sums by.</span>
+<span class="sd">        profile_dim : str</span>
+<span class="sd">            Name of the profile dimension (e.g., &#39;y&#39;, &#39;z&#39;, &#39;x&#39;).</span>
+
+<span class="sd">        Outputs</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            Dataset with variables (those that had &#39;point&#39;) integrated over vertical groups.</span>
+<span class="sd">            Group dimension will be &#39;y&#39; (exact).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting integration along profile dimension: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ensure profile_dim is attached as a coordinate on the &#39;point&#39; dimension</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_points</span><span class="o">.</span><span class="n">data</span><span class="p">)})</span>
+
+        <span class="c1"># Select only variables that actually have the &#39;point&#39; dimension</span>
+        <span class="n">vars_with_point</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;point&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">dims</span><span class="p">]</span>
+        <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">vars_with_point</span><span class="p">]</span>
+
+        <span class="c1"># Build the GroupBy over the selected variables</span>
+        <span class="n">gb</span> <span class="o">=</span> <span class="n">ds_sel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="p">)</span>
+
+        <span class="c1"># Sum within each group (reduces the grouped &#39;point&#39; dim), then scale by area</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_element</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completed integration along profile dimension: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

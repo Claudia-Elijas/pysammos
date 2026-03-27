@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Particle Phase &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Post Averaging" href="pysammos.post_averaging.html" />
+    <link rel="prev" title="Neighbour Search" href="pysammos.neighbour_search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Pysammos Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User-interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.html">Data Read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.html">Data Write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html">Grid Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Particle Phase</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#clustering-module">Clustering module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.post_averaging.html">Post Averaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html">Spatial Weights</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Pysammos Documentation</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.html">Coarse Graining User-interface</a></li>
+      <li class="breadcrumb-item active">Particle Phase</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pysammos.particle_phase.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="particle-phase">
+<h1>Particle Phase<a class="headerlink" href="#particle-phase" title="Link to this heading"></a></h1>
+<p>pysammos.particle_phase package</p>
+<p>Subpackage for particle phase analysis.</p>
+<p>Mixture theory conceives granular mixtures to be populated by all phases with associated partial macroscopic fields contributing to a bulk field, where a phase can be defined as any particle property,
+or combination of properties, such as density, size, shape, elasticity, roughness.
+In Pysammos we consider a phase to be defined by particle diameter and density, since they two properties directly related to the two main competing mechanisms in segregation: kinetic sieving and
+buoyancy, two ubiquitous processes in natural flows.</p>
+<p>In Pysammos the phase detection is carried out by clustering particle data using the k-means algorithm (see figure below).
+The optimum number of clusters is chosen to be that with the absolute maximum in silhouette value, a measure for how well each point matches its assigned cluster relative to the nearest neighbouring cluster (d in figure below).
+Afterwards, the k-means algorithm is applied to the dataset with the optimum number of clusters (e in figure below) to obtain the phase-ascribed arrays, which are stored as attributes of the class instance.</p>
+<figure class="align-left" id="id3">
+<a class="reference internal image-reference" href="_static/Clustering.png"><img alt="Clustering" src="_static/Clustering.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Example of particle phase clustering.</strong> Illustration of the approach to detect particle phases. Synthetic data set of a bimodal particle diameter distribution (a).
+Synthetic data set of a bimodal particle density distribution (b). Cross-plot corresponding to the diameter and density distributions in (a) and (b), respectively (c). Cross-plot containing the same particle samples as (c) coloured by the phase they are classified to according to the k-means algorithm using the optimum number of clusters (d). Silhouette score for a given number of clusters employed in the k-means algorithm (grey), and the corresponding second derivative (black) (e). The absolute maximum in (e) is chosen to be the optimum number of clusters (dashed red).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="clustering-module">
+<span id="module-pysammos.particle_phase"></span><h2>Clustering module<a class="headerlink" href="#clustering-module" title="Link to this heading"></a></h2>
+<p>pysammos.particle_phase.clustering module</p>
+<p id="module-pysammos.particle_phase.clustering">This module provides tools to identify distinct particle phases based on their physical properties,
+specifically particle diameter and density, using unsupervised clustering techniques.</p>
+<dl class="simple">
+<dt>This module contains two main functions:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.particle_phase.clustering.find_phases" title="pysammos.particle_phase.clustering.find_phases"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_phases()</span></code></a>: Applies KMeans clustering to particle diameter and density data to identify distinct phases.</p></li>
+<li><p><a class="reference internal" href="#pysammos.particle_phase.clustering.plot_phases" title="pysammos.particle_phase.clustering.plot_phases"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_phases()</span></code></a>: Visualizes the clustered particles and their phase cent</p></li>
+</ul>
+</dd>
+</dl>
+<p>The clustering approach incorporates silhouette score evaluation and curvature analysis to
+select the most meaningful number of phases, aiding in material characterization, mixture
+analysis, or other particulate system studies.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.particle_phase.clustering.find_phases">
+<span class="sig-prename descclassname"><span class="pre">pysammos.particle_phase.clustering.</span></span><span class="sig-name descname"><span class="pre">find_phases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle_diameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/particle_phase/clustering.html#find_phases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.particle_phase.clustering.find_phases" title="Link to this definition"></a></dt>
+<dd><p>Determine particle phases by clustering diameter and density data using KMeans.</p>
+<p>This function scales the input data, estimates the optimal number of clusters
+based on silhouette scores and the curvature of the score plot, then applies KMeans
+clustering to assign particles to phases.</p>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>particle_diameters<span class="classifier">float array, shape(N_particles,)</span></dt><dd><p>Array of particle diameters.</p>
+</dd>
+<dt>particle_densities<span class="classifier">float array, shape(N_particles,)</span></dt><dd><p>Array of particle densities.</p>
+</dd>
+<dt>n_max<span class="classifier">int</span></dt><dd><p>Maximum number of clusters to test for optimal clustering.</p>
+</dd>
+</dl>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>phases<span class="classifier">float array, shape(n_clusters, 2)</span></dt><dd><p>Cluster centroids in the original feature space (diameter, density).</p>
+</dd>
+<dt>phase_array<span class="classifier">float array, shape(N_particles,)</span></dt><dd><p>Cluster labels (phase indices) assigned to each particle.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.particle_phase.clustering.plot_phases">
+<span class="sig-prename descclassname"><span class="pre">pysammos.particle_phase.clustering.</span></span><span class="sig-name descname"><span class="pre">plot_phases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle_diameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">particle_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/particle_phase/clustering.html#plot_phases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.particle_phase.clustering.plot_phases" title="Link to this definition"></a></dt>
+<dd><p>Plot particle diameters vs densities colored by phase clusters with cluster centroids.</p>
+<section id="id1">
+<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>particle_diameters<span class="classifier">float array, shape(N_particles,)</span></dt><dd><p>Array of particle diameters.</p>
+</dd>
+<dt>particle_densities<span class="classifier">float, shape(N_particles,)</span></dt><dd><p>Array of particle densities.</p>
+</dd>
+<dt>phases<span class="classifier">float arra, shape(n_clusters, 2)</span></dt><dd><p>Cluster centroids in diameter-density space.</p>
+</dd>
+<dt>phase_array<span class="classifier">int array, shape(N_particles,)</span></dt><dd><p>Cluster labels for each particle.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Outputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>None</dt><dd><p>Displays a scatter plot showing clustered particles and centroids.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pysammos.neighbour_search.html" class="btn btn-neutral float-left" title="Neighbour Search" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pysammos.post_averaging.html" class="btn btn-neutral float-right" title="Post Averaging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,695 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spatial Weights &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials and Examples" href="examples.html" />
+    <link rel="prev" title="Post Averaging" href="pysammos.post_averaging.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Pysammos Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User-interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.html">Data Read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.html">Data Write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html">Grid Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html">Particle Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.post_averaging.html">Post Averaging</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Spatial Weights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hashtable-search-module">Hashtable Search module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kernels-module">Kernels module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resolution-module">Resolution module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Pysammos Documentation</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.html">Coarse Graining User-interface</a></li>
+      <li class="breadcrumb-item active">Spatial Weights</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pysammos.spatial_weights.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spatial-weights">
+<h1>Spatial Weights<a class="headerlink" href="#spatial-weights" title="Link to this heading"></a></h1>
+<p>pysammos.spatial_weights package</p>
+<p>Subpackage for spatial weighting functions and related utilities.</p>
+<p id="module-pysammos.spatial_weights">This subpackage contains the following modules:</p>
+<p><a class="reference internal" href="#hashtable-search-module"><span class="std std-ref">Hashtable Search module</span></a></p>
+<p><a class="reference internal" href="#kernels-module"><span class="std std-ref">Kernels module</span></a></p>
+<p><a class="reference internal" href="#resolution-module"><span class="std std-ref">Resolution module</span></a></p>
+<section id="hashtable-search-module">
+<span id="id1"></span><h2>Hashtable Search module<a class="headerlink" href="#hashtable-search-module" title="Link to this heading"></a></h2>
+<p>pysammos.spatial_weights.hashtable_search module</p>
+<p>To speed up repeated evaluations of the CG weights for particle-grid point pairs, we implemented a lookup table algorithm.
+This method discretises the input domain, and subsequently, evaluates the target function at those discrete points.
+The discretised points and their corresponding values yielded by the function are stored in a lookup table, with a corresponding index.
+Next, the continuous query values are mapped to the discrete index of the lookup table by dividing by the step size and rounding down.</p>
+<figure class="align-left" id="id32">
+<a class="reference internal image-reference" href="_images/lookup_table.png"><img alt="Hashtable Search" src="_images/lookup_table.png" style="width: 400px;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Example of a lookup table.</strong> Schematic diagram of the lookup table algorithm implemented in Pysammos. <em>r</em> corresponds to the distance between a particle and a grid point.
+The resolution of the lookup table is <em>res</em>. <em>W(r)</em> is the Coarse-Graining function, and <em>c</em> corresponds to its cut-off distance (i.e., <a href="#id2"><span class="problematic" id="id3">*</span></a>W(c)*=0).</span><a class="headerlink" href="#id32" title="Link to this image"></a></p>
+<div class="legend">
+</div>
+</figcaption>
+</figure>
+<p id="module-pysammos.spatial_weights.hashtable_search">This module provides functions to build and query hash tables for fast approximate evaluation of expensive functions.
+A hash table is constructed by precomputing function outputs at discrete input intervals. Queries on arbitrary inputs
+are answered by indexing into this table, trading some precision for speed.</p>
+<dl class="simple">
+<dt>This module contains the following functions:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.hashtable_search.make_hash_table" title="pysammos.spatial_weights.hashtable_search.make_hash_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_hash_table()</span></code></a>: Constructs a hash table of function values by sampling a given function over a specified range.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.hashtable_search.hash_table_search_1d" title="pysammos.spatial_weights.hashtable_search.hash_table_search_1d"><code class="xref py py-func docutils literal notranslate"><span class="pre">hash_table_search_1d()</span></code></a>: Efficiently searches the hash table for 1D arrays of query values.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.hashtable_search.hash_table_search_2d" title="pysammos.spatial_weights.hashtable_search.hash_table_search_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">hash_table_search_2d()</span></code></a>: Efficiently searches the hash table for 2D arrays of query values.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.hashtable_search.hash_table_search" title="pysammos.spatial_weights.hashtable_search.hash_table_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">hash_table_search()</span></code></a>: Dispatcher that routes queries to the correct 1D or 2D search function based on input dimensionality.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.hashtable_search.hash_table_search">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.hashtable_search.</span></span><span class="sig-name descname"><span class="pre">hash_table_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_table_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/hashtable_search.html#hash_table_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.hashtable_search.hash_table_search" title="Link to this definition"></a></dt>
+<dd><p>Dispatch function to route query_values to the appropriate hash table search function
+based on dimensionality.</p>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>query_values<span class="classifier">np.ndarray</span></dt><dd><p>Input values to query. Must be 1D or 2D array.</p>
+</dd>
+<dt>hash_table_outputs<span class="classifier">np.ndarray</span></dt><dd><p>Precomputed hash table outputs.</p>
+</dd>
+<dt>step_size<span class="classifier">float</span></dt><dd><p>Sampling interval used in hash table construction.</p>
+</dd>
+</dl>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>np.ndarray</dt><dd><p>Approximated function values with same shape as query_values.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If query_values is not 1D or 2D.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.hashtable_search.hash_table_search_1d">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.hashtable_search.</span></span><span class="sig-name descname"><span class="pre">hash_table_search_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_table_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.spatial_weights.hashtable_search.hash_table_search_1d" title="Link to this definition"></a></dt>
+<dd><p>Approximate function evaluation for 1D query arrays by indexing into the precomputed hash table.</p>
+<section id="id4">
+<h3>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>query_values<span class="classifier">np.ndarray, shape (N,)</span></dt><dd><p>1D array of input values to query.</p>
+</dd>
+<dt>hash_table_outputs<span class="classifier">np.ndarray, shape (M,)</span></dt><dd><p>Precomputed function values stored in the hash table.</p>
+</dd>
+<dt>step_size<span class="classifier">float</span></dt><dd><p>Sampling interval used to build the hash table.</p>
+</dd>
+</dl>
+</section>
+<section id="id5">
+<h3>Outputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>query_results<span class="classifier">np.ndarray, shape (N,)</span></dt><dd><p>Approximated function values corresponding to each input query.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.hashtable_search.hash_table_search_2d">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.hashtable_search.</span></span><span class="sig-name descname"><span class="pre">hash_table_search_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_table_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.spatial_weights.hashtable_search.hash_table_search_2d" title="Link to this definition"></a></dt>
+<dd><p>Approximate function evaluation for 2D query arrays by indexing into the precomputed hash table.</p>
+<section id="id6">
+<h3>Inputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>query_values<span class="classifier">np.ndarray, shape (N, M)</span></dt><dd><p>2D array of input values to query.</p>
+</dd>
+<dt>hash_table_outputs<span class="classifier">np.ndarray, shape (K,)</span></dt><dd><p>Precomputed function values stored in the hash table.</p>
+</dd>
+<dt>step_size<span class="classifier">float</span></dt><dd><p>Sampling interval used to build the hash table.</p>
+</dd>
+</dl>
+</section>
+<section id="id7">
+<h3>Outputs<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>out<span class="classifier">np.ndarray, shape (N, M)</span></dt><dd><p>Approximated function values corresponding to each input query.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.hashtable_search.make_hash_table">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.hashtable_search.</span></span><span class="sig-name descname"><span class="pre">make_hash_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitivity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/hashtable_search.html#make_hash_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.hashtable_search.make_hash_table" title="Link to this definition"></a></dt>
+<dd><p>Construct a hash table by sampling a function at discrete input intervals.</p>
+<section id="id8">
+<h3>Inputs<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>func<span class="classifier">callable</span></dt><dd><p>The function to sample. Must accept two arguments: max_value and input_value.</p>
+</dd>
+<dt>max_value<span class="classifier">float</span></dt><dd><p>The maximum input value to sample up to.</p>
+</dd>
+<dt>sensitivity<span class="classifier">float</span></dt><dd><p>Controls the granularity of the hash table sampling by dividing the
+position of the first significant digit of max_value.</p>
+</dd>
+</dl>
+</section>
+<section id="id9">
+<h3>Outputs<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>hash_table_outputs<span class="classifier">np.ndarray</span></dt><dd><p>Array of function values sampled at discrete points from step_size to max_value.</p>
+</dd>
+<dt>step_size<span class="classifier">float</span></dt><dd><p>The sampling interval between hash table inputs.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The step_size is calculated as the position of the first significant figure of max_value
+divided by sensitivity. The hash table inputs are then generated from step_size up to max_value
+in increments of step_size. The function is vectorized over these inputs to produce the outputs.</p>
+</section>
+</dd></dl>
+
+</section>
+<section id="kernels-module">
+<span id="id10"></span><h2>Kernels module<a class="headerlink" href="#kernels-module" title="Link to this heading"></a></h2>
+<p>pysammos.spatial_weights.kernels module</p>
+<figure class="align-left" id="id33">
+<a class="reference internal image-reference" href="_images/Weights.png"><img alt="Spatial Weights Kernels" src="_images/Weights.png" style="width: 300px;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Example of spatial weights kernels.</strong> Visualisation of the three implemented Coarse-graining weighting functions, W(r), in one dimension (r)
+normalised by the half-width (w). Note that the functions have been plotted with equal variance in order to ensure that any differences are due to kernel shape, not scale.</span><a class="headerlink" href="#id33" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p id="module-pysammos.spatial_weights.kernels">This module provides a collection of commonly used kernel functions for
+smoothing, weighting, and interpolation in particle-based methods such as
+Smoothed Particle Hydrodynamics (SPH) or coarse-graining techniques.</p>
+<p>This module includes implementations of several kernel functions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.kernels.lucy" title="pysammos.spatial_weights.kernels.lucy"><code class="xref py py-func docutils literal notranslate"><span class="pre">lucy()</span></code></a>: The Lucy kernel, a smooth, compactly supported kernel with continuous derivatives.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.kernels.h" title="pysammos.spatial_weights.kernels.h"><code class="xref py py-func docutils literal notranslate"><span class="pre">h()</span></code></a>: The top-hat (step) function, a simple binary indicator function.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.kernels.heavySide" title="pysammos.spatial_weights.kernels.heavySide"><code class="xref py py-func docutils literal notranslate"><span class="pre">heavySide()</span></code></a>: The Heaviside kernel, which provides uniform weighting inside a spherical cutoff volume.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.kernels.gaussian" title="pysammos.spatial_weights.kernels.gaussian"><code class="xref py py-func docutils literal notranslate"><span class="pre">gaussian()</span></code></a>: The Gaussian kernel, a smooth, bell-shaped kernel with compact support truncated at three standard deviations.</p></li>
+</ul>
+</div></blockquote>
+<p>Each kernel function computes a weight based on the distance from a kernel center
+and a cutoff radius, ensuring locality and normalization properties as appropriate.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.kernels.gaussian">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.kernels.</span></span><span class="sig-name descname"><span class="pre">gaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/kernels.html#gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.kernels.gaussian" title="Link to this definition"></a></dt>
+<dd><p>Gaussian kernel function with compact support.</p>
+<p>Computes the Gaussian kernel value used for continuous interpolation or
+smoothing operations. The kernel is truncated at the cutoff distance <cite>c</cite>,
+which corresponds to three standard deviations.</p>
+<div class="math notranslate nohighlight">
+\[w = \dfrac{c}{3}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}W(r) =
+\begin{cases}
+\dfrac{1}{V_w} \exp\left(-\dfrac{r^2}{2w^2}\right) &amp; \text{if } r \leq c \\
+0 &amp; \text{if } r &gt; c
+\end{cases}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(V_w\)</span> is a normalization constant to ensure the kernel integrates to 1:</p>
+<div class="math notranslate nohighlight">
+\[V_w = 2\sqrt{2}w^3\pi^{3/2}
+\operatorname{erf}\left(\dfrac{c\sqrt{2}}{2w}\right)
+- 4cw^2\pi \exp\left(-\dfrac{c^2}{2w^2}\right)\]</div>
+<section id="id11">
+<h3>Inputs<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>c<span class="classifier">float</span></dt><dd><p>Cutoff distance (typically <cite>3σ</cite>).</p>
+</dd>
+<dt>dist<span class="classifier">float</span></dt><dd><p>Distance between the evaluation point and the kernel center.</p>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h3>Outputs<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>W<span class="classifier">float</span></dt><dd><p>The Gaussian kernel value.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.kernels.h">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.kernels.</span></span><span class="sig-name descname"><span class="pre">h</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/kernels.html#h"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.kernels.h" title="Link to this definition"></a></dt>
+<dd><p>Top-hat (step) function.</p>
+<p>A basic step function defined as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}h(x) =
+\begin{cases}
+1 &amp; \text{if } x &gt; 0 \\
+0 &amp; \text{otherwise}
+\end{cases}\end{split}\]</div>
+<section id="id13">
+<h3>Inputs<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>dis<span class="classifier">float</span></dt><dd><p>Input value.</p>
+</dd>
+</dl>
+</section>
+<section id="id14">
+<h3>Outputs<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>int</dt><dd><p>1 if <cite>dis &gt; 0</cite>, otherwise 0.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.kernels.heavySide">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.kernels.</span></span><span class="sig-name descname"><span class="pre">heavySide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/kernels.html#heavySide"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.kernels.heavySide" title="Link to this definition"></a></dt>
+<dd><p>Heaviside kernel function.</p>
+<p>Computes the Heaviside (uniform sphere) kernel value for a given distance.</p>
+<p>The function returns:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}H(r) =
+\begin{cases}
+\dfrac{1}{\Omega} &amp; \text{if } r \leq c \\
+0 &amp; \text{otherwise}
+\end{cases}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Omega = \dfrac{4}{3}\pi c^3\)</span> is the normalization volume of a sphere.</p>
+<section id="id15">
+<h3>Inputs<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>c<span class="classifier">float</span></dt><dd><p>Cutoff distance (radius of the uniform sphere).</p>
+</dd>
+<dt>dist<span class="classifier">float</span></dt><dd><p>Distance from the kernel center.</p>
+</dd>
+</dl>
+</section>
+<section id="id16">
+<h3>Outputs<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>HS<span class="classifier">float</span></dt><dd><p>The Heaviside kernel value.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.kernels.lucy">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.kernels.</span></span><span class="sig-name descname"><span class="pre">lucy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/kernels.html#lucy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.kernels.lucy" title="Link to this definition"></a></dt>
+<dd><p>Lucy kernel function.</p>
+<p>Computes the Lucy weight at a given distance within the cutoff radius.</p>
+<p>The Lucy kernel is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}W(r) =
+\begin{cases}
+\dfrac{105}{16\pi c^3} \left(
+    -3\left(\dfrac{r}{c}\right)^4
+    + 8\left(\dfrac{r}{c}\right)^3
+    - 6\left(\dfrac{r}{c}\right)^2
+    + 1
+\right) &amp; \text{if } r \leq c \\
+0 &amp; \text{if } r &gt; c
+\end{cases}\end{split}\]</div>
+<section id="id17">
+<h3>Inputs<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>c<span class="classifier">float</span></dt><dd><p>Cutoff distance.</p>
+</dd>
+<dt>dist<span class="classifier">float</span></dt><dd><p>Distance between the evaluation point and the kernel center.</p>
+</dd>
+</dl>
+</section>
+<section id="id18">
+<h3>Outputs<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>W<span class="classifier">float</span></dt><dd><p>The weight computed from the Lucy kernel.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="resolution-module">
+<span id="id19"></span><h2>Resolution module<a class="headerlink" href="#resolution-module" title="Link to this heading"></a></h2>
+<p>pysammos.spatial_weights.resolution module</p>
+<p id="module-pysammos.spatial_weights.resolution">This module provides helper functions for determining characteristic length
+scales used in kernel-based coarse-graining, smoothing, and interpolation
+methods. These parameters are essential in defining the support domain of a
+kernel function and thus controlling the spatial resolution of computed
+fields.</p>
+<dl class="simple">
+<dt>This module includes the following functions:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.resolution.calc_half_width" title="pysammos.spatial_weights.resolution.calc_half_width"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_half_width()</span></code></a>: Computes the kernel half-width <cite>w</cite> from an average particle diameter <cite>D</cite> scaled by a user-defined multiplicative factor.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.resolution.calc_cutoff" title="pysammos.spatial_weights.resolution.calc_cutoff"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_cutoff()</span></code></a>: Computes the kernel cutoff radius <cite>c</cite> based on the half-width <cite>w</cite> and the chosen kernel type (Lucy, Gaussian, or HeavySide).</p></li>
+</ul>
+</dd>
+</dl>
+<p>These functions are often called during preprocessing to set consistent
+smoothing parameters for all particles in a simulation, ensuring that the
+kernel shape and support are appropriately scaled to particle size.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.resolution.calc_cutoff">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.resolution.</span></span><span class="sig-name descname"><span class="pre">calc_cutoff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/resolution.html#calc_cutoff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.resolution.calc_cutoff" title="Link to this definition"></a></dt>
+<dd><p>Calculate the cutoff radius <cite>c</cite> for a given kernel function.</p>
+<p>This function determines the cutoff distance <span class="math notranslate nohighlight">\(c\)</span> used to truncate the kernel
+or filter function, based on the half-width <cite>w</cite> and the specified kernel type.</p>
+<p>The cutoff <cite>c</cite> is calculated as:</p>
+<ul class="simple">
+<li><p>For the Lucy kernel: <span class="math notranslate nohighlight">\(c = 2w\)</span></p></li>
+<li><p>For the Gaussian kernel: <span class="math notranslate nohighlight">\(c = 3w\)</span></p></li>
+<li><p>For the Heaviside (step) function: <span class="math notranslate nohighlight">\(c = w\)</span></p></li>
+</ul>
+<section id="id20">
+<h3>Inputs<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>w<span class="classifier">float</span></dt><dd><p>The half-width parameter used in the kernel.</p>
+</dd>
+<dt>function<span class="classifier">str</span></dt><dd><p>The name of the kernel function. Must be one of:
+<cite>'Lucy'</cite>, <cite>'Gaussian'</cite>, or <cite>'HeavySide'</cite>.</p>
+</dd>
+</dl>
+</section>
+<section id="id21">
+<h3>Outputs<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>c<span class="classifier">float</span></dt><dd><p>The calculated cutoff value.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If the <cite>function</cite> argument is not one of the supported types.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.resolution.calc_half_width">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.resolution.</span></span><span class="sig-name descname"><span class="pre">calc_half_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Average_part_diam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_mult</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/resolution.html#calc_half_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.resolution.calc_half_width" title="Link to this definition"></a></dt>
+<dd><p>Calculate the half-width parameter <cite>w</cite> based on average particle diameter.</p>
+<p>This function computes the smoothing or weighting half-width <cite>w</cite> used in kernel
+functions for back-projection or filtering processes. The value of <cite>w</cite> is
+computed by scaling the average particle diameter by a multiplicative factor.</p>
+<div class="math notranslate nohighlight">
+\[w = w_{\text{mult}} \cdot D\]</div>
+<p>where <span class="math notranslate nohighlight">\(D\)</span> is the average particle diameter and <span class="math notranslate nohighlight">\(w_{\text{mult}}\)</span> is
+the user-defined multiplicative scaling factor.</p>
+<section id="id22">
+<h3>Inputs<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Average_part_diam<span class="classifier">float</span></dt><dd><p>The average particle diameter <span class="math notranslate nohighlight">\(D\)</span>.</p>
+</dd>
+<dt>w_mult<span class="classifier">float, optional</span></dt><dd><p>The multiplicative factor for calculating the half-width <cite>w</cite>.
+Default is 0.75.</p>
+</dd>
+</dl>
+</section>
+<section id="id23">
+<h3>Outputs<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>w<span class="classifier">float</span></dt><dd><p>The computed half-width <cite>w</cite>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<p id="module-pysammos.spatial_weights.utils">This module provides utility functions commonly used in numerical computations, particularly in physics and
+engineering simulations involving integration along branches or paths, and geometric distance calculations.</p>
+<p>This module includes the following functions:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.utils.first_significant_figure_position" title="pysammos.spatial_weights.utils.first_significant_figure_position"><code class="xref py py-func docutils literal notranslate"><span class="pre">first_significant_figure_position()</span></code></a>: Computes the positional value of the first significant figure in a given number.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.utils.integration_scalar" title="pysammos.spatial_weights.utils.integration_scalar"><code class="xref py py-func docutils literal notranslate"><span class="pre">integration_scalar()</span></code></a>: Generates a linearly spaced scalar array for integration purposes.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.utils.trapezoidal_integration" title="pysammos.spatial_weights.utils.trapezoidal_integration"><code class="xref py py-func docutils literal notranslate"><span class="pre">trapezoidal_integration()</span></code></a>: Performs trapezoidal numerical integration on a sampled function W over an interval.</p></li>
+<li><p><a class="reference internal" href="#pysammos.spatial_weights.utils.compute_dist_along_branch" title="pysammos.spatial_weights.utils.compute_dist_along_branch"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_dist_along_branch()</span></code></a>: Computes Euclidean distances along a branch for multiple contact points and scalar steps.</p></li>
+</ul>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.utils.compute_dist_along_branch">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.utils.</span></span><span class="sig-name descname"><span class="pre">compute_dist_along_branch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_ri_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">BranchVector_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">part_ind_c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.spatial_weights.utils.compute_dist_along_branch" title="Link to this definition"></a></dt>
+<dd><p>Compute Euclidean distances along a branch for multiple contact points and scalar steps.</p>
+<div class="math notranslate nohighlight">
+\[d_{ij} = \left\| \mathbf{r}_{ri}^{(j)} + s_i \, \mathbf{B}_{\text{part}}^{(k_j)} \right\|_2\]</div>
+<p>where:</p>
+<p><span class="math notranslate nohighlight">\(d_{ij}\)</span> is the distance for scalar step <span class="math notranslate nohighlight">\(s_i\)</span> and contact point <span class="math notranslate nohighlight">\(j\)</span>,
+<span class="math notranslate nohighlight">\(\mathbf{r}_{ri}^{(j)}\)</span> is the displacement vector from the reference point to contact point <span class="math notranslate nohighlight">\(j\)</span>,
+<span class="math notranslate nohighlight">\(s_i\)</span> is the scalar step along the branch,
+<span class="math notranslate nohighlight">\(\mathbf{B}_{\text{part}}^{(k_j)}\)</span> is the branch direction vector associated with particle <span class="math notranslate nohighlight">\(k_j\)</span>,
+and <span class="math notranslate nohighlight">\(k_j = \text{part_ind_c}[j]\)</span> is the index mapping contact points to particles.</p>
+<section id="id24">
+<h3>Inputs<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>r_ri_c<span class="classifier">np.ndarray, shape (n_contacts, 3)</span></dt><dd><p>Displacement vectors from reference points to contact points.</p>
+</dd>
+<dt>s<span class="classifier">np.ndarray, shape (n_s,)</span></dt><dd><p>Scalars along the branch for which distances are computed.</p>
+</dd>
+<dt>BranchVector_i<span class="classifier">np.ndarray, shape (n_particles, 3)</span></dt><dd><p>Branch direction vectors associated with each particle.</p>
+</dd>
+<dt>part_ind_c<span class="classifier">np.ndarray, shape (n_contacts,)</span></dt><dd><p>Indices mapping contacts to corresponding particles in BranchVector_i.</p>
+</dd>
+</dl>
+</section>
+<section id="id25">
+<h3>Outputs<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>np.ndarray, shape (n_s, n_contacts)</dt><dd><p>Euclidean distances along the branch for each scalar step and contact.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function is JIT-compiled with Numba and parallelized for efficiency.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_ri_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BranchVector_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">part_ind_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compute_dist_along_branch</span><span class="p">(</span><span class="n">r_ri_c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">BranchVector_i</span><span class="p">,</span> <span class="n">part_ind_c</span><span class="p">)</span>
+<span class="go">array([[1., 1.],</span>
+<span class="go">       [2., 2.]])</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.utils.first_significant_figure_position">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.utils.</span></span><span class="sig-name descname"><span class="pre">first_significant_figure_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/utils.html#first_significant_figure_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.utils.first_significant_figure_position" title="Link to this definition"></a></dt>
+<dd><p>Calculate the position (value) of the first significant figure of a number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+<section id="id26">
+<h3>Inputs<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>number<span class="classifier">float</span></dt><dd><p>Input number to analyze.</p>
+</dd>
+</dl>
+</section>
+<section id="id27">
+<h3>Outputs<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>float</dt><dd><p>The value of the first significant figure's position.
+For example, if number = 345.6, returns 100.0.
+Special case: returns 0 if number is zero.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">first_significant_figure_position</span><span class="p">(</span><span class="mf">345.6</span><span class="p">)</span>
+<span class="go">100.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first_significant_figure_position</span><span class="p">(</span><span class="mf">0.00789</span><span class="p">)</span>
+<span class="go">0.001</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first_significant_figure_position</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.utils.integration_scalar">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.utils.</span></span><span class="sig-name descname"><span class="pre">integration_scalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/utils.html#integration_scalar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.utils.integration_scalar" title="Link to this definition"></a></dt>
+<dd><p>Create a linearly spaced scalar array for integration over [s0, s1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+<section id="id28">
+<h3>Inputs<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>s0<span class="classifier">float</span></dt><dd><p>Start of the integration interval.</p>
+</dd>
+<dt>s1<span class="classifier">float</span></dt><dd><p>End of the integration interval.</p>
+</dd>
+<dt>n<span class="classifier">int</span></dt><dd><p>Number of sample points.</p>
+</dd>
+</dl>
+</section>
+<section id="id29">
+<h3>Outputs<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>np.ndarray, shape (n,)</dt><dd><p>Linearly spaced array of scalars from s0 to s1.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">integration_scalar</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="go">array([0.  , 0.25, 0.5 , 0.75, 1.  ])</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.spatial_weights.utils.trapezoidal_integration">
+<span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.utils.</span></span><span class="sig-name descname"><span class="pre">trapezoidal_integration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/utils.html#trapezoidal_integration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.utils.trapezoidal_integration" title="Link to this definition"></a></dt>
+<dd><p>Compute numerical integral of sampled function W using the trapezoidal rule.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}I_m = \int_{s_0}^{s_1} W_m(s) \, ds
+\approx \frac{\Delta s}{2} \left( W_m(s_0) + 2 \sum_{i=1}^{n-2} W_m(s_i) + W_m(s_{n-1}) \right) \\
+\text{for } m = 0, \ldots, M-1\end{split}\]</div>
+<p>where:
+<span class="math notranslate nohighlight">\(I_m\)</span> is the integral of the m-th component of W,
+<span class="math notranslate nohighlight">\(W_m(s)\)</span> is the m-th component of the function W evaluated at s,
+<span class="math notranslate nohighlight">\(s_0\)</span> and <span class="math notranslate nohighlight">\(s_1\)</span> are the integration bounds,
+<span class="math notranslate nohighlight">\(n\)</span> is the number of sample points,
+<span class="math notranslate nohighlight">\(\Delta s = \frac{s_1 - s_0}{n-1}\)</span> is the step size,
+and <span class="math notranslate nohighlight">\(M\)</span> is the number of components (columns) in W.</p>
+<section id="id30">
+<h3>Inputs<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>s0<span class="classifier">float</span></dt><dd><p>Start of the integration interval.</p>
+</dd>
+<dt>s1<span class="classifier">float</span></dt><dd><p>End of the integration interval.</p>
+</dd>
+<dt>n<span class="classifier">int</span></dt><dd><p>Number of sample points.</p>
+</dd>
+<dt>W<span class="classifier">np.ndarray, shape (n, m)</span></dt><dd><p>Values of the function sampled at the points defined by s0, s1, and n.
+Integration is performed along the first axis.</p>
+</dd>
+</dl>
+</section>
+<section id="id31">
+<h3>Outputs<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>np.ndarray, shape (m,)</dt><dd><p>Resulting integral values for each column of W.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trapezoidal_integration</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+<span class="go">array([5.0])</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pysammos.post_averaging.html" class="btn btn-neutral float-left" title="Post Averaging" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Tutorials and Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quality Check" href="pysammos.data_handle.contacts.qualitycheck.html" />
+    <link rel="prev" title="Contacts" href="pysammos.data_handle.contacts.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Pysammos Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User-interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="pysammos.data_handle.contacts.html">Contacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pysammos.data_handle.particles.html">Particles</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_read.html">Data Read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.html">Data Write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html">Grid Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html">Particle Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.post_averaging.html">Post Averaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html">Spatial Weights</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Pysammos Documentation</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.html">Coarse Graining User-interface</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.data_handle.html">Data Handle</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.data_handle.contacts.html">Contacts</a></li>
+      <li class="breadcrumb-item active">Complete</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pysammos.data_handle.contacts.complete.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="complete">
+<h1>Complete<a class="headerlink" href="#complete" title="Link to this heading"></a></h1>
+<p>pysammos.data_handle.contacts.complete package</p>
+<p>Subpackage for completing contact data with additional information,
+such as branch vectors and coordination numbers.</p>
+<section id="branch-vectors-module">
+<span id="module-pysammos.data_handle.contacts.complete"></span><h2>Branch Vectors module<a class="headerlink" href="#branch-vectors-module" title="Link to this heading"></a></h2>
+<p>pysammos.data_handle.contacts.complete.branch_vectors module</p>
+<p>Periodic boundary corrections along each axis using the Minimum Image Convention (MIC), by which displacements are calculated to the nearest periodic equivalent, as showen in the figure below.</p>
+<figure class="align-left" id="id5">
+<a class="reference internal image-reference" href="_images/periodic_boundaries.png"><img alt="Branch Vectors" src="_images/periodic_boundaries.png" style="width: 500px;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Example of minimum image convention.</strong> Two-dimensional illustration of the application of the Minimum Image
+Convention (MIC) for particle pairs located well within the model domain
+(a) and interacting across periodic boundaries (b). In case (b),
+displacement vectors are computed using the nearest periodic image.
+All particles have identical radius (<span class="math notranslate nohighlight">\(r = 0.5\)</span>). The contact point,
+<span class="math notranslate nohighlight">\(r_C\)</span>, is defined on particle <span class="math notranslate nohighlight">\(A\)</span> (purple) and is depicted
+with a black point. The branch vector from the contact point to the
+centre of particle <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(r_{CA}\)</span>, is shown by the black arrow,
+while the vector from the centre of particle <span class="math notranslate nohighlight">\(B\)</span> (red) to the centre
+of particle <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(r_{BA}\)</span>, is indicated by the blue arrow.
+The boundaries of the model domain are delineated by the black box.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p id="module-pysammos.data_handle.contacts.complete.branch_vectors">This module provides functions to calculate branch vectors and center-to-center vectors
+between particles in a simulation, considering periodic boundary conditions.
+It includes two main functions:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><a class="reference internal" href="#pysammos.data_handle.contacts.complete.branch_vectors.from_contacts" title="pysammos.data_handle.contacts.complete.branch_vectors.from_contacts"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_contacts()</span></code></a>: Computes branch vectors from contact positions.</p></li>
+<li><p><a class="reference internal" href="#pysammos.data_handle.contacts.complete.branch_vectors.from_diameters" title="pysammos.data_handle.contacts.complete.branch_vectors.from_diameters"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_diameters()</span></code></a>: Computes branch vectors based on particle diameters.</p></li>
+</ol>
+</div></blockquote>
+<p>These functions handle periodic boundary corrections to ensure accurate vector calculations
+in simulations with periodic boundaries.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_handle.contacts.complete.branch_vectors.from_contacts">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_handle.contacts.complete.branch_vectors.</span></span><span class="sig-name descname"><span class="pre">from_contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_handle/contacts/complete/branch_vectors.html#from_contacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_handle.contacts.complete.branch_vectors.from_contacts" title="Link to this definition"></a></dt>
+<dd><p>Computes the branch vector <span class="math notranslate nohighlight">\(\mathbf{B_v}\)</span> from the center of particle A
+to its contact point, as well as the center-to-center vector <span class="math notranslate nohighlight">\(\mathbf{d}\)</span>
+between particles A and B. It uses the position of the contact between the two particles.
+The function handles periodic boundary corrections along each axis.</p>
+<p>Let:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{r}_A\)</span>, <span class="math notranslate nohighlight">\(\mathbf{r}_B\)</span> be the center positions of particles A and B.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{c}_A\)</span> be the contact point on particle A.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{L}\)</span> be the domain size.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{p}\)</span> be the periodicity flags (True/False) per dimension.</p></li>
+</ul>
+<p>The branch vector is computed as:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{B_v} = \mathbf{r}_A - \mathbf{c}_A\]</div>
+<p>And the center-to-center vector is:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{d} = \mathbf{r}_A - \mathbf{r}_B\]</div>
+<p>Periodic corrections are applied:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{d}_i \leftarrow \mathbf{d}_i - L_i \cdot \mathrm{round}\left(\frac{\mathbf{d}_i}{L_i}\right)\]</div>
+<p>for each dimension <span class="math notranslate nohighlight">\(i\)</span> where periodicity is enabled.</p>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>r_A<span class="classifier">ndarray, shape (N, 3)</span></dt><dd><p>Center positions of particle A.</p>
+</dd>
+<dt>r_B<span class="classifier">ndarray, shape (N, 3)</span></dt><dd><p>Center positions of particle B.</p>
+</dd>
+<dt>contact_A<span class="classifier">ndarray, shape (N, 3)</span></dt><dd><p>Contact points on particle A.</p>
+</dd>
+<dt>L<span class="classifier">ndarray, shape (3,)</span></dt><dd><p>Domain dimensions.</p>
+</dd>
+<dt>periodic<span class="classifier">ndarray, shape (3,)</span></dt><dd><p>Boolean array indicating periodicity in each spatial dimension.</p>
+</dd>
+</dl>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>BV<span class="classifier">ndarray, shape (N, 3)</span></dt><dd><p>Branch vectors from particle A center to contact point.</p>
+</dd>
+<dt>d<span class="classifier">ndarray, shape (N, 3)</span></dt><dd><p>Center-to-center vectors between particles A and B.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Given two particles A and B with positions and a contact point on A, the branch vector
+and center-to-center vector can be computed as follows.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contact_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">periodic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">BV</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">from_contacts</span><span class="p">(</span><span class="n">r_A</span><span class="p">,</span> <span class="n">r_B</span><span class="p">,</span> <span class="n">contact_A</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">periodic</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Branch Vectors:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">BV</span><span class="p">)</span>
+<span class="go">Branch Vectors:</span>
+<span class="go">[[-0.5  0. ]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Center-to-Center Vectors:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="go">Center-to-Center Vectors:</span>
+<span class="go">[[-1.  0. ]]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_handle.contacts.complete.branch_vectors.from_diameters">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_handle.contacts.complete.branch_vectors.</span></span><span class="sig-name descname"><span class="pre">from_diameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_handle/contacts/complete/branch_vectors.html#from_diameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_handle.contacts.complete.branch_vectors.from_diameters" title="Link to this definition"></a></dt>
+<dd><p>Computes the branch vector <span class="math notranslate nohighlight">\(\mathbf{B_v}\)</span> from the center of particle A
+to its contact point, as well as the center-to-center vector <span class="math notranslate nohighlight">\(\mathbf{d}\)</span>
+between particles A and B. It uses the position of the two particles and their diameters.
+The function handles periodic boundary corrections along each axis.</p>
+<p>Given:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{r}_A, \mathbf{r}_B\)</span> — positions of particles A and B</p></li>
+<li><p><span class="math notranslate nohighlight">\(d_A, d_B\)</span> — diameters of particles A and B</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{L}\)</span> — domain lengths</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{p}\)</span> — periodic boundary flags</p></li>
+</ul>
+<p>The center-to-center vector is:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{d} = \mathbf{r}_A - \mathbf{r}_B\]</div>
+<p>After applying periodic corrections:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{d}_i \leftarrow \mathbf{d}_i - L_i \cdot \mathrm{round}\left(\frac{\mathbf{d}_i}{L_i}\right)\]</div>
+<p>The branch vector from the center of particle A to the contact point is:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{BV} = \mathbf{d} \cdot \frac{d_A}{d_A + d_B}\]</div>
+<section id="id1">
+<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>r_A<span class="classifier">ndarray, shape (N, 3).</span></dt><dd><p>Center positions of particle A.</p>
+</dd>
+<dt>r_B<span class="classifier">ndarray, shape (N, 3).</span></dt><dd><p>Center positions of particle B.</p>
+</dd>
+<dt>d_A<span class="classifier">ndarray, shape (N,).</span></dt><dd><p>Diameters of particle A.</p>
+</dd>
+<dt>d_B<span class="classifier">ndarray, shape (N,).</span></dt><dd><p>Diameters of particle B.</p>
+</dd>
+<dt>L<span class="classifier">array_like, shape (3,).</span></dt><dd><p>Domain dimensions.</p>
+</dd>
+<dt>periodic<span class="classifier">array_like, shape (3,).</span></dt><dd><p>Periodicity flags (True/False) for each axis.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Outputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>BV<span class="classifier">ndarray, shape (N, 3).</span></dt><dd><p>Branch vectors from particle A to contact points.</p>
+</dd>
+<dt>d<span class="classifier">ndarray, shape (N, 3).</span></dt><dd><p>Periodically corrected center-to-center vectors.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="coordination-number-module">
+<h2>Coordination Number module<a class="headerlink" href="#coordination-number-module" title="Link to this heading"></a></h2>
+<p>pysammos.data_handle.contacts.complete.coordination_number module</p>
+<p id="module-pysammos.data_handle.contacts.complete.coordination_number">This module provides functionality to calculate the coordination number of particles
+based on their contacts. It counts the number of contacts for each particle and
+excludes isolated particles (rattlers) that have fewer than two contacts.</p>
+<p>It uses Numba for efficient computation, especially for large datasets.</p>
+<dl class="simple">
+<dt>It includes one main function:</dt><dd><ol class="arabic simple">
+<li><p><a class="reference internal" href="#pysammos.data_handle.contacts.complete.coordination_number.count" title="pysammos.data_handle.contacts.complete.coordination_number.count"><code class="xref py py-func docutils literal notranslate"><span class="pre">count()</span></code></a>: Counts the number of contacts per particle and excludes isolated ones.</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_handle.contacts.complete.coordination_number.count">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_handle.contacts.complete.coordination_number.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle_inContacts_dup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_id_all</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.data_handle.contacts.complete.coordination_number.count" title="Link to this definition"></a></dt>
+<dd><p>Count the number of contacts per particle and exclude isolated ones.</p>
+<p>Counts the number of times each particle ID appears in the contact list,
+returning both the full list and the filtered one (excluding particles with
+fewer than two contacts).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+<section id="id3">
+<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>particle_inContacts_dup<span class="classifier">ndarray, shape (N,).</span></dt><dd><p>Array of particle IDs involved in contacts (may contain duplicates).</p>
+</dd>
+<dt>global_id_all<span class="classifier">ndarray, shape (M,).</span></dt><dd><p>List of all particle IDs for which coordination numbers are computed.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3>Outputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>CN<span class="classifier">ndarray, shape (M,).</span></dt><dd><p>Coordination numbers (number of contacts) for each particle in <cite>global_id_all</cite>.</p>
+</dd>
+<dt>CN_no_rattlers<span class="classifier">ndarray, shape (K,).</span></dt><dd><p>Coordination numbers excluding &quot;rattlers&quot; (particles with &lt;= 1 contact).</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">particle_inContacts_dup</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">global_id_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CN</span><span class="p">,</span> <span class="n">CN_no_rattlers</span> <span class="o">=</span> <span class="n">count</span><span class="p">(</span><span class="n">particle_inContacts_dup</span><span class="p">,</span> <span class="n">global_id_all</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">CN</span><span class="p">)</span>  <span class="c1"># Output: [3 2 1]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">CN_no_rattlers</span><span class="p">)</span>  <span class="c1"># Output: [3 2]</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pysammos.data_handle.contacts.html" class="btn btn-neutral float-left" title="Contacts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pysammos.data_handle.contacts.qualitycheck.html" class="btn btn-neutral float-right" title="Quality Check" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

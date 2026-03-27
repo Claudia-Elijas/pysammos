@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bedload Transport Example: 2-dimensional Coarse Graining &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Benchmarks" href="../benchmarks.html" />
+    <link rel="prev" title="Tutorials and Examples" href="../examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Tutorials and Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Bedload Transport Example: 2-dimensional Coarse Graining</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#completing-the-configuration-file">Completing the Configuration File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coarse-graining-steps">Coarse Graining Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-the-results-in-python">Plotting the Results in Python</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#visualising-the-vtkhdf-files-in-paraview">Visualising the vtkhdf Files in Paraview</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">Tutorials and Examples</a></li>
+      <li class="breadcrumb-item active">Bedload Transport Example: 2-dimensional Coarse Graining</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/bedload_transport.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bedload-transport-example-2-dimensional-coarse-graining">
+<h1>Bedload Transport Example: 2-dimensional Coarse Graining<a class="headerlink" href="#bedload-transport-example-2-dimensional-coarse-graining" title="Link to this heading"></a></h1>
+<p>In this example, we demonstrate how to use the <cite>CoarseGraining</cite> to perform coarse graining on a 2D bedload transport simulation and plot the results.
+In order to do that, you can use the <cite>compute_CG.ipynb</cite> Jupyter notebook provided in the <cite>examples/bedload_transport</cite> directory.</p>
+<p>The files required for this example can be found in the <cite>examples/bedload_transport</cite> directory of the repository:</p>
+<ul class="simple">
+<li><p>The DEM simualtion data files in the <cite>examples/bedload_transport/VTU</cite> directory</p></li>
+<li><p>The configuration file <cite>config.ini</cite> in the <cite>examples/bedload_transport</cite> directory</p></li>
+</ul>
+<section id="completing-the-configuration-file">
+<h2>Completing the Configuration File<a class="headerlink" href="#completing-the-configuration-file" title="Link to this heading"></a></h2>
+<p>Before running the coarse graining, ensure that the <cite>config.ini</cite> file is properly set up.</p>
+<p>The configuration file contains various sections, marked by headers in square brackets.</p>
+<p>The <cite>paths</cite> section specifies the input and output file paths.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[paths]</span>
+<span class="na">particles_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./VTU/DES_FB1_</span>
+<span class="na">contacts_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./VTU/ENTIRE_DOMAIN_</span>
+<span class="na">output_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./PysammosCG/</span>
+</pre></div>
+</div>
+<p>The <cite>timesteps</cite> section defines the time range and interval for the coarse graining process. <cite>t0</cite> is the starting timestep, <cite>tf</cite> is the ending timestep, and <cite>dt</cite> is the timestep interval.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[timesteps]</span>
+<span class="na">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">150</span>
+<span class="na">tf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">152</span>
+<span class="na">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+</pre></div>
+</div>
+<p>The <cite>smoothing_function</cite> section defines the <cite>type</cite> of smoothing function to be used for coarse graining. In this case, we are using the Lucy function.
+Find the corresponding documentation in the following page: <a class="reference internal" href="../pysammos.spatial_weights.html#kernels-module"><span class="std std-ref">Kernels module</span></a>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[smoothing_function]</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Lucy</span>
+</pre></div>
+</div>
+<p>The <cite>flags</cite> section defines the <cite>partialignore</cite> flag, which indicates whether to ignore particle phases during the coarse graining process.
+It will force the number phases to be one if it is set to True.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[flags]</span>
+<span class="na">partialignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+<p>The <cite>key_mapping</cite> section maps the DEM simulation data fields to the expected keys used in the coarse graining process.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[key_mapping]</span>
+<span class="na">Global_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Particle_ID</span>
+<span class="na">Particle_Velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Velocity</span>
+<span class="na">Particle_Diameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Diameter</span>
+<span class="na">Particle_Density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Density</span>
+<span class="na">Particle_Volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Volume</span>
+<span class="na">Particle_Mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Mass</span>
+<span class="na">Particle_Radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">Coordination_Number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">Particle_i_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Particle_ID_1</span>
+<span class="na">Particle_j_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Particle_ID_2</span>
+<span class="na">Force_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">FORCE_CHAIN_FC</span>
+<span class="na">Contact_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">FORCE_CHAIN_CONTACT_POINT</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>The <cite>grid_info</cite> section specifies the grid parameters for the coarse graining process, including the grid dimensions, axes, and boundaries.</dt><dd><ul class="simple">
+<li><p>The <cite>grid_dimension</cite> is set to '2' for a 2D simulation.</p></li>
+<li><p>The <cite>grid_axes</cite> are set to '<cite>xy</cite>', indicating that the coarse graining will be performed in the x and y directions.</p></li>
+<li><p>The <cite>automatic_grid</cite> is set to <cite>False</cite>, allowing for manual specification of grid boundaries.</p></li>
+<li><p>The <cite>x_min</cite>, <cite>x_max</cite>, <cite>y_min</cite>, and <cite>y_max</cite> parameters define the spatial extent of the grid.</p></li>
+<li><p>The <cite>z_transect</cite> is set to '0.0', indicating that the coarse graining will be performed at this z-level.</p></li>
+<li><p>The <cite>x_axis_periodic</cite> is set to '<cite>True</cite>', indicating that the x-axis is periodic, while the y and z axes are non-periodic.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Find the corresponding documentation in the following page: <a class="reference internal" href="../pysammos.grid_generation.html#grid-generation"><span class="std std-ref">Grid Generation</span></a>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[grid_info]</span>
+<span class="na">grid_dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+<span class="na">grid_axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">xy</span>
+<span class="na">automatic_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">x_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.00105</span>
+<span class="na">x_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+<span class="na">y_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.001</span>
+<span class="na">y_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.24</span>
+<span class="na">z_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">z_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">x_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">y_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">z_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+<span class="na">x_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">y_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">z_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+<p>The <cite>fields_to_export</cite> section specifies which coarse-grained fields to export.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[fields_to_export]</span>
+<span class="na">volume_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">density_particle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">density_mixture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">momentum_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">velocity_gradient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">kinetic_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">contact_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">total_stress_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature_slices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">fabric_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">inertial_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">coordination_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d43</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">frictional_coefficient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">shear_rate_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+<p>The <cite>output_options</cite> section defines the output formats for the coarse-grained data, including <cite>vkthdf</cite> and <cite>h5</cite> formats.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[output_options]</span>
+<span class="na">vkthdf_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">h5_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+</section>
+<section id="coarse-graining-steps">
+<h2>Coarse Graining Steps<a class="headerlink" href="#coarse-graining-steps" title="Link to this heading"></a></h2>
+<p>First, ensure you have the necessary libraries installed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.utils.config_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.coarse_graining</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoarseGraining</span>
+</pre></div>
+</div>
+<p>We should initialize the configuration and the coarse graining object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the configuration from the ini file</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="s2">&quot;config.ini&quot;</span><span class="p">)</span>
+
+<span class="c1"># Initialize the CoarseGraining class with the loaded configuration</span>
+<span class="n">CG</span> <span class="o">=</span> <span class="n">CoarseGraining</span><span class="p">(</span>
+    <span class="n">particle_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;particles_path&quot;</span><span class="p">],</span>
+    <span class="n">contacts_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;contacts_path&quot;</span><span class="p">],</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;output_path&quot;</span><span class="p">],</span>
+    <span class="n">start_timestep</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;t0&quot;</span><span class="p">],</span>
+    <span class="n">end_timestep</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;tf&quot;</span><span class="p">],</span>
+    <span class="n">dt_time_step</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">],</span>
+    <span class="n">DEM_keymap</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;key_mapping&quot;</span><span class="p">],</span>
+    <span class="n">grid_info</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;grid_info&quot;</span><span class="p">],</span>
+    <span class="n">weight_function</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;smoothing_function&quot;</span><span class="p">],</span>
+    <span class="n">fields_to_export</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;fields_to_export&quot;</span><span class="p">],</span>
+    <span class="n">ignore_phases</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;partialignore&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we can perform the coarse graining on the simulation data:</p>
+<ol class="arabic simple">
+<li><p>Load the size-relevant particle data for the first time step</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Bounds_t0</span><span class="p">,</span> <span class="n">Diameter_t0</span><span class="p">,</span> <span class="n">Density_t0</span><span class="p">,</span> <span class="n">Mass_t0</span><span class="p">,</span> <span class="n">GlobalID_t0</span> <span class="o">=</span> <span class="n">CG</span><span class="o">.</span><span class="n">data_sampling</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Calculate the particle size range</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">get_particle_size_statistics</span><span class="p">(</span><span class="n">Diameter_t0</span><span class="p">,</span> <span class="n">Mass_t0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;&gt; Particle size statistics: &quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       d43: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">d43</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       dmax: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">dmax</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       d50: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">d50</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       d32: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">d32</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       drms: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">drms</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Get the phases</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">get_particle_phases</span><span class="p">(</span><span class="n">Diameter_t0</span><span class="p">,</span> <span class="n">Density_t0</span><span class="p">,</span> <span class="n">GlobalID_t0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;&gt; Phases: &quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       Diameters: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       Densities: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Calculate the CG grid spacing</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="n">CG</span><span class="o">.</span><span class="n">d43</span><span class="p">)</span> <span class="c1"># here you can input different number, to make w and c bigger or smaller</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;&gt; Coarse Graining resolution: &quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       c:&quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       w:&quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Generate the CG grid</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">generate_grid</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt;&gt; Grid: &quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       Grid Points: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">GridPoints</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;First Point: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       Nodes: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">Nodes</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;       Spacing: &quot;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">Spacing</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Calculate the CG fields</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">fields_in_time</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Alternatively, you can compute all the above steps in one go using the <cite>run</cite> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="plotting-the-results-in-python">
+<h2>Plotting the Results in Python<a class="headerlink" href="#plotting-the-results-in-python" title="Link to this heading"></a></h2>
+<p>After running the above code, the coarse-grained fields will be saved in the specified output directory.
+To visualize the results from the <cite>.h5</cite> files, you can use the provided Jupyter notebook <cite>visualization_bedload_transport.ipynb</cite> in the same directory.</p>
+<ol class="arabic simple">
+<li><p>Import necessary libraries</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.data_write.h5.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5XarrayManager</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">griddata</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Initialize the H5XarrayManager to read the coarse-grained data</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># gridded data</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">&quot;./PysammosCG/CG_Lucy_Monodisperse.h5&quot;</span><span class="p">)</span>
+<span class="n">bedload_CG</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+
+<span class="c1"># sliced granular temperature data</span>
+<span class="n">manager_gt</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">&quot;./PysammosCG/CG_GranularTemperature_slices.h5&quot;</span><span class="p">)</span>
+<span class="n">slices_gt</span> <span class="o">=</span> <span class="n">manager_gt</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Plotting the mixture density field at a specific time step</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create figure and axis</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+<span class="c1"># Plot DEM particle positions</span>
+<span class="n">bedload_DEM</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;./VTU/DES_FB1_0150.vtp&#39;</span><span class="p">)</span>
+<span class="n">bedload_particles</span> <span class="o">=</span> <span class="n">bedload_DEM</span><span class="o">.</span><span class="n">points</span>
+<span class="n">x_particle</span> <span class="o">=</span> <span class="n">bedload_particles</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">];</span> <span class="n">y_particle</span> <span class="o">=</span> <span class="n">bedload_particles</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_particle</span><span class="p">,</span> <span class="n">y_particle</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Particle Positions&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Plot the CG data</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">density_mixture</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+<span class="n">sc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">var</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CG Density&#39;</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add colorbar and labels</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Density&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X Position&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y Position&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39; Coarse-Grained Mixture Density&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/mixdens.png"><img alt="Granular temperature vertical profile" class="align-center" src="../_images/mixdens.png" style="width: 600px;" />
+</a>
+<ol class="arabic simple" start="4">
+<li><p>Plotting the granular temperature field at a specific time step</p></li>
+</ol>
+<p>Pysammos provides the granular temperature slices along specified transects using other methods. See the documentation for more details: <a class="reference internal" href="../pysammos.macroscopic_fields.sliced.html#gran-temp-slices"><span class="std std-ref">Sliced</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot first time step vertical profile comparing Kamrin and LAMMPS</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">slices_gt</span><span class="o">.</span><span class="n">granular_temperature_Kamrin</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">slices_gt</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Granular Temperature Kamrin&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">slices_gt</span><span class="o">.</span><span class="n">granular_temperature_LAMMPS</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">slices_gt</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Granular Temperature LAMMPS&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Granular Temperature&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y Position&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Granular Temperature Vertical Profile at z=0, Timestep 0&#39;</span><span class="p">)</span>
+<span class="c1">#gridlines</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="c1"># log scale x axis</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/output.png"><img alt="Granular temperature vertical profile" class="align-center" src="../_images/output.png" style="width: 600px;" />
+</a>
+<ol class="arabic simple" start="5">
+<li><p>Plotting the vertical profiles</p></li>
+</ol>
+<p>The vertical profiles of the coarse-grained fields can be plotted using the following code, which uses the subpackage <a class="reference internal" href="../pysammos.post_averaging.html#vertical-profiles"><span class="std std-ref">Post Averaging</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.data_write.h5.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5XarrayManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.post_averaging.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">VerticalIntegrator</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+<p>Use the <cite>H5XarrayManager</cite> class to load the coarse-grained data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load data with H5XarrayManager</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">&quot;./PysammosCG/CG_Lucy_Monodisperse.h5&quot;</span><span class="p">)</span>
+<span class="n">bedload_CG</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Perform vertical integration using the <cite>VerticalIntegrator</cite> class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># initialize the VerticalIntegrator</span>
+<span class="n">VI</span> <span class="o">=</span> <span class="n">VerticalIntegrator</span><span class="p">(</span><span class="n">bedload_CG</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">)</span>
+<span class="c1"># perform integration</span>
+<span class="n">vertical_ds_general</span> <span class="o">=</span> <span class="n">VI</span><span class="o">.</span><span class="n">integration</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Plot the profile of density_mixture of the first time step</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># get the data and plot</span>
+<span class="n">vertical_ds_general</span><span class="p">[</span><span class="s1">&#39;density_mixture&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Density Mixture General&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;y coordinate&#39;</span><span class="p">)</span> <span class="p">;</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Integrated Density Mixture&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Vertical Profile of Integrated Density Mixture at First Time Step&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/mixdens_profile_bedload.png"><img alt="Vertical profile" class="align-center" src="../_images/mixdens_profile_bedload.png" style="width: 600px;" />
+</a>
+</section>
+<section id="visualising-the-vtkhdf-files-in-paraview">
+<h2>Visualising the vtkhdf Files in Paraview<a class="headerlink" href="#visualising-the-vtkhdf-files-in-paraview" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>You can also visualise the output <cite>vtkhdf</cite> files in Paraview.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Open Paraview and go to <cite>File</cite> -&gt; <cite>Open</cite>. Select the desired <cite>vtkhdf</cite> file from the output directory (e.g., <cite>CG_Lucy_Monodisperse_0150.vtkhdf</cite>).</p></li>
+<li><p>Click <cite>Apply</cite> in the Properties panel to load the data.</p></li>
+<li><p>Use the <cite>Coloring</cite> dropdown menu in the toolbar to select the field you want to visualize (e.g., <cite>density_mixture</cite>).</p></li>
+</ol>
+</div></blockquote>
+</div></blockquote>
+<a class="reference internal image-reference" href="../_images/bedload_paraview.png"><img alt="Paraview Visualisation" class="align-center" src="../_images/bedload_paraview.png" style="width: 600px;" />
+</a>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../examples.html" class="btn btn-neutral float-left" title="Tutorials and Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../benchmarks.html" class="btn btn-neutral float-right" title="Benchmarks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

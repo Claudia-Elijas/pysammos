@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>numba &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">numba</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for numba</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Expose top-level symbols that are safe for import *</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+
+<span class="c1"># ---------------------- WARNING WARNING WARNING ----------------------------</span>
+<span class="c1"># THIS MUST RUN FIRST, DO NOT MOVE... SEE DOCSTRING IN _ensure_critical_deps</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ensure_critical_deps</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make sure the Python, NumPy and SciPy present are supported versions.</span>
+<span class="sd">    This has to be done _before_ importing anything from Numba such that</span>
+<span class="sd">    incompatible versions can be reported to the user. If this occurs _after_</span>
+<span class="sd">    importing things from Numba and there&#39;s an issue in e.g. a Numba c-ext, a</span>
+<span class="sd">    SystemError might have occurred which prevents reporting the likely cause of</span>
+<span class="sd">    the problem (incompatible versions of critical dependencies).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#NOTE THIS CODE SHOULD NOT IMPORT ANYTHING FROM NUMBA!</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_version</span><span class="p">(</span><span class="n">mod</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]))</span>
+
+    <span class="n">PYVERSION</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">PYVERSION</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Numba needs Python 3.10 or greater. Got Python &quot;</span>
+               <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PYVERSION</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">PYVERSION</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+    <span class="n">numpy_version</span> <span class="o">=</span> <span class="n">extract_version</span><span class="p">(</span><span class="n">np</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">numpy_version</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">24</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Numba needs NumPy 1.24 or greater. Got NumPy &quot;</span>
+               <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">numpy_version</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">numpy_version</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">numpy_version</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Numba needs NumPy 2.1 or less. Got NumPy &quot;</span>
+               <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">numpy_version</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">numpy_version</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sp_version</span> <span class="o">=</span> <span class="n">extract_version</span><span class="p">(</span><span class="n">scipy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sp_version</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Numba requires SciPy version 1.0 or greater. Got SciPy &quot;</span>
+                   <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scipy</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="n">_ensure_critical_deps</span><span class="p">()</span>
+<span class="c1"># END DO NOT MOVE</span>
+<span class="c1"># ---------------------- WARNING WARNING WARNING ----------------------------</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_versions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.misc.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_version_info</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="n">get_versions</span><span class="p">()[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+<span class="n">version_info</span> <span class="o">=</span> <span class="n">generate_version_info</span><span class="p">(</span><span class="n">__version__</span><span class="p">)</span>
+<span class="k">del</span> <span class="n">get_versions</span>
+<span class="k">del</span> <span class="n">generate_version_info</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">types</span><span class="p">,</span> <span class="n">errors</span>
+
+<span class="c1"># Re-export typeof</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.misc.special</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">typeof</span><span class="p">,</span> <span class="n">prange</span><span class="p">,</span> <span class="n">pndindex</span><span class="p">,</span> <span class="n">gdb</span><span class="p">,</span> <span class="n">gdb_breakpoint</span><span class="p">,</span> <span class="n">gdb_init</span><span class="p">,</span>
+    <span class="n">literally</span><span class="p">,</span> <span class="n">literal_unroll</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Re-export error classes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.core.errors</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Re-export types itself</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba.core.types</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">types</span>
+
+<span class="c1"># Re-export all type names</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.core.types</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Re-export decorators</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.core.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">cfunc</span><span class="p">,</span> <span class="n">jit</span><span class="p">,</span> <span class="n">njit</span><span class="p">,</span> <span class="n">stencil</span><span class="p">,</span>
+                                   <span class="n">jit_module</span><span class="p">)</span>
+
+<span class="c1"># Re-export vectorize decorators and the thread layer querying function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.np.ufunc</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">vectorize</span><span class="p">,</span> <span class="n">guvectorize</span><span class="p">,</span> <span class="n">threading_layer</span><span class="p">,</span>
+                            <span class="n">get_num_threads</span><span class="p">,</span> <span class="n">set_num_threads</span><span class="p">,</span>
+                            <span class="n">set_parallel_chunksize</span><span class="p">,</span> <span class="n">get_parallel_chunksize</span><span class="p">,</span>
+                            <span class="n">get_thread_id</span><span class="p">)</span>
+
+<span class="c1"># Re-export Numpy helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.np.numpy_support</span><span class="w"> </span><span class="kn">import</span> <span class="n">carray</span><span class="p">,</span> <span class="n">farray</span><span class="p">,</span> <span class="n">from_dtype</span>
+
+<span class="c1"># Re-export experimental</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">experimental</span>
+
+<span class="c1"># Initialize withcontexts</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba.core.withcontexts</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.core.withcontexts</span><span class="w"> </span><span class="kn">import</span> <span class="n">objmode_context</span> <span class="k">as</span> <span class="n">objmode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.core.withcontexts</span><span class="w"> </span><span class="kn">import</span> <span class="n">parallel_chunksize</span>
+
+<span class="c1"># Initialize target extensions</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba.core.target_extension</span>
+
+<span class="c1"># Initialize typed containers</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba.typed</span>
+
+<span class="c1"># Keep this for backward compatibility.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+    <span class="c1"># To speed up the import time, avoid importing `unittest` and other test</span>
+    <span class="c1"># dependencies unless the user is actually trying to run tests.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">numba.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">_runtests</span> <span class="k">as</span> <span class="n">runtests</span>
+    <span class="k">return</span> <span class="n">runtests</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    cfunc</span>
+<span class="s2">    from_dtype</span>
+<span class="s2">    guvectorize</span>
+<span class="s2">    jit</span>
+<span class="s2">    experimental</span>
+<span class="s2">    njit</span>
+<span class="s2">    stencil</span>
+<span class="s2">    jit_module</span>
+<span class="s2">    typeof</span>
+<span class="s2">    prange</span>
+<span class="s2">    gdb</span>
+<span class="s2">    gdb_breakpoint</span>
+<span class="s2">    gdb_init</span>
+<span class="s2">    vectorize</span>
+<span class="s2">    objmode</span>
+<span class="s2">    literal_unroll</span>
+<span class="s2">    get_num_threads</span>
+<span class="s2">    set_num_threads</span>
+<span class="s2">    set_parallel_chunksize</span>
+<span class="s2">    get_parallel_chunksize</span>
+<span class="s2">    parallel_chunksize</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="o">+</span> <span class="n">types</span><span class="o">.</span><span class="n">__all__</span> <span class="o">+</span> <span class="n">errors</span><span class="o">.</span><span class="n">__all__</span>
+
+
+<span class="n">_min_llvmlite_version</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">_min_llvm_version</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ensure_llvm</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make sure llvmlite is operational.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">llvmlite</span>
+
+    <span class="c1"># Only look at the the major, minor and bugfix version numbers.</span>
+    <span class="c1"># Ignore other stuffs</span>
+    <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)\.(\d+).(\d+)&#39;</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">llvmlite</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+        <span class="n">ver</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">ver</span> <span class="o">&lt;</span> <span class="n">_min_llvmlite_version</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Numba requires at least version </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2"> of llvmlite.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                   <span class="s2">&quot;Installed version is </span><span class="si">%s</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                   <span class="s2">&quot;Please update llvmlite.&quot;</span> <span class="o">%</span>
+                   <span class="p">(</span><span class="n">_min_llvmlite_version</span> <span class="o">+</span> <span class="p">(</span><span class="n">llvmlite</span><span class="o">.</span><span class="n">__version__</span><span class="p">,)))</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Not matching?</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;llvmlite version format not recognized!&quot;</span><span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">llvmlite.binding</span><span class="w"> </span><span class="kn">import</span> <span class="n">llvm_version_info</span><span class="p">,</span> <span class="n">check_jit_execution</span>
+
+    <span class="k">if</span> <span class="n">llvm_version_info</span> <span class="o">&lt;</span> <span class="n">_min_llvm_version</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Numba requires at least version </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2"> of LLVM.</span><span class="se">\n</span><span class="s2">&quot;</span>
+               <span class="s2">&quot;Installed llvmlite is built against version </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+               <span class="s2">&quot;Please update llvmlite.&quot;</span> <span class="o">%</span>
+               <span class="p">(</span><span class="n">_min_llvm_version</span> <span class="o">+</span> <span class="n">llvm_version_info</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">check_jit_execution</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_try_enable_svml</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tries to enable SVML if configuration permits use and the library is found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">DISABLE_INTEL_SVML</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;linux&#39;</span><span class="p">):</span>
+                <span class="n">llvmlite</span><span class="o">.</span><span class="n">binding</span><span class="o">.</span><span class="n">load_library_permanently</span><span class="p">(</span><span class="s2">&quot;libsvml.so&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;darwin&#39;</span><span class="p">):</span>
+                <span class="n">llvmlite</span><span class="o">.</span><span class="n">binding</span><span class="o">.</span><span class="n">load_library_permanently</span><span class="p">(</span><span class="s2">&quot;libsvml.dylib&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;win&#39;</span><span class="p">):</span>
+                <span class="n">llvmlite</span><span class="o">.</span><span class="n">binding</span><span class="o">.</span><span class="n">load_library_permanently</span><span class="p">(</span><span class="s2">&quot;svml_dispmd&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="c1"># The SVML library is loaded, therefore SVML *could* be supported.</span>
+            <span class="c1"># Now see if LLVM has been compiled with the SVML support patch.</span>
+            <span class="c1"># If llvmlite has the checking function `has_svml` and it returns</span>
+            <span class="c1"># True, then LLVM was compiled with SVML support and the the setup</span>
+            <span class="c1"># for SVML can proceed. We err on the side of caution and if the</span>
+            <span class="c1"># checking function is missing, regardless of that being fine for</span>
+            <span class="c1"># most 0.23.{0,1} llvmlite instances (i.e. conda or pip installed),</span>
+            <span class="c1"># we assume that SVML was not compiled in. llvmlite 0.23.2 is a</span>
+            <span class="c1"># bugfix release with the checking function present that will always</span>
+            <span class="c1"># produce correct behaviour. For context see: #3006.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">llvmlite</span><span class="o">.</span><span class="n">binding</span><span class="o">.</span><span class="n">targets</span><span class="p">,</span> <span class="s2">&quot;has_svml&quot;</span><span class="p">)():</span>
+                    <span class="c1"># has detection function, but no svml compiled in, therefore</span>
+                    <span class="c1"># disable SVML</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">machine</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;x86_64&#39;</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;SVML was found but llvmlite &gt;= 0.23.2 is &quot;</span>
+                           <span class="s2">&quot;needed to support it.&quot;</span><span class="p">)</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="c1"># does not have detection function, cannot detect reliably,</span>
+                <span class="c1"># disable SVML.</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="c1"># All is well, detection function present and reports SVML is</span>
+            <span class="c1"># compiled in, set the vector library to SVML.</span>
+            <span class="n">llvmlite</span><span class="o">.</span><span class="n">binding</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;SVML&#39;</span><span class="p">,</span> <span class="s1">&#39;-vector-library=SVML&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">machine</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;x86_64&#39;</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;SVML was not found/could not be loaded.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+<span class="n">_ensure_llvm</span><span class="p">()</span>
+
+<span class="c1"># we know llvmlite is working as the above tests passed, import it now as SVML</span>
+<span class="c1"># needs to mutate runtime options (sets the `-vector-library`).</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">llvmlite</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Is set to True if Intel SVML is in use.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">config</span><span class="o">.</span><span class="n">USING_SVML</span> <span class="o">=</span> <span class="n">_try_enable_svml</span><span class="p">()</span>
+
+
+<span class="c1"># ---------------------- WARNING WARNING WARNING ----------------------------</span>
+<span class="c1"># The following imports occur below here (SVML init) because somewhere in their</span>
+<span class="c1"># import sequence they have a `@njit` wrapped function. This triggers too early</span>
+<span class="c1"># a bind to the underlying LLVM libraries which then irretrievably sets the LLVM</span>
+<span class="c1"># SVML state to &quot;no SVML&quot;. See https://github.com/numba/numba/issues/4689 for</span>
+<span class="c1"># context.</span>
+<span class="c1"># ---------------------- WARNING WARNING WARNING ----------------------------</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

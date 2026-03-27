@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.spatial_weights.utils &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pysammos.spatial_weights.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.spatial_weights.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides utility functions commonly used in numerical computations, particularly in physics and</span>
+<span class="sd">engineering simulations involving integration along branches or paths, and geometric distance calculations.</span>
+
+<span class="sd">This module includes the following functions:</span>
+
+<span class="sd">    - :func:`first_significant_figure_position`: Computes the positional value of the first significant figure in a given number.</span>
+<span class="sd">    - :func:`integration_scalar`: Generates a linearly spaced scalar array for integration purposes.</span>
+<span class="sd">    - :func:`trapezoidal_integration`: Performs trapezoidal numerical integration on a sampled function W over an interval.</span>
+<span class="sd">    - :func:`compute_dist_along_branch`: Computes Euclidean distances along a branch for multiple contact points and scalar steps.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># import relevant libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">njit</span><span class="p">,</span> <span class="n">prange</span><span class="p">,</span> <span class="n">float64</span><span class="p">,</span> <span class="n">float32</span><span class="p">,</span> <span class="n">int32</span>
+
+<span class="c1"># Find the position of the first significant figure</span>
+<div class="viewcode-block" id="first_significant_figure_position">
+<a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.utils.first_significant_figure_position">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">first_significant_figure_position</span><span class="p">(</span><span class="n">number</span><span class="p">:</span><span class="nb">float</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the position (value) of the first significant figure of a number.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    number : float</span>
+<span class="sd">        Input number to analyze.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The value of the first significant figure&#39;s position.</span>
+<span class="sd">        For example, if number = 345.6, returns 100.0.</span>
+<span class="sd">        Special case: returns 0 if number is zero.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; first_significant_figure_position(345.6)</span>
+<span class="sd">    100.0</span>
+<span class="sd">    &gt;&gt;&gt; first_significant_figure_position(0.00789)</span>
+<span class="sd">    0.001</span>
+<span class="sd">    &gt;&gt;&gt; first_significant_figure_position(0)</span>
+<span class="sd">    0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>  <span class="c1"># Special case for zero</span>
+    <span class="n">order_of_magnitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">number</span><span class="p">)))</span> <span class="c1"># Get the order of magnitude of the number</span>
+    <span class="n">first_significant_position</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">order_of_magnitude</span> <span class="c1"># Calculate the position of the first significant figure</span>
+    <span class="k">return</span> <span class="n">first_significant_position</span></div>
+
+
+<span class="c1"># Creating the scalar for integration</span>
+<div class="viewcode-block" id="integration_scalar">
+<a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.utils.integration_scalar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">integration_scalar</span><span class="p">(</span><span class="n">s0</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">s1</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span><span class="nb">float</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> 
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a linearly spaced scalar array for integration over [s0, s1].</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    s0 : float</span>
+<span class="sd">        Start of the integration interval.</span>
+<span class="sd">    s1 : float</span>
+<span class="sd">        End of the integration interval.</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of sample points.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray, shape (n,)</span>
+<span class="sd">        Linearly spaced array of scalars from s0 to s1.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; integration_scalar(0, 1, 5)</span>
+<span class="sd">    array([0.  , 0.25, 0.5 , 0.75, 1.  ])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<span class="c1"># Trapezoidal integration</span>
+<div class="viewcode-block" id="trapezoidal_integration">
+<a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.utils.trapezoidal_integration">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">trapezoidal_integration</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute numerical integral of sampled function W using the trapezoidal rule.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        I_m = \int_{s_0}^{s_1} W_m(s) \, ds</span>
+<span class="sd">        \approx \frac{\Delta s}{2} \left( W_m(s_0) + 2 \sum_{i=1}^{n-2} W_m(s_i) + W_m(s_{n-1}) \right) \\</span>
+<span class="sd">        \text{for } m = 0, \ldots, M-1</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    :math:`I_m` is the integral of the m-th component of W,</span>
+<span class="sd">    :math:`W_m(s)` is the m-th component of the function W evaluated at s,</span>
+<span class="sd">    :math:`s_0` and :math:`s_1` are the integration bounds,</span>
+<span class="sd">    :math:`n` is the number of sample points,</span>
+<span class="sd">    :math:`\Delta s = \frac{s_1 - s_0}{n-1}` is the step size,</span>
+<span class="sd">    and :math:`M` is the number of components (columns) in W.</span>
+
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    s0 : float</span>
+<span class="sd">        Start of the integration interval.</span>
+<span class="sd">    s1 : float</span>
+<span class="sd">        End of the integration interval.</span>
+<span class="sd">    n : int</span>
+<span class="sd">        Number of sample points.</span>
+<span class="sd">    W : np.ndarray, shape (n, m)</span>
+<span class="sd">        Values of the function sampled at the points defined by s0, s1, and n.</span>
+<span class="sd">        Integration is performed along the first axis.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray, shape (m,)</span>
+<span class="sd">        Resulting integral values for each column of W.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; s0, s1, n = 0, 1, 5</span>
+<span class="sd">    &gt;&gt;&gt; W = np.array([[0], [1], [4], [9], [16]])</span>
+<span class="sd">    &gt;&gt;&gt; trapezoidal_integration(s0, s1, n, W)</span>
+<span class="sd">    array([5.0])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span><span class="n">s1</span> <span class="o">-</span> <span class="n">s0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">Wint</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">W</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="k">return</span> <span class="n">Wint</span></div>
+
+
+<span class="c1"># Numba version</span>
+<span class="nd">@njit</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,:](</span><span class="n">float64</span><span class="p">[:,:],</span> <span class="n">float64</span><span class="p">[:],</span> <span class="n">float32</span><span class="p">[:,:],</span> <span class="n">int32</span><span class="p">[:]),</span><span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_dist_along_branch</span><span class="p">(</span><span class="n">r_ri_c</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">BranchVector_i</span><span class="p">,</span> <span class="n">part_ind_c</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute Euclidean distances along a branch for multiple contact points and scalar steps.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        d_{ij} = \left\| \mathbf{r}_{ri}^{(j)} + s_i \, \mathbf{B}_{\text{part}}^{(k_j)} \right\|_2</span>
+<span class="sd">    </span>
+<span class="sd">    where:</span>
+
+<span class="sd">    :math:`d_{ij}` is the distance for scalar step :math:`s_i` and contact point :math:`j`,</span>
+<span class="sd">    :math:`\mathbf{r}_{ri}^{(j)}` is the displacement vector from the reference point to contact point :math:`j`,</span>
+<span class="sd">    :math:`s_i` is the scalar step along the branch,</span>
+<span class="sd">    :math:`\mathbf{B}_{\text{part}}^{(k_j)}` is the branch direction vector associated with particle :math:`k_j`,</span>
+<span class="sd">    and :math:`k_j = \text{part_ind_c}[j]` is the index mapping contact points to particles.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    r_ri_c : np.ndarray, shape (n_contacts, 3)</span>
+<span class="sd">        Displacement vectors from reference points to contact points.</span>
+<span class="sd">    s : np.ndarray, shape (n_s,)</span>
+<span class="sd">        Scalars along the branch for which distances are computed.</span>
+<span class="sd">    BranchVector_i : np.ndarray, shape (n_particles, 3)</span>
+<span class="sd">        Branch direction vectors associated with each particle.</span>
+<span class="sd">    part_ind_c : np.ndarray, shape (n_contacts,)</span>
+<span class="sd">        Indices mapping contacts to corresponding particles in BranchVector_i.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray, shape (n_s, n_contacts)</span>
+<span class="sd">        Euclidean distances along the branch for each scalar step and contact.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function is JIT-compiled with Numba and parallelized for efficiency.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; r_ri_c = np.array([[1,0,0], [0,1,0]], dtype=np.float64)</span>
+<span class="sd">    &gt;&gt;&gt; s = np.array([0, 1], dtype=np.float64)</span>
+<span class="sd">    &gt;&gt;&gt; BranchVector_i = np.array([[1,0,0], [0,1,0]], dtype=np.float32)</span>
+<span class="sd">    &gt;&gt;&gt; part_ind_c = np.array([0, 1], dtype=np.int32)</span>
+<span class="sd">    &gt;&gt;&gt; compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c)</span>
+<span class="sd">    array([[1., 1.],</span>
+<span class="sd">           [2., 2.]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_contacts</span> <span class="o">=</span> <span class="n">r_ri_c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_s</span><span class="p">,</span> <span class="n">n_contacts</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prange</span><span class="p">(</span><span class="n">n_s</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_contacts</span><span class="p">):</span>
+            <span class="n">vec</span> <span class="o">=</span> <span class="n">r_ri_c</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">BranchVector_i</span><span class="p">[</span><span class="n">part_ind_c</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vec</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mfix &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Write" href="pysammos.data_write.html" />
+    <link rel="prev" title="Data Read" href="pysammos.data_read.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Pysammos Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pysammos.html">Coarse Graining User-interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="pysammos.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_handle.html">Data Handle</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="pysammos.data_read.html">Data Read</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Mfix</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.data_write.html">Data Write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.grid_generation.html">Grid Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.macroscopic_fields.html">Macroscopic Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.neighbour_search.html">Neighbour Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.particle_phase.html">Particle Phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.post_averaging.html">Post Averaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysammos.spatial_weights.html">Spatial Weights</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Pysammos Documentation</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.html">Coarse Graining User-interface</a></li>
+          <li class="breadcrumb-item"><a href="pysammos.data_read.html">Data Read</a></li>
+      <li class="breadcrumb-item active">Mfix</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pysammos.data_read.mfix.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mfix">
+<h1>Mfix<a class="headerlink" href="#mfix" title="Link to this heading"></a></h1>
+<p>pysammos.data_read.mfix package</p>
+<p>Subpackage for reading MFIX DEM data files.</p>
+<section id="cell-data-module">
+<span id="module-pysammos.data_read.mfix"></span><h2>Cell Data module<a class="headerlink" href="#cell-data-module" title="Link to this heading"></a></h2>
+<p>pysammos.data_read.mfix.cell_data module</p>
+<p id="module-pysammos.data_read.mfix.cell_data">This module provides functions to read and process cell data from MFIX simulations.
+So far, it only includes functionality for reading contact data.
+It extracts particle IDs, total forces, and contact points from the cell data,
+allowing for further analysis and manipulation.
+It is designed to work with VTK data structures, converting them into NumPy arrays for easier handling.</p>
+<dl class="simple">
+<dt>The main function provided in this module is:</dt><dd><p>1. <a class="reference internal" href="#pysammos.data_read.mfix.cell_data.contacts" title="pysammos.data_read.mfix.cell_data.contacts"><code class="xref py py-func docutils literal notranslate"><span class="pre">contacts()</span></code></a>: Extracts contact data from the input connection, including particle IDs, total forces
+and contact points.</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.cell_data.contacts">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.cell_data.</span></span><span class="sig-name descname"><span class="pre">contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Part_ids_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_ids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Force_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'total_force'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Contact_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_points'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/cell_data.html#contacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.cell_data.contacts" title="Link to this definition"></a></dt>
+<dd><p>Extract contact data from the input connection, including particle IDs, total forces, and contact points.
+Inputs
+------
+InputConnection : vtk.vtkAlgorithmOutput</p>
+<blockquote>
+<div><p>The input connection from which to extract cell data.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Part_ids_string<span class="classifier">str, optional</span></dt><dd><p>The name of the array containing particle IDs in the cell data. Default is &quot;contact_ids&quot;.</p>
+</dd>
+<dt>Force_ij_string<span class="classifier">str, optional</span></dt><dd><p>The name of the array containing total forces in the cell data. Default is &quot;total_force&quot;.</p>
+</dd>
+<dt>Contact_ij_string<span class="classifier">str, optional</span></dt><dd><p>The name of the array containing contact points in the cell data. Default is &quot;contact_points&quot;.</p>
+</dd>
+</dl>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>particle_i<span class="classifier">ndarray, shape (M,)</span></dt><dd><p>Array of particle IDs for the first particle in each contact.</p>
+</dd>
+<dt>particle_j<span class="classifier">ndarray, shape (M,)</span></dt><dd><p>Array of particle IDs for the second particle in each contact.</p>
+</dd>
+<dt>total_force<span class="classifier">ndarray, shape (M, 3)</span></dt><dd><p>Array of total forces for each contact.</p>
+</dd>
+<dt>contact_points<span class="classifier">ndarray, shape (M, 3)</span></dt><dd><p>Array of contact points for each contact.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<p>pysammos.data_read.mfix.file_read module</p>
+<p id="module-pysammos.data_read.mfix.file_read">This module provides functionality to read VTK files and determine their type based on the file content.
+It supports both XML-based PolyData files (with .vtp extension) and legacy UnstructuredGrid files (with .vtk extension).
+The appropriate VTK reader is selected based on the detected file type, allowing for further processing of the data.</p>
+<dl class="simple">
+<dt>The main functions provided in this module are:</dt><dd><ol class="arabic simple">
+<li><p><a class="reference internal" href="#pysammos.data_read.mfix.file_read.get_file_type" title="pysammos.data_read.mfix.file_read.get_file_type"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_file_type()</span></code></a>: Detects the type of VTK file by inspecting the file content.</p></li>
+<li><p><a class="reference internal" href="#pysammos.data_read.mfix.file_read.reader" title="pysammos.data_read.mfix.file_read.reader"><code class="xref py py-func docutils literal notranslate"><span class="pre">reader()</span></code></a>: Reads the VTK file using the appropriate reader based on the detected file type.</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.file_read.get_file_type">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.file_read.</span></span><span class="sig-name descname"><span class="pre">get_file_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/file_read.html#get_file_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.file_read.get_file_type" title="Link to this definition"></a></dt>
+<dd><p>Detects the type of VTK file (PolyData or UnstructuredGrid) by inspecting the file content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>path<span class="classifier">str</span></dt><dd><p>The path to the VTK file.</p>
+</dd>
+</dl>
+</section>
+<section id="id1">
+<h3>Outputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>The file type: &quot;vtp&quot; for PolyData or &quot;vtk&quot; for UnstructuredGrid.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If the file format is unsupported or unknown.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.file_read.reader">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.file_read.</span></span><span class="sig-name descname"><span class="pre">reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/file_read.html#reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.file_read.reader" title="Link to this definition"></a></dt>
+<dd><p>Reads the VTK file using the appropriate reader based on the detected file type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_type</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) -- The type of VTK file: &quot;vtp&quot; for PolyData or &quot;vtk&quot; for UnstructuredGrid.</p></li>
+<li><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) -- The path to the VTK file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The output data from the VTK reader.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">vtkAlgorithmOutput</span></code></span></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> -- If the file format is unsupported.</p></li>
+<li><p><strong>FileNotFoundError</strong> -- If the specified file does not exist.</p></li>
+<li><p><strong>IOError</strong> -- If the file cannot be opened or read.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">file_type</span> <span class="o">=</span> <span class="n">get_file_type</span><span class="p">(</span><span class="s2">&quot;example.vtp&quot;</span><span class="p">)</span>
+<span class="go">XML-based PolyData detected.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reader_output</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">file_type</span><span class="p">,</span> <span class="s2">&quot;example.vtp&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">reader_output</span><span class="p">))</span>
+<span class="go">&lt;class &#39;vtkmodules.vtkCommonExecutionModel.vtkAlgorithmOutput&#39;&gt;</span>
+<span class="go">This indicates that the file has been read successfully and the output is a VTK algorithm output object.</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>pysammos.data_read.mfix.point_data module</p>
+<p id="module-pysammos.data_read.mfix.point_data">This module provides functions to read and process point data from MFIX simulations.
+It extracts particle information such as position, global ID, velocity, diameter, density,
+volume, mass, and coordination number from the point data, allowing for further analysis and manipulation.
+It is designed to work with VTK data structures, converting them into NumPy arrays for easier handling.</p>
+<dl class="simple">
+<dt>The main functions provided in this module are:</dt><dd><p>1. <a class="reference internal" href="#pysammos.data_read.mfix.point_data.particles" title="pysammos.data_read.mfix.point_data.particles"><code class="xref py py-func docutils literal notranslate"><span class="pre">particles()</span></code></a>: Extracts particle data from the input connection, including position, global ID,
+velocity, diameter, density, volume, mass, and coordination number.
+2. <a class="reference internal" href="#pysammos.data_read.mfix.point_data.contacts" title="pysammos.data_read.mfix.point_data.contacts"><code class="xref py py-func docutils literal notranslate"><span class="pre">contacts()</span></code></a>: Extracts contact data from the input connection, including particle IDs, total forces
+and contact points.
+3. <a class="reference internal" href="#pysammos.data_read.mfix.point_data.Reader_vtm" title="pysammos.data_read.mfix.point_data.Reader_vtm"><code class="xref py py-func docutils literal notranslate"><span class="pre">Reader_vtm()</span></code></a>: Reads VTM files and extracts all PolyData blocks, merging them into a single PolyData object.</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.point_data.ContactData__JP">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.point_data.</span></span><span class="sig-name descname"><span class="pre">ContactData__JP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Part_ids_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_ids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Force_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'total_force'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Contact_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_points'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/point_data.html#ContactData__JP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.point_data.ContactData__JP" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.point_data.Reader_vtm">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.point_data.</span></span><span class="sig-name descname"><span class="pre">Reader_vtm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/point_data.html#Reader_vtm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.point_data.Reader_vtm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.point_data.contacts">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.point_data.</span></span><span class="sig-name descname"><span class="pre">contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_i_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Particle_ID_1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_j_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Particle_ID_2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Force_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FORCE_CHAIN_FC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Contact_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/point_data.html#contacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.point_data.contacts" title="Link to this definition"></a></dt>
+<dd><p>Extracts contact data from the input connection, including particle IDs, total forces
+and contact points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]</span></p>
+</dd>
+</dl>
+<section id="id2">
+<h3>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>InputConnection<span class="classifier">vtk.vtkAlgorithmOutput</span></dt><dd><p>The input connection containing the VTK data.</p>
+</dd>
+<dt>Particle_i_string<span class="classifier">str, optional</span></dt><dd><p>The name of the first particle ID variable in the point data (default is &quot;Particle_ID_1&quot;).</p>
+</dd>
+<dt>Particle_j_string<span class="classifier">str, optional</span></dt><dd><p>The name of the second particle ID variable in the point data (default is &quot;Particle_ID_2&quot;).</p>
+</dd>
+<dt>Force_ij_string<span class="classifier">str, optional</span></dt><dd><p>The name of the total force variable in the point data (default is &quot;FORCE_CHAIN_FC&quot;).</p>
+</dd>
+<dt>Contact_ij_string<span class="classifier">str, optional</span></dt><dd><p>The name of the contact points variable in the point data (default is None).</p>
+</dd>
+</dl>
+</section>
+<section id="otuputs">
+<h3>Otuputs<a class="headerlink" href="#otuputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Particle_i<span class="classifier">np.ndarray, shape (N,)</span></dt><dd><p>The particle IDs of the first particles involved in the contacts.</p>
+</dd>
+<dt>Particle_j<span class="classifier">np.ndarray, shape (N,)</span></dt><dd><p>The particle IDs of the second particles involved in the contacts.</p>
+</dd>
+<dt>F_ij<span class="classifier">np.ndarray, shape (N, 3)</span></dt><dd><p>The total forces acting on the contacts, if available.</p>
+</dd>
+<dt>Contact_ij<span class="classifier">np.ndarray, shape (N, 3), optional</span></dt><dd><p>The contact points between the particles, if available.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">raises ValueError<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If any of the required strings (Particle_i_string, Particle_j_string, Force_ij_string) are None or not provided.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function retrieves the point data from the input connection and extracts the specified variables.</p></li>
+<li><p>If any optional variables (Force_ij_string, Contact_ij_string) are not provided,</p></li>
+</ul>
+<p>the corresponding output will be None.
+- The function returns the arrays of particle IDs, total forces, and contact points.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.point_data.extract_all_polydata">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.point_data.</span></span><span class="sig-name descname"><span class="pre">extract_all_polydata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/point_data.html#extract_all_polydata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.point_data.extract_all_polydata" title="Link to this definition"></a></dt>
+<dd><p>Recursively extract all vtkPolyData blocks from any nested vtkMultiBlockDataSet or vtkMultiPieceDataSet.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.point_data.particles">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.point_data.</span></span><span class="sig-name descname"><span class="pre">particles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Global_ID_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Particle_ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Velocity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Diameter_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Diameter'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Density_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Density'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Volume_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Volume'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mass_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Radius_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Radius'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Coordination_Number_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Coordination_Number'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/point_data.html#particles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.point_data.particles" title="Link to this definition"></a></dt>
+<dd><p>Extracts particle data from the input connection, including position, global ID,
+velocity, diameter, density, volume, mass, and coordination number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>]</span></p>
+</dd>
+</dl>
+<section id="id3">
+<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>InputConnection<span class="classifier">vtk.vtkAlgorithmOutput</span></dt><dd><p>The input connection containing the VTK data.</p>
+</dd>
+<dt>Global_ID_string<span class="classifier">str, optional</span></dt><dd><p>The name of the global ID variable in the point data (default is &quot;Particle_ID&quot;).</p>
+</dd>
+<dt>Velocity_string<span class="classifier">str, optional</span></dt><dd><p>The name of the velocity variable in the point data (default is &quot;Velocity&quot;).</p>
+</dd>
+<dt>Diameter_string<span class="classifier">str, optional</span></dt><dd><p>The name of the diameter variable in the point data (default is &quot;Diameter&quot;).</p>
+</dd>
+<dt>Density_string<span class="classifier">str, optional</span></dt><dd><p>The name of the density variable in the point data (default is &quot;Density&quot;).</p>
+</dd>
+<dt>Volume_string<span class="classifier">str, optional</span></dt><dd><p>The name of the volume variable in the point data (default is &quot;Volume&quot;).</p>
+</dd>
+<dt>Mass_string<span class="classifier">str, optional</span></dt><dd><p>The name of the mass variable in the point data (default is &quot;Mass&quot;).</p>
+</dd>
+<dt>Radius_string<span class="classifier">str, optional</span></dt><dd><p>The name of the radius variable in the point data (default is &quot;Radius&quot;).</p>
+</dd>
+<dt>Coordination_Number_string<span class="classifier">str, optional</span></dt><dd><p>The name of the coordination number variable in the point data (default is &quot;Coordination_Number&quot;).</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3>Outputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Position_sorted<span class="classifier">np.ndarray, shape (N, 3).</span></dt><dd><p>The sorted positions of the particles.</p>
+</dd>
+<dt>Global_ID_sorted<span class="classifier">np.ndarray, shape (N,).</span></dt><dd><p>The sorted global IDs of the particles.</p>
+</dd>
+<dt>Velocity_sorted<span class="classifier">np.ndarray, shape (N, 3), optional</span></dt><dd><p>The sorted velocities of the particles, if available.</p>
+</dd>
+<dt>Diameter_sorted<span class="classifier">np.ndarray, shape (N,), optional</span></dt><dd><p>The sorted diameters of the particles, if available.</p>
+</dd>
+<dt>Density_sorted<span class="classifier">np.ndarray, shape (N,), optional</span></dt><dd><p>The sorted densities of the particles, if available.</p>
+</dd>
+<dt>Volume_sorted<span class="classifier">np.ndarray, shape (N,), optional</span></dt><dd><p>The sorted volumes of the particles, if available.</p>
+</dd>
+<dt>Mass_sorted<span class="classifier">np.ndarray, shape (N,), optional</span></dt><dd><p>The sorted masses of the particles, if available.</p>
+</dd>
+<dt>Coordination_Number_sorted<span class="classifier">np.ndarray, shape (N,), optional</span></dt><dd><p>The sorted coordination numbers of the particles, if available.</p>
+</dd>
+<dt>Bounds_t<span class="classifier">tuple</span></dt><dd><p>The bounds of the point data, represented as a tuple of (xmin, xmax, ymin, ymax, zmin, zmax).</p>
+</dd>
+</dl>
+</section>
+<section id="raises">
+<h3>Raises:<a class="headerlink" href="#raises" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>ValueError</dt><dd><p>If any of the required strings (Global_ID_string, Density_string, etc.) are None or not provided.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function retrieves the point data from the input connection and extracts the specified variables.</p></li>
+<li><p>The global IDs are sorted, and the corresponding positions, velocities, diameters, densities</p></li>
+</ul>
+<p>volumes, masses, and coordination numbers are also sorted based on the global IDs.
+- If any optional variables (Velocity_string, Diameter_string, etc.) are not provided,
+the corresponding output will be None.
+- The function returns the sorted arrays and the bounds of the point data.</p>
+</section>
+</dd></dl>
+
+<p>pysammos.data_read.mfix.utils module</p>
+<dl class="py function" id="module-pysammos.data_read.mfix.utils">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.utils.get_bounds">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.utils.</span></span><span class="sig-name descname"><span class="pre">get_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polydata_t0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/utils.html#get_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.utils.get_bounds" title="Link to this definition"></a></dt>
+<dd><p>Helper function to get bounds from polydata object.</p>
+<section id="id5">
+<h3>Inputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>polydata_t0<span class="classifier">vtk.vtkPolyData</span></dt><dd><p>The polydata object from which to extract bounds.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h3>Outputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>np.ndarray</dt><dd><p>An array containing the bounds of the polydata in the format [xmin, xmax, ymin, ymax, zmin, zmax].</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.data_read.mfix.utils.get_point_data_variable">
+<span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.utils.</span></span><span class="sig-name descname"><span class="pre">get_point_data_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polydata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/utils.html#get_point_data_variable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.utils.get_point_data_variable" title="Link to this definition"></a></dt>
+<dd><p>Helper function to get point data variable from polydata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>var_name</strong> (<em>str</em>) -- The name of the variable to extract from the point data.</p></li>
+<li><p><strong>polydata</strong> (<em>vtk.vtkPolyData</em>) -- The polydata object from which to extract the variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The variable data as a NumPy array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pysammos.data_read.html" class="btn btn-neutral float-left" title="Data Read" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pysammos.data_write.html" class="btn btn-neutral float-right" title="Data Write" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

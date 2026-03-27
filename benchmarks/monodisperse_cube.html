@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmark 1: Monodisperse Cube &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="License" href="../license.html" />
+    <link rel="prev" title="Benchmarks" href="../benchmarks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../benchmarks.html">Benchmarks</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Benchmark 1: Monodisperse Cube</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#before-running-pysammos-important">Before running Pysammos (Important!)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#contact-data-source">1. Contact Data Source</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#smoothing-functions-c-w">2. Smoothing Functions c/w</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kernel-restart">4. Kernel Restart</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-benchmark">Running the Benchmark</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sensitivity-setting">1. Sensitivity Setting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-tested-cg-widths">2. The Tested CG Widths</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reference-point-location">3. Reference Point Location</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../benchmarks.html">Benchmarks</a></li>
+      <li class="breadcrumb-item active">Benchmark 1: Monodisperse Cube</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/benchmarks/monodisperse_cube.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="benchmark-1-monodisperse-cube">
+<h1>Benchmark 1: Monodisperse Cube<a class="headerlink" href="#benchmark-1-monodisperse-cube" title="Link to this heading"></a></h1>
+<p>The script that performs the <strong>Pysammos</strong> Coarse-graining of this benchmark simulation is located at:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pysammos/benchmarks/monodisperse_cube/run_sweep_pysammos.ipynb</span></code></p>
+<p>The plotting of the results against other benchmarks is located at:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pysammos/benchmarks/monodisperse_cube/plot.ipynb</span></code></p>
+<section id="before-running-pysammos-important">
+<h2>Before running Pysammos (Important!)<a class="headerlink" href="#before-running-pysammos-important" title="Link to this heading"></a></h2>
+<section id="contact-data-source">
+<h3>1. Contact Data Source<a class="headerlink" href="#contact-data-source" title="Link to this heading"></a></h3>
+<p>For benchmarking, the point data reader must use JP’s contact data reader.</p>
+<p><strong>Required code change:</strong></p>
+<ul>
+<li><p>Go to the module: <code class="docutils literal notranslate"><span class="pre">pysammos.data_read.mfix.point_data</span></code></p></li>
+<li><p>Open the function: <code class="docutils literal notranslate"><span class="pre">contacts</span></code></p></li>
+<li><p>Comment out the default contact reader code and uncomment the code block
+immediately below the comment:</p>
+<p><code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">only</span> <span class="pre">to</span> <span class="pre">benchmark</span> <span class="pre">with</span> <span class="pre">JP's</span> <span class="pre">contact</span> <span class="pre">data</span> <span class="pre">reader</span></code></p>
+</li>
+</ul>
+<p>Such that it looks as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># poly_output = InputConnection.GetOutput()</span>
+<span class="c1"># F_ij = get_point_data_variable(Force_ij_string, poly_output).astype(np.float32) if Force_ij_string else None</span>
+<span class="c1"># Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.float32) if Particle_i_string else None</span>
+<span class="c1"># Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.float32) if Particle_j_string else None</span>
+<span class="c1"># Contact_ij = get_point_data_variable(Contact_ij_string, poly_output).astype(np.float32) if Contact_ij_string else None</span>
+
+<span class="c1"># only to benchmark with JP&#39;s contact data reader</span>
+<span class="n">poly_output</span> <span class="o">=</span> <span class="n">InputConnection</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">()</span><span class="o">.</span><span class="n">GetCellData</span><span class="p">();</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Contact Data loaded as Cell Data&quot;</span><span class="p">)</span>
+<span class="n">F_ij</span> <span class="o">=</span> <span class="n">vtk_to_numpy</span><span class="p">(</span><span class="n">poly_output</span><span class="o">.</span><span class="n">GetArray</span><span class="p">(</span><span class="n">Force_ij_string</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">contact_ids</span> <span class="o">=</span> <span class="n">vtk_to_numpy</span><span class="p">(</span><span class="n">poly_output</span><span class="o">.</span><span class="n">GetArray</span><span class="p">(</span><span class="n">Particle_i_string</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">Particle_i</span> <span class="o">=</span> <span class="n">contact_ids</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">Particle_j</span> <span class="o">=</span> <span class="n">contact_ids</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">Contact_ij</span> <span class="o">=</span> <span class="n">vtk_to_numpy</span><span class="p">(</span><span class="n">poly_output</span><span class="o">.</span><span class="n">GetArray</span><span class="p">(</span><span class="n">Contact_ij_string</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="smoothing-functions-c-w">
+<h3>2. Smoothing Functions c/w<a class="headerlink" href="#smoothing-functions-c-w" title="Link to this heading"></a></h3>
+<p>The benchmarks use a specific range-to-width ratio.</p>
+<p>For consistency, in the function <code class="docutils literal notranslate"><span class="pre">calc_cutoff</span></code> of the module
+<code class="docutils literal notranslate"><span class="pre">pysammos.spatial_weights_resolution</span></code>, change them to the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;Lucy&#39;</span><span class="p">:</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">w</span>
+<span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;Gaussian&#39;</span><span class="p">:</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="n">w</span>
+<span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;HeavySide&#39;</span><span class="p">:</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">w</span>
+</pre></div>
+</div>
+</section>
+<section id="kernel-restart">
+<h3>4. Kernel Restart<a class="headerlink" href="#kernel-restart" title="Link to this heading"></a></h3>
+<p>If any code changes are made before re-running the benchmark, you must restart
+the notebook.</p>
+<ul class="simple">
+<li><p>Select <strong>Restart &amp; Run All</strong></p></li>
+</ul>
+<p>This ensures no cached variables are used and results are fully reproducible.</p>
+</section>
+</section>
+<section id="running-the-benchmark">
+<h2>Running the Benchmark<a class="headerlink" href="#running-the-benchmark" title="Link to this heading"></a></h2>
+<section id="sensitivity-setting">
+<h3>1. Sensitivity Setting<a class="headerlink" href="#sensitivity-setting" title="Link to this heading"></a></h3>
+<ul>
+<li><p>The sensitivity parameter must be increased to at least:</p>
+<p><code class="docutils literal notranslate"><span class="pre">sensitivity</span> <span class="pre">≥</span> <span class="pre">10000</span></code></p>
+</li>
+<li><p>This is required to obtain a smooth match across all <code class="docutils literal notranslate"><span class="pre">w/d</span></code> values.</p></li>
+</ul>
+</section>
+<section id="the-tested-cg-widths">
+<h3>2. The Tested CG Widths<a class="headerlink" href="#the-tested-cg-widths" title="Link to this heading"></a></h3>
+<p>The CG widths for which the sweep is carried out must be the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># cg values used by JP:</span>
+<span class="n">cgWidths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+  <span class="mf">0.41666667</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.58333333</span><span class="p">,</span> <span class="mf">0.66666667</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span>
+  <span class="mf">0.83333333</span><span class="p">,</span> <span class="mf">0.91666667</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.08333333</span><span class="p">,</span> <span class="mf">1.16666667</span><span class="p">,</span>
+  <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.33333333</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span>
+  <span class="mf">2.25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.75</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.25</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.0</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+<p>Each smoothing function uses a different multiple of the baseline CG widths.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dp</span> <span class="o">=</span> <span class="mf">0.02</span>  <span class="c1"># particle diameter in m</span>
+
+<span class="n">Lucy_widths</span> <span class="o">=</span> <span class="n">cgWidths</span> <span class="o">*</span> <span class="n">dp</span> <span class="o">*</span> <span class="mi">3</span>
+<span class="n">Gaussian_widths</span> <span class="o">=</span> <span class="n">cgWidths</span> <span class="o">*</span> <span class="n">dp</span>
+<span class="n">HeavySide_widths</span> <span class="o">=</span> <span class="n">cgWidths</span> <span class="o">*</span> <span class="n">dp</span> <span class="o">*</span> <span class="mi">3</span>
+</pre></div>
+</div>
+</section>
+<section id="reference-point-location">
+<h3>3. Reference Point Location<a class="headerlink" href="#reference-point-location" title="Link to this heading"></a></h3>
+<p>All benchmark comparisons must be performed at the following reference point:</p>
+<p><code class="docutils literal notranslate"><span class="pre">P(x,y,z)</span> <span class="pre">=</span> <span class="pre">[0.0,</span> <span class="pre">0.0,</span> <span class="pre">0.42725]</span></code></p>
+<p>This point must be used as the center of a <strong>3×3×3 coarse-graining grid</strong>
+by entering it in the <code class="docutils literal notranslate"><span class="pre">CG.sweep_CG_widths()</span></code> function.</p>
+<p>The index of the point within the grid is printed when running that function.
+It tends to be <code class="docutils literal notranslate"><span class="pre">index</span> <span class="pre">=</span> <span class="pre">13</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">sweep_CG_widths</span><span class="p">(</span>
+  <span class="n">w_d</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cg_func</span><span class="si">}</span><span class="s2">_widths&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.02</span><span class="p">,</span>
+  <span class="n">center</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.42725</span><span class="p">])</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../benchmarks.html" class="btn btn-neutral float-left" title="Benchmarks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

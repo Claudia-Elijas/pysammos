@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.spatial_weights.hashtable_search &mdash; pysammos 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pysammos.spatial_weights.hashtable_search</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.spatial_weights.hashtable_search</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides functions to build and query hash tables for fast approximate evaluation of expensive functions.</span>
+<span class="sd">A hash table is constructed by precomputing function outputs at discrete input intervals. Queries on arbitrary inputs</span>
+<span class="sd">are answered by indexing into this table, trading some precision for speed.</span>
+
+<span class="sd">This module contains the following functions:</span>
+<span class="sd">    - :func:`make_hash_table`: Constructs a hash table of function values by sampling a given function over a specified range.</span>
+<span class="sd">    - :func:`hash_table_search_1d`: Efficiently searches the hash table for 1D arrays of query values.</span>
+<span class="sd">    - :func:`hash_table_search_2d`: Efficiently searches the hash table for 2D arrays of query values.</span>
+<span class="sd">    - :func:`hash_table_search`: Dispatcher that routes queries to the correct 1D or 2D search function based on input dimensionality.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># import relevant libraries </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">njit</span><span class="p">,</span> <span class="n">prange</span><span class="p">,</span> <span class="n">float64</span><span class="p">,</span> <span class="n">float32</span><span class="p">,</span> <span class="n">int64</span><span class="p">,</span> <span class="n">int32</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+ 
+<span class="c1"># Build hash table</span>
+<div class="viewcode-block" id="make_hash_table">
+<a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.hashtable_search.make_hash_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_hash_table</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">sensitivity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a hash table by sampling a function at discrete input intervals.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    func : callable</span>
+<span class="sd">        The function to sample. Must accept two arguments: max_value and input_value.</span>
+<span class="sd">    max_value : float</span>
+<span class="sd">        The maximum input value to sample up to.</span>
+<span class="sd">    sensitivity : float</span>
+<span class="sd">        Controls the granularity of the hash table sampling by dividing the</span>
+<span class="sd">        position of the first significant digit of max_value.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    hash_table_outputs : np.ndarray</span>
+<span class="sd">        Array of function values sampled at discrete points from step_size to max_value.</span>
+<span class="sd">    step_size : float</span>
+<span class="sd">        The sampling interval between hash table inputs.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The step_size is calculated as the position of the first significant figure of max_value</span>
+<span class="sd">    divided by sensitivity. The hash table inputs are then generated from step_size up to max_value</span>
+<span class="sd">    in increments of step_size. The function is vectorized over these inputs to produce the outputs.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">step_size</span> <span class="o">=</span> <span class="n">first_significant_figure_position</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span> <span class="o">/</span> <span class="n">sensitivity</span>  <span class="c1"># Step size for the hash table</span>
+    <span class="n">hash_table_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">step_size</span><span class="p">,</span> <span class="n">max_value</span> <span class="o">+</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">step_size</span><span class="p">)</span>  <span class="c1"># Create an array of input data</span>
+    <span class="n">vectorized_func</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">hash_table_outputs</span> <span class="o">=</span> <span class="n">vectorized_func</span><span class="p">(</span><span class="n">max_value</span><span class="p">,</span><span class="n">hash_table_inputs</span><span class="p">)</span>  <span class="c1"># Create an array of output data</span>
+    <span class="k">return</span> <span class="n">hash_table_outputs</span><span class="p">,</span> <span class="n">step_size</span></div>
+
+
+<span class="c1"># Hash table search algorithm</span>
+<span class="nd">@njit</span><span class="p">(</span><span class="n">float64</span><span class="p">[:](</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">),</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_table_search_1d</span><span class="p">(</span><span class="n">query_values</span><span class="p">,</span> <span class="n">hash_table_outputs</span><span class="p">,</span> <span class="n">step_size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Approximate function evaluation for 1D query arrays by indexing into the precomputed hash table.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    query_values : np.ndarray, shape (N,)</span>
+<span class="sd">        1D array of input values to query.</span>
+<span class="sd">    hash_table_outputs : np.ndarray, shape (M,)</span>
+<span class="sd">        Precomputed function values stored in the hash table.</span>
+<span class="sd">    step_size : float</span>
+<span class="sd">        Sampling interval used to build the hash table.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    query_results : np.ndarray, shape (N,)</span>
+<span class="sd">        Approximated function values corresponding to each input query.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query_results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">query_values</span><span class="p">)</span>
+    <span class="n">max_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hash_table_outputs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">prange</span><span class="p">(</span><span class="n">query_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">hash_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">query_values</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">)))</span>
+        <span class="n">hash_index</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">hash_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">max_index</span><span class="p">)</span>
+        <span class="n">query_results</span><span class="p">[</span><span class="n">q</span><span class="p">]</span> <span class="o">=</span> <span class="n">hash_table_outputs</span><span class="p">[</span><span class="n">hash_index</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">query_results</span>
+
+<span class="nd">@njit</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,:](</span><span class="n">float64</span><span class="p">[:,:],</span> <span class="n">float64</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">),</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_table_search_2d</span><span class="p">(</span><span class="n">query_values</span><span class="p">,</span> <span class="n">hash_table_outputs</span><span class="p">,</span> <span class="n">step_size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Approximate function evaluation for 2D query arrays by indexing into the precomputed hash table.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    query_values : np.ndarray, shape (N, M)</span>
+<span class="sd">        2D array of input values to query.</span>
+<span class="sd">    hash_table_outputs : np.ndarray, shape (K,)</span>
+<span class="sd">        Precomputed function values stored in the hash table.</span>
+<span class="sd">    step_size : float</span>
+<span class="sd">        Sampling interval used to build the hash table.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : np.ndarray, shape (N, M)</span>
+<span class="sd">        Approximated function values corresponding to each input query.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">query_values</span><span class="p">)</span>
+    <span class="n">max_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hash_table_outputs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">prange</span><span class="p">(</span><span class="n">query_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">query_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">query_values</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+            <span class="n">hash_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">val</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">step_size</span><span class="p">)))</span>
+            <span class="n">hash_index</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">hash_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">max_index</span><span class="p">)</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">hash_table_outputs</span><span class="p">[</span><span class="n">hash_index</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">out</span>
+
+<span class="c1"># Dispatcher (pure Python)</span>
+<div class="viewcode-block" id="hash_table_search">
+<a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.hashtable_search.hash_table_search">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_table_search</span><span class="p">(</span><span class="n">query_values</span><span class="p">,</span> <span class="n">hash_table_outputs</span><span class="p">,</span> <span class="n">step_size</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dispatch function to route query_values to the appropriate hash table search function</span>
+<span class="sd">    based on dimensionality.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    query_values : np.ndarray</span>
+<span class="sd">        Input values to query. Must be 1D or 2D array.</span>
+<span class="sd">    hash_table_outputs : np.ndarray</span>
+<span class="sd">        Precomputed hash table outputs.</span>
+<span class="sd">    step_size : float</span>
+<span class="sd">        Sampling interval used in hash table construction.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Approximated function values with same shape as query_values.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If query_values is not 1D or 2D.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">query_values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hash_table_search_1d</span><span class="p">(</span><span class="n">query_values</span><span class="p">,</span> <span class="n">hash_table_outputs</span><span class="p">,</span> <span class="n">step_size</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">query_values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hash_table_search_2d</span><span class="p">(</span><span class="n">query_values</span><span class="p">,</span> <span class="n">hash_table_outputs</span><span class="p">,</span> <span class="n">step_size</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;query_values must be 1D or 2D&quot;</span><span class="p">)</span></div>
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
