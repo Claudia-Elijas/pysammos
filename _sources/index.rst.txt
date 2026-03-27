@@ -6,6 +6,7 @@
 Home
 ====
 
+Granular flows are widespread in nature and industry, yet poorly understood. Discrete particle simulations offer detailed insight into their behaviour, but only provide properties of the individual particles, such as velocity and force. To obtain bulk flow quantities relevant to science and engineering, such as pressure or strain rate, we employ a mathematical framework called Coarse-Graining (CG).
 
 **Pysammos** is a Python package designed with the outlook of providing a user-friendly 
 CG workflow to post-process data form the MFiX open-source DEM software, 
@@ -32,7 +33,8 @@ programme that can be ran on at the same time as other processes.
 .. image:: _static/system_context_diagram.png
    :alt: pysammos logo
    :align: center
-
+   :width: 600px
+**An overview of Pysammos** Conceptual diagram of the code's main functionality (c), types of input (a, b), and output (d).
 
 | 
 
