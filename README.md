@@ -15,6 +15,8 @@ https://Claudia-Elijas.github.io/pysammos/
 
 ## Quick Installation:
 
+To install Pysammos in your local machine from GitHub, follow the steps below:
+
 1. Create a conda environment from the `pysammos_env.yml` file:
 
    ```
@@ -25,12 +27,14 @@ https://Claudia-Elijas.github.io/pysammos/
    ```
    conda activate Pysammos_Env
    ```
-3. Install `pysammos` locally in the `./pysammos/` directory, which contains the code folder `pysammos` and other folders (e.g., `examples`).
+3. Install `pysammos` locally in the `./pysammos/` directory, which contains the code folder `pysammos` and other folders (e.g., `examples`). 
 
    ```
    pip install -e .
    ```
-4. Now you are ready to run the example in `./examples/bedload_transport/`. There's the option to run it in a Jupyter notebook (`.ipynb`) or in a Python script (`.py`). To run the Python script, simply:
+Note that the -e allows you run Pysammos after editting the source code. You may ommit the -e if you are not going to be developing the code.
+
+4. Now you are ready to run the example in `./examples/bedload_transport/`. Note that you will need to fetch the example data as described in the README.md file. There's the option to run it in a Jupyter notebook (`.ipynb`) or in a Python script (`.py`). To run the Python script, simply:
 
    ```
    python3 ./examples/bedload_transport/compute_CG.py

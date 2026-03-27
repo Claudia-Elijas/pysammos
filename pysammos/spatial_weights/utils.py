@@ -136,8 +136,7 @@ def compute_dist_along_branch(r_ri_c, s, BranchVector_i, part_ind_c):
     :math:`d_{ij}` is the distance for scalar step :math:`s_i` and contact point :math:`j`,
     :math:`\mathbf{r}_{ri}^{(j)}` is the displacement vector from the reference point to contact point :math:`j`,
     :math:`s_i` is the scalar step along the branch,
-    :math:`\mathbf{B}_{\text{part}}^{(k_j)}` is the branch direction vector associated with particle :math:`k_j`,
-    and :math:`k_j = \text{part_ind_c}[j]` is the index mapping contact points to particles.
+    :math:`\mathbf{B}_{\text{part}}^{(k_j)}` is the branch direction vector associated with particle :math:`k_j`, and :math:`k_j = \text{part_ind_c}[j]` is the index mapping contact points to particles.
 
     Inputs
     ------

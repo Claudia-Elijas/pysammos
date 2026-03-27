@@ -16,7 +16,7 @@ The optimum number of clusters is chosen to be that with the absolute maximum in
 Afterwards, the k-means algorithm is applied to the dataset with the optimum number of clusters (e in figure below) to obtain the phase-ascribed arrays, which are stored as attributes of the class instance. 
 
 
-.. figure:: _static/Clustering.png
+.. figure:: _static/clustering.png
    :alt: Clustering
    :align: left
    :width: 600px
