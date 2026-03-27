@@ -78,22 +78,42 @@
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <p>Welcome to the installation of Pysammos!</p>
-<p>The installation of <strong>pysammos</strong> can be done via pip.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pysammos
+<p>There are several ways to install Pysammos, depending on your preferences and needs.</p>
+<ol class="arabic">
+<li><p><strong>Using GitHub repository</strong>: You can clone the Pysammos repository from GitHub and install it locally. This method allows you to access the latest version of the code and contribute to its development if you wish.</p>
+<blockquote>
+<div><p>First, clone the repository and navigate to the project directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Claudia-Elijas/pysammos.git
+<span class="nb">cd</span><span class="w"> </span>pysammos
 </pre></div>
 </div>
-<p>The package requires Python 3.7 or higher. It is recommended to use a virtual environment to avoid conflicts with
-other packages in your system. The required dependencies will be installed automatically from the environment yml file:</p>
+<p>Then, you can install the required dependencies from the environment yml file:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>pysammos_env.yml
 </pre></div>
 </div>
-<p>For development purposes, you can clone the repository from GitHub and install it in editable mode:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Claudia-Elijas/pysammos.git
-<span class="nb">cd</span><span class="w"> </span>pysammos
-pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<p>And finally, install the package:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
+<p>Note that the <cite>-e</cite> flag allows you to install the package in editable mode, which means that any changes you make to the code will be reflected in the installed package without needing to reinstall it. This is particularly useful for development and testing purposes.</p>
+</div></blockquote>
+</li>
+</ol>
 <p>For more details, please refer to the <a class="reference external" href="https://github.com/Claudia-Elijas/pysammos">Pysammos GitHub repository</a></p>
+<ol class="arabic" start="2">
+<li><p><strong>Using pip</strong>: You can install Pysammos using pip, which <strong>will be available soon on PyPI</strong>. This method is straightforward and allows you to easily manage the package and its dependencies.</p>
+<blockquote>
+<div><p>First make sure you have pip installed and updated:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
+</pre></div>
+</div>
+<p>Then, you can install Pysammos using pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pysammos
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
 </section>
 
 
