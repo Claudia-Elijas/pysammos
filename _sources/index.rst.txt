@@ -30,7 +30,7 @@ programme that can be ran on at the same time as other processes.
 - Open-source and free to use
 
 
-.. image:: _static/system_context_diagram.png
+.. image:: _static/system_context_diagram.pdf
    :alt: pysammos logo
    :align: center
    :width: 600px
