@@ -6,7 +6,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='pysammos',
-    version='0.1',
+    version='1.0.0',
     description='Python package to compute macroscopic continuum fields from discrete element method simulations.',
     long_description=open('README.md').read(),
     author='Claudia Elijas-Parra',
