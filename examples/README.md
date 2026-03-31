@@ -3,7 +3,7 @@
 The example dataset (~1.3GB) is not bundled with the package.
 You can either:
 
-1. Download manually from [Zenodo](https://github.com/Claudia-Elijas/pysammos/releases/download/v0.1.0/data_examples.zip) and place the `data_examples/` folder inside `examples/`
+1. Download the folder `data_examples.zip` manually from [Zenodo](https://zenodo.org/records/19351802) and place the `data_examples/` folder inside `examples/`
 
 2. Let pysammos fetch it automatically by running the ``data_fetch.py`` script in this folder, or: 
 

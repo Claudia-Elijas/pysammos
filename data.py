@@ -6,9 +6,9 @@ EXAMPLES_DIR = Path(__file__).parent.parent / "examples" / "data_examples"
 
 DATASET = pooch.create(
     path=EXAMPLES_DIR,
-    base_url="https://github.com/Claudia-Elijas/pysammos/releases/download/v0.1.0/",
+    base_url="https://zenodo.org/records/19351802/files/",
     registry={
-        "data_examples.zip": "sha256:abc123...",  # fill after uploading to GitHub
+        "data_examples.zip": "sha256:22718c1889ede9db5e01ae6834977c04a31566c69a455627e24a1a9708bef2b4",
     }
 )
 
