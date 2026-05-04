@@ -33,7 +33,7 @@ CG = CoarseGraining(
     weight_function=cfg["smoothing_function"],
     fields_to_export=cfg["fields_to_export"],
     ignore_phases=cfg["partialignore"],
-    vtk_hdf_output=cfg["vkthdf_output"],
+    vkthdf_output=cfg["vkthdf_output"],
     h5_output=cfg["h5_output"],
 
                     )  
