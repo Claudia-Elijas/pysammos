@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spatial Weights &mdash; pysammos 0.1 documentation</title>
+  <title>Spatial Weights &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
@@ -113,14 +113,12 @@
 This method discretises the input domain, and subsequently, evaluates the target function at those discrete points.
 The discretised points and their corresponding values yielded by the function are stored in a lookup table, with a corresponding index.
 Next, the continuous query values are mapped to the discrete index of the lookup table by dividing by the step size and rounding down.</p>
-<figure class="align-left" id="id32">
+<figure class="align-left" id="id30">
 <a class="reference internal image-reference" href="_images/lookup_table.png"><img alt="Hashtable Search" src="_images/lookup_table.png" style="width: 400px;" />
 </a>
 <figcaption>
 <p><span class="caption-text"><strong>Example of a lookup table.</strong> Schematic diagram of the lookup table algorithm implemented in Pysammos. <em>r</em> corresponds to the distance between a particle and a grid point.
-The resolution of the lookup table is <em>res</em>. <em>W(r)</em> is the Coarse-Graining function, and <em>c</em> corresponds to its cut-off distance (i.e., <a href="#id2"><span class="problematic" id="id3">*</span></a>W(c)*=0).</span><a class="headerlink" href="#id32" title="Link to this image"></a></p>
-<div class="legend">
-</div>
+The resolution of the lookup table is <em>res</em>. <em>W(r)</em> is the Coarse-Graining function, and <em>c</em> corresponds to its cut-off distance (i.e., <em>W(c)</em> = 0).</span><a class="headerlink" href="#id30" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p id="module-pysammos.spatial_weights.hashtable_search">This module provides functions to build and query hash tables for fast approximate evaluation of expensive functions.
@@ -169,8 +167,8 @@ based on dimensionality.</p>
 <dt class="sig sig-object py" id="pysammos.spatial_weights.hashtable_search.hash_table_search_1d">
 <span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.hashtable_search.</span></span><span class="sig-name descname"><span class="pre">hash_table_search_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_table_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.spatial_weights.hashtable_search.hash_table_search_1d" title="Link to this definition"></a></dt>
 <dd><p>Approximate function evaluation for 1D query arrays by indexing into the precomputed hash table.</p>
-<section id="id4">
-<h3>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>query_values<span class="classifier">np.ndarray, shape (N,)</span></dt><dd><p>1D array of input values to query.</p>
 </dd>
@@ -180,8 +178,8 @@ based on dimensionality.</p>
 </dd>
 </dl>
 </section>
-<section id="id5">
-<h3>Outputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3>Outputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>query_results<span class="classifier">np.ndarray, shape (N,)</span></dt><dd><p>Approximated function values corresponding to each input query.</p>
 </dd>
@@ -193,8 +191,8 @@ based on dimensionality.</p>
 <dt class="sig sig-object py" id="pysammos.spatial_weights.hashtable_search.hash_table_search_2d">
 <span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.hashtable_search.</span></span><span class="sig-name descname"><span class="pre">hash_table_search_2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_table_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.spatial_weights.hashtable_search.hash_table_search_2d" title="Link to this definition"></a></dt>
 <dd><p>Approximate function evaluation for 2D query arrays by indexing into the precomputed hash table.</p>
-<section id="id6">
-<h3>Inputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>query_values<span class="classifier">np.ndarray, shape (N, M)</span></dt><dd><p>2D array of input values to query.</p>
 </dd>
@@ -204,8 +202,8 @@ based on dimensionality.</p>
 </dd>
 </dl>
 </section>
-<section id="id7">
-<h3>Outputs<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id5">
+<h3>Outputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>out<span class="classifier">np.ndarray, shape (N, M)</span></dt><dd><p>Approximated function values corresponding to each input query.</p>
 </dd>
@@ -217,8 +215,8 @@ based on dimensionality.</p>
 <dt class="sig sig-object py" id="pysammos.spatial_weights.hashtable_search.make_hash_table">
 <span class="sig-prename descclassname"><span class="pre">pysammos.spatial_weights.hashtable_search.</span></span><span class="sig-name descname"><span class="pre">make_hash_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensitivity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/spatial_weights/hashtable_search.html#make_hash_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.spatial_weights.hashtable_search.make_hash_table" title="Link to this definition"></a></dt>
 <dd><p>Construct a hash table by sampling a function at discrete input intervals.</p>
-<section id="id8">
-<h3>Inputs<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<section id="id6">
+<h3>Inputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>func<span class="classifier">callable</span></dt><dd><p>The function to sample. Must accept two arguments: max_value and input_value.</p>
 </dd>
@@ -229,8 +227,8 @@ position of the first significant digit of max_value.</p>
 </dd>
 </dl>
 </section>
-<section id="id9">
-<h3>Outputs<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<section id="id7">
+<h3>Outputs<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>hash_table_outputs<span class="classifier">np.ndarray</span></dt><dd><p>Array of function values sampled at discrete points from step_size to max_value.</p>
 </dd>
@@ -246,14 +244,14 @@ in increments of step_size. The function is vectorized over these inputs to prod
 
 </section>
 <section id="kernels-module">
-<span id="id10"></span><h2>Kernels module<a class="headerlink" href="#kernels-module" title="Link to this heading"></a></h2>
+<span id="id8"></span><h2>Kernels module<a class="headerlink" href="#kernels-module" title="Link to this heading"></a></h2>
 <p>pysammos.spatial_weights.kernels module</p>
-<figure class="align-left" id="id33">
+<figure class="align-left" id="id31">
 <a class="reference internal image-reference" href="_images/Weights.png"><img alt="Spatial Weights Kernels" src="_images/Weights.png" style="width: 300px;" />
 </a>
 <figcaption>
 <p><span class="caption-text"><strong>Example of spatial weights kernels.</strong> Visualisation of the three implemented Coarse-graining weighting functions, W(r), in one dimension (r)
-normalised by the half-width (w). Note that the functions have been plotted with equal variance in order to ensure that any differences are due to kernel shape, not scale.</span><a class="headerlink" href="#id33" title="Link to this image"></a></p>
+normalised by the half-width (w). Note that the functions have been plotted with equal variance in order to ensure that any differences are due to kernel shape, not scale.</span><a class="headerlink" href="#id31" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p id="module-pysammos.spatial_weights.kernels">This module provides a collection of commonly used kernel functions for
@@ -290,8 +288,8 @@ which corresponds to three standard deviations.</p>
 \[V_w = 2\sqrt{2}w^3\pi^{3/2}
 \operatorname{erf}\left(\dfrac{c\sqrt{2}}{2w}\right)
 - 4cw^2\pi \exp\left(-\dfrac{c^2}{2w^2}\right)\]</div>
-<section id="id11">
-<h3>Inputs<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<section id="id9">
+<h3>Inputs<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>c<span class="classifier">float</span></dt><dd><p>Cutoff distance (typically <cite>3σ</cite>).</p>
 </dd>
@@ -299,8 +297,8 @@ which corresponds to three standard deviations.</p>
 </dd>
 </dl>
 </section>
-<section id="id12">
-<h3>Outputs<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<section id="id10">
+<h3>Outputs<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>W<span class="classifier">float</span></dt><dd><p>The Gaussian kernel value.</p>
 </dd>
@@ -319,15 +317,15 @@ which corresponds to three standard deviations.</p>
 1 &amp; \text{if } x &gt; 0 \\
 0 &amp; \text{otherwise}
 \end{cases}\end{split}\]</div>
-<section id="id13">
-<h3>Inputs<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<section id="id11">
+<h3>Inputs<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>dis<span class="classifier">float</span></dt><dd><p>Input value.</p>
 </dd>
 </dl>
 </section>
-<section id="id14">
-<h3>Outputs<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<section id="id12">
+<h3>Outputs<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>int</dt><dd><p>1 if <cite>dis &gt; 0</cite>, otherwise 0.</p>
 </dd>
@@ -348,8 +346,8 @@ which corresponds to three standard deviations.</p>
 0 &amp; \text{otherwise}
 \end{cases}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Omega = \dfrac{4}{3}\pi c^3\)</span> is the normalization volume of a sphere.</p>
-<section id="id15">
-<h3>Inputs<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<section id="id13">
+<h3>Inputs<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>c<span class="classifier">float</span></dt><dd><p>Cutoff distance (radius of the uniform sphere).</p>
 </dd>
@@ -357,8 +355,8 @@ which corresponds to three standard deviations.</p>
 </dd>
 </dl>
 </section>
-<section id="id16">
-<h3>Outputs<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<section id="id14">
+<h3>Outputs<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>HS<span class="classifier">float</span></dt><dd><p>The Heaviside kernel value.</p>
 </dd>
@@ -383,8 +381,8 @@ which corresponds to three standard deviations.</p>
 \right) &amp; \text{if } r \leq c \\
 0 &amp; \text{if } r &gt; c
 \end{cases}\end{split}\]</div>
-<section id="id17">
-<h3>Inputs<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<section id="id15">
+<h3>Inputs<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>c<span class="classifier">float</span></dt><dd><p>Cutoff distance.</p>
 </dd>
@@ -392,8 +390,8 @@ which corresponds to three standard deviations.</p>
 </dd>
 </dl>
 </section>
-<section id="id18">
-<h3>Outputs<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<section id="id16">
+<h3>Outputs<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>W<span class="classifier">float</span></dt><dd><p>The weight computed from the Lucy kernel.</p>
 </dd>
@@ -403,7 +401,7 @@ which corresponds to three standard deviations.</p>
 
 </section>
 <section id="resolution-module">
-<span id="id19"></span><h2>Resolution module<a class="headerlink" href="#resolution-module" title="Link to this heading"></a></h2>
+<span id="id17"></span><h2>Resolution module<a class="headerlink" href="#resolution-module" title="Link to this heading"></a></h2>
 <p>pysammos.spatial_weights.resolution module</p>
 <p id="module-pysammos.spatial_weights.resolution">This module provides helper functions for determining characteristic length
 scales used in kernel-based coarse-graining, smoothing, and interpolation
@@ -432,8 +430,8 @@ or filter function, based on the half-width <cite>w</cite> and the specified ker
 <li><p>For the Gaussian kernel: <span class="math notranslate nohighlight">\(c = 3w\)</span></p></li>
 <li><p>For the Heaviside (step) function: <span class="math notranslate nohighlight">\(c = w\)</span></p></li>
 </ul>
-<section id="id20">
-<h3>Inputs<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<section id="id18">
+<h3>Inputs<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>w<span class="classifier">float</span></dt><dd><p>The half-width parameter used in the kernel.</p>
 </dd>
@@ -442,8 +440,8 @@ or filter function, based on the half-width <cite>w</cite> and the specified ker
 </dd>
 </dl>
 </section>
-<section id="id21">
-<h3>Outputs<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<section id="id19">
+<h3>Outputs<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>c<span class="classifier">float</span></dt><dd><p>The calculated cutoff value.</p>
 </dd>
@@ -467,8 +465,8 @@ computed by scaling the average particle diameter by a multiplicative factor.</p
 \[w = w_{\text{mult}} \cdot D\]</div>
 <p>where <span class="math notranslate nohighlight">\(D\)</span> is the average particle diameter and <span class="math notranslate nohighlight">\(w_{\text{mult}}\)</span> is
 the user-defined multiplicative scaling factor.</p>
-<section id="id22">
-<h3>Inputs<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<section id="id20">
+<h3>Inputs<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Average_part_diam<span class="classifier">float</span></dt><dd><p>The average particle diameter <span class="math notranslate nohighlight">\(D\)</span>.</p>
 </dd>
@@ -477,8 +475,8 @@ Default is 0.75.</p>
 </dd>
 </dl>
 </section>
-<section id="id23">
-<h3>Outputs<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<section id="id21">
+<h3>Outputs<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>w<span class="classifier">float</span></dt><dd><p>The computed half-width <cite>w</cite>.</p>
 </dd>
@@ -507,9 +505,9 @@ engineering simulations involving integration along branches or paths, and geome
 <p><span class="math notranslate nohighlight">\(d_{ij}\)</span> is the distance for scalar step <span class="math notranslate nohighlight">\(s_i\)</span> and contact point <span class="math notranslate nohighlight">\(j\)</span>,
 <span class="math notranslate nohighlight">\(\mathbf{r}_{ri}^{(j)}\)</span> is the displacement vector from the reference point to contact point <span class="math notranslate nohighlight">\(j\)</span>,
 <span class="math notranslate nohighlight">\(s_i\)</span> is the scalar step along the branch,
-<span class="math notranslate nohighlight">\(\mathbf{B}_{\text{part}}^{(k_j)}\)</span> is the branch direction vector associated with particle <span class="math notranslate nohighlight">\(k_j\)</span>, and <span class="math notranslate nohighlight">\(k_j = \text{part_ind_c}[j]\)</span> is the index mapping contact points to particles.</p>
-<section id="id24">
-<h3>Inputs<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<span class="math notranslate nohighlight">\(\mathbf{B}_{\text{part}}^{(k_j)}\)</span> is the branch direction vector associated with particle <span class="math notranslate nohighlight">\(k_j\)</span>, and <span class="math notranslate nohighlight">\(k_j = \mathbf{part\_ind\_c}_{j}\)</span> is the index mapping contact points to particles.</p>
+<section id="id22">
+<h3>Inputs<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>r_ri_c<span class="classifier">np.ndarray, shape (n_contacts, 3)</span></dt><dd><p>Displacement vectors from reference points to contact points.</p>
 </dd>
@@ -521,8 +519,8 @@ engineering simulations involving integration along branches or paths, and geome
 </dd>
 </dl>
 </section>
-<section id="id25">
-<h3>Outputs<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<section id="id23">
+<h3>Outputs<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray, shape (n_s, n_contacts)</dt><dd><p>Euclidean distances along the branch for each scalar step and contact.</p>
 </dd>
@@ -551,15 +549,15 @@ engineering simulations involving integration along branches or paths, and geome
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
 </dd>
 </dl>
-<section id="id26">
-<h3>Inputs<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<section id="id24">
+<h3>Inputs<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>number<span class="classifier">float</span></dt><dd><p>Input number to analyze.</p>
 </dd>
 </dl>
 </section>
-<section id="id27">
-<h3>Outputs<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<section id="id25">
+<h3>Outputs<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>float</dt><dd><p>The value of the first significant figure's position.
 For example, if number = 345.6, returns 100.0.
@@ -587,8 +585,8 @@ Special case: returns 0 if number is zero.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-<section id="id28">
-<h3>Inputs<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<section id="id26">
+<h3>Inputs<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>s0<span class="classifier">float</span></dt><dd><p>Start of the integration interval.</p>
 </dd>
@@ -598,8 +596,8 @@ Special case: returns 0 if number is zero.</p>
 </dd>
 </dl>
 </section>
-<section id="id29">
-<h3>Outputs<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<section id="id27">
+<h3>Outputs<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray, shape (n,)</dt><dd><p>Linearly spaced array of scalars from s0 to s1.</p>
 </dd>
@@ -627,8 +625,8 @@ Special case: returns 0 if number is zero.</p>
 <span class="math notranslate nohighlight">\(n\)</span> is the number of sample points,
 <span class="math notranslate nohighlight">\(\Delta s = \frac{s_1 - s_0}{n-1}\)</span> is the step size,
 and <span class="math notranslate nohighlight">\(M\)</span> is the number of components (columns) in W.</p>
-<section id="id30">
-<h3>Inputs<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<section id="id28">
+<h3>Inputs<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>s0<span class="classifier">float</span></dt><dd><p>Start of the integration interval.</p>
 </dd>
@@ -641,8 +639,8 @@ Integration is performed along the first axis.</p>
 </dd>
 </dl>
 </section>
-<section id="id31">
-<h3>Outputs<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<section id="id29">
+<h3>Outputs<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray, shape (m,)</dt><dd><p>Resulting integral values for each column of W.</p>
 </dd>

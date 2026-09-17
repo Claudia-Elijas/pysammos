@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tutorials and Examples &mdash; pysammos 0.1 documentation</title>
+  <title>Tutorials and Examples &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,13 +14,13 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Bedload Transport Example: 2-dimensional Coarse Graining" href="examples/bedload_transport.html" />
+    <link rel="next" title="Example 1: 2-dimensional Coarse Graining of Bedload Transport" href="examples/bedload_transport.html" />
     <link rel="prev" title="Spatial Weights" href="pysammos.spatial_weights.html" /> 
 </head>
 
@@ -47,7 +47,8 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Pysammos Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials and Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/bedload_transport.html">Bedload Transport Example: 2-dimensional Coarse Graining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/bedload_transport.html">Example 1: 2-dimensional Coarse Graining of Bedload Transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/cg_from_lammps_files.html">Example 2: using Pysammos's coarse-graining capabilities with LAMMPS output</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
@@ -80,10 +81,11 @@
              
   <section id="tutorials-and-examples">
 <h1>Tutorials and Examples<a class="headerlink" href="#tutorials-and-examples" title="Link to this heading"></a></h1>
-<p>Here are some example usages of the code:</p>
+<p>Here are some example usages of Pysammos's coarse-graining framework, from the building and explanation of the configuration files to the visualisation of the coarse-grained fields.</p>
+<p>The first Pysammos release (v1.0.0) includes the various examples for DEM models in MFiX. Below is an example of a 2D bedload transport simulation.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/bedload_transport.html">Bedload Transport Example: 2-dimensional Coarse Graining</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/bedload_transport.html">Example 1: 2-dimensional Coarse Graining of Bedload Transport</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/bedload_transport.html#completing-the-configuration-file">Completing the Configuration File</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/bedload_transport.html#coarse-graining-steps">Coarse Graining Steps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples/bedload_transport.html#plotting-the-results-in-python">Plotting the Results in Python</a></li>
@@ -92,6 +94,37 @@
 </li>
 </ul>
 </div>
+<p>In the second Pysammos release (v1.1.0), the examples for DEM models in LAMMPS are included. Below is an example of a 3D granular column collapse simulation.
+This example shows how to enter the inputs to the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> class. The subsequent visualisation of the coarse-grained fields is not included in the example,
+but can be implemented from other MFiX examples found in the documentation or the <cite>examples</cite> directory.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/cg_from_lammps_files.html">Example 2: using Pysammos's coarse-graining capabilities with LAMMPS output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/cg_from_lammps_files.html#the-configuration-file">The Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/cg_from_lammps_files.html#initialising-the-coarsegraining-class">Initialising the CoarseGraining Class</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The data files for the examples are not included in the repository due to their large size (~1.3GB).</p>
+<p>You can either:</p>
+<blockquote>
+<div><ul>
+<li><p>Download the folder data_examples.zip manually from Zenodo (<a class="reference external" href="https://doi.org/10.5281/zenodo.22813684">https://doi.org/10.5281/zenodo.22813684</a>) and place the data_examples/ folder inside examples/.</p></li>
+<li><p>Let pysammos fetch it automatically by running the data_fetch.py script in this folder, or:</p></li>
+<li><p>Use the following Python code to fetch the data:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_example_data</span>
+<span class="n">fetch_example_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
 </section>
 
 
@@ -99,7 +132,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="pysammos.spatial_weights.html" class="btn btn-neutral float-left" title="Spatial Weights" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="examples/bedload_transport.html" class="btn btn-neutral float-right" title="Bedload Transport Example: 2-dimensional Coarse Graining" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="examples/bedload_transport.html" class="btn btn-neutral float-right" title="Example 1: 2-dimensional Coarse Graining of Bedload Transport" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

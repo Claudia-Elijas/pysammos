@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pysammos.data_read.mfix.utils &mdash; pysammos 0.1 documentation</title>
+  <title>pysammos.data_read.mfix.utils &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/my_theme.css?v=7cf6b6ba" />
@@ -13,7 +13,7 @@
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -79,7 +79,7 @@
 <div class="viewcode-block" id="get_bounds">
 <a class="viewcode-back" href="../../../../pysammos.data_read.mfix.html#pysammos.data_read.mfix.utils.get_bounds">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_bounds</span><span class="p">(</span><span class="n">polydata_t0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Helper function to get bounds from polydata object.</span>
 
 <span class="sd">    Inputs</span>
@@ -91,14 +91,14 @@
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        An array containing the bounds of the polydata in the format [xmin, xmax, ymin, ymax, zmin, zmax].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">polydata_t0</span><span class="o">.</span><span class="n">GetPoints</span><span class="p">()</span><span class="o">.</span><span class="n">GetBounds</span><span class="p">())</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="get_point_data_variable">
 <a class="viewcode-back" href="../../../../pysammos.data_read.mfix.html#pysammos.data_read.mfix.utils.get_point_data_variable">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_point_data_variable</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">polydata</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Helper function to get point data variable from polydata.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -112,7 +112,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        The variable data as a NumPy array.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">array</span> <span class="o">=</span> <span class="n">polydata</span><span class="o">.</span><span class="n">GetPointData</span><span class="p">()</span><span class="o">.</span><span class="n">GetArray</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">vtk_to_numpy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
@@ -122,9 +122,9 @@
         <span class="n">point_data</span> <span class="o">=</span> <span class="n">polydata</span><span class="o">.</span><span class="n">GetPointData</span><span class="p">()</span>
         <span class="n">available_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">point_data</span><span class="o">.</span><span class="n">GetArrayName</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">point_data</span><span class="o">.</span><span class="n">GetNumberOfArrays</span><span class="p">())]</span>
         
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;get_point_data_variable: Unable to read point data variable.</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Variable &#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">&#39; not found in point data.</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Available variables: </span><span class="si">{</span><span class="n">available_vars</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"get_point_data_variable: Unable to read point data variable.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"Variable '</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">' not found in point data.</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"Available variables: </span><span class="si">{</span><span class="n">available_vars</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span></div>
 
 </pre></div>

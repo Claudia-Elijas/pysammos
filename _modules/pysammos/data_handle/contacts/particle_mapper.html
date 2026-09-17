@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pysammos.data_handle.contacts.particle_mapper &mdash; pysammos 0.1 documentation</title>
+  <title>pysammos.data_handle.contacts.particle_mapper &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/my_theme.css?v=7cf6b6ba" />
@@ -13,7 +13,7 @@
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -73,7 +73,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pysammos.data_handle.contacts.particle_mapper</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">This module provides functionality to map global particle data (positions, diameters, etc.) to contact</span>
 <span class="sd">pair data, duplicates the arrays to account for both directions (A→B and B→A),</span>
 <span class="sd">and computes the branch vectors using either contact points or particle diameters.</span>
@@ -81,10 +81,10 @@
 
 <span class="sd">It contains one main function:</span>
 <span class="sd">    1. :func:`map_contact_data`: Maps particle and contact data for branch vector and fabric tensor analysis.</span>
-<span class="sd">  Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases</span>
-<span class="sd">  for each contact pair, accounting for both directions of interaction.</span>
+<span class="sd">       Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases</span>
+<span class="sd">       for each contact pair, accounting for both directions of interaction.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -99,7 +99,7 @@
                                     <span class="n">Return_Volume</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="c1"># Is volume data needed to calculate fabric tensor?</span>
                                     <span class="n">Particle_Phase_Array_t</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
                                                                         <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span><span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span> <span class="c1"># if None, no phase data is returned</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    </span>
 <span class="sd">    Maps global particle data to contact pair data, duplicates arrays for both interaction directions,</span>
 <span class="sd">    and computes branch vectors for fabric tensor analysis.</span>
@@ -175,7 +175,7 @@
 <span class="sd">    - Branch vectors are computed using either contact points (if provided) or particle diameters.</span>
 <span class="sd">    - Designed for use in granular material simulations and fabric tensor analysis.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Find equivalence in ID indices</span>
     <span class="n">inds_glob_LL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">Global_ID</span><span class="p">,</span> <span class="n">Particle_LL</span><span class="p">)</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vtkhdf &mdash; pysammos 0.1 documentation</title>
+  <title>Vtkhdf &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -287,15 +287,25 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-<dl>
-<dt>Args:</dt><dd><p>image_data: PyVista ImageData object
-var: Variable name
-components: Expected number of components (for validation).</p>
-<blockquote>
-<div><p>If None, accepts any component count &gt; 3.</p>
-</div></blockquote>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>image_data<span class="classifier">pyvista.ImageData</span></dt><dd><p>PyVista ImageData object.</p>
+</dd>
+<dt>var<span class="classifier">str</span></dt><dd><p>Variable name.</p>
+</dd>
+<dt>components<span class="classifier">int, optional</span></dt><dd><p>Expected number of components (for validation).
+If None, accepts any component count &gt; 3.</p>
 </dd>
 </dl>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>np.ndarray</dt><dd><p>Tensor field reshaped to a 4D array (nx, ny, nz, n_components).</p>
+</dd>
+</dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -324,18 +334,26 @@ components: Expected number of components (for validation).</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
 </dd>
 </dl>
-<dl>
-<dt>Args:</dt><dd><p>array: Input array
-expected_size: Expected number of points/cells
-components: If specified, check for exact component count.</p>
-<blockquote>
-<div><p>If None, return component count if it's tensor data, False otherwise.</p>
-</div></blockquote>
+<section id="id1">
+<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>array<span class="classifier">np.ndarray</span></dt><dd><p>Input array.</p>
 </dd>
-<dt>Returns:</dt><dd><p>If components specified: bool indicating if array matches
-If components is None: component count if tensor-like (&gt;3), False otherwise</p>
+<dt>expected_size<span class="classifier">int</span></dt><dd><p>Expected number of points/cells.</p>
+</dd>
+<dt>components<span class="classifier">int, optional</span></dt><dd><p>If specified, check for exact component count.
+If None, return the component count if the array is tensor-like, else False.</p>
 </dd>
 </dl>
+</section>
+<section id="id2">
+<h3>Outputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>bool or int</dt><dd><p>If <cite>components</cite> is specified, a bool indicating whether the array matches.
+If <cite>components</cite> is None, the component count if tensor-like (&gt;3 components), else False.</p>
+</dd>
+</dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -410,16 +428,20 @@ If components is None: component count if tensor-like (&gt;3), False otherwise</
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.set_point_tensor">
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">set_point_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tensor_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#set_point_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.set_point_tensor" title="Link to this definition"></a></dt>
 <dd><p>Add tensor field to point data with flexible component count.</p>
-<dl>
-<dt>Args:</dt><dd><p>image_data: PyVista ImageData object
-tensor_array: 4D array with shape (nx, ny, nz, n_components)
-var: Variable name
-components: Expected number of components (for validation).</p>
-<blockquote>
-<div><p>If None, accepts any component count &gt; 3.</p>
-</div></blockquote>
+<section id="id3">
+<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>image_data<span class="classifier">pyvista.ImageData</span></dt><dd><p>PyVista ImageData object.</p>
+</dd>
+<dt>tensor_array<span class="classifier">np.ndarray</span></dt><dd><p>4D array with shape (nx, ny, nz, n_components).</p>
+</dd>
+<dt>var<span class="classifier">str</span></dt><dd><p>Variable name.</p>
+</dd>
+<dt>components<span class="classifier">int, optional</span></dt><dd><p>Expected number of components (for validation).
+If None, accepts any component count &gt; 3.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py function">
@@ -491,8 +513,8 @@ It is designed to ensure that the data is stored in a format that can be easily 
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class manages the writing of VTKHDF files with specified node dimensions, spacing, and origin.
 It provides methods to write scalar, vector, and tensor data, and can handle both single-phase and polydisperse data.</p>
-<section id="inputs">
-<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>node_dimensions<span class="classifier">tuple</span></dt><dd><p>Dimensions of the grid in number of nodes (e.g., (nx, ny, nz)).</p>
 </dd>
@@ -504,8 +526,8 @@ It provides methods to write scalar, vector, and tensor data, and can handle bot
 </dd>
 </dl>
 </section>
-<section id="outputs">
-<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<section id="id5">
+<h3>Outputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>node_dimensions<span class="classifier">tuple</span></dt><dd><p>Dimensions of the grid in number of nodes.</p>
 </dd>
@@ -517,19 +539,19 @@ It provides methods to write scalar, vector, and tensor data, and can handle bot
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span> <span class="o">=</span> <span class="n">VTKHDFWriter</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="s2">&quot;output/data&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span> <span class="o">=</span> <span class="n">VTKHDFWriter</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="s2">"output/data"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span><span class="o">.</span><span class="n">write_polydisperse</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">n_phases</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">phase_indepen_field_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">writer</span><span class="o">.</span><span class="n">write_polydisperse</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">n_phases</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">phase_indepen_field_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'velocity'</span><span class="p">,</span> <span class="s1">'pressure'</span><span class="p">])</span>
 <span class="go">This initializes a VTKHDFWriter with a 100x100x100 grid, 1.0 spacing, origin at (0,0,0),</span>
-<span class="go">and saves the file to &quot;output/data.vtkhdf&quot;. It then writes data to the file.</span>
+<span class="go">and saves the file to "output/data.vtkhdf". It then writes data to the file.</span>
 </pre></div>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/writer.html#VTKHDFWriter.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write" title="Link to this definition"></a></dt>
 <dd><p>Writes the provided data dictionary to a VTKHDF file, handling various data shapes (scalar, vector, tensor).</p>
-<section id="id1">
-<h4>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<section id="id6">
+<h4>Inputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>data_dict<span class="classifier">dict</span></dt><dd><p>Dictionary containing data to be written, where keys are variable names and values are numpy arrays.</p>
 </dd>
@@ -552,8 +574,8 @@ If the data is not in the expected shape, it will be reshaped to fit the node di
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write_polydisperse">
 <span class="sig-name descname"><span class="pre">write_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_indepen_field_names</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/writer.html#VTKHDFWriter.write_polydisperse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write_polydisperse" title="Link to this definition"></a></dt>
 <dd><p>Writes polydisperse data to a VTKHDF file, handling both phase-independent and phase-dependent fields.</p>
-<section id="id2">
-<h4>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<section id="id7">
+<h4>Inputs<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
 <dl>
 <dt>data_dict<span class="classifier">dict</span></dt><dd><p>Dictionary containing data to be written, where keys are variable names and values are numpy arrays.
 The data arrays should be structured as follows:</p>

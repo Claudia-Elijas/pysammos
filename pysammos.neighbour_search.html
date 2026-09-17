@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Neighbour Search &mdash; pysammos 0.1 documentation</title>
+  <title>Neighbour Search &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
@@ -116,13 +116,11 @@ The particles associated to the grey grid point (red dots) are those within the 
 <p>This module contains two main functions:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><a class="reference internal" href="#pysammos.neighbour_search.grid_particle_search.particle_node_match" title="pysammos.neighbour_search.grid_particle_search.particle_node_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">particle_node_match()</span></code></a>: Uses kd-tree spatial queries to find particles within a cutoff radius of each grid point, returning</p></li>
+<li><p><a class="reference internal" href="#pysammos.neighbour_search.grid_particle_search.particle_node_match" title="pysammos.neighbour_search.grid_particle_search.particle_node_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">particle_node_match()</span></code></a>: Uses kd-tree spatial queries to find particles within a cutoff radius of each grid point, returning
+start indices and a flattened array of matching particle indices.</p></li>
+<li><p><a class="reference internal" href="#pysammos.neighbour_search.grid_particle_search.calc_displacement" title="pysammos.neighbour_search.grid_particle_search.calc_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_displacement()</span></code></a>: Computes displacement vectors and distances between each grid point and its neighboring particles,
+using the output of <a class="reference internal" href="#pysammos.neighbour_search.grid_particle_search.particle_node_match" title="pysammos.neighbour_search.grid_particle_search.particle_node_match"><code class="xref py py-func docutils literal notranslate"><span class="pre">particle_node_match()</span></code></a>.</p></li>
 </ul>
-<p>start indices and a flattened array of matching particle indices.</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#pysammos.neighbour_search.grid_particle_search.calc_displacement" title="pysammos.neighbour_search.grid_particle_search.calc_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">calc_displacement()</span></code></a>: Computes displacement vectors and distances between each grid point and its neighboring particles,</p></li>
-</ul>
-<p>using the output of <cite>particle_node_match</cite>.</p>
 </div></blockquote>
 <p>These functions facilitate coarse-graining operations by quickly associating particles to grid points
 and calculating relative positional data in an optimized manner.</p>

@@ -24,6 +24,7 @@ This subpackage contains the following modules:
 
 
 .. _dipatcher:
+
 Dispatcher module
 -----------------
 
@@ -35,6 +36,7 @@ pysammos.macroscopic\_fields.gridded.dispatcher module
    :show-inheritance:
 
 .. _scalars:
+
 Scalars module
 --------------
 
@@ -46,6 +48,7 @@ pysammos.macroscopic\_fields.gridded.scalars module
    :show-inheritance:
 
 .. _vectors:
+
 Vectors module
 ---------------
 
@@ -57,6 +60,7 @@ pysammos.macroscopic\_fields.gridded.vectors module
    :show-inheritance:
 
 .. _tensors:
+
 Tensors module
 --------------
 
@@ -69,6 +73,7 @@ pysammos.macroscopic\_fields.gridded.tensors module
 
 
 .. _secondary:
+
 Secondary module
 ----------------
 

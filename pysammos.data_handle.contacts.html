@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contacts &mdash; pysammos 0.1 documentation</title>
+  <title>Contacts &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
@@ -157,14 +157,12 @@ The contact data has previously been arranged such that both sides of the intera
 pair data, duplicates the arrays to account for both directions (A→B and B→A),
 and computes the branch vectors using either contact points or particle diameters.
 It also includes options to return particle volumes for fabric tensor calculations.</p>
-<dl>
-<dt>It contains one main function:</dt><dd><blockquote>
-<div><ol class="arabic simple">
-<li><p><a class="reference internal" href="#pysammos.data_handle.contacts.particle_mapper.map_contact_data" title="pysammos.data_handle.contacts.particle_mapper.map_contact_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">map_contact_data()</span></code></a>: Maps particle and contact data for branch vector and fabric tensor analysis.</p></li>
+<dl class="simple">
+<dt>It contains one main function:</dt><dd><ol class="arabic simple">
+<li><p><a class="reference internal" href="#pysammos.data_handle.contacts.particle_mapper.map_contact_data" title="pysammos.data_handle.contacts.particle_mapper.map_contact_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">map_contact_data()</span></code></a>: Maps particle and contact data for branch vector and fabric tensor analysis.
+Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases
+for each contact pair, accounting for both directions of interaction.</p></li>
 </ol>
-</div></blockquote>
-<p>Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases
-for each contact pair, accounting for both directions of interaction.</p>
 </dd>
 </dl>
 <dl class="py function">

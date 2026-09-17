@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mfix &mdash; pysammos 0.1 documentation</title>
+  <title>Mfix &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -116,14 +116,17 @@ and contact points.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.data_read.mfix.cell_data.contacts">
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.cell_data.</span></span><span class="sig-name descname"><span class="pre">contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Part_ids_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_ids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Force_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'total_force'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Contact_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_points'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/cell_data.html#contacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.cell_data.contacts" title="Link to this definition"></a></dt>
-<dd><p>Extract contact data from the input connection, including particle IDs, total forces, and contact points.
-Inputs
-------
-InputConnection : vtk.vtkAlgorithmOutput</p>
-<blockquote>
-<div><p>The input connection from which to extract cell data.</p>
-</div></blockquote>
+<dd><p>Extract contact data from the input connection, including particle IDs, total forces, and contact points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
+<section id="inputs">
+<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
 <dl class="simple">
+<dt>InputConnection<span class="classifier">vtk.vtkAlgorithmOutput</span></dt><dd><p>The input connection from which to extract cell data.</p>
+</dd>
 <dt>Part_ids_string<span class="classifier">str, optional</span></dt><dd><p>The name of the array containing particle IDs in the cell data. Default is &quot;contact_ids&quot;.</p>
 </dd>
 <dt>Force_ij_string<span class="classifier">str, optional</span></dt><dd><p>The name of the array containing total forces in the cell data. Default is &quot;total_force&quot;.</p>
@@ -131,6 +134,7 @@ InputConnection : vtk.vtkAlgorithmOutput</p>
 <dt>Contact_ij_string<span class="classifier">str, optional</span></dt><dd><p>The name of the array containing contact points in the cell data. Default is &quot;contact_points&quot;.</p>
 </dd>
 </dl>
+</section>
 <section id="outputs">
 <h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -141,11 +145,6 @@ InputConnection : vtk.vtkAlgorithmOutput</p>
 <dt>total_force<span class="classifier">ndarray, shape (M, 3)</span></dt><dd><p>Array of total forces for each contact.</p>
 </dd>
 <dt>contact_points<span class="classifier">ndarray, shape (M, 3)</span></dt><dd><p>Array of contact points for each contact.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 </dl>
 </section>
@@ -171,15 +170,15 @@ The appropriate VTK reader is selected based on the detected file type, allowing
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
 </dd>
 </dl>
-<section id="inputs">
-<h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
+<section id="id1">
+<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>path<span class="classifier">str</span></dt><dd><p>The path to the VTK file.</p>
 </dd>
 </dl>
 </section>
-<section id="id1">
-<h3>Outputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3>Outputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>str</dt><dd><p>The file type: &quot;vtp&quot; for PolyData or &quot;vtk&quot; for UnstructuredGrid.</p>
 </dd>
@@ -218,11 +217,11 @@ The appropriate VTK reader is selected based on the detected file type, allowing
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">file_type</span> <span class="o">=</span> <span class="n">get_file_type</span><span class="p">(</span><span class="s2">&quot;example.vtp&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">file_type</span> <span class="o">=</span> <span class="n">get_file_type</span><span class="p">(</span><span class="s2">"example.vtp"</span><span class="p">)</span>
 <span class="go">XML-based PolyData detected.</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reader_output</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">file_type</span><span class="p">,</span> <span class="s2">&quot;example.vtp&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reader_output</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">file_type</span><span class="p">,</span> <span class="s2">"example.vtp"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">reader_output</span><span class="p">))</span>
-<span class="go">&lt;class &#39;vtkmodules.vtkCommonExecutionModel.vtkAlgorithmOutput&#39;&gt;</span>
+<span class="go">&lt;class 'vtkmodules.vtkCommonExecutionModel.vtkAlgorithmOutput'&gt;</span>
 <span class="go">This indicates that the file has been read successfully and the output is a VTK algorithm output object.</span>
 </pre></div>
 </div>
@@ -261,8 +260,8 @@ and contact points.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]</span></p>
 </dd>
 </dl>
-<section id="id2">
-<h3>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>InputConnection<span class="classifier">vtk.vtkAlgorithmOutput</span></dt><dd><p>The input connection containing the VTK data.</p>
 </dd>
@@ -296,10 +295,10 @@ and contact points.</p>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li><p>The function retrieves the point data from the input connection and extracts the specified variables.</p></li>
-<li><p>If any optional variables (Force_ij_string, Contact_ij_string) are not provided,</p></li>
+<li><p>If any optional variables (Force_ij_string, Contact_ij_string) are not provided,
+the corresponding output will be None.</p></li>
+<li><p>The function returns the arrays of particle IDs, total forces, and contact points.</p></li>
 </ul>
-<p>the corresponding output will be None.
-- The function returns the arrays of particle IDs, total forces, and contact points.</p>
 </section>
 </dd></dl>
 
@@ -319,8 +318,8 @@ velocity, diameter, density, volume, mass, and coordination number.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>]</span></p>
 </dd>
 </dl>
-<section id="id3">
-<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>InputConnection<span class="classifier">vtk.vtkAlgorithmOutput</span></dt><dd><p>The input connection containing the VTK data.</p>
 </dd>
@@ -342,8 +341,8 @@ velocity, diameter, density, volume, mass, and coordination number.</p>
 </dd>
 </dl>
 </section>
-<section id="id4">
-<h3>Outputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id5">
+<h3>Outputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Position_sorted<span class="classifier">np.ndarray, shape (N, 3).</span></dt><dd><p>The sorted positions of the particles.</p>
 </dd>
@@ -374,12 +373,12 @@ velocity, diameter, density, volume, mass, and coordination number.</p>
 <p class="rubric">Notes</p>
 <ul class="simple">
 <li><p>The function retrieves the point data from the input connection and extracts the specified variables.</p></li>
-<li><p>The global IDs are sorted, and the corresponding positions, velocities, diameters, densities</p></li>
+<li><p>The global IDs are sorted, and the corresponding positions, velocities, diameters, densities
+volumes, masses, and coordination numbers are also sorted based on the global IDs.</p></li>
+<li><p>If any optional variables (Velocity_string, Diameter_string, etc.) are not provided,
+the corresponding output will be None.</p></li>
+<li><p>The function returns the sorted arrays and the bounds of the point data.</p></li>
 </ul>
-<p>volumes, masses, and coordination numbers are also sorted based on the global IDs.
-- If any optional variables (Velocity_string, Diameter_string, etc.) are not provided,
-the corresponding output will be None.
-- The function returns the sorted arrays and the bounds of the point data.</p>
 </section>
 </dd></dl>
 
@@ -388,15 +387,15 @@ the corresponding output will be None.
 <dt class="sig sig-object py" id="pysammos.data_read.mfix.utils.get_bounds">
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.utils.</span></span><span class="sig-name descname"><span class="pre">get_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polydata_t0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/utils.html#get_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.utils.get_bounds" title="Link to this definition"></a></dt>
 <dd><p>Helper function to get bounds from polydata object.</p>
-<section id="id5">
-<h3>Inputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id6">
+<h3>Inputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>polydata_t0<span class="classifier">vtk.vtkPolyData</span></dt><dd><p>The polydata object from which to extract bounds.</p>
 </dd>
 </dl>
 </section>
-<section id="id6">
-<h3>Outputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id7">
+<h3>Outputs<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>np.ndarray</dt><dd><p>An array containing the bounds of the polydata in the format [xmin, xmax, ymin, ymax, zmin, zmax].</p>
 </dd>

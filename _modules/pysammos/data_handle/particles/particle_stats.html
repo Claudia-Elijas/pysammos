@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pysammos.data_handle.particles.particle_stats &mdash; pysammos 0.1 documentation</title>
+  <title>pysammos.data_handle.particles.particle_stats &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/my_theme.css?v=7cf6b6ba" />
@@ -13,7 +13,7 @@
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -73,12 +73,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pysammos.data_handle.particles.particle_stats</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">This module provides functions to compute statistical properties of particle systems.</span>
 <span class="sd">Currently, it includes the following function:</span>
+
 <span class="sd">    1. :func:`d50_calc`: Computes the D50 (median diameter) from sorted particle diameters and their corresponding masses.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="c1"># import necessary libraries</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -87,7 +88,7 @@
 <div class="viewcode-block" id="d50_calc">
 <a class="viewcode-back" href="../../../../pysammos.data_handle.particles.html#pysammos.data_handle.particles.particle_stats.d50_calc">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">d50_calc</span><span class="p">(</span><span class="n">diameter_t0_sort</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mass_t0_sort</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 
 <span class="sd">    Calculate the D50 (median diameter) from sorted particle diameters and their corresponding masses.</span>
 <span class="sd">    The D50 is the diameter at which 50% of the total mass is contained in particles smaller than this diameter.</span>
@@ -109,6 +110,7 @@
 <span class="sd">        Sorted array of particle diameters.</span>
 <span class="sd">    mass_t0_sort : ndarray, shape (N,).</span>
 <span class="sd">        Sorted array of particle masses corresponding to the diameters.</span>
+
 <span class="sd">    Outputs</span>
 <span class="sd">    -------</span>
 <span class="sd">    d50 : float</span>
@@ -125,7 +127,7 @@
 <span class="sd">    This indicates that 50% of the total mass is contained </span>
 <span class="sd">    in particles with diameters less than or equal to 0.3.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     
     <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mass_t0_sort</span><span class="p">)</span> <span class="c1"># Calculate total mass</span>
     <span class="n">cumulative_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">mass_t0_sort</span><span class="p">)</span> <span class="c1"># Calculate cumulative mass</span>

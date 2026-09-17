@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pysammos.data_handle.contacts.complete.branch_vectors &mdash; pysammos 0.1 documentation</title>
+  <title>pysammos.data_handle.contacts.complete.branch_vectors &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/my_theme.css?v=7cf6b6ba" />
@@ -13,7 +13,7 @@
   
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/js/theme.js"></script>
@@ -73,7 +73,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pysammos.data_handle.contacts.complete.branch_vectors</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">This module provides functions to calculate branch vectors and center-to-center vectors</span>
 <span class="sd">between particles in a simulation, considering periodic boundary conditions.</span>
 <span class="sd">It includes two main functions:</span>
@@ -84,7 +84,7 @@
 
 <span class="sd">These functions handle periodic boundary corrections to ensure accurate vector calculations</span>
 <span class="sd">in simulations with periodic boundaries.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
@@ -94,7 +94,7 @@
 <a class="viewcode-back" href="../../../../../pysammos.data_handle.contacts.complete.html#pysammos.data_handle.contacts.complete.branch_vectors.from_contacts">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_contacts</span><span class="p">(</span><span class="n">r_A</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">r_B</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">contact_A</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
                   <span class="n">L</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">periodic</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 
 <span class="sd">    Computes the branch vector :math:`\mathbf{B_v}` from the center of particle A</span>
 <span class="sd">    to its contact point, as well as the center-to-center vector :math:`\mathbf{d}`</span>
@@ -162,14 +162,14 @@
 <span class="sd">        &gt;&gt;&gt; L = np.array([3.0, 3.0])</span>
 <span class="sd">        &gt;&gt;&gt; periodic = np.array([True, True])</span>
 <span class="sd">        &gt;&gt;&gt; BV, d = from_contacts(r_A, r_B, contact_A, L, periodic)</span>
-<span class="sd">        &gt;&gt;&gt; print(&quot;Branch Vectors:\n&quot;, BV)</span>
+<span class="sd">        &gt;&gt;&gt; print("Branch Vectors:\n", BV)</span>
 <span class="sd">        Branch Vectors:</span>
 <span class="sd">        [[-0.5  0. ]]</span>
-<span class="sd">        &gt;&gt;&gt; print(&quot;Center-to-Center Vectors:\n&quot;, d)</span>
+<span class="sd">        &gt;&gt;&gt; print("Center-to-Center Vectors:\n", d)</span>
 <span class="sd">        Center-to-Center Vectors:</span>
 <span class="sd">        [[-1.  0. ]]    </span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 
     <span class="c1"># Compute displacement vector from center to contact point</span>
@@ -190,7 +190,7 @@
 <a class="viewcode-back" href="../../../../../pysammos.data_handle.contacts.complete.html#pysammos.data_handle.contacts.complete.branch_vectors.from_diameters">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_diameters</span><span class="p">(</span><span class="n">r_A</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">r_B</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">d_A</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">d_B</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
                    <span class="n">L</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">periodic</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    </span>
 
 <span class="sd">    Computes the branch vector :math:`\mathbf{B_v}` from the center of particle A</span>
@@ -250,7 +250,7 @@
 
 <span class="sd">    d : ndarray, shape (N, 3).</span>
 <span class="sd">        Periodically corrected center-to-center vectors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Initialize displacement vector</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">r_A</span> <span class="o">-</span> <span class="n">r_B</span>
     

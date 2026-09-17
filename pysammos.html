@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coarse Graining User-interface &mdash; pysammos 0.1 documentation</title>
+  <title>Coarse Graining User-interface &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -111,7 +111,7 @@ It includes methods for loading particle data, calculating particle size statist
 computing macroscopic fields, handling particle phases, and writing output data.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pysammos.coarse_graining.CoarseGraining">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pysammos.coarse_graining.</span></span><span class="sig-name descname"><span class="pre">CoarseGraining</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contacts_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_time_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEM_keymap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_export</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vkthdf_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_sampling_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_gradient_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'finite_difference'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/coarse_graining.html#CoarseGraining"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.coarse_graining.CoarseGraining" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pysammos.coarse_graining.</span></span><span class="sig-name descname"><span class="pre">CoarseGraining</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particle_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contacts_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_time_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_pad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEM_software</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DEM_keymap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_export</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_phases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vkthdf_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h5_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_sampling_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_gradient_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'finite_difference'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/coarse_graining.html#CoarseGraining"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.coarse_graining.CoarseGraining" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Encapsulates the coarse graining process, including initialization,
 configuration, data sampling, phase identification, grid generation,
@@ -278,7 +278,7 @@ It takes into account the smoothing length calculated in <a class="reference int
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pysammos.coarse_graining.CoarseGraining.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/coarse_graining.html#CoarseGraining.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.coarse_graining.CoarseGraining.run" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w_d_user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/coarse_graining.html#CoarseGraining.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.coarse_graining.CoarseGraining.run" title="Link to this definition"></a></dt>
 <dd><p>Execute the full coarse-graining workflow.</p>
 <p>This method performs the following steps:</p>
 <ol class="arabic simple">
@@ -288,14 +288,21 @@ It takes into account the smoothing length calculated in <a class="reference int
 <li><p>Generates the grid (<a class="reference internal" href="#pysammos.coarse_graining.CoarseGraining.generate_grid" title="pysammos.coarse_graining.CoarseGraining.generate_grid"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_grid()</span></code></a>).</p></li>
 <li><p>Iterates over each time step to compute and write coarse-grained fields (<code class="xref py py-func docutils literal notranslate"><span class="pre">_fields_single_time()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">_write_results()</span></code>).</p></li>
 </ol>
+<section id="id3">
+<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>w_d_user<span class="classifier">float</span></dt><dd><p>The user-defined coarse-graining resolution specified as a multiple of the characteristic particle diameter (e.g., d50). This value is used to set the coarse-graining half-width (w)</p>
+</dd>
+</dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pysammos.coarse_graining.CoarseGraining.set_resolution">
 <span class="sig-name descname"><span class="pre">set_resolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">average_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_mult</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/coarse_graining.html#CoarseGraining.set_resolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.coarse_graining.CoarseGraining.set_resolution" title="Link to this definition"></a></dt>
 <dd><p>Set the resolution for coarse graining based on the average particle diameter.</p>
-<section id="id3">
-<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>average_diameter<span class="classifier">float</span></dt><dd><p>The average particle diameter. Can be any representative diameter: d50, d32, d43, or drms.</p>
 </dd>
@@ -318,8 +325,8 @@ It takes into account the smoothing length calculated in <a class="reference int
 <dd><p>Perform a sweep over different coarse-graining resolutions (w values) for a specified time step.
 This method iterates over a range of w values, computes the coarse-grained fields for each w, and writes the results to output files. The input w values are provided as an array of multiples of the characteristic particle diameter (here d43).
 It does not consider different particle phases; all particles are treated as belonging to a single phase.</p>
-<section id="id4">
-<h3>Inputs:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id5">
+<h3>Inputs:<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>w_d<span class="classifier">np.ndarray</span></dt><dd><p>An array of w/d values to sweep over, where w is the coarse-graining half-width and d is the characteristic particle diameter measure of choice</p>
 </dd>

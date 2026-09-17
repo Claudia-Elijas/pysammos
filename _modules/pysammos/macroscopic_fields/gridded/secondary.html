@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pysammos.macroscopic_fields.gridded.secondary &mdash; pysammos 0.1 documentation</title>
+  <title>pysammos.macroscopic_fields.gridded.secondary &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/my_theme.css?v=7cf6b6ba" />
@@ -13,7 +13,7 @@
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -73,7 +73,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pysammos.macroscopic_fields.gridded.secondary</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">This module provides functions to compute velocity gradients, </span>
 <span class="sd">shear rate tensors, deviatoric tensors, tensor invariants, </span>
 <span class="sd">pressure, inertial numbers, granular temperature, and bulk fabric tensors </span>
@@ -99,7 +99,7 @@
 <span class="sd">    - The functions handle both monodisperse and polydisperse cases: the number of phases is denoted by `P`.</span>
 <span class="sd">    - Functions decorated with `@njit` are JIT-compiled with Numba for performance.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -112,7 +112,7 @@
 <span class="nd">@njit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_velgrad_leastsquares</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">visibility</span><span class="p">,</span> <span class="n">grid_indices</span><span class="p">,</span> <span class="n">displacement</span><span class="p">,</span> <span class="n">Particle_Velocity</span><span class="p">,</span> <span class="n">Particle_Mass</span><span class="p">,</span> <span class="n">Velocity_Field</span><span class="p">):</span>
 <span class="w">    </span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">'''</span>
 <span class="sd">    Compute the velocity gradient tensor at grid points using a least-squares approach based on particle contributions. </span>
 
 <span class="sd">    Assuming that the velocity field can be locally approximated as a linear function of position around each grid point, the method minimizes the error in the velocity approximation for particles contributing to that grid point. </span>
@@ -169,7 +169,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    GradV : (G, 3, 3) ndarray</span>
 <span class="sd">        Velocity gradient tensor at each grid point.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="n">Ngrid</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid_indices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
     <span class="n">GradV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Ngrid</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -222,7 +222,7 @@
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the gradient tensor of a bulk velocity field on a regular grid. The gradient</span>
 <span class="sd">    tensor is defined as:</span>
 
@@ -261,7 +261,7 @@
 <span class="sd">    -----</span>
 <span class="sd">    - The function handles 1D, 2D, and 3D grids automatically.</span>
 <span class="sd">    - Output is flattened back to match the input node order.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">])</span>
@@ -315,7 +315,7 @@
         <span class="n">GradTen</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">dWdz</span>
         <span class="n">GradTen</span> <span class="o">=</span> <span class="n">GradTen</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span> <span class="o">*</span> <span class="n">ny</span> <span class="o">*</span> <span class="n">nz</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported dimensionality. Only 1D, 2D, and 3D grids are supported.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unsupported dimensionality. Only 1D, 2D, and 3D grids are supported."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">GradTen</span></div>
 
 
@@ -324,7 +324,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_shear_rate_tensor</span><span class="p">(</span>
     <span class="n">VelocityGrad</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the symmetric shear rate tensor from a velocity gradient tensor, given by:</span>
 
 <span class="sd">    .. math::</span>
@@ -342,7 +342,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    ShearRateTensor : (N, 3, 3) ndarray</span>
 <span class="sd">        Symmetric part of the velocity gradient tensor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># case for BULK property only</span>
     <span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">VelocityGrad</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">ShearRateTensor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Npoints</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span>
@@ -356,7 +356,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_deviatoric_tensor</span><span class="p">(</span>
     <span class="n">Tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the deviatoric tensor by removing the mean normal stress, given by:</span>
 
 <span class="sd">    .. math::</span>
@@ -373,7 +373,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    DeviatoricTensor : ndarray, shape (N, 3, 3) or (N, P, 3, 3)</span>
 <span class="sd">        Tensor(s) with isotropic part removed. Shape matches input.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># 1. case for POLYDISPERSE ---------------------------------------</span>
     <span class="k">if</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
         <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">shape</span>
@@ -398,7 +398,7 @@
     <span class="n">Tensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the second invariant of a deviatoric stress tensor, defined as:</span>
 
 <span class="sd">    .. math::</span>
@@ -422,7 +422,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    second_invariant : (N,) or (N, P) ndarray</span>
 <span class="sd">        Second invariant magnitude for each tensor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># 1. case for POLYDISPERSE ---------------------------------------</span>
     <span class="k">if</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
         <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="n">shape</span>
@@ -484,7 +484,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_pressure</span><span class="p">(</span>
     <span class="n">StressTensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compute pressure from the stress tensor.</span>
 
 <span class="sd">    Inputs</span>
@@ -496,7 +496,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    Pressure : (N,) or (N, P) ndarray</span>
 <span class="sd">        Computed pressure(s).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># 1. POLYDISPERSE case</span>
     <span class="k">if</span> <span class="n">StressTensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
         <span class="n">Npoints</span><span class="p">,</span> <span class="n">Nphases</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">StressTensor</span><span class="o">.</span><span class="n">shape</span>
@@ -523,7 +523,7 @@
     <span class="n">density_phases</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">diameter_phases</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">    Compute the inertial number for monodisperse or polydisperse systems, given by:</span>
 
 <span class="sd">    .. math::</span>
@@ -550,7 +550,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    Inertial_Number : (N,) or (N, P) ndarray</span>
 <span class="sd">        Dimensionless inertial number(s).</span>
-<span class="sd">    &quot;&quot;&quot;</span>    
+<span class="sd">    """</span>    
     
     <span class="n">Npoints</span> <span class="o">=</span> <span class="n">pressure</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="c1"># 1. Monodisperse case</span>
@@ -585,7 +585,7 @@
     <span class="n">DensityMixture</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">KineticTensor</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 
 <span class="sd">    Compute granular temperature following Weinhart (2016).</span>
 <span class="sd">    </span>
@@ -607,7 +607,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    GranularTemperature : (N,) or (N, P) ndarray</span>
 <span class="sd">        Granular temperature(s).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># 1. cases for POLYDISPERSE ---------------------------------------</span>
     <span class="c1"># a) full kinetic tensor is provided</span>
@@ -665,7 +665,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">bulk_fabric_tensor_Sun2015</span><span class="p">(</span>
     <span class="n">normalised_center_to_center_vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
 
 <span class="sd">    Compute the bulk fabric tensor following Sun et al. (2015).</span>
 
@@ -684,7 +684,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    A : (3, 3) ndarray</span>
 <span class="sd">        Bulk fabric tensor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     
     <span class="n">l</span> <span class="o">=</span> <span class="n">normalised_center_to_center_vectors</span>
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

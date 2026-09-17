@@ -1,4 +1,5 @@
 .. _vertical_profiles:
+
 Post Averaging
 ==============
 

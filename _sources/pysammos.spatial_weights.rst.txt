@@ -21,6 +21,7 @@ This subpackage contains the following modules:
 
 
 .. _hashtable_search_module:
+
 Hashtable Search module
 -----------------------
 
@@ -38,7 +39,7 @@ Next, the continuous query values are mapped to the discrete index of the lookup
    :width: 400px
 
    **Example of a lookup table.** Schematic diagram of the lookup table algorithm implemented in Pysammos. *r* corresponds to the distance between a particle and a grid point. 
-   The resolution of the lookup table is *res*. *W(r)* is the Coarse-Graining function, and *c* corresponds to its cut-off distance (i.e., *W(c)*=0). 
+   The resolution of the lookup table is *res*. *W(r)* is the Coarse-Graining function, and *c* corresponds to its cut-off distance (i.e., *W(c)* = 0).
 
 
 .. automodule:: pysammos.spatial_weights.hashtable_search
@@ -48,6 +49,7 @@ Next, the continuous query values are mapped to the discrete index of the lookup
 
 
 .. _kernels_module:
+
 Kernels module
 --------------
 
@@ -67,6 +69,7 @@ pysammos.spatial\_weights.kernels module
    :show-inheritance:
 
 .. _resolution_module:
+
 Resolution module
 -----------------
 

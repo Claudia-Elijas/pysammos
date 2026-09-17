@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pysammos.spatial_weights.kernels &mdash; pysammos 0.1 documentation</title>
+  <title>pysammos.spatial_weights.kernels &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/my_theme.css?v=7cf6b6ba" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -73,7 +73,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pysammos.spatial_weights.kernels</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">This module provides a collection of commonly used kernel functions for</span>
 <span class="sd">smoothing, weighting, and interpolation in particle-based methods such as</span>
 <span class="sd">Smoothed Particle Hydrodynamics (SPH) or coarse-graining techniques.</span>
@@ -88,7 +88,7 @@
 <span class="sd">Each kernel function computes a weight based on the distance from a kernel center</span>
 <span class="sd">and a cutoff radius, ensuring locality and normalization properties as appropriate.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">erf</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -97,7 +97,7 @@
 <div class="viewcode-block" id="lucy">
 <a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.lucy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lucy</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">dist</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Lucy kernel function.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Lucy kernel function.</span>
 
 <span class="sd">    Computes the Lucy weight at a given distance within the cutoff radius.</span>
 
@@ -128,7 +128,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    W : float</span>
 <span class="sd">        The weight computed from the Lucy kernel.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">c</span><span class="p">:</span>
         <span class="n">W</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">else</span><span class="p">:</span>
@@ -141,7 +141,7 @@
 <div class="viewcode-block" id="h">
 <a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.h">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">h</span><span class="p">(</span><span class="n">dis</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Top-hat (step) function.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Top-hat (step) function.</span>
 
 <span class="sd">    A basic step function defined as:</span>
 
@@ -163,7 +163,7 @@
 <span class="sd">    int</span>
 <span class="sd">        1 if `dis &gt; 0`, otherwise 0.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span> 
+<span class="sd">    """</span> 
     <span class="k">if</span> <span class="n">dis</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
@@ -174,7 +174,7 @@
 <div class="viewcode-block" id="heavySide">
 <a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.heavySide">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">heavySide</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Heaviside kernel function.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Heaviside kernel function.</span>
 
 <span class="sd">    Computes the Heaviside (uniform sphere) kernel value for a given distance.</span>
 
@@ -202,7 +202,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    HS : float</span>
 <span class="sd">        The Heaviside kernel value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># given that c = w</span>
     <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">c</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
@@ -218,7 +218,7 @@
 <div class="viewcode-block" id="gaussian">
 <a class="viewcode-back" href="../../../pysammos.spatial_weights.html#pysammos.spatial_weights.kernels.gaussian">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">gaussian</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Gaussian kernel function with compact support.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Gaussian kernel function with compact support.</span>
 
 <span class="sd">    Computes the Gaussian kernel value used for continuous interpolation or</span>
 <span class="sd">    smoothing operations. The kernel is truncated at the cutoff distance `c`,</span>
@@ -256,7 +256,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    W : float</span>
 <span class="sd">        The Gaussian kernel value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     
     <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">c</span><span class="p">:</span>
         <span class="n">W</span> <span class="o">=</span> <span class="mi">0</span>

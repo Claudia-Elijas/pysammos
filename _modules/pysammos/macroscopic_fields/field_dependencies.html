@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pysammos.macroscopic_fields.field_dependencies &mdash; pysammos 0.1 documentation</title>
+  <title>pysammos.macroscopic_fields.field_dependencies &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/my_theme.css?v=7cf6b6ba" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -75,29 +75,29 @@
   <h1>Source code for pysammos.macroscopic_fields.field_dependencies</h1><div class="highlight"><pre>
 <span></span>
 <span class="n">field_dependencies</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;density_particle&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;volume_fraction&quot;</span><span class="p">,</span><span class="s2">&quot;density_mixture&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;velocity&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;momentum_density&quot;</span><span class="p">,</span> <span class="s2">&quot;density_mixture&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;velocity_gradient&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;shear_rate_tensor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;velocity_gradient&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;kinetic_tensor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">,</span> <span class="s2">&quot;velocity_gradient&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;total_stress_tensor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;kinetic_tensor&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_tensor&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;pressure&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;total_stress_tensor&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;inertial_number&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;shear_rate_tensor&quot;</span><span class="p">,</span> <span class="s2">&quot;pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;density_particle&quot;</span><span class="p">,</span> <span class="s2">&quot;d43&quot;</span><span class="p">,</span> <span class="s2">&quot;d32&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;frictional_coefficient&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;total_stress_tensor&quot;</span><span class="p">,</span> <span class="s2">&quot;pressure&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;granular_temperature&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;kinetic_tensor&quot;</span><span class="p">,</span> <span class="s2">&quot;density_mixture&quot;</span><span class="p">]</span>
+                <span class="s2">"density_particle"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"volume_fraction"</span><span class="p">,</span><span class="s2">"density_mixture"</span><span class="p">],</span>
+                <span class="s2">"velocity"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"momentum_density"</span><span class="p">,</span> <span class="s2">"density_mixture"</span><span class="p">],</span>
+                <span class="s2">"velocity_gradient"</span> <span class="p">:</span> <span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span>
+                <span class="s2">"shear_rate_tensor"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"velocity_gradient"</span><span class="p">],</span>
+                <span class="s2">"kinetic_tensor"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"velocity"</span><span class="p">,</span> <span class="s2">"velocity_gradient"</span><span class="p">],</span>
+                <span class="s2">"total_stress_tensor"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"kinetic_tensor"</span><span class="p">,</span> <span class="s2">"contact_tensor"</span><span class="p">],</span>
+                <span class="s2">"pressure"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"total_stress_tensor"</span><span class="p">],</span>
+                <span class="s2">"inertial_number"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"shear_rate_tensor"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">,</span> <span class="s2">"density_particle"</span><span class="p">,</span> <span class="s2">"d43"</span><span class="p">,</span> <span class="s2">"d32"</span><span class="p">],</span>
+                <span class="s2">"frictional_coefficient"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"total_stress_tensor"</span><span class="p">,</span> <span class="s2">"pressure"</span><span class="p">],</span>
+                <span class="s2">"granular_temperature"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"kinetic_tensor"</span><span class="p">,</span> <span class="s2">"density_mixture"</span><span class="p">]</span>
                             <span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_fields_to_compute">
 <a class="viewcode-back" href="../../../pysammos.macroscopic_fields.html#pysammos.macroscopic_fields.field_dependencies.get_fields_to_compute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_fields_to_compute</span><span class="p">(</span><span class="n">fields_to_export</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Determine which fields need to be computed based on user-selected outputs.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        fields_to_export : dict</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">fields_to_compute</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="c1"># recursive functions for dependencies</span>

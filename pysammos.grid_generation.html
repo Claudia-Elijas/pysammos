@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grid Generation &mdash; pysammos 0.1 documentation</title>
+  <title>Grid Generation &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
@@ -156,16 +156,16 @@ if <cite>automatic_range</cite> is False.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">grid_gen</span> <span class="o">=</span> <span class="n">Grid_Generation</span><span class="p">(</span><span class="n">smoothing_length</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
 <span class="gp">... </span>                            <span class="n">particle_bounds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span>
 <span class="gp">... </span>                            <span class="n">grid_dimensions</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-<span class="gp">... </span>                            <span class="n">grid_axes</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                            <span class="n">grid_axes</span><span class="o">=</span><span class="s1">'xy'</span><span class="p">,</span>
 <span class="gp">... </span>                            <span class="n">max_particle_diameter</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
 <span class="gp">... </span>                            <span class="n">automatic_range</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="gp">... </span>                            <span class="n">custom_grid_range</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
 <span class="gp">... </span>                            <span class="n">custom_grid_transects</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">Nodes</span><span class="p">,</span> <span class="n">Spacing</span><span class="p">,</span> <span class="n">Ranges_Length</span> <span class="o">=</span> <span class="n">grid_gen</span><span class="o">.</span><span class="n">Generate</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Grid Points:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">GridPoints</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nodes:&quot;</span><span class="p">,</span> <span class="n">Nodes</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Spacing:&quot;</span><span class="p">,</span> <span class="n">Spacing</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ranges Length:&quot;</span><span class="p">,</span> <span class="n">Ranges_Length</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">"Grid Points:</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">GridPoints</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">"Nodes:"</span><span class="p">,</span> <span class="n">Nodes</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">"Spacing:"</span><span class="p">,</span> <span class="n">Spacing</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">"Ranges Length:"</span><span class="p">,</span> <span class="n">Ranges_Length</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="py method">

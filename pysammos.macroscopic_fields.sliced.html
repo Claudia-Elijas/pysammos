@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sliced &mdash; pysammos 0.1 documentation</title>
+  <title>Sliced &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -117,8 +117,9 @@
 </dd>
 <dt>dy<span class="classifier">float</span></dt><dd><p>The slice height.</p>
 </dd>
+<dt>n<span class="classifier">int, optional</span></dt><dd><p>Number of sub-slices used to further discretise each slice. Default is 5.</p>
+</dd>
 </dl>
-<p>n : int, optional</p>
 </section>
 <section id="outputs">
 <h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
@@ -172,13 +173,13 @@ Each slice center Z_k is calculated as the average of the top and bottom of the 
 <p>The granular temperature is computed using two methods:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>The Kim &amp; Kamrin (2020) method, which uses a weighted average of the velocity fluctuations.</p></li>
+<li><p>The Kim &amp; Kamrin (2020) method, which uses a weighted average of the velocity fluctuations <a class="footnote-reference brackets" href="#id4" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p></li>
 <li><p>The LAMMPS method, which uses the average of the squared velocity fluctuations.</p></li>
 </ol>
 </div></blockquote>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id3" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">1</a><span class="fn-bracket">]</span></span>
 <p>Zhang &amp; Kamrin (2017), Microscopic Description of the Granular Fluidity Field in Nonlocal Flow Modeling. Phys. Rev. Lett. 118, 058001</p>
 </aside>
 </aside>

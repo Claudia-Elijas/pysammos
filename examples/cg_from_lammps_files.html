@@ -1,0 +1,248 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example 2: using Pysammos&#39;s coarse-graining capabilities with LAMMPS output &mdash; pysammos 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7df0f304"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Benchmarks" href="../benchmarks.html" />
+    <link rel="prev" title="Example 1: 2-dimensional Coarse Graining of Bedload Transport" href="bedload_transport.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Tutorials and Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bedload_transport.html">Example 1: 2-dimensional Coarse Graining of Bedload Transport</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Example 2: using Pysammos's coarse-graining capabilities with LAMMPS output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-configuration-file">The Configuration File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initialising-the-coarsegraining-class">Initialising the CoarseGraining Class</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">Tutorials and Examples</a></li>
+      <li class="breadcrumb-item active">Example 2: using Pysammos's coarse-graining capabilities with LAMMPS output</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/cg_from_lammps_files.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="example-2-using-pysammos-s-coarse-graining-capabilities-with-lammps-output">
+<h1>Example 2: using Pysammos's coarse-graining capabilities with LAMMPS output<a class="headerlink" href="#example-2-using-pysammos-s-coarse-graining-capabilities-with-lammps-output" title="Link to this heading"></a></h1>
+<p>In this example, we demonstrate how to use the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> to perform coarse graining using LAMMPS output.
+In order to do that, you can use the <code class="xref py py-mod docutils literal notranslate"><span class="pre">compute_CG.ipynb</span></code> Jupyter notebook provided in the <cite>examples/LAMMPS_reading</cite> directory.</p>
+<p>The files required for this example can be found in the <cite>examples/LAMMPS_reading</cite> directory of the repository:</p>
+<ul class="simple">
+<li><p>The DEM simualtion data files in the <cite>examples/LAMMPS_reading/DEM_data</cite> directory</p></li>
+<li><p>The configuration file <cite>config.ini</cite> in the <cite>examples/LAMMPS_reading</cite> directory</p></li>
+</ul>
+<section id="the-configuration-file">
+<h2>The Configuration File<a class="headerlink" href="#the-configuration-file" title="Link to this heading"></a></h2>
+<p>The configuration file <cite>config.ini</cite> contains the parameters for the coarse-graining process. You can modify the parameters in this file to suit your needs.
+For further details on the parameters, please refer to the <a class="reference internal" href="bedload_transport.html"><span class="doc">the bedload transport example</span></a>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[paths]</span>
+<span class="na">particles_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">../data_examples/lammps_reading/DEM_data/dump_particles/particles.</span>
+<span class="na">contacts_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">../data_examples/lammps_reading/DEM_data/dump_forcechain/forcechain.</span>
+<span class="na">output_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./PysammosCG/</span>
+
+<span class="k">[timesteps]</span>
+<span class="na">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">11991</span>
+<span class="na">tf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">11991</span>
+<span class="na">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">t_pad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">9</span>
+
+<span class="k">[smoothing_function]</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Lucy</span>
+
+<span class="k">[flags]</span>
+<span class="na">partialignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="k">[key_mapping]</span>
+<span class="na">Global_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">id</span>
+<span class="na">Particle_Position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[x, y, z]</span>
+<span class="na">Particle_Velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[vx, vy, vz]</span>
+<span class="na">Particle_Diameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">diameter</span>
+<span class="na">Particle_Density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">v_pdens</span>
+<span class="na">Particle_Volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">v_pvol</span>
+<span class="na">Particle_Mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mass</span>
+<span class="na">Particle_Radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">radius</span>
+<span class="na">Coordination_Number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">c_Z</span>
+<span class="na">Particle_i_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">c_pl[1]</span>
+<span class="na">Particle_j_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">c_pl[2]</span>
+<span class="na">Force_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[c_pr[1], c_pr[2], c_pr[3]]</span>
+<span class="na">Contact_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="k">[DEM_software]</span>
+<span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">lammps</span>
+
+<span class="k">[grid_info]</span>
+<span class="na">grid_dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+<span class="na">grid_axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">xyz</span>
+<span class="na">automatic_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">x_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.005</span>
+<span class="na">x_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.10</span>
+<span class="na">y_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.005</span>
+<span class="na">y_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.44</span>
+<span class="na">z_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.005</span>
+<span class="na">z_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.05</span>
+<span class="na">x_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">y_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">z_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">x_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">y_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">z_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="k">[fields_to_export]</span>
+<span class="na">volume_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">density_particle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">density_mixture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">momentum_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">velocity_gradient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">kinetic_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">contact_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">total_stress_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature_slices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">fabric_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">inertial_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">coordination_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d43</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">frictional_coefficient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">shear_rate_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="k">[output_options]</span>
+<span class="na">vkthdf_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">h5_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+</section>
+<section id="initialising-the-coarsegraining-class">
+<h2>Initialising the CoarseGraining Class<a class="headerlink" href="#initialising-the-coarsegraining-class" title="Link to this heading"></a></h2>
+<p>First load the relevant modules:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.coarse_graining</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoarseGraining</span>
+</pre></div>
+</div>
+<p>Then initialise the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> class with the parameters from the configuration file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the configuration from the ini file</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="s2">"config.ini"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"-------------------- config.ini file read --------------------"</span><span class="p">)</span>
+<span class="c1"># Initialize the CoarseGraining class with the loaded configuration</span>
+<span class="n">CG</span> <span class="o">=</span> <span class="n">CoarseGraining</span><span class="p">(</span>
+    <span class="n">particle_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"particles_path"</span><span class="p">],</span>
+    <span class="n">contacts_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"contacts_path"</span><span class="p">],</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"output_path"</span><span class="p">],</span>
+    <span class="n">start_timestep</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"t0"</span><span class="p">],</span>
+    <span class="n">end_timestep</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"tf"</span><span class="p">],</span>
+    <span class="n">dt_time_step</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"dt"</span><span class="p">],</span>
+    <span class="n">t_pad</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"t_pad"</span><span class="p">],</span>
+    <span class="n">DEM_keymap</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"key_mapping"</span><span class="p">],</span>
+    <span class="n">DEM_software</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"DEM_software"</span><span class="p">],</span>
+    <span class="n">grid_info</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"grid_info"</span><span class="p">],</span>
+    <span class="n">weight_function</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"smoothing_function"</span><span class="p">],</span>
+    <span class="n">fields_to_export</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"fields_to_export"</span><span class="p">],</span>
+    <span class="n">ignore_phases</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"partialignore"</span><span class="p">],</span>
+    <span class="n">h5_output</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"h5_output"</span><span class="p">],</span>
+    <span class="n">vkthdf_output</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"vkthdf_output"</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>And finally, run the coarse-graining process:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Alternatively, you can run each step of the coarse-graning workflow separately, as shown in the <a class="reference internal" href="bedload_transport.html"><span class="doc">the bedload transport example</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bedload_transport.html" class="btn btn-neutral float-left" title="Example 1: 2-dimensional Coarse Graining of Bedload Transport" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../benchmarks.html" class="btn btn-neutral float-right" title="Benchmarks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

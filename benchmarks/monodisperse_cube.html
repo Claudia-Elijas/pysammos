@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Benchmark 1: Monodisperse Cube &mdash; pysammos 0.1 documentation</title>
+  <title>Benchmark 1: Monodisperse Cube &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
@@ -120,8 +120,8 @@ immediately below the comment:</p>
 <span class="c1"># Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.float32) if Particle_j_string else None</span>
 <span class="c1"># Contact_ij = get_point_data_variable(Contact_ij_string, poly_output).astype(np.float32) if Contact_ij_string else None</span>
 
-<span class="c1"># only to benchmark with JP&#39;s contact data reader</span>
-<span class="n">poly_output</span> <span class="o">=</span> <span class="n">InputConnection</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">()</span><span class="o">.</span><span class="n">GetCellData</span><span class="p">();</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Contact Data loaded as Cell Data&quot;</span><span class="p">)</span>
+<span class="c1"># only to benchmark with JP's contact data reader</span>
+<span class="n">poly_output</span> <span class="o">=</span> <span class="n">InputConnection</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">()</span><span class="o">.</span><span class="n">GetCellData</span><span class="p">();</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"Contact Data loaded as Cell Data"</span><span class="p">)</span>
 <span class="n">F_ij</span> <span class="o">=</span> <span class="n">vtk_to_numpy</span><span class="p">(</span><span class="n">poly_output</span><span class="o">.</span><span class="n">GetArray</span><span class="p">(</span><span class="n">Force_ij_string</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 <span class="n">contact_ids</span> <span class="o">=</span> <span class="n">vtk_to_numpy</span><span class="p">(</span><span class="n">poly_output</span><span class="o">.</span><span class="n">GetArray</span><span class="p">(</span><span class="n">Particle_i_string</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 <span class="n">Particle_i</span> <span class="o">=</span> <span class="n">contact_ids</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
@@ -135,11 +135,11 @@ immediately below the comment:</p>
 <p>The benchmarks use a specific range-to-width ratio.</p>
 <p>For consistency, in the function <code class="docutils literal notranslate"><span class="pre">calc_cutoff</span></code> of the module
 <code class="docutils literal notranslate"><span class="pre">pysammos.spatial_weights_resolution</span></code>, change them to the following:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;Lucy&#39;</span><span class="p">:</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">'Lucy'</span><span class="p">:</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">w</span>
-<span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;Gaussian&#39;</span><span class="p">:</span>
+<span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">'Gaussian'</span><span class="p">:</span>
     <span class="n">c</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span><span class="n">w</span>
-<span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">&#39;HeavySide&#39;</span><span class="p">:</span>
+<span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s1">'HeavySide'</span><span class="p">:</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">w</span>
 </pre></div>
 </div>
@@ -195,7 +195,7 @@ by entering it in the <code class="docutils literal notranslate"><span class="pr
 <p>The index of the point within the grid is printed when running that function.
 It tends to be <code class="docutils literal notranslate"><span class="pre">index</span> <span class="pre">=</span> <span class="pre">13</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">sweep_CG_widths</span><span class="p">(</span>
-  <span class="n">w_d</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cg_func</span><span class="si">}</span><span class="s2">_widths&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.02</span><span class="p">,</span>
+  <span class="n">w_d</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">cg_func</span><span class="si">}</span><span class="s2">_widths"</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.02</span><span class="p">,</span>
   <span class="n">center</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.42725</span><span class="p">])</span>
 <span class="p">)</span>
 </pre></div>

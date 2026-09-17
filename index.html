@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home &mdash; pysammos 0.1 documentation</title>
+  <title>Home &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -78,7 +78,7 @@
 <h1>Home<a class="headerlink" href="#home" title="Link to this heading"></a></h1>
 <p>Granular flows are widespread in nature and industry, yet poorly understood. Discrete particle simulations offer detailed insight into their behaviour, but only provide properties of the individual particles, such as velocity and force. To obtain bulk flow quantities relevant to science and engineering, such as pressure or strain rate, we employ a mathematical framework called Coarse-Graining (CG).</p>
 <p><strong>Pysammos</strong> is a Python package designed with the aim of providing a user-friendly
-CG workflow to post-process data from the MFiX open-source DEM software,
+CG workflow to post-process data from the MFiX-DEM and LAMMPS (v.1.1.0 and above) open-source DEM software,
 and provide a streamlined visualisation in widely-used open-source visualisation software,
 ParaView. This code package provides flexibility in the output variable selection,
 mesh parametrisation, and data analysis of the obtained results. Pysammmos is also
@@ -91,6 +91,7 @@ programme that can be ran on at the same time as other processes.</p>
 <p><strong>Features:</strong></p>
 <ul class="simple">
 <li><p>Processes MFIX-DEM simulation data</p></li>
+<li><p>Processes LAMMPS simulation data (v.1.1.0 and above)</p></li>
 <li><p>Processes particle data of any shape and size distribution</p></li>
 <li><p>Customisable coarse-graining mesh</p></li>
 <li><p>Outputs continuum fields in vtkhdf format for Paraview visualisation and in h5 format for data analysis</p></li>

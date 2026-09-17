@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gridded &mdash; pysammos 0.1 documentation</title>
+  <title>Gridded &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba7b510b"></script>
+      <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
@@ -165,8 +165,8 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 <dt>ndarray</dt><dd><p>Computed kinetic tensor values mapped to the grid. Options:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><a href="#id1"><span class="problematic" id="id2">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)</p></li>
-<li><p><a href="#id3"><span class="problematic" id="id4">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Monodisperse': np.ndarray, shape(Npoints, 3, 3)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)</p></li>
 </ul>
 </div></blockquote>
 </dd>
@@ -183,8 +183,8 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-<section id="id5">
-<h3>Inputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id1">
+<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Array of weights for each element/particle.</p>
 </dd>
@@ -202,13 +202,13 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 </dd>
 </dl>
 </section>
-<section id="id6">
-<h3>Outputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3>Outputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ndarray</dt><dd><p>Computed scalar values mapped to the grid. Options:</p>
 <ul class="simple">
-<li><p><a href="#id7"><span class="problematic" id="id8">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints,)</p></li>
-<li><p><a href="#id9"><span class="problematic" id="id10">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Monodisperse': np.ndarray, shape(Npoints,)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1)</p></li>
 </ul>
 </dd>
 </dl>
@@ -224,8 +224,8 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-<section id="id11">
-<h3>Inputs<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Array of weights for each element/particle.</p>
 </dd>
@@ -245,14 +245,14 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 </dd>
 </dl>
 </section>
-<section id="id12">
-<h3>Outputs<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3>Outputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl>
 <dt>ndarray</dt><dd><p>Computed tensor values mapped to the grid. Options:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><a href="#id13"><span class="problematic" id="id14">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)</p></li>
-<li><p><a href="#id15"><span class="problematic" id="id16">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Monodisperse': np.ndarray, shape(Npoints, 3, 3)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)</p></li>
 </ul>
 </div></blockquote>
 </dd>
@@ -269,8 +269,8 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-<section id="id17">
-<h3>Inputs<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<section id="id5">
+<h3>Inputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">ndarray, shape(N,).</span></dt><dd><p>Array of weights for each element/particle.</p>
 </dd>
@@ -288,14 +288,14 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 </dd>
 </dl>
 </section>
-<section id="id18">
-<h3>Outputs<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<section id="id6">
+<h3>Outputs<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <dl>
 <dt>ndarray</dt><dd><p>Computed vector values mapped to the grid. Options:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><a href="#id19"><span class="problematic" id="id20">`</span></a>cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3)</p></li>
-<li><p><a href="#id21"><span class="problematic" id="id22">`</span></a>cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Monodisperse': np.ndarray, shape(Npoints, 3)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cg_calc_mode</span></code> = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3)</p></li>
 </ul>
 </div></blockquote>
 </dd>
@@ -374,8 +374,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.mean_grainsize">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">mean_grainsize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.mean_grainsize" title="Link to this definition"></a></dt>
 <dd><p>Compute mean grain size using a weighted average with a size exponent.</p>
-<section id="id23">
-<h3>Inputs<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<section id="id7">
+<h3>Inputs<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <dl>
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -395,8 +395,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 </dd>
 </dl>
 </section>
-<section id="id24">
-<h3>Outputs<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<section id="id8">
+<h3>Outputs<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Mean grain size for each grid point.</p>
 </dd>
@@ -408,8 +408,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_monodisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained scalar fields for monodisperse systems.</p>
-<section id="id25">
-<h3>Inputs<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<section id="id9">
+<h3>Inputs<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -421,8 +421,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 </dd>
 </dl>
 </section>
-<section id="id26">
-<h3>Outputs<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<section id="id10">
+<h3>Outputs<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Coarse-grained scalar field for each grid point.</p>
 </dd>
@@ -434,8 +434,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse_scaled">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_monodisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_monodisperse_scaled" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained scalar fields for monodisperse systems with an additional scaling factor.</p>
-<section id="id27">
-<h3>Inputs<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<section id="id11">
+<h3>Inputs<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -449,8 +449,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 </dd>
 </dl>
 </section>
-<section id="id28">
-<h3>Outputs<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<section id="id12">
+<h3>Outputs<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Coarse-grained scalar field for each grid point.</p>
 </dd>
@@ -462,8 +462,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained scalar fields for polydisperse systems.</p>
-<section id="id29">
-<h3>Inputs<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<section id="id13">
+<h3>Inputs<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -490,8 +490,8 @@ from particle data using weighted averaging over local neighborhoods.</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse_scaled">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_polydisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_polydisperse_scaled" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained scalar fields for polydisperse systems with an additional scaling factor.</p>
-<section id="id30">
-<h3>Inputs<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<section id="id14">
+<h3>Inputs<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -508,8 +508,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 </dd>
 </dl>
 </section>
-<section id="id31">
-<h3>Outputs<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<section id="id15">
+<h3>Outputs<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points, N_phases + 1) float64 array</span></dt><dd><p>Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
 </dd>
@@ -521,8 +521,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.scalars.scalar_x_volume">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.scalars.</span></span><span class="sig-name descname"><span class="pre">scalar_x_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.scalars.scalar_x_volume" title="Link to this definition"></a></dt>
 <dd><p>Compute the average of a scalar quantity weighted by particle volume.</p>
-<section id="id32">
-<h3>Inputs<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<section id="id16">
+<h3>Inputs<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights (often proportional to particle volume).</p>
 </dd>
@@ -534,8 +534,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 </dd>
 </dl>
 </section>
-<section id="id33">
-<h3>Outputs<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<section id="id17">
+<h3>Outputs<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points,) float64 array</span></dt><dd><p>Volume-weighted scalar average per grid point.</p>
 </dd>
@@ -809,8 +809,8 @@ particle velocity fluctuations relative to a continuum velocity field.</p>
 </ul>
 </dd>
 </dl>
-<section id="id34">
-<h3>Inputs<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<section id="id18">
+<h3>Inputs<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -831,8 +831,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 </dd>
 </dl>
 </section>
-<section id="id35">
-<h3>Outputs<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<section id="id19">
+<h3>Outputs<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>KineticTensor<span class="classifier">(N_points, 3, 3) float64 array</span></dt><dd><p>Kinetic stress tensor per grid point. No interpolation is applied to the velocity fluctuations for this tensor.</p>
 </dd>
@@ -862,8 +862,8 @@ particle velocity fluctuations relative to a continuum velocity field.</p>
 <li><p><span class="math notranslate nohighlight">\(\otimes\)</span> denotes the outer product</p></li>
 </ul>
 </div></blockquote>
-<section id="id36">
-<h3>Inputs<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<section id="id20">
+<h3>Inputs<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -886,8 +886,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 </dd>
 </dl>
 </section>
-<section id="id37">
-<h3>Outputs<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<section id="id21">
+<h3>Outputs<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>KineticTensor<span class="classifier">(N_points, N_phases + 1, 3, 3) float64 array</span></dt><dd><p>Kinetic stress tensor per grid point and phase. Index 0 is total over phases. No interpolation is applied to the velocity fluctuations for this tensor.</p>
 </dd>
@@ -901,8 +901,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_monodisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained tensor fields for monodisperse systems.</p>
-<section id="id38">
-<h3>Inputs<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<section id="id22">
+<h3>Inputs<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -921,8 +921,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 </dd>
 </dl>
 </section>
-<section id="id39">
-<h3>Outputs<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<section id="id23">
+<h3>Outputs<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points, N_phases + 1, 3, 3) float64 array</span></dt><dd><p>Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
 </dd>
@@ -934,8 +934,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse_scaled">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_monodisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_monodisperse_scaled" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained tensor fields for monodisperse systems with an additional scaling factor.</p>
-<section id="id40">
-<h3>Inputs<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<section id="id24">
+<h3>Inputs<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -952,8 +952,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 </dd>
 </dl>
 </section>
-<section id="id41">
-<h3>Outputs<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<section id="id25">
+<h3>Outputs<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points, 3, 3) float64 array</span></dt><dd><p>Coarse-grained scalar field.</p>
 </dd>
@@ -965,8 +965,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_polydisperse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained tensor fields for polydisperse systems.</p>
-<section id="id42">
-<h3>Inputs<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<section id="id26">
+<h3>Inputs<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -983,8 +983,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 </dd>
 </dl>
 </section>
-<section id="id43">
-<h3>Outputs<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<section id="id27">
+<h3>Outputs<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>CG_Field<span class="classifier">(N_points, N_phases + 1, 3, 3) float64 array</span></dt><dd><p>Coarse-grained scalar field per phase (columns 1..P) and total (column 0).</p>
 </dd>
@@ -996,8 +996,8 @@ Assumes padding: first = 0, last = len(visibility).</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse_scaled">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.tensors.</span></span><span class="sig-name descname"><span class="pre">tensor_polydisperse_scaled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.tensors.tensor_polydisperse_scaled" title="Link to this definition"></a></dt>
 <dd><p>Compute coarse-grained tensor fields for polydisperse systems with an additional scaling factor.</p>
-<section id="id44">
-<h3>Inputs<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<section id="id28">
+<h3>Inputs<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N_vis,) float64 array</span></dt><dd><p>Coarse-graining weights for each visible particle.</p>
 </dd>
@@ -1064,15 +1064,15 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{A} = \frac{1}{N_c} \sum_{i=1}^{N_c} \left( \mathbf{l}_i \otimes \mathbf{l}_i - \frac{1}{3} \mathbf{I} \right)\]</div>
 <p>where <span class="math notranslate nohighlight">\(N_c\)</span> is the number of contacts, <span class="math notranslate nohighlight">\(\mathbf{l}_i\)</span> is the normalised contact vector between particle centers, and <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> is the identity matrix.</p>
-<section id="id45">
-<h3>Inputs<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<section id="id29">
+<h3>Inputs<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>normalised_center_to_center_vectors<span class="classifier">(Nc, 3) ndarray</span></dt><dd><p>Normalised contact vectors between particle centers.</p>
 </dd>
 </dl>
 </section>
-<section id="id46">
-<h3>Outputs<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<section id="id30">
+<h3>Outputs<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>A<span class="classifier">(3, 3) ndarray</span></dt><dd><p>Bulk fabric tensor.</p>
 </dd>
@@ -1092,15 +1092,15 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{T}_{dev} = \mathbf{T} - \frac{1}{D} \text{tr}(\mathbf{T}) \mathbf{I}\]</div>
 <p>where <span class="math notranslate nohighlight">\(D\)</span> is the spatial dimension (2 or 3), <span class="math notranslate nohighlight">\(\text{tr}(\mathbf{T})\)</span> is the trace of the tensor, and <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> is the identity matrix.</p>
-<section id="id47">
-<h3>Inputs<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<section id="id31">
+<h3>Inputs<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Tensor<span class="classifier">(N, 3, 3) or (N, P, 3, 3) ndarray</span></dt><dd><p>Stress tensor(s). P is number of phases.</p>
 </dd>
 </dl>
 </section>
-<section id="id48">
-<h3>Outputs<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<section id="id32">
+<h3>Outputs<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>DeviatoricTensor<span class="classifier">ndarray, shape (N, 3, 3) or (N, P, 3, 3)</span></dt><dd><p>Tensor(s) with isotropic part removed. Shape matches input.</p>
 </dd>
@@ -1120,8 +1120,8 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <div class="math notranslate nohighlight">
 \[T_g = \frac{1}{D} \frac{\text{tr}(\mathbf{\sigma}^k)}{\rho_p}\]</div>
 <p>where <span class="math notranslate nohighlight">\(D\)</span> is the spatial dimension (2 or 3), <span class="math notranslate nohighlight">\(\text{tr}(\mathbf{\sigma}^k)\)</span> is the trace of the kinetic energy tensor, and <span class="math notranslate nohighlight">\(\rho_p\)</span> is the particle density.</p>
-<section id="id49">
-<h3>Inputs<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<section id="id33">
+<h3>Inputs<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>DensityMixture<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Bulk or phase-wise particle density.</p>
 </dd>
@@ -1129,8 +1129,8 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 </dd>
 </dl>
 </section>
-<section id="id50">
-<h3>Outputs<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<section id="id34">
+<h3>Outputs<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>GranularTemperature<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Granular temperature(s).</p>
 </dd>
@@ -1150,8 +1150,8 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <div class="math notranslate nohighlight">
 \[I = \frac{\dot{\gamma} d \sqrt{\rho}}{\sqrt{|p|}}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\dot{\gamma}\)</span> is the magnitude of the deviatoric shear rate tensor, <span class="math notranslate nohighlight">\(d\)</span> is the particle diameter, <span class="math notranslate nohighlight">\(\rho\)</span> is the particle density, and <span class="math notranslate nohighlight">\(p\)</span> is the pressure.</p>
-<section id="id51">
-<h3>Inputs<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<section id="id35">
+<h3>Inputs<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>shear_rate_tens_dev_mag<span class="classifier">(N,) ndarray</span></dt><dd><p>Magnitude of the deviatoric shear rate tensor.</p>
 </dd>
@@ -1167,8 +1167,8 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 </dd>
 </dl>
 </section>
-<section id="id52">
-<h3>Outputs<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<section id="id36">
+<h3>Outputs<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Inertial_Number<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Dimensionless inertial number(s).</p>
 </dd>
@@ -1190,15 +1190,15 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-<section id="id53">
-<h3>Inputs<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<section id="id37">
+<h3>Inputs<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>StressTensor<span class="classifier">(N, 3, 3) or (N, P, 3, 3) ndarray</span></dt><dd><p>Stress tensor(s), where P is the number of phases.</p>
 </dd>
 </dl>
 </section>
-<section id="id54">
-<h3>Outputs<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
+<section id="id38">
+<h3>Outputs<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Pressure<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Computed pressure(s).</p>
 </dd>
@@ -1218,8 +1218,8 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 2, &amp; \text{if } \mathbf{\Pi} = \boldsymbol{\Gamma}
 \end{cases}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mathbf{\Pi}\)</span> is any tensor, and <span class="math notranslate nohighlight">\(\boldsymbol{\Gamma}\)</span> is the shear rate tensor, which is related to the effective shear rate <span class="math notranslate nohighlight">\(\dot \gamma_{\text{eff}} = \sqrt{2J_2}\)</span>, hence <span class="math notranslate nohighlight">\(\alpha=2\)</span> when <span class="math notranslate nohighlight">\(\mathbf{\Pi}=\boldsymbol{\Gamma}\)</span>.</p>
-<section id="id55">
-<h3>Inputs<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<section id="id39">
+<h3>Inputs<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Tensor<span class="classifier">(N, 3, 3), (N, 2, 2), (N, P, 3, 3), or (N, P, 2, 2) ndarray</span></dt><dd><p>Deviatoric stress tensor(s).</p>
 </dd>
@@ -1244,15 +1244,15 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <div class="math notranslate nohighlight">
 \[\boldsymbol{\Gamma}(\mathbf{r}, t) := \frac{1}{2} \left( \nabla \mathbf{V}(\mathbf{r}, t) + \left[\nabla \mathbf{V}(\mathbf{r}, t)\right]^T \right)\]</div>
 <p>where <span class="math notranslate nohighlight">\(\nabla \mathbf{V}\)</span> is the velocity gradient tensor.</p>
-<section id="id56">
-<h3>Inputs<a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
+<section id="id40">
+<h3>Inputs<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>VelocityGrad<span class="classifier">(N, 3, 3) ndarray</span></dt><dd><p>Velocity gradient tensor for N points.</p>
 </dd>
 </dl>
 </section>
-<section id="id57">
-<h3>Outputs<a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
+<section id="id41">
+<h3>Outputs<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>ShearRateTensor<span class="classifier">(N, 3, 3) ndarray</span></dt><dd><p>Symmetric part of the velocity gradient tensor.</p>
 </dd>
@@ -1278,8 +1278,8 @@ tensor is defined as:</p>
 \frac{\partial w}{\partial x} &amp; \frac{\partial w}{\partial y} &amp; \frac{\partial w}{\partial z}
 \end{bmatrix}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mathbf{V} = (u, v, w)\)</span> is the velocity vector, and the partial derivatives are taken with respect to spatial coordinates.</p>
-<section id="id58">
-<h3>Inputs<a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
+<section id="id42">
+<h3>Inputs<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>Velocity_bulk_CG<span class="classifier">(N, 3) ndarray</span></dt><dd><p>Flattened velocity field with 3 components per grid point.</p>
 </dd>
@@ -1289,8 +1289,8 @@ tensor is defined as:</p>
 </dd>
 </dl>
 </section>
-<section id="id59">
-<h3>Outputs<a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
+<section id="id43">
+<h3>Outputs<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>GradTen<span class="classifier">(N, 3, ndim) ndarray</span></dt><dd><p>Velocity gradient tensor at each grid point, where <cite>ndim</cite> is
 the number of spatial dimensions (1, 2, or 3).</p>
@@ -1341,8 +1341,8 @@ The velocity field at a particle position is approximated as:</p>
 (\mathbf{v}_i - \mathbf{V}(\mathbf{r}, t))
 \times (\mathbf{r} - \mathbf{r}_i)
 \right)\]</div>
-<section id="id60">
-<h3>Inputs<a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
+<section id="id44">
+<h3>Inputs<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>weights<span class="classifier">(N,) ndarray</span></dt><dd><p>Coarse-graining weights for each particle contribution.</p>
 </dd>
@@ -1360,8 +1360,8 @@ The velocity field at a particle position is approximated as:</p>
 </dd>
 </dl>
 </section>
-<section id="id61">
-<h3>Outputs<a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
+<section id="id45">
+<h3>Outputs<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>GradV<span class="classifier">(G, 3, 3) ndarray</span></dt><dd><p>Velocity gradient tensor at each grid point.</p>
 </dd>
