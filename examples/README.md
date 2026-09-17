@@ -50,5 +50,9 @@ In this folder you will find the following example simulations:
     - monodisperse
     - viscous fluid
     
+6. Lammps reading (aimed only for data load example)
+    - 3D
+    - granular assembly 
+    - no fluid
 
 

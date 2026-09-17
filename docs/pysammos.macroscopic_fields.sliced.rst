@@ -1,4 +1,5 @@
 .. _gran_temp_slices:
+
 Sliced
 =======
 

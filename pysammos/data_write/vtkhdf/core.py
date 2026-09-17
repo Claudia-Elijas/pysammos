@@ -111,18 +111,24 @@ def is_vector_data(array: np.ndarray, expected_size: int) -> bool:
 
 def is_tensor_data(array: np.ndarray, expected_size: int, 
                    components: Optional[int] = None) -> Union[bool, int]:
-    """
+    r"""
     Check if array is tensor data.
-    
-    Args:
-        array: Input array
-        expected_size: Expected number of points/cells
-        components: If specified, check for exact component count.
-                   If None, return component count if it's tensor data, False otherwise.
-    
-    Returns:
-        If components specified: bool indicating if array matches
-        If components is None: component count if tensor-like (>3), False otherwise
+
+    Inputs
+    ------
+    array : np.ndarray
+        Input array.
+    expected_size : int
+        Expected number of points/cells.
+    components : int, optional
+        If specified, check for exact component count.
+        If None, return the component count if the array is tensor-like, else False.
+
+    Outputs
+    -------
+    bool or int
+        If `components` is specified, a bool indicating whether the array matches.
+        If `components` is None, the component count if tensor-like (>3 components), else False.
     """
     if array.ndim != 2 or array.shape[0] != expected_size:
         return False
@@ -502,15 +508,20 @@ def set_point_vector(image_data: pyvista.ImageData,
 def set_point_tensor(image_data: pyvista.ImageData, 
                      tensor_array: np.ndarray, var: str,
                      components: Optional[int] = None):
-    """
+    r"""
     Add tensor field to point data with flexible component count.
-    
-    Args:
-        image_data: PyVista ImageData object
-        tensor_array: 4D array with shape (nx, ny, nz, n_components)
-        var: Variable name
-        components: Expected number of components (for validation).
-                   If None, accepts any component count > 3.
+
+    Inputs
+    ------
+    image_data : pyvista.ImageData
+        PyVista ImageData object.
+    tensor_array : np.ndarray
+        4D array with shape (nx, ny, nz, n_components).
+    var : str
+        Variable name.
+    components : int, optional
+        Expected number of components (for validation).
+        If None, accepts any component count > 3.
     """
     if tensor_array.ndim != 4:
         raise ValueError(f"Expected 4D tensor array, got {tensor_array.ndim}D")
@@ -540,14 +551,23 @@ def get_point_vector(image_data: pyvista.ImageData, var: str) -> np.ndarray:
 
 def get_point_tensor(image_data: pyvista.ImageData, var: str,
                      components: Optional[int] = None) -> np.ndarray:
-    """
+    r"""
     Get tensor field as 4D array with flexible component count.
-    
-    Args:
-        image_data: PyVista ImageData object
-        var: Variable name
-        components: Expected number of components (for validation).
-                   If None, accepts any component count > 3.
+
+    Inputs
+    ------
+    image_data : pyvista.ImageData
+        PyVista ImageData object.
+    var : str
+        Variable name.
+    components : int, optional
+        Expected number of components (for validation).
+        If None, accepts any component count > 3.
+
+    Outputs
+    -------
+    np.ndarray
+        Tensor field reshaped to a 4D array (nx, ny, nz, n_components).
     """
     tensor_data = image_data.point_data[var]
     

@@ -59,6 +59,7 @@ class VerticalIntegrator:
             First coordinate array of coarse-grained data.
         coords_2 : xarray.DataArray
             Second coordinate array of coarse-grained data.
+
         Outputs
         -------
         area_element : float

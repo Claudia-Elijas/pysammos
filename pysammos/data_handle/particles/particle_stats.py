@@ -1,6 +1,7 @@
 """
 This module provides functions to compute statistical properties of particle systems.
 Currently, it includes the following function:
+
     1. :func:`d50_calc`: Computes the D50 (median diameter) from sorted particle diameters and their corresponding masses.
 
 """
@@ -32,6 +33,7 @@ def d50_calc(diameter_t0_sort:np.ndarray, mass_t0_sort:np.ndarray) -> float:
         Sorted array of particle diameters.
     mass_t0_sort : ndarray, shape (N,).
         Sorted array of particle masses corresponding to the diameters.
+
     Outputs
     -------
     d50 : float

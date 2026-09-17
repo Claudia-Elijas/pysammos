@@ -17,8 +17,10 @@ from typing import Tuple
 # specify what fields to compute
 from .macroscopic_fields.field_dependencies import get_fields_to_compute
 # data reading 
-from .data_read.mfix import cell_data, point_data, file_read
-from .data_read.mfix.utils import get_bounds, get_point_data_variable
+
+# import dispatcher
+from .data_read.dispatcher import dispatch_read
+from .data_read.dispatcher import dispatch_read_t0
 # phase finding
 from .particle_phase.clustering import find_phases, plot_phases
 # weights
@@ -95,7 +97,8 @@ class CoarseGraining:
     """
     def __init__(self, 
                  particle_path:str, contacts_path:str, output_path:str,
-                 start_timestep:int, end_timestep:int, dt_time_step:int,
+                 start_timestep:int, end_timestep:int, dt_time_step:int, t_pad:int,
+                 DEM_software:str,
                  DEM_keymap:dict,
                  grid_info:dict,
                  weight_function:str, 
@@ -110,6 +113,9 @@ class CoarseGraining:
         self.particle_path = particle_path
         self.contacts_path = contacts_path
         self.time_steps = np.arange(start_timestep, end_timestep+1, dt_time_step)#np.array([3, 10, 25, 50, 75, 100, 125, 150, 175])#np.arange(start_timestep, end_timestep+1, dt_time_step)
+        self.t_pad = t_pad
+        # DEM software
+        self.DEM_software = DEM_software
         # DEM key mapping dictionary
         self.DEM_keymap = DEM_keymap
         # CG grid info dictionary
@@ -159,24 +165,10 @@ class CoarseGraining:
             file_type : str
                 The file type of the particle data files.
         """
-                
-        # READ TIME STEP 0
-        path_t0 = self.particle_path+f"{self.time_steps[0]:04d}.vtp" #:04d 
-        self.file_type = file_read.get_file_type(path_t0) # detect the file type
-        poly_out_t0 = file_read.reader(self.file_type, path_t0).GetOutput() # read the vtp file
-        #polydata_t0 = Reader_vtm(self.Particle_path + f"{self.TimeSteps[0]}.vtm").GetOutput() # read the vtm file
+        print("Sampling data for the first time step to obtain particle properties and bounds ... ")
 
-        # BOUNDS      
-        self.BoundsData_t0 = get_bounds(poly_out_t0).reshape(3,2)
 
-        # PARTICLE PROPERTIES
-        if self.DEM_keymap["Particle_Diameter"] is not None:
-            Diameter_t0 = get_point_data_variable(self.DEM_keymap["Particle_Diameter"], poly_out_t0)
-        else: 
-            Diameter_t0 = get_point_data_variable(self.DEM_keymap["Particle_Radius"], poly_out_t0) * 2
-        Density_t0 = get_point_data_variable(self.DEM_keymap["Particle_Density"], poly_out_t0)
-        Mass_t0 = get_point_data_variable(self.DEM_keymap["Particle_Mass"], poly_out_t0)
-        GlobalID_t0 = get_point_data_variable(self.DEM_keymap["Global_ID"], poly_out_t0)
+        self.BoundsData_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0 = dispatch_read_t0(self.DEM_software, self.DEM_keymap, self.particle_path, self.time_steps, self.t_pad)
         
         return self.BoundsData_t0, Diameter_t0, Density_t0, Mass_t0, GlobalID_t0
     
@@ -416,35 +408,20 @@ class CoarseGraining:
  
         """
         print("Loading data ... ")
-        # Load particle data ==========================================================
-        PD = file_read.reader(self.file_type, self.particle_path + f"{time_of_timestep:04d}.vtp") 
-        Position, Global_ID, Velocity, Diameter, Density, Volume, Mass, Coordination_Number, bounds_t = point_data.particles(PD,
-            Global_ID_string=self.DEM_keymap["Global_ID"],
-            Velocity_string=self.DEM_keymap["Particle_Velocity"],
-            Diameter_string=self.DEM_keymap["Particle_Diameter"],
-            Density_string=self.DEM_keymap["Particle_Density"],
-            Volume_string=self.DEM_keymap["Particle_Volume"],
-            Mass_string=self.DEM_keymap["Particle_Mass"],
-            Radius_string=self.DEM_keymap["Particle_Radius"],
-            Coordination_Number_string=self.DEM_keymap["Coordination_Number"])
-        print("  Particle data loaded") 
-        # Load contact data ===========================================================
-        CD = file_read.reader("vtp", self.contacts_path + f"{time_of_timestep:04d}.vtp")  
-        Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og = point_data.contacts(CD,                                                               
-            Particle_i_string=self.DEM_keymap["Particle_i_ID"],
-            Particle_j_string=self.DEM_keymap["Particle_j_ID"],
-            Force_ij_string=self.DEM_keymap["Force_ij"],
-            Contact_ij_string=self.DEM_keymap["Contact_ij"])
+        # # Load particle data ==========================================================   
+        particle_data, contact_data = dispatch_read(self.DEM_software, self.DEM_keymap, self.particle_path, self.contacts_path, time_of_timestep, self.t_pad)
+        Position, Global_ID, Velocity, Diameter, Density, Volume, Mass, Coordination_Number, bounds_t = particle_data
+        Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og = contact_data
+        
         # Handle contact data
         Bounds_t = np.array(bounds_t).reshape(3,2) ; Ranges_t = Bounds_t[:, 1] - Bounds_t[:, 0] # update the model domain bounds for a robust calc of branch vecot
-        Particle_i, Particle_j, F_ij, Contact_ij = duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og) # remove duplicates        
+        Particle_i, Particle_j, F_ij, Contact_ij = duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og) # remove duplicates 
+        
         Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = map_contact_data(
-            Global_ID, Position, Diameter, Density, Volume, 
-            Particle_i, Particle_j, F_ij, Contact_ij,
-            ModelAxesRanges=Ranges_t, AxesPeriodicity=np.array([self.grid_info["x_axis_periodic"], 
-                                                      self.grid_info["y_axis_periodic"], 
-                                                      self.grid_info["z_axis_periodic"]]),
-            Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array ) 
+        Global_ID, Position, Diameter, Density, Volume, 
+        Particle_i, Particle_j, F_ij, Contact_ij,
+        ModelAxesRanges=Ranges_t, AxesPeriodicity=np.array([self.grid_info["x_axis_periodic"], self.grid_info["y_axis_periodic"],self.grid_info["z_axis_periodic"]]),
+        Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array) 
         print("  Contact data loaded and mapped")
         # calculate coordination number
         if "coordination_number" in self.fields_to_compute:
@@ -886,7 +863,7 @@ class CoarseGraining:
             # InertialNumbe_xy_Pxy_l = None
             # Inertial_Number_xy_Py_l = None
             print('  inertial number done')
-
+ 
         # frictional coefficient
         if "frictional_coefficient" in self.fields_to_compute:
             FrictionalCoefficient_Dxy_Pxyz = TotalStressDeviator_xy_mag / Pressure_xyz
@@ -1067,7 +1044,7 @@ class CoarseGraining:
                                   dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
         print(f"  File successfully written to {manager.filename}")
 
-    def run(self):
+    def run(self, w_d_user=0.75):
         """
         Execute the full coarse-graining workflow.
 
@@ -1079,6 +1056,11 @@ class CoarseGraining:
         4. Generates the grid (:func:`generate_grid`).
         5. Iterates over each time step to compute and write coarse-grained fields (:func:`_fields_single_time` and :func:`_write_results`).
 
+        Inputs
+        ------
+        w_d_user : float
+            The user-defined coarse-graining resolution specified as a multiple of the characteristic particle diameter (e.g., d50). This value is used to set the coarse-graining half-width (w)
+        
         """
         print("Starting coarse-graining process...")
         # time the entire process
@@ -1097,8 +1079,8 @@ class CoarseGraining:
         print("... particle phases identified")
 
         # 4. Set coarse-graining resolution
-        self.set_resolution(self.d50)
-        print("... coarse-graining resolution set")
+        self.set_resolution(average_diameter=self.d50, w_mult=w_d_user)
+        print("... coarse-graining resolution set: w/d = ", self.w / self.d43)
 
         # 5. Generate grid
         self.generate_grid()

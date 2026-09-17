@@ -1,13 +1,13 @@
-"""
+r"""
 Module for efficiently matching particles to grid points within a cutoff radius and calculating displacement vectors and distances between them.
 
 This module contains two main functions:
 
     - :func:`particle_node_match`: Uses kd-tree spatial queries to find particles within a cutoff radius of each grid point, returning
-    start indices and a flattened array of matching particle indices.
-    
+      start indices and a flattened array of matching particle indices.
+
     - :func:`calc_displacement`: Computes displacement vectors and distances between each grid point and its neighboring particles,
-    using the output of `particle_node_match`.
+      using the output of :func:`particle_node_match`.
 
 These functions facilitate coarse-graining operations by quickly associating particles to grid points
 and calculating relative positional data in an optimized manner.

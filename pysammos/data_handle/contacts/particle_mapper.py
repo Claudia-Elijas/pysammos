@@ -6,8 +6,8 @@ It also includes options to return particle volumes for fabric tensor calculatio
 
 It contains one main function:
     1. :func:`map_contact_data`: Maps particle and contact data for branch vector and fabric tensor analysis.
-  Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases
-  for each contact pair, accounting for both directions of interaction.
+       Returns positions, forces, branch vectors, center-to-center vectors, and optionally volumes and phases
+       for each contact pair, accounting for both directions of interaction.
 
 """
 

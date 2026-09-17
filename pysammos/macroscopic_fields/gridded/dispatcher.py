@@ -50,8 +50,8 @@ def scalar(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray,
     ndarray
         Computed scalar values mapped to the grid. Options:
 
-        - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints,)
-        - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1)
+        - ``cg_calc_mode`` = 'Monodisperse': np.ndarray, shape(Npoints,)
+        - ``cg_calc_mode`` = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1)
 
     """
     if cg_calc_mode == 'Monodisperse':
@@ -96,8 +96,8 @@ def vector(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray, D
     ndarray
         Computed vector values mapped to the grid. Options:
 
-            - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3)
-            - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3)
+            - ``cg_calc_mode`` = 'Monodisperse': np.ndarray, shape(Npoints, 3)
+            - ``cg_calc_mode`` = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3)
 
     """
     if cg_calc_mode == 'Monodisperse':
@@ -144,8 +144,8 @@ def tensor(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.ndarray,
     ndarray
         Computed tensor values mapped to the grid. Options:
 
-            - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)
-            - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
+            - ``cg_calc_mode`` = 'Monodisperse': np.ndarray, shape(Npoints, 3, 3)
+            - ``cg_calc_mode`` = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
 
     """
     if cg_calc_mode == 'Monodisperse':
@@ -197,8 +197,8 @@ def kinetic_tensor(weights:np.ndarray, visibility:np.ndarray, grid_indices:np.nd
     ndarray
         Computed kinetic tensor values mapped to the grid. Options:
 
-            - `cg_calc_mode`='Monodisperse': np.ndarray, shape(Npoints, 3, 3)
-            - `cg_calc_mode`='Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
+            - ``cg_calc_mode`` = 'Monodisperse': np.ndarray, shape(Npoints, 3, 3)
+            - ``cg_calc_mode`` = 'Polydisperse': np.ndarray, shape(Npoints, Nphases+1, 3, 3)
 
     """
     if cg_calc_mode == 'Monodisperse':

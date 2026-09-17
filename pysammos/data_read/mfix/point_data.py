@@ -88,10 +88,10 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
     -----
         - The function retrieves the point data from the input connection and extracts the specified variables.
         - The global IDs are sorted, and the corresponding positions, velocities, diameters, densities
-        volumes, masses, and coordination numbers are also sorted based on the global IDs.
+          volumes, masses, and coordination numbers are also sorted based on the global IDs.
         - If any optional variables (Velocity_string, Diameter_string, etc.) are not provided,
-        the corresponding output will be None.
-        - The function returns the sorted arrays and the bounds of the point data.  
+          the corresponding output will be None.
+        - The function returns the sorted arrays and the bounds of the point data.
 
 
     """
@@ -200,11 +200,11 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
     -----
         - The function retrieves the point data from the input connection and extracts the specified variables.
         - If any optional variables (Force_ij_string, Contact_ij_string) are not provided,
-        the corresponding output will be None.
+          the corresponding output will be None.
         - The function returns the arrays of particle IDs, total forces, and contact points.
 
     """
-
+ 
     poly_output = InputConnection.GetOutput()
     F_ij = get_point_data_variable(Force_ij_string, poly_output).astype(np.float32) if Force_ij_string else None
     Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.float32) if Particle_i_string else None

@@ -27,6 +27,7 @@ def get_file_type(path:str) -> str:
     --------
     str
         The file type: "vtp" for PolyData or "vtk" for UnstructuredGrid.
+
     Raises
     ------
     ValueError
@@ -97,7 +98,7 @@ def reader(file_type: str, path: str) -> vtk.vtkAlgorithmOutput:
     except PermissionError:
         raise IOError(f"(reader) Permission denied: cannot access file '{path}'.")
     except IOError as e:
-        raise IOError(f"(reader) The file at path '{path}' could not be opened: {e}")
+        raise IOError(f"(reader) The file at path '{path}' could not be opened: {e}. Check if the path is correct, including the padding of zeros in the filename.")
 
     # Read the file
     reader.SetFileName(path)

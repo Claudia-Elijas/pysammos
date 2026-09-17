@@ -19,7 +19,7 @@ def setup(app):
 project = 'pysammos'
 copyright = '2025, Claudia Elijas-Parra'
 author = 'Claudia Elijas-Parra'
-release = '0.1'
+release = '0.1.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

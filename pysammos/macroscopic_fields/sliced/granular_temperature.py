@@ -15,6 +15,7 @@ def calc_slices(y0, y1, dy, n=5):
     dy : float
         The slice height.
     n : int, optional
+        Number of sub-slices used to further discretise each slice. Default is 5.
 
     Outputs
     -------
@@ -76,7 +77,7 @@ def granular_temperature(Z_k, Z_k_m, W, n, m, velocity_all, diam_all, density_al
     -----
     The granular temperature is computed using two methods:
 
-        1. The Kim & Kamrin (2020) method, which uses a weighted average of the velocity fluctuations.
+        1. The Kim & Kamrin (2020) method, which uses a weighted average of the velocity fluctuations [1]_.
         2. The LAMMPS method, which uses the average of the squared velocity fluctuations.
     
     .. [1] Zhang & Kamrin (2017), Microscopic Description of the Granular Fluidity Field in Nonlocal Flow Modeling. Phys. Rev. Lett. 118, 058001

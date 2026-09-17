@@ -9,7 +9,7 @@ Home
 Granular flows are widespread in nature and industry, yet poorly understood. Discrete particle simulations offer detailed insight into their behaviour, but only provide properties of the individual particles, such as velocity and force. To obtain bulk flow quantities relevant to science and engineering, such as pressure or strain rate, we employ a mathematical framework called Coarse-Graining (CG).
 
 **Pysammos** is a Python package designed with the aim of providing a user-friendly 
-CG workflow to post-process data from the MFiX open-source DEM software, 
+CG workflow to post-process data from the MFiX-DEM and LAMMPS (v.1.1.0 and above) open-source DEM software, 
 and provide a streamlined visualisation in widely-used open-source visualisation software,
 ParaView. This code package provides flexibility in the output variable selection, 
 mesh parametrisation, and data analysis of the obtained results. Pysammmos is also 
@@ -22,7 +22,8 @@ programme that can be ran on at the same time as other processes.
 
 **Features:**
 
-- Processes MFIX-DEM simulation data
+- Processes MFIX-DEM simulation data 
+- Processes LAMMPS simulation data (v.1.1.0 and above)
 - Processes particle data of any shape and size distribution
 - Customisable coarse-graining mesh
 - Outputs continuum fields in vtkhdf format for Paraview visualisation and in h5 format for data analysis

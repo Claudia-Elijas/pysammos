@@ -417,6 +417,7 @@ def kinetic_tensor_interpolation_monodisperse(weights, visibility, grid_indices,
     .. math::
 
         \mathbf{K}_{g} = \sum_{i \in I_g} m_i w_i (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}}) \otimes (\mathbf{v}_i - \mathbf{v}_g^{\text{interp}})
+
     where:
       - :math:`I_g` is the set of particles contributing to grid point \( g \)
       - :math:`m_i` is the mass of particle \( i \)

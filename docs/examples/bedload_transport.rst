@@ -1,5 +1,5 @@
-Bedload Transport Example: 2-dimensional Coarse Graining
-========================================================
+Example 1: 2-dimensional Coarse Graining of Bedload Transport
+=============================================================
 
 
 In this example, we demonstrate how to use the `CoarseGraining` to perform coarse graining on a 2D bedload transport simulation and plot the results.
@@ -7,7 +7,7 @@ In order to do that, you can use the `compute_CG.ipynb` Jupyter notebook provide
 
 The files required for this example can be found in the `examples/bedload_transport` directory of the repository:
 
-- The DEM simualtion data files in the `examples/bedload_transport/VTU` directory
+- The DEM simualtion data files in the `examples/bedload_transport/DEM_data` directory
 - The configuration file `config.ini` in the `examples/bedload_transport` directory
 
 Completing the Configuration File
@@ -26,7 +26,8 @@ The `paths` section specifies the input and output file paths.
     contacts_path = ./VTU/ENTIRE_DOMAIN_
     output_path = ./PysammosCG/
 
-The `timesteps` section defines the time range and interval for the coarse graining process. `t0` is the starting timestep, `tf` is the ending timestep, and `dt` is the timestep interval.
+The `timesteps` section defines the time range and interval for the coarse graining process. `t0` is the starting timestep, `tf` is the ending timestep, and `dt` is the timestep interval. 
+Note that the `t_pad` parameter is used to specify the number of zero-padding to be added to the `t0` and `tf` values when reading the DEM simulation data files. This is useful when the timestep numbers in the filenames have leading zeros.
 
 .. code-block:: ini
 
@@ -34,6 +35,7 @@ The `timesteps` section defines the time range and interval for the coarse grain
     t0 = 150
     tf = 152
     dt = 1 
+    t_pad = 4
 
 The `smoothing_function` section defines the `type` of smoothing function to be used for coarse graining. In this case, we are using the Lucy function.
 Find the corresponding documentation in the following page: :ref:`kernels_module`.
@@ -68,6 +70,13 @@ The `key_mapping` section maps the DEM simulation data fields to the expected ke
     Particle_j_ID = Particle_ID_2
     Force_ij = FORCE_CHAIN_FC
     Contact_ij = FORCE_CHAIN_CONTACT_POINT
+
+The `DEM_software` section specifies the DEM software used for the simulation. In this case, it is set to `mfix`.
+
+.. code-block:: ini
+
+    [DEM_software]
+    software = mfix
 
 The `grid_info` section specifies the grid parameters for the coarse graining process, including the grid dimensions, axes, and boundaries.
     - The `grid_dimension` is set to '2' for a 2D simulation.
@@ -146,7 +155,8 @@ First, ensure you have the necessary libraries installed:
     from pysammos.coarse_graining import CoarseGraining
 
 
-We should initialize the configuration and the coarse graining object:
+We should initialize the configuration and the coarse graining object. You can either do it through the configuration file and the `load_config` function, 
+or you can directly input the parameters (that you have entered in the configuration file) into the `CoarseGraining` class arguments.
 
 .. code-block:: python
     
@@ -155,18 +165,22 @@ We should initialize the configuration and the coarse graining object:
 
     # Initialize the CoarseGraining class with the loaded configuration
     CG = CoarseGraining(
-        particle_path=cfg["particles_path"],
-        contacts_path=cfg["contacts_path"],
-        output_path=cfg["output_path"],
-        start_timestep=cfg["t0"],
-        end_timestep=cfg["tf"],
-        dt_time_step=cfg["dt"],
-        DEM_keymap=cfg["key_mapping"],
-        grid_info=cfg["grid_info"],
-        weight_function=cfg["smoothing_function"],
-        fields_to_export=cfg["fields_to_export"],
-        ignore_phases=cfg["partialignore"]
-                        ) 
+    particle_path=cfg["particles_path"],
+    contacts_path=cfg["contacts_path"],
+    output_path=cfg["output_path"],
+    start_timestep=cfg["t0"],
+    end_timestep=cfg["tf"],
+    dt_time_step=cfg["dt"],
+    t_pad=cfg["t_pad"],
+    DEM_keymap=cfg["key_mapping"],
+    DEM_software=cfg["DEM_software"],
+    grid_info=cfg["grid_info"],
+    weight_function=cfg["smoothing_function"],
+    fields_to_export=cfg["fields_to_export"],
+    ignore_phases=cfg["partialignore"],
+    h5_output=cfg["h5_output"],
+    vkthdf_output=cfg["vkthdf_output"],
+                    ) 
 
 Next, we can perform the coarse graining on the simulation data:
 

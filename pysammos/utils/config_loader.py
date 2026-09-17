@@ -4,8 +4,37 @@ import ast
 def str2bool(s):
     return s.lower() in ("true", "1", "yes")
 
+# def parse_dict(section, config):
+#     return {k: None if v == "None" else v for k, v in config.items(section)}
+
 def parse_dict(section, config):
-    return {k: None if v == "None" else v for k, v in config.items(section)}
+    result = {}
+
+    for k, v in config.items(section):
+        if v == "None":
+            result[k] = None
+            continue
+
+        v = v.strip()
+
+        # Convert "[a, b, c]" -> ["a", "b", "c"]
+        if v.startswith("[") and v.endswith("]"):
+            try:
+                parsed = ast.literal_eval(v)
+
+                # Handle unquoted names like [x, y, z]
+                if not isinstance(parsed, list):
+                    raise ValueError
+
+                result[k] = parsed
+
+            except Exception:
+                inner = v[1:-1]
+                result[k] = [item.strip() for item in inner.split(",")]
+        else:
+            result[k] = v
+
+    return result
 
 def parse_bool_dict(section, config):
     return {k: str2bool(v) for k, v in config.items(section)}
@@ -44,6 +73,8 @@ def load_config(path_to_ini="config.ini"):
         "t0": int(config["timesteps"]["t0"]),
         "tf": int(config["timesteps"]["tf"]),
         "dt": int(config["timesteps"]["dt"]),
+        "t_pad": int(config["timesteps"]["t_pad"]),
+        "DEM_software": config["DEM_software"]["name"],
         "partialignore": str2bool(config["flags"]["partialignore"]),
         "key_mapping": parse_dict("key_mapping", config),   # Keys will now keep their capitalization
         "grid_info": parse_grid_info(config),

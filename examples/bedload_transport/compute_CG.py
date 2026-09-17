@@ -28,12 +28,14 @@ CG = CoarseGraining(
     start_timestep=cfg["t0"],
     end_timestep=cfg["tf"],
     dt_time_step=cfg["dt"],
+    t_pad=cfg["t_pad"],
     DEM_keymap=cfg["key_mapping"],
+    DEM_software=cfg["DEM_software"],
     grid_info=cfg["grid_info"],
     weight_function=cfg["smoothing_function"],
     fields_to_export=cfg["fields_to_export"],
     ignore_phases=cfg["partialignore"],
-    vtk_hdf_output=cfg["vkthdf_output"],
+    vkthdf_output=cfg["vkthdf_output"],
     h5_output=cfg["h5_output"],
 
                     )  

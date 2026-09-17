@@ -191,7 +191,8 @@ class VTKHDFWriter:
         Inputs
         ------
         data_dict : dict
-            Dictionary containing data to be written, where keys are variable names and values are numpy arrays.    
+            Dictionary containing data to be written, where keys are variable names and values are numpy arrays.
+
         The data arrays should be structured as follows:
 
             - Scalar data: 1D array (shape: (n_nodes,))

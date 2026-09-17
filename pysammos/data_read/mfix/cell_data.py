@@ -26,6 +26,7 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
 
     r"""
     Extract contact data from the input connection, including particle IDs, total forces, and contact points.
+
     Inputs
     ------
     InputConnection : vtk.vtkAlgorithmOutput
@@ -36,7 +37,8 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
         The name of the array containing total forces in the cell data. Default is "total_force".
     Contact_ij_string : str, optional
         The name of the array containing contact points in the cell data. Default is "contact_points".
-    Outputs 
+
+    Outputs
     -------
     particle_i : ndarray, shape (M,)
         Array of particle IDs for the first particle in each contact.
