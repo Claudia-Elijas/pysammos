@@ -7,6 +7,12 @@ Pysammos is a Python package designed with the aim of providing a user-friendly 
 
 This library is distributed under the GNU General Public License v3.0. Contributions are welcome, and can be made via pull requests on the GitHub repository.
 
+## How to cite 
+
+If you use **Pysammos** in your research, please cite the following paper:
+
+  Elijas-Parra, C., Breard, E. C. P., Morrissey, J. P., Zrelak, P. J., and Naylor, M. (2026). Pysammos 1.0.0: a discrete-to-continuum transformation Python tool to analyse the rheology of granular materials. Geoscientific Model Development, 19, 9519–9553. https://doi.org/10.5194/gmd-19-9519-2026
+
 ## Documentation
 
 Find detailed documentation of the code here: 
@@ -74,11 +80,5 @@ jupyter notebook compute_CG.ipynb
 ```
 
 ---
-
-## How to cite 
-
-If you use **Pysammos** in your research, please cite the following paper:
-
-  Elijas-Parra, C., Breard, E. C. P., Morrissey, J. P., Zrelak, P. J., and Naylor, M. (2026). Pysammos 1.0.0: a discrete-to-continuum transformation Python tool to analyse the rheology of granular materials. Geoscientific Model Development, 19, 9519–9553. https://doi.org/10.5194/gmd-19-9519-2026
 
 
