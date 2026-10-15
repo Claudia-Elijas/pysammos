@@ -24,14 +24,14 @@ For benchmarking, the point data reader must use JP’s contact data reader.
 ```python
 # poly_output = InputConnection.GetOutput()
 # F_ij = get_point_data_variable(Force_ij_string, poly_output).astype(np.float32) if Force_ij_string else None
-# Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.float32) if Particle_i_string else None
-# Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.float32) if Particle_j_string else None
+# Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.int64) if Particle_i_string else None
+# Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.int64) if Particle_j_string else None
 # Contact_ij = get_point_data_variable(Contact_ij_string, poly_output).astype(np.float32) if Contact_ij_string else None
 
 # only to benchmark with JP's contact data reader
 poly_output = InputConnection.GetOutput().GetCellData(); print("Contact Data loaded as Cell Data")
 F_ij = vtk_to_numpy(poly_output.GetArray(Force_ij_string)).astype(np.float32)
-contact_ids = vtk_to_numpy(poly_output.GetArray(Particle_i_string)).astype(np.float32)
+contact_ids = vtk_to_numpy(poly_output.GetArray(Particle_i_string)).astype(np.int64)
 Particle_i = contact_ids[:, 0]
 Particle_j = contact_ids[:, 1]
 Contact_ij = vtk_to_numpy(poly_output.GetArray(Contact_ij_string)).astype(np.float32)
