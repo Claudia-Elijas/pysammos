@@ -273,14 +273,15 @@ class CoarseGraining:
                 self.cg_calc_mode = "Polydisperse"
                 self.Phase_Array = phase_array[np.argsort(global_id)] # sort the phase array by global ID
 
-    def set_resolution(self, average_diameter:float, w_mult = 0.75):
+    def set_resolution(self, average_diameter:float = None, w_mult = 0.75):
         """
         Set the resolution for coarse graining based on the average particle diameter.
 
         Inputs
         ------
-        average_diameter : float
+        average_diameter : float, optional
             The average particle diameter. Can be any representative diameter: d50, d32, d43, or drms.
+            Default is the Sauter mean diameter d32 computed by :func:`get_particle_size_statistics`.
         w_mult : float, optional
             The multiplier for the half-width of the smoothing kernel. Default is 0.75.
 
@@ -292,6 +293,10 @@ class CoarseGraining:
             The cutoff distance for the smoothing kernel.
 
         """
+        if average_diameter is None:
+            if not hasattr(self, 'd32'):
+                raise ValueError("d32 is not defined. Please run get_particle_size_statistics first or give average_diameter.")
+            average_diameter = self.d32
         self.w = calc_half_width(average_diameter, w_mult) # calculate the half width
         self.c = calc_cutoff(self.w, self.weight_function) # calculate the cutoff distance
 
@@ -1289,7 +1294,7 @@ class CoarseGraining:
         Inputs
         ------
         w_d_user : float
-            The user-defined coarse-graining resolution specified as a multiple of the characteristic particle diameter (e.g., d50). This value is used to set the coarse-graining half-width (w)
+            The user-defined coarse-graining resolution specified as a multiple of the characteristic particle diameter (d32). This value is used to set the coarse-graining half-width (w)
         
         """
         print("Starting coarse-graining process...")
@@ -1309,8 +1314,8 @@ class CoarseGraining:
         print("... particle phases identified")
 
         # 4. Set coarse-graining resolution
-        self.set_resolution(average_diameter=self.d50, w_mult=w_d_user)
-        print("... coarse-graining resolution set: w/d = ", self.w / self.d43)
+        self.set_resolution(average_diameter=self.d32, w_mult=w_d_user)
+        print("... coarse-graining resolution set: w/d32 = ", self.w / self.d32)
 
         # 5. Generate grid
         self.generate_grid()
@@ -1352,7 +1357,7 @@ class CoarseGraining:
 
         """  
         Perform a sweep over different coarse-graining resolutions (w values) for a specified time step.
-        This method iterates over a range of w values, computes the coarse-grained fields for each w, and writes the results to output files. The input w values are provided as an array of multiples of the characteristic particle diameter (here d43).
+        This method iterates over a range of w values, computes the coarse-grained fields for each w, and writes the results to output files. The input w values are provided as an array of multiples of the characteristic particle diameter (here d32).
         It does not consider different particle phases; all particles are treated as belonging to a single phase.
 
         Inputs:
@@ -1370,15 +1375,15 @@ class CoarseGraining:
         bounds, diameter, density, mass, global_id = self.data_sampling()
 
         # 2. Compute particle size statistics
-        self.get_particle_size_statistics(diameter, mass); print(f" >>> Particle size used: d43 = {self.d43}")
+        self.get_particle_size_statistics(diameter, mass); print(f" >>> Particle size used: d32 = {self.d32}")
 
         # 3. Set to monodisperse mode for the sweep
         self.cg_calc_mode = "Monodisperse"
-        self.phases = np.array([[self.d43, np.mean(density)]])  # single phase with d50 and mean density
+        self.phases = np.array([[self.d32, np.mean(density)]])  # single phase with d32 and mean density
         self.Phase_Array = None
     
         # 4. Set appropriate resolution
-        self.set_resolution(self.d43) ; print("CG range: c = ", self.c)
+        self.set_resolution(self.d32) ; print("CG range: c = ", self.c)
 
         # 5. Generate (3D) grid
         n = 3 # Number of points per direction
@@ -1396,11 +1401,11 @@ class CoarseGraining:
         data_t = self._load_data(t)
 
         # 7. Get values of w and c
-        w_values = w_d * self.d43
+        w_values = w_d * self.d32
         c_values = np.zeros_like(w_values)
         for i in range(len(w_values)): 
             c_values[i] = calc_cutoff(w_values[i], self.weight_function)
-        c_d = c_values / self.d43 # added to match JP's benchmark models convention
+        c_d = c_values / self.d32 # added to match JP's benchmark models convention
 
         # 8. Iterate over c values
         for i in range(len(c_values)):

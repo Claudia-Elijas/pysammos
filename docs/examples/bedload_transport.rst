@@ -229,11 +229,12 @@ Next, we can perform the coarse graining on the simulation data:
     print("       Diameters: ", CG.phases[:,0])
     print("       Densities: ", CG.phases[:,1])
 
-4. Calculate the CG grid spacing
+4. Calculate the CG grid spacing. The kernel half-width is `w_mult` (default 0.75) times the diameter given;
+   without one, `set_resolution` uses the Sauter mean diameter d32.
 
 .. code-block:: python
     
-    CG.set_resolution(CG.d43) # here you can input different number, to make w and c bigger or smaller 
+    CG.set_resolution(CG.d32) # here you can input different number, to make w and c bigger or smaller 
     print(">> Coarse Graining resolution: ")
     print("       c:", CG.c)
     print("       w:", CG.w)
