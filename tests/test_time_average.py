@@ -106,3 +106,17 @@ def test_time_average_skips_undefined_temperature(tmp_path):
     temperature = cg._time_averaged_results()["granular_temperature_x"]
     assert np.isclose(temperature[0], 2.0e-4)
     assert np.allclose(temperature[1:], 3.0e-4)
+
+
+def test_inertial_number_uses_deviatoric_shear_rate(tmp_path):
+    cg, y = make_cg(tmp_path)
+    fields = snapshot(cg, y, 0.0, 0.0, 100.0, 30.0, 1.0e-4)
+    dilatation, gdot = 4.0, 10.0
+    gradient = np.zeros((y.size, 3, 3))
+    gradient[:, 0, 0] = dilatation  # dvx/dx
+    gradient[:, 0, 1] = gdot        # dvx/dy
+    fields["velocity_gradient"] = gradient
+    results = cg._secondary_fields(fields)
+    # deviator of the 2D strain rate: |D'| = sqrt(dilatation^2 + gdot^2)
+    expected = np.sqrt(dilatation ** 2 + gdot ** 2) * D * np.sqrt(RHO_P) / np.sqrt(100.0)
+    assert np.allclose(results["inertial_number_Sxy_Py_d43"], expected)

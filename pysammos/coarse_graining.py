@@ -933,16 +933,14 @@ class CoarseGraining:
                 ShearRateDeviator_xyz_mag = secondary.compute_second_invariant(ShearRateDeviator_xyz, factor=2) # 3D mag
             print('  shear rate done')
  
-        # inertial number
+        # inertial number, with the magnitude of the deviatoric shear rate tensor (see compute_inertial_number)
         if "inertial_number" in self.fields_to_compute:
-            # ADD INERTIAL NUMBER WITH DEVIATORIC SHEAR RATE TENSOR
-            
-            InertialNumber_xy_Pxyz_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxy_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Py_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxyz_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxy_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Py_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxyz_d43 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xyz, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxy_d43 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xy, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Py_d43 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_y, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxyz_d32 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xyz, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxy_d32 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xy, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Py_d32 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_y, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
             # InertialNumber_xy_Pxyz_l = None
             # InertialNumbe_xy_Pxy_l = None
             # Inertial_Number_xy_Py_l = None
