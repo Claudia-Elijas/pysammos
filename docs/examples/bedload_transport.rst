@@ -141,6 +141,22 @@ The `output_options` section defines the output formats for the coarse-grained d
     vkthdf_output = True
     h5_output = False
 
+The optional key `time_average` (default `False`) also writes the time averages over all the time steps
+processed, to `CG_<smoothing function>_<mode>_time_averaged.h5` (and `.vtkhdf`), and the time-averaged sliced
+granular temperature to `CG_GranularTemperature_slices_time_averaged.h5`. The primary fields (volume fraction,
+densities, momentum density, kinetic, contact and fluctuation tensors, mean grain sizes) are averaged first, and
+the velocity, its gradient, the shear rate, pressure, granular temperature, inertial number and frictional
+coefficients are then computed from these averages. For a steady flow, use these files rather than averaging
+the inertial number, shear rate or stress ratios of each time step: a mean of magnitudes or ratios is biased
+wherever the instantaneous fields fluctuate. Pass it to the class as `time_average=cfg["time_average"]`.
+
+.. code-block:: ini
+
+    [output_options]
+    vkthdf_output = True
+    h5_output = True
+    time_average = True
+
 
 Coarse Graining Steps
 ----------------------

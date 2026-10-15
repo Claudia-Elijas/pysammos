@@ -82,6 +82,7 @@ def load_config(path_to_ini="config.ini"):
         "smoothing_function": config["smoothing_function"]["type"],
         "h5_output": str2bool(config["output_options"]["h5_output"]),
         "vkthdf_output": str2bool(config["output_options"]["vkthdf_output"]),
+        "time_average": str2bool(config["output_options"].get("time_average", "False")),
     }
 
     return config_data
