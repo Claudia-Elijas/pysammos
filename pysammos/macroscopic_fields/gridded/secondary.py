@@ -568,6 +568,7 @@ def compute_granular_temperature(
                 GranularTemperature[g] = np.trace(KineticTensor[g, :, :]) / denom
             else:
                 GranularTemperature[g] = 0.0
+        return GranularTemperature
 
     # b) 1 direction of the kinetic tensor is provided (i.e., 00 component)
     elif KineticTensor.ndim == 1:
