@@ -415,12 +415,18 @@ class CoarseGraining:
         
         # Handle contact data
         Bounds_t = np.array(bounds_t).reshape(3,2) ; Ranges_t = Bounds_t[:, 1] - Bounds_t[:, 0] # update the model domain bounds for a robust calc of branch vecot
-        Particle_i, Particle_j, F_ij, Contact_ij = duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og) # remove duplicates 
+        Periodicity_t = np.array([self.grid_info["x_axis_periodic"], self.grid_info["y_axis_periodic"],self.grid_info["z_axis_periodic"]])
+        # repeated rows of a pair are duplicates only for the same contact: contact points within 1e-3 of the
+        # smallest diameter (above float32 resolution, below the spacing of distinct contacts), or within 0.1 of
+        # it with the same or opposite force (copies placed next to each particle differ by about the overlap)
+        Particle_i, Particle_j, F_ij, Contact_ij = duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og,
+            tolerance=1e-3*np.min(Diameter), tolerance_with_forces=0.1*np.min(Diameter),
+            box_lengths=Ranges_t, periodic=Periodicity_t) # remove duplicates
         
         Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = map_contact_data(
         Global_ID, Position, Diameter, Density, Volume, 
         Particle_i, Particle_j, F_ij, Contact_ij,
-        ModelAxesRanges=Ranges_t, AxesPeriodicity=np.array([self.grid_info["x_axis_periodic"], self.grid_info["y_axis_periodic"],self.grid_info["z_axis_periodic"]]),
+        ModelAxesRanges=Ranges_t, AxesPeriodicity=Periodicity_t,
         Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array) 
         print("  Contact data loaded and mapped")
         # calculate coordination number
