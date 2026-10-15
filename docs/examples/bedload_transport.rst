@@ -141,6 +141,22 @@ The `output_options` section defines the output formats for the coarse-grained d
     vkthdf_output = True
     h5_output = False
 
+The optional key `time_average` (default `False`) also writes the time averages over all the time steps
+processed, to `CG_<smoothing function>_<mode>_time_averaged.h5` (and `.vtkhdf`), and the time-averaged sliced
+granular temperature to `CG_GranularTemperature_slices_time_averaged.h5`. The primary fields (volume fraction,
+densities, momentum density, kinetic, contact and fluctuation tensors, mean grain sizes) are averaged first, and
+the velocity, its gradient, the shear rate, pressure, granular temperature, inertial number and frictional
+coefficients are then computed from these averages. For a steady flow, use these files rather than averaging
+the inertial number, shear rate or stress ratios of each time step: a mean of magnitudes or ratios is biased
+wherever the instantaneous fields fluctuate. Pass it to the class as `time_average=cfg["time_average"]`.
+
+.. code-block:: ini
+
+    [output_options]
+    vkthdf_output = True
+    h5_output = True
+    time_average = True
+
 
 Coarse Graining Steps
 ----------------------
@@ -213,11 +229,12 @@ Next, we can perform the coarse graining on the simulation data:
     print("       Diameters: ", CG.phases[:,0])
     print("       Densities: ", CG.phases[:,1])
 
-4. Calculate the CG grid spacing
+4. Calculate the CG grid spacing. The kernel half-width is `w_mult` (default 0.75) times the diameter given;
+   without one, `set_resolution` uses the Sauter mean diameter d32.
 
 .. code-block:: python
     
-    CG.set_resolution(CG.d43) # here you can input different number, to make w and c bigger or smaller 
+    CG.set_resolution(CG.d32) # here you can input different number, to make w and c bigger or smaller 
     print(">> Coarse Graining resolution: ")
     print("       c:", CG.c)
     print("       w:", CG.w)

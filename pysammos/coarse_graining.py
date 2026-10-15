@@ -10,6 +10,7 @@ from matplotlib.pyplot import grid
 from numba import get_num_threads
 import numpy as np
 import os
+import h5py
 from vtk.util.numpy_support import vtk_to_numpy
 import time
 from typing import Tuple
@@ -92,6 +93,8 @@ class CoarseGraining:
         For a roubust benchmarking at different w/d ratios, use a higher value like 10'000. 
     velocity_gradient_method : str, optional
         Method to calculate velocity gradient. It can be either "finite_difference" or "least_squares". Default is "finite_difference". The "finite_difference" method calculates the velocity gradient using finite difference approximations, while the "least_squares" method uses a least squares approach to fit a velocity gradient tensor to the velocity field. 
+    time_average : bool, optional
+        Whether to also write the time averages of the fields over all processed time steps (see :func:`_time_averaged_results`). Default is False.
 
     
     """
@@ -107,7 +110,8 @@ class CoarseGraining:
                  vkthdf_output:bool = True,
                  h5_output:bool = True,
                  search_sampling_factor:int = 1000,
-                 velocity_gradient_method:str = "finite_difference"):
+                 velocity_gradient_method:str = "finite_difference",
+                 time_average:bool = False):
        
         # data info
         self.particle_path = particle_path
@@ -140,6 +144,10 @@ class CoarseGraining:
         self.search_sampling_factor = search_sampling_factor
         # interpolation method to calculate the velocity fluctuation  
         self.velocity_gradient_method = velocity_gradient_method # "finite_difference" or "least_squares"
+        # time averages over all processed time steps (the volume fraction weights the mean grain sizes)
+        self.time_average = time_average
+        if self.time_average:
+            self.fields_to_compute |= get_fields_to_compute({"volume_fraction": True, "density_mixture": True})
 
     def data_sampling(self)-> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -265,14 +273,15 @@ class CoarseGraining:
                 self.cg_calc_mode = "Polydisperse"
                 self.Phase_Array = phase_array[np.argsort(global_id)] # sort the phase array by global ID
 
-    def set_resolution(self, average_diameter:float, w_mult = 0.75):
+    def set_resolution(self, average_diameter:float = None, w_mult = 0.75):
         """
         Set the resolution for coarse graining based on the average particle diameter.
 
         Inputs
         ------
-        average_diameter : float
+        average_diameter : float, optional
             The average particle diameter. Can be any representative diameter: d50, d32, d43, or drms.
+            Default is the Sauter mean diameter d32 computed by :func:`get_particle_size_statistics`.
         w_mult : float, optional
             The multiplier for the half-width of the smoothing kernel. Default is 0.75.
 
@@ -284,6 +293,10 @@ class CoarseGraining:
             The cutoff distance for the smoothing kernel.
 
         """
+        if average_diameter is None:
+            if not hasattr(self, 'd32'):
+                raise ValueError("d32 is not defined. Please run get_particle_size_statistics first or give average_diameter.")
+            average_diameter = self.d32
         self.w = calc_half_width(average_diameter, w_mult) # calculate the half width
         self.c = calc_cutoff(self.w, self.weight_function) # calculate the cutoff distance
 
@@ -337,6 +350,9 @@ class CoarseGraining:
         2. Compute coarse-grained fields based on the loaded data, using the :func:`_fields_single_time` method.
         3. Write the computed results to .h5 and .VTKHDF files, using the :func:`_write_results` method.
         
+        If ``time_average`` is True, the time averages over all time steps are written at the end
+        (:func:`_write_time_average`).
+
         """
 
         if not hasattr(self, 'GridPoints'):
@@ -356,6 +372,8 @@ class CoarseGraining:
             data = self._load_data(time_of_timestep); print("... data loaded") # Read the data for the current time step
             results = self._fields_single_time(data) # Calculate the CG fields for that time step
             self._write_results(results, t, time_of_timestep); print("... results written") # Write the results to .h5 and .VTKHDF files
+            if self.time_average:
+                self._time_average_add(time_of_timestep)
             # sliced granular temperature if specified
             if self.field_to_export.get("granular_temperature_slices", True):
                 self._granular_temperature_sliced_calc_and_write(data, t, time_of_timestep)
@@ -363,6 +381,9 @@ class CoarseGraining:
             time_end = time.time()
             print(f">> time step {t} took {time_end - time_start} to run."); print("  ")
             pass
+
+        if self.time_average:
+            self._write_time_average()
     
     def _load_data(self, time_of_timestep:int) -> dict:
         """
@@ -728,6 +749,10 @@ class CoarseGraining:
 
 
         # 2. Compute fields based on the fields to compute ..................................................................
+        VolumeFraction_CG = DensityMixture_CG = MomentumDens_CG = Velocity_CG = GradV_CG = None
+        KineticTensor_CG = FluctuationTensor_CG = ContactTensor_CG = None
+        d43_CG = d32_CG = CoordinationNumber_rattlers = FabricTensor_Monodisperse_CG = None
+
         # volume fraction
         if "volume_fraction" in self.fields_to_compute:
             VolumeFraction_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Volume, None, Phase_Array_p, self.cg_calc_mode)
@@ -786,6 +811,83 @@ class CoarseGraining:
             ContactTensor_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, Force_i, BranchVector_i, None, PhaseArray_i, self.cg_calc_mode)
             print('  contact tensor done')
     
+        # Volume-weighted mean diameter, d43
+        if "d43" in self.fields_to_compute:
+            d43_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=3)
+            print('  d43 done')
+        if "d32" in self.fields_to_compute:
+            d32_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=2)
+            print('  d32 done')
+
+        # l_CG = None
+        # Coordination number
+        if "coordination_number" in self.fields_to_compute:
+            CoordinationNumber_rattlers = scalars.scalar_x_volume(W_p, part_ind_p, grid_ind_p, Coordination_Number)
+            print('  Z done')
+
+        # fabric tensor
+        if "fabric_tensor" in self.fields_to_compute:
+            l_i_mag = np.linalg.norm(CenterToCenterVector_LL, axis=-1) # calculate the magnitude of the branch vector
+            l_i_normalised = CenterToCenterVector_LL / l_i_mag[:, np.newaxis]
+            l_inContact_mean = np.mean(l_i_mag)
+            FabricTensor_Monodisperse_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, l_i_normalised, l_i_normalised, Volume_i, None, "Monodisperse")
+            #FabricTensor_Sun = Compute_Bulk_FabricTensor_Sun2015(l_i_normalised)
+            print('  frabric tensor done')
+
+        # 3. Fields derived from these, prepared for export ...............................................................
+        primary_fields = {
+            "volume_fraction": VolumeFraction_CG,
+            "density_mixture": DensityMixture_CG,
+            "momentum_density": MomentumDens_CG,
+            "velocity": Velocity_CG,
+            "velocity_gradient": GradV_CG,
+            "kinetic_tensor": KineticTensor_CG,
+            "fluctuation_tensor": FluctuationTensor_CG,
+            "contact_tensor": ContactTensor_CG,
+            "d43": d43_CG,
+            "d32": d32_CG,
+            "coordination_number": CoordinationNumber_rattlers,
+            "fabric_tensor": FabricTensor_Monodisperse_CG,
+        }
+        if self.time_average:
+            self._primary_fields = primary_fields # added to the time averages by _time_average_add
+        return self._secondary_fields(primary_fields)
+
+    def _secondary_fields(self, fields:dict) -> dict:
+
+        """
+        Compute the fields derived from the primary coarse-grained fields (particle density,
+        total stress, pressure, granular temperature, shear rate, inertial number and frictional
+        coefficient) and prepare the results for export. It is used for every time step by
+        :func:`_compute_fields`, and for the time averages by :func:`_time_averaged_results`.
+
+        Inputs
+        ------
+        fields : dict
+            The primary coarse-grained fields, keyed volume_fraction, density_mixture,
+            momentum_density, velocity, velocity_gradient, kinetic_tensor, fluctuation_tensor,
+            contact_tensor, d43, d32, coordination_number and fabric_tensor (None if not computed).
+
+        Outputs
+        -------
+        cg_fields : dict
+            A dictionary containing the coarse-grained fields specified in :func:`fields_to_export`.
+
+        """
+
+        VolumeFraction_CG = fields["volume_fraction"]
+        DensityMixture_CG = fields["density_mixture"]
+        MomentumDens_CG = fields["momentum_density"]
+        Velocity_CG = fields["velocity"]
+        GradV_CG = fields["velocity_gradient"]
+        KineticTensor_CG = fields["kinetic_tensor"]
+        FluctuationTensor_CG = fields["fluctuation_tensor"]
+        ContactTensor_CG = fields["contact_tensor"]
+        d43_CG = fields["d43"]
+        d32_CG = fields["d32"]
+        CoordinationNumber_rattlers = fields["coordination_number"]
+        FabricTensor_Monodisperse_CG = fields["fabric_tensor"]
+
         # Density of particle cg
         if "density_particle" in self.fields_to_compute:
             DensityParticle_CG = DensityMixture_CG / VolumeFraction_CG
@@ -802,19 +904,6 @@ class CoarseGraining:
             TotalStressDeviator_xy_mag = secondary.compute_second_invariant(TotalStressDeviator_xy, factor=0.5) # 2D mag
             print('  total stress done')
 
-        # Volume-weighted mean diameter, d43
-        if "d43" in self.fields_to_compute:
-            d43_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=3)
-            print('  d43 done')
-        if "d32" in self.fields_to_compute:
-            d32_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=2)
-            print('  d32 done')
-  
-        # l_CG = None
-        # Coordination number
-        if "coordination_number" in self.fields_to_compute:
-            CoordinationNumber_rattlers = scalars.scalar_x_volume(W_p, part_ind_p, grid_ind_p, Coordination_Number)
-            print('  Z done')
         # Pressure
         if "pressure" in self.fields_to_compute:
             Pressure_xyz = secondary.compute_pressure(TotalStressTensor_CG)
@@ -849,16 +938,14 @@ class CoarseGraining:
                 ShearRateDeviator_xyz_mag = secondary.compute_second_invariant(ShearRateDeviator_xyz, factor=2) # 3D mag
             print('  shear rate done')
  
-        # inertial number
+        # inertial number, with the magnitude of the deviatoric shear rate tensor (see compute_inertial_number)
         if "inertial_number" in self.fields_to_compute:
-            # ADD INERTIAL NUMBER WITH DEVIATORIC SHEAR RATE TENSOR
-            
-            InertialNumber_xy_Pxyz_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxy_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Py_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxyz_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxy_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Py_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxyz_d43 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xyz, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxy_d43 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xy, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Py_d43 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_y, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxyz_d32 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xyz, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Pxy_d32 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_xy, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
+            InertialNumber_xy_Py_d32 = secondary.compute_inertial_number(ShearRateDeviator_xy_mag, Pressure_y, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
             # InertialNumber_xy_Pxyz_l = None
             # InertialNumbe_xy_Pxy_l = None
             # Inertial_Number_xy_Py_l = None
@@ -876,18 +963,6 @@ class CoarseGraining:
             FrictionalCoefficient_01_Pxy = TotalStressTensor_CG[...,0,1] / Pressure_xy
             FrictionalCoefficient_01_Py = TotalStressTensor_CG[...,0,1] / Pressure_y
             print('  mu done')
-    
-        # fabric tensor
-        if "fabric_tensor" in self.fields_to_compute:
-            l_i_mag = np.linalg.norm(CenterToCenterVector_LL, axis=-1) # calculate the magnitude of the branch vector
-            l_i_normalised = CenterToCenterVector_LL / l_i_mag[:, np.newaxis]
-            l_inContact_mean = np.mean(l_i_mag)
-            FabricTensor_Monodisperse_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, l_i_normalised, l_i_normalised, Volume_i, None, "Monodisperse")
-            #FabricTensor_Sun = Compute_Bulk_FabricTensor_Sun2015(l_i_normalised)
-            print('  frabric tensor done')
-
-        
-        # 3. Prepare results for export based on fields to export ................................................
         
         # Prepare results dictionary
         results = {}
@@ -1043,6 +1118,166 @@ class CoarseGraining:
                                   "granular_temperature_LAMMPS": GranularTemperature_LAMMPS}, 
                                   dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
         print(f"  File successfully written to {manager.filename}")
+        # running sums for the time average, written by _write_time_average
+        if self.time_average:
+            if time_step == 0:
+                self._slice_positions = np.column_stack((x_middle, slices_y, z_middle))
+                self._slice_sums = {"granular_temperature_Kamrin": 0.0, "granular_temperature_LAMMPS": 0.0}
+                self._slice_count = 0
+            self._slice_sums["granular_temperature_Kamrin"] += GranularTemperature_KimKamrin20
+            self._slice_sums["granular_temperature_LAMMPS"] += GranularTemperature_LAMMPS
+            self._slice_count += 1
+
+    def _time_average_add(self, time_of_timestep:int):
+        """
+        Add the primary fields of the time step just computed (stored by :func:`_compute_fields`)
+        to the running sums of the time averages (see :func:`_time_averaged_results`).
+
+        Inputs
+        ------
+        time_of_timestep : int
+            The actual time value corresponding to the current time step as given in :func:`time_steps`.
+        """
+        if not hasattr(self, "_time_sums"):
+            self._time_sums = {}
+            self._time_steps_averaged = []
+        sums = self._time_sums
+        fields = self._primary_fields
+
+        def add(key, value):
+            if value is not None:
+                sums[key] = sums.get(key, 0.0) + np.asarray(value, dtype=np.float64)
+
+        for key in ("volume_fraction", "density_mixture", "momentum_density", "kinetic_tensor",
+                    "contact_tensor", "coordination_number", "fabric_tensor"):
+            add(key, fields[key])
+
+        # The fluctuation tensor is undefined where the velocity gradient is (next to empty grid nodes):
+        # those time steps are left out of the temperature average, at that node only.
+        if fields["fluctuation_tensor"] is not None:
+            defined = np.isfinite(fields["fluctuation_tensor"]).all(axis=(-2, -1))
+            add("fluctuation_tensor", np.where(defined[..., np.newaxis, np.newaxis], fields["fluctuation_tensor"], 0.0))
+            add("density_mixture_temperature", np.where(defined, fields["density_mixture"], 0.0))
+
+        # Mean grain sizes, weighted by the bulk volume fraction so that the averages are those of
+        # sum(w d^4)/sum(w d^3) and sum(w d^3)/sum(w d^2) over all time steps.
+        phi = fields["volume_fraction"]
+        phi_bulk = phi if phi.ndim == 1 else phi[:, 0]
+        if fields["d43"] is not None:
+            add("volume_fraction_x_d43", phi_bulk * np.nan_to_num(fields["d43"]))
+        if fields["d32"] is not None:
+            d32 = np.nan_to_num(fields["d32"])
+            add("volume_fraction_over_d32", np.divide(phi_bulk, d32, out=np.zeros(phi_bulk.shape), where=d32 > 0))
+        add("volume_fraction_bulk", phi_bulk)
+
+        self._time_steps_averaged.append(int(time_of_timestep))
+
+    def _time_averaged_results(self) -> dict:
+        r"""
+        Time averages of the coarse-grained fields over all processed time steps.
+
+        The primary fields are averaged over time first: volume fraction, mixture density, momentum
+        density, kinetic, contact and fluctuation tensors, coordination number and fabric tensor
+        (arithmetic means), and the mean grain sizes d43 and d32 (weighted by the volume fraction).
+        Every other field is then derived from these averages with the same expressions as for a
+        single time step (:func:`_secondary_fields`):
+
+        - velocity: time-averaged momentum density over time-averaged mixture density,
+        - velocity gradient: finite differences of that velocity on the grid (whatever ``velocity_gradient_method``),
+        - granular temperature: time-averaged fluctuation tensor over time-averaged mixture density,
+        - shear rate, pressure, inertial number and frictional coefficients: from the above.
+
+        For a steady flow this is the standard procedure (e.g. Kim & Kamrin, 2020, Phys. Rev. Lett. 125,
+        088002: fields are averaged over time before the rheology is evaluated). Averaging the
+        per-time-step inertial number, shear rate magnitude or stress ratios instead is biased: the mean of a
+        magnitude exceeds the magnitude of the mean wherever the instantaneous gradients fluctuate, and the
+        mean of :math:`1/\sqrt{p}` exceeds :math:`1/\sqrt{\bar{p}}` where the local pressure fluctuates.
+
+        Outputs
+        -------
+        cg_fields : dict
+            A dictionary containing the time-averaged coarse-grained fields specified in :func:`fields_to_export`.
+        """
+        if not getattr(self, "_time_steps_averaged", None):
+            raise ValueError("No time step has been added to the time averages. Run fields_in_time first.")
+        n = len(self._time_steps_averaged)
+        sums = self._time_sums
+        mean = {key: value / n for key, value in sums.items()}
+
+        fields = {key: mean.get(key) for key in ("volume_fraction", "density_mixture", "momentum_density",
+                                                  "kinetic_tensor", "contact_tensor", "coordination_number",
+                                                  "fabric_tensor")}
+        fields["velocity"] = fields["velocity_gradient"] = fields["fluctuation_tensor"] = None
+        fields["d43"] = fields["d32"] = None
+
+        density = fields["density_mixture"]
+        if fields["momentum_density"] is not None:
+            fields["velocity"] = fields["momentum_density"] / density[..., np.newaxis]
+            velocity_bulk = fields["velocity"] if self.cg_calc_mode == "Monodisperse" else fields["velocity"][:, 0, :]
+            fields["velocity_gradient"] = secondary.compute_vector_bulk_gradient(velocity_bulk, self.Nodes, self.Spacing)
+        if "fluctuation_tensor" in sums:
+            # scaled so that fluctuation_tensor / density_mixture (the temperature) is
+            # sum(fluctuation tensor) / sum(mixture density) over the time steps where it is defined
+            density_T = sums["density_mixture_temperature"]
+            scale = np.divide(density, density_T, out=np.zeros(density.shape), where=density_T > 0)
+            fields["fluctuation_tensor"] = sums["fluctuation_tensor"] * scale[..., np.newaxis, np.newaxis]
+        phi_bulk = sums["volume_fraction_bulk"]
+        if "volume_fraction_x_d43" in sums:
+            fields["d43"] = np.divide(sums["volume_fraction_x_d43"], phi_bulk, out=np.zeros(phi_bulk.shape), where=phi_bulk > 0)
+        if "volume_fraction_over_d32" in sums:
+            phi_over_d32 = sums["volume_fraction_over_d32"]
+            fields["d32"] = np.divide(phi_bulk, phi_over_d32, out=np.zeros(phi_bulk.shape), where=phi_over_d32 > 0)
+
+        return self._secondary_fields(fields)
+
+    def _write_time_average(self):
+        """
+        Write the time averages of the coarse-grained fields (:func:`_time_averaged_results`) to
+        CG_{weight_function}_{cg_calc_mode}_time_averaged.h5 / .vtkhdf, and the time average of the sliced
+        granular temperature, if computed, to CG_GranularTemperature_slices_time_averaged.h5. The time steps
+        averaged are stored in the attribute ``time_steps_averaged`` of the .h5 files.
+        """
+        results = self._time_averaged_results()
+        steps = np.array(self._time_steps_averaged)
+        print(f"Writing time averages over {len(steps)} time steps ({steps[0]} to {steps[-1]}) ...")
+        stem = f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}_time_averaged"
+        if self.h5_output:
+            if os.path.exists(f"{stem}.h5"):
+                os.remove(f"{stem}.h5")
+            manager = H5XarrayManager(f"{stem}.h5")
+            manager.add_positions(self.GridPoints)
+            if self.cg_calc_mode == "Polydisperse":
+                manager.add_phases(["Bulk"] + [f"Phase_{p}" for p in self.phases])
+            manager.update_h5py_file(results, dim_index=0, dim_value=int(steps[0]), dim_name="time")
+            with h5py.File(f"{stem}.h5", "a") as f:
+                f.attrs["time_steps_averaged"] = steps
+        if self.vkthdf_output:
+            writer = VTKHDFWriter(node_dimensions=self.Nodes, node_spacing=self.Spacing,
+                                  origin=self.GridPoints[0,:], path=stem)
+            if self.cg_calc_mode == "Monodisperse":
+                writer.write(data_dict=results)
+            elif self.cg_calc_mode == "Polydisperse":
+                writer.write_polydisperse(data_dict=results,
+                                          n_phases=len(self.phases)+1,
+                                          phase_indepen_field_names=["d32", "d43",
+                                                                     "coordination_number",
+                                                                     "velocity_gradient",
+                                                                     "fabric_tensor",
+                                                                     "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                                                                     "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                                                                     "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                                                                     "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
+                                                                     ])
+        if getattr(self, "_slice_count", 0) > 0:
+            name = f"{self.output_path}CG_GranularTemperature_slices_time_averaged.h5"
+            if os.path.exists(name):
+                os.remove(name)
+            manager = H5XarrayManager(name)
+            manager.add_positions(self._slice_positions)
+            manager.update_h5py_file({key: value / self._slice_count for key, value in self._slice_sums.items()},
+                                     dim_index=0, dim_value=int(steps[0]), dim_name="time")
+            with h5py.File(name, "a") as f:
+                f.attrs["time_steps_averaged"] = steps
 
     def run(self, w_d_user=0.75):
         """
@@ -1059,7 +1294,7 @@ class CoarseGraining:
         Inputs
         ------
         w_d_user : float
-            The user-defined coarse-graining resolution specified as a multiple of the characteristic particle diameter (e.g., d50). This value is used to set the coarse-graining half-width (w)
+            The user-defined coarse-graining resolution specified as a multiple of the characteristic particle diameter (d32). This value is used to set the coarse-graining half-width (w)
         
         """
         print("Starting coarse-graining process...")
@@ -1079,8 +1314,8 @@ class CoarseGraining:
         print("... particle phases identified")
 
         # 4. Set coarse-graining resolution
-        self.set_resolution(average_diameter=self.d50, w_mult=w_d_user)
-        print("... coarse-graining resolution set: w/d = ", self.w / self.d43)
+        self.set_resolution(average_diameter=self.d32, w_mult=w_d_user)
+        print("... coarse-graining resolution set: w/d32 = ", self.w / self.d32)
 
         # 5. Generate grid
         self.generate_grid()
@@ -1101,9 +1336,14 @@ class CoarseGraining:
             cg_fields_t = self._fields_single_time(data_t)
             self._write_results(cg_fields_t, t_idx, t)
             print("... results written\n")
+            if self.time_average:
+                self._time_average_add(t)
 
             timestep_end = time.time()
             time_timesteps.append(timestep_end - timestep_start)
+
+        if self.time_average:
+            self._write_time_average()
             
         print("Coarse-graining process completed, summary:")
         print(f">>> Number of grid points: {self.GridPoints.shape[0]}")
@@ -1117,7 +1357,7 @@ class CoarseGraining:
 
         """  
         Perform a sweep over different coarse-graining resolutions (w values) for a specified time step.
-        This method iterates over a range of w values, computes the coarse-grained fields for each w, and writes the results to output files. The input w values are provided as an array of multiples of the characteristic particle diameter (here d43).
+        This method iterates over a range of w values, computes the coarse-grained fields for each w, and writes the results to output files. The input w values are provided as an array of multiples of the characteristic particle diameter (here d32).
         It does not consider different particle phases; all particles are treated as belonging to a single phase.
 
         Inputs:
@@ -1135,15 +1375,15 @@ class CoarseGraining:
         bounds, diameter, density, mass, global_id = self.data_sampling()
 
         # 2. Compute particle size statistics
-        self.get_particle_size_statistics(diameter, mass); print(f" >>> Particle size used: d43 = {self.d43}")
+        self.get_particle_size_statistics(diameter, mass); print(f" >>> Particle size used: d32 = {self.d32}")
 
         # 3. Set to monodisperse mode for the sweep
         self.cg_calc_mode = "Monodisperse"
-        self.phases = np.array([[self.d43, np.mean(density)]])  # single phase with d50 and mean density
+        self.phases = np.array([[self.d32, np.mean(density)]])  # single phase with d32 and mean density
         self.Phase_Array = None
     
         # 4. Set appropriate resolution
-        self.set_resolution(self.d43) ; print("CG range: c = ", self.c)
+        self.set_resolution(self.d32) ; print("CG range: c = ", self.c)
 
         # 5. Generate (3D) grid
         n = 3 # Number of points per direction
@@ -1161,11 +1401,11 @@ class CoarseGraining:
         data_t = self._load_data(t)
 
         # 7. Get values of w and c
-        w_values = w_d * self.d43
+        w_values = w_d * self.d32
         c_values = np.zeros_like(w_values)
         for i in range(len(w_values)): 
             c_values[i] = calc_cutoff(w_values[i], self.weight_function)
-        c_d = c_values / self.d43 # added to match JP's benchmark models convention
+        c_d = c_values / self.d32 # added to match JP's benchmark models convention
 
         # 8. Iterate over c values
         for i in range(len(c_values)):
