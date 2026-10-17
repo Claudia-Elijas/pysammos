@@ -27,7 +27,7 @@ from .particle_phase.clustering import find_phases, plot_phases
 from .spatial_weights import kernels
 from .spatial_weights.resolution import calc_half_width, calc_cutoff
 from .spatial_weights.hashtable_search import make_hash_table, hash_table_search
-from .spatial_weights.utils import integration_scalar, trapezoidal_integration, compute_dist_along_branch
+from .spatial_weights.utils import gauss_legendre_points, compute_dist_along_branch_in_support
 # particle-node correspondence
 from .neighbour_search.grid_particle_search import particle_node_match, calc_displacement
 # grid generation
@@ -693,8 +693,8 @@ class CoarseGraining:
         W_p : np.ndarray, shape (N,)
             The weights for particles, where N is the number of particles.
         Wint_c : np.ndarray, shape (M,)
-            The integral of the weights for contacts, computed using trapezoidal integration, 
-            where M is the number of contacts.
+            The weights for contacts, where M is the number of contacts: the weight function averaged
+            along each branch, by Gauss-Legendre quadrature over the part of the branch within c.
         
         Notes
         -----
@@ -706,8 +706,10 @@ class CoarseGraining:
             particles and contacts. The weights for particles are computed using the distances from the grid points
             to the particles, while the weights for contacts are computed using the distances along the branch vectors
             of the contacts.
-            The method also performs trapezoidal integration for the contact weights to obtain a single integral value
-            for the contacts.   
+            The weight of a contact is the weight function averaged along its branch, from the particle centre to
+            the contact point. It is integrated by Gauss-Legendre quadrature over the part of the branch that lies
+            within the cutoff c, so that the quadrature points do not straddle the cutoff, where the Gaussian
+            and HeavySide functions jump.
 
         """
 
@@ -727,12 +729,12 @@ class CoarseGraining:
         hash_table_p, stepsize_p = make_hash_table(WeightFunc, self.c, sensitivity=self.search_sampling_factor)
         W_p = hash_table_search(particle_map["r_ri_dist"], hash_table_p, stepsize_p)
 
-        # Contact weights
-        s = integration_scalar(0, 1, 10)
-        dist_along_branch = compute_dist_along_branch(particle_map["r_ri_c"], s, data["BranchVector_i"], particle_map["part_ind_c"])
+        # Contact weights: the weight function averaged along each branch, over the part within c
+        s, w = gauss_legendre_points(10)
+        dist_along_branch, length_in_support = compute_dist_along_branch_in_support(particle_map["r_ri_c"], s, data["BranchVector_i"], particle_map["part_ind_c"], self.c)
         hash_table_c, stepsize_c = make_hash_table(WeightFunc, self.c, sensitivity=self.search_sampling_factor)
         W_c = hash_table_search(dist_along_branch, hash_table_c, stepsize_c)
-        Wint_c = trapezoidal_integration(0, 1, 10, W_c)
+        Wint_c = (w @ W_c) * length_in_support
 
 
         return W_p, Wint_c
