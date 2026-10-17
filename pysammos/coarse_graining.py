@@ -29,7 +29,7 @@ from .spatial_weights.resolution import calc_half_width, calc_cutoff
 from .spatial_weights.hashtable_search import make_hash_table, hash_table_search
 from .spatial_weights.utils import gauss_legendre_points, compute_dist_along_branch_in_support
 # particle-node correspondence
-from .neighbour_search.grid_particle_search import particle_node_match, calc_displacement
+from .neighbour_search.grid_particle_search import particle_node_match, calc_displacement, branch_node_match
 # grid generation
 from .grid_generation import regular_cuboid 
 # handle data
@@ -640,7 +640,8 @@ class CoarseGraining:
 
         Notes
         -----
-            This method uses the `particle_node_match` function to find the nearest grid points for each particle and contact.
+            This method uses the `particle_node_match` function to find the nearest grid points for each particle, and the
+            `branch_node_match` function for each contact half, whose branch can reach a grid point from a particle centre farther than c.
             It also calculates the displacement vectors and distances between the grid points and the particles or contacts.
             The results are stored in a dictionary for further processing.
             The grid points are generated based on the bounds of the particle data and the specified grid dimensions and axes.
@@ -659,9 +660,8 @@ class CoarseGraining:
         # particle data .........................................
         grid_ind_p, part_ind_p = particle_node_match(self.GridPoints, data["Position"], self.c, box_lengths) # kd-tree function
         r_ri, r_ri_dist = calc_displacement(self.GridPoints, data["Position"], grid_ind_p, part_ind_p, box_lengths) # calculate the displacement and distance
-        # contact data ...........................................
-        grid_ind_c, part_ind_c = particle_node_match(self.GridPoints, data["Position_i"], self.c, box_lengths) # kd-tree function
-        r_ri_c, _ = calc_displacement(self.GridPoints, data["Position_i"], grid_ind_c, part_ind_c, box_lengths)
+        # contact data: every half whose branch comes within c of the node, even if its particle centre is farther
+        grid_ind_c, part_ind_c, r_ri_c = branch_node_match(self.GridPoints, data["Position_i"], data["BranchVector_i"], self.c, box_lengths) # kd-tree function
                             
 
         return {
