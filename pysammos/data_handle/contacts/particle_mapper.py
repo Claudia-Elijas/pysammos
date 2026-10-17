@@ -59,7 +59,7 @@ def map_contact_data(Global_ID:np.ndarray, Position:np.ndarray, Diameter:np.ndar
         If None, branch vectors are computed using particle diameters.
 
     ModelAxesRanges : np.ndarray, shape (3,)
-        Ranges of the model axes for periodic boundary conditions.
+        Length of the simulation box along each axis, used along the periodic axes.
 
     AxesPeriodicity : np.ndarray of bool, shape (3,)
         Indicates which axes are periodic.

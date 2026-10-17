@@ -405,6 +405,9 @@ class CoarseGraining:
             The phase array of the particles involved in contacts.
         d_inContact_mean : float 
             The mean distance of particles in contact.
+        Box_Lengths : np.ndarray (3,)
+            The length of the box along each periodic axis whose length is known (given, or the box of a
+            LAMMPS dump), 0 along the other axes (see :func:`_periodic_box_lengths`).
  
         """
         print("Loading data ... ")
@@ -416,17 +419,18 @@ class CoarseGraining:
         # Handle contact data
         Bounds_t = np.array(bounds_t).reshape(3,2) ; Ranges_t = Bounds_t[:, 1] - Bounds_t[:, 0] # update the model domain bounds for a robust calc of branch vecot
         Periodicity_t = np.array([self.grid_info["x_axis_periodic"], self.grid_info["y_axis_periodic"],self.grid_info["z_axis_periodic"]])
+        Box_t, Search_Box_t = self._periodic_box_lengths(Ranges_t) # box lengths along the periodic axes, 0 along the others
         # repeated rows of a pair are duplicates only for the same contact: contact points within 1e-3 of the
         # smallest diameter (above float32 resolution, below the spacing of distinct contacts), or within 0.1 of
         # it with the same or opposite force (copies placed next to each particle differ by about the overlap)
         Particle_i, Particle_j, F_ij, Contact_ij = duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og,
             tolerance=1e-3*np.min(Diameter), tolerance_with_forces=0.1*np.min(Diameter),
-            box_lengths=Ranges_t, periodic=Periodicity_t) # remove duplicates
+            box_lengths=Box_t, periodic=Periodicity_t, box_known=Search_Box_t > 0) # remove duplicates
         
         Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = map_contact_data(
         Global_ID, Position, Diameter, Density, Volume, 
         Particle_i, Particle_j, F_ij, Contact_ij,
-        ModelAxesRanges=Ranges_t, AxesPeriodicity=Periodicity_t,
+        ModelAxesRanges=Box_t, AxesPeriodicity=Periodicity_t,
         Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array) 
         print("  Contact data loaded and mapped")
         # calculate coordination number
@@ -461,8 +465,56 @@ class CoarseGraining:
             "CenterToCenterVector_LL": CenterToCenterVector_LL_dup,
             "Volume_i": Volume_i,
             "PhaseArray_i": Phase_Array_i_t,
-            "d_inContact_mean": d_inContact_mean
+            "d_inContact_mean": d_inContact_mean,
+            # domain
+            "Box_Lengths": Search_Box_t # only along the axes whose box length is known
             } 
+
+    def _periodic_box_lengths(self, Ranges_t:np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Length of the simulation box along each periodic axis.
+
+        The length is `x_box_length` (`y_box_length`, `z_box_length`) of `grid_info` when it is given,
+        otherwise the range of the bounds read with the data: the box of a LAMMPS dump, or the extent
+        of the particle centres in MFIX files. That extent falls short of the box, by about a particle
+        diameter in a dense bed and by more in a sparse one, so it only wraps the branch vectors, as in
+        earlier versions, and a warning is printed once: the fields within c of a periodic boundary then
+        miss the particles on the other side.
+
+        Inputs
+        ------
+        Ranges_t : np.ndarray, shape (3,)
+            Ranges of the bounds read with the data of the current time step.
+
+        Outputs
+        -------
+        Box_t : np.ndarray, shape (3,)
+            Box length along each periodic axis, 0 along the non-periodic axes.
+        Search_t : np.ndarray, shape (3,)
+            Box length along each periodic axis whose length is known (given, or the box of a LAMMPS dump),
+            0 along the other axes.
+        """
+        Box_t, Search_t = np.zeros(3), np.zeros(3)
+        for k, axis in enumerate(["x", "y", "z"]):
+            if self.grid_info[f"{axis}_axis_periodic"]:
+                box_length = self.grid_info.get(f"{axis}_box_length")
+                known = box_length is not None or self.DEM_software == "lammps"
+                if box_length is None:
+                    box_length = Ranges_t[k]
+                if not (np.isfinite(box_length) and box_length > 0):
+                    raise ValueError(f"The {axis} axis is periodic but its box length is {box_length}: give {axis}_box_length "
+                                     f"in grid_info or set {axis}_axis_periodic = False.")
+                warned = getattr(self, "_box_length_warned", set())
+                if not known and axis not in warned:
+                    print(f"WARNING: the {axis} axis is periodic but {axis}_box_length is not given. The extent of the particle "
+                          f"centres ({box_length:.6g}) falls short of the box, so it only wraps the branch vectors, and the "
+                          f"fields within c of the periodic boundaries miss the particles on the other side. Give "
+                          f"{axis}_box_length in grid_info.")
+                    self._box_length_warned = warned | {axis}
+                Box_t[k] = box_length
+                if known:
+                    Search_t[k] = box_length
+        return Box_t, Search_t
 
     def _fields_single_time(self, data:dict) -> dict:
         """

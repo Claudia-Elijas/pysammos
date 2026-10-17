@@ -39,6 +39,16 @@ def parse_dict(section, config):
 def parse_bool_dict(section, config):
     return {k: str2bool(v) for k, v in config.items(section)}
 
+def optional_float(section, key):
+    """Value of `key` in a config section as a float, or None if the key is missing, empty or None."""
+    value = section.get(key, "None").strip()
+    if value.lower() in ("none", ""):
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        raise ValueError(f"{key} must be a number or None, not {value!r}") from None
+
 def parse_grid_info(config):
     grid_cfg = config["grid_info"]
     return {
@@ -57,6 +67,10 @@ def parse_grid_info(config):
         "x_axis_periodic": grid_cfg.getboolean("x_axis_periodic"),
         "y_axis_periodic": grid_cfg.getboolean("y_axis_periodic"),
         "z_axis_periodic": grid_cfg.getboolean("z_axis_periodic"),
+        # optional length of the periodic box along each axis; without it the bounds of the data are used
+        "x_box_length": optional_float(grid_cfg, "x_box_length"),
+        "y_box_length": optional_float(grid_cfg, "y_box_length"),
+        "z_box_length": optional_float(grid_cfg, "z_box_length"),
     }
 
 import configparser
