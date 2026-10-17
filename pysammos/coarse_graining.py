@@ -648,17 +648,20 @@ class CoarseGraining:
             The method prints progress messages to indicate the status of the matching and calculation processes.
             The method assumes that the grid points have already been generated and stored in `self.GridPoints`.    
             The method is designed to handle both particle and contact data, allowing for a comprehensive coarse graining process.  
+            Along the periodic axes whose box length is known, distances are measured to the nearest periodic image
+            (box lengths from `_load_data`).
 
 
         """
 
         print(f"Matching particles to grid points ...")
+        box_lengths = data.get("Box_Lengths") # box length along the periodic axes, 0 along the others
         # particle data .........................................
-        grid_ind_p, part_ind_p = particle_node_match(self.GridPoints, data["Position"], self.c) # kd-tree function
-        r_ri, r_ri_dist = calc_displacement(self.GridPoints, data["Position"], grid_ind_p, part_ind_p) # calculate the displacement and distance
+        grid_ind_p, part_ind_p = particle_node_match(self.GridPoints, data["Position"], self.c, box_lengths) # kd-tree function
+        r_ri, r_ri_dist = calc_displacement(self.GridPoints, data["Position"], grid_ind_p, part_ind_p, box_lengths) # calculate the displacement and distance
         # contact data ...........................................
-        grid_ind_c, part_ind_c = particle_node_match(self.GridPoints, data["Position_i"], self.c) # kd-tree function
-        r_ri_c, _ = calc_displacement(self.GridPoints, data["Position_i"], grid_ind_c, part_ind_c)
+        grid_ind_c, part_ind_c = particle_node_match(self.GridPoints, data["Position_i"], self.c, box_lengths) # kd-tree function
+        r_ri_c, _ = calc_displacement(self.GridPoints, data["Position_i"], grid_ind_c, part_ind_c, box_lengths)
                             
 
         return {
