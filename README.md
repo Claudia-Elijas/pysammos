@@ -58,7 +58,6 @@ pip install --upgrade pip
 pip install pysammos
 ```
 
----
 
 ## Quick Start 
 
@@ -78,7 +77,3 @@ Or open the Jupyter notebook:
 ```bash
 jupyter notebook compute_CG.ipynb
 ```
-
----
-
-
