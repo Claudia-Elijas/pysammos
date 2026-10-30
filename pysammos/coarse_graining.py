@@ -509,11 +509,12 @@ class CoarseGraining:
         
         return cg_fields
     
-    def _write_results(self, results_timestep:dict, time_step:int, time_of_timestep:int):
+    def _write_results(self, results_timestep:dict, time_step:int, time_of_timestep:int,
+                       label:str = None, attrs:dict = None):
         """
-        Write the computed coarse-grained fields to .h5 and .VTKHDF files 
+        Write the computed coarse-grained fields to .h5 and .VTKHDF files
         for a given time step  in the specified output path.
-
+ 
         Inputs
         ------
         results_timestep : dict
@@ -522,7 +523,14 @@ class CoarseGraining:
             The index of the current time step in the simulation.
         time_of_timestep : int
             The actual time value corresponding to the current time step as given in :func:`time_steps`.
-    
+        label : str, optional
+            If None (default), the time step is appended to the time series CG_{weight_function}_{cg_calc_mode}.h5
+            and written to CG_{weight_function}_{cg_calc_mode}_{time:04d}.vtkhdf.
+            If given (e.g. "time_averaged"), the results are written as a standalone snapshot to
+            CG_{weight_function}_{cg_calc_mode}_{label}.h5 / .vtkhdf, replacing any existing .h5 file.
+        attrs : dict, optional
+            Attributes stored on the root of the .h5 file (e.g. the time steps averaged).
+ 
         Notes
         -----
             The output files are written in both .h5 and .VTKHDF formats,
@@ -530,48 +538,49 @@ class CoarseGraining:
             The .h5 file contains the coarse-grained positions and phases (if applicable),
             while the .VTKHDF file contains the coarse-grained fields in a format suitable for visualization
             using VTK-compatible software. The output files are named according to the weight function and coarse-graining calculation mode.
-            For example, if the weight function is "Gaussian" and the calculation mode is "Monodisperse", 
+            For example, if the weight function is "Gaussian" and the calculation mode is "Monodisperse",
             the output files will be named "CG_Gaussian_Monodisperse.h5" and "CG_Gaussian_Monodisperse_0001.vtkhdf".
             If the calculation mode is "Polydisperse", the output files will include phase information
             in their names, such as "CG_Gaussian_Polydisperse_Phase_1.vtkhdf".
-         
-
-        """ 
-
-
-        print(f"Writing results for timestep {time_of_timestep}...")
-        
+ 
+        """
+        base = f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}"
+        if label is None:   # time series
+            h5_name, vtk_path = f"{base}.h5", f"{base}_{time_of_timestep:04d}"
+            new_file = (time_step == 0)
+        else:               # standalone snapshot
+            h5_name, vtk_path = f"{base}_{label}.h5", f"{base}_{label}"
+            new_file = True
+ 
+        print(f"Writing results for {label or f'timestep {time_of_timestep}'}...")
+ 
         # write .h5 files
-        if self.h5_output: 
-            manager = H5XarrayManager(f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}.h5") 
-            if time_step == 0: # Only add positions and phases for the first time step
+        if self.h5_output:
+            if label is not None and os.path.exists(h5_name):
+                os.remove(h5_name)   # update_h5py_file appends, so stale data would otherwise persist
+            manager = H5XarrayManager(h5_name)
+            if new_file: # Only add positions and phases for a new file
                 manager.add_positions(self.GridPoints)
                 if self.cg_calc_mode == "Polydisperse":
                     phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
                     manager.add_phases(phase_labels)
             manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
-        
-        # write .VTKHDF files 
-        if self.vkthdf_output: 
-            writer = VTKHDFWriter(node_dimensions=self.Nodes,  
-                            node_spacing=self.Spacing, 
+            if attrs:
+                manager.add_attrs(attrs)
+ 
+        # write .VTKHDF files
+        if self.vkthdf_output:
+            writer = VTKHDFWriter(node_dimensions=self.Nodes,
+                            node_spacing=self.Spacing,
                             origin=self.GridPoints[0,:],
-                            path=f"{self.output_path}CG_{self.weight_function}_{self.cg_calc_mode}_{time_of_timestep:04d}")
+                            path=vtk_path)
             if self.cg_calc_mode == "Monodisperse":
                 writer.write(data_dict=results_timestep)
-            elif self.cg_calc_mode == "Polydisperse": 
+            elif self.cg_calc_mode == "Polydisperse":
                 writer.write_polydisperse(data_dict=results_timestep,
-                                            n_phases=len(self.phases)+1, 
-                                            phase_indepen_field_names=["d32", "d43", 
-                                                                        "coordination_number", 
-                                                                        "velocity_gradient",
-                                                                        "fabric_tensor", 
-                                                                        "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
-                                                                        "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
-                                                                        "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
-                                                                        "shear_rate_tensor_xy_dev","shear_rate_tensor_xy_dev_mag"
-                                                                        ])
-
+                                          n_phases=len(self.phases)+1,
+                                          phase_indepen_field_names=PHASE_INDEPENDENT_FIELDS)
+                
     def _assign_particles_to_grid_nodes(self, data:dict) -> dict:
         """
         Assign particles to grid nodes and calculate displacements and distances.
