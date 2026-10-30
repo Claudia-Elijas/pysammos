@@ -43,9 +43,20 @@ from .macroscopic_fields.gridded import dispatcher
 from .macroscopic_fields.gridded import secondary
 from .macroscopic_fields.gridded import scalars
 from .macroscopic_fields.sliced import granular_temperature as sliced
+from .macroscopic_fields.gridded import derived_fields
+# time averaging
+from .time_average.accumulator import TimeAverageAccumulator
 # data writing
 from .data_write.h5.writer import H5XarrayManager
 from .data_write.vtkhdf.writer import VTKHDFWriter
+
+# Fields written once per grid point (not per phase) in the polydisperse .vtkhdf ouput 
+PHASE_INDEPENDENT_FIELDS = ["d32", "d43", "coordination_number", "velocity_gradient", "fabric_tensor",
+                            "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                            "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                            "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                            "shear_rate_tensor_xy_dev", "shear_rate_tensor_xy_dev_mag"]
+ 
  
 # supress warnings 
 np.seterr(invalid='ignore')
@@ -81,8 +92,10 @@ class CoarseGraining:
         Type of weight function to use for coarse graining. It can be one of the following: 'Gaussian', 'Lucy', 'HeavySide'.
     fields_to_export : dict
         Fields to be exported.
+    time_average : bool
+        Whether to perform time averaging of the computed fields.
     ignore_phases : bool
-        Whether to ignore particle phases.  
+        Whether to ignore particle phases in the coarse graining process. If True, all particles are treated as a single phase.  
     vkthdf_output : bool, optional
         Whether to output VTKHDF files. Default is True.
     h5_output : bool, optional
@@ -103,7 +116,8 @@ class CoarseGraining:
                  grid_info:dict,
                  weight_function:str, 
                  fields_to_export:dict, 
-                 ignore_phases:bool,
+                 time_average:bool = False,
+                 ignore_phases:bool = True,
                  vkthdf_output:bool = True,
                  h5_output:bool = True,
                  search_sampling_factor:int = 1000,
@@ -122,11 +136,16 @@ class CoarseGraining:
         self.grid_info = grid_info
         # CG smoothing function of choice
         self.weight_function = weight_function
-        # CG partial fields ignore
-        self.ignore_phases = ignore_phases
         # custom outputs and their dependencies
         self.field_to_export = fields_to_export
         self.fields_to_compute = get_fields_to_compute(fields_to_export)
+        # CG partial fields ignore
+        self.ignore_phases = ignore_phases
+        # time averaging
+        self.time_average = time_average
+        if self.time_average:
+            # the accumulator needs the volume fraction (grain-size weights) and the mixture density
+            self.fields_to_compute |= get_fields_to_compute({"volume_fraction": True, "density_mixture": True})
         # create output path folder 
         self.output_path = output_path
         if not os.path.exists(self.output_path):
