@@ -9,6 +9,7 @@
   <title>Gridded &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -129,11 +130,6 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.kinetic_tensor">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">kinetic_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Displacement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_Field_Gradient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#kinetic_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.kinetic_tensor" title="Link to this definition"></a></dt>
 <dd><p>Compute the kinetic tensor, including interpolation, for either monodisperse or polydisperse systems.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 <section id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -172,17 +168,17 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.scalar">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">scalar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#scalar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.scalar" title="Link to this definition"></a></dt>
 <dd><p>Compute a SCALAR quantity for either monodisperse or polydisperse systems.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 <section id="id1">
 <h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -213,17 +209,17 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.tensor">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.tensor" title="Link to this definition"></a></dt>
 <dd><p>Compute a TENSOR quantity for either monodisperse or polydisperse systems.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 <section id="id3">
 <h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -258,17 +254,17 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.dispatcher.vector">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.dispatcher.</span></span><span class="sig-name descname"><span class="pre">vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Data_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cg_calc_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/dispatcher.html#vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.dispatcher.vector" title="Link to this definition"></a></dt>
 <dd><p>Compute a VECTOR quantity for either monodisperse or polydisperse systems.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 <section id="id5">
 <h3>Inputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -301,6 +297,11 @@ implementations based on the <cite>cg_calc_mode</cite> parameter.</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1077,12 +1078,12 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <dt>A<span class="classifier">(3, 3) ndarray</span></dt><dd><p>Bulk fabric tensor.</p>
 </dd>
 </dl>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -1105,12 +1106,12 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <dt>DeviatoricTensor<span class="classifier">ndarray, shape (N, 3, 3) or (N, P, 3, 3)</span></dt><dd><p>Tensor(s) with isotropic part removed. Shape matches input.</p>
 </dd>
 </dl>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -1135,12 +1136,12 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <dt>GranularTemperature<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Granular temperature(s).</p>
 </dd>
 </dl>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -1173,23 +1174,18 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <dt>Inertial_Number<span class="classifier">(N,) or (N, P) ndarray</span></dt><dd><p>Dimensionless inertial number(s).</p>
 </dd>
 </dl>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.secondary.compute_pressure">
 <span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.secondary.</span></span><span class="sig-name descname"><span class="pre">compute_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">StressTensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.secondary.compute_pressure" title="Link to this definition"></a></dt>
 <dd><p>Compute pressure from the stress tensor.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 <section id="id37">
 <h3>Inputs<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -1204,6 +1200,11 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1257,12 +1258,12 @@ operations and <cite>Numba</cite> for accelerated numerical loops.</p>
 <dt>ShearRateTensor<span class="classifier">(N, 3, 3) ndarray</span></dt><dd><p>Symmetric part of the velocity gradient tensor.</p>
 </dd>
 </dl>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -1306,12 +1307,12 @@ the number of spatial dimensions (1, 2, or 3).</p>
 <li><p>The function handles 1D, 2D, and 3D grids automatically.</p></li>
 <li><p>Output is flattened back to match the input node order.</p></li>
 </ul>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">

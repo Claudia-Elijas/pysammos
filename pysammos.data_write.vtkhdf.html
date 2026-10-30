@@ -9,6 +9,7 @@
   <title>Vtkhdf &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -282,11 +283,6 @@ Supports tensors of arbitrary dimensions (6, 9, 27, or any component count).</p>
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.get_point_tensor">
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">get_point_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#get_point_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.get_point_tensor" title="Link to this definition"></a></dt>
 <dd><p>Get tensor field as 4D array with flexible component count.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 <section id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -306,6 +302,11 @@ If None, accepts any component count &gt; 3.</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -329,11 +330,6 @@ If None, accepts any component count &gt; 3.</p>
 <dt class="sig sig-object py" id="pysammos.data_write.vtkhdf.core.is_tensor_data">
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_write.vtkhdf.core.</span></span><span class="sig-name descname"><span class="pre">is_tensor_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/vtkhdf/core.html#is_tensor_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.vtkhdf.core.is_tensor_data" title="Link to this definition"></a></dt>
 <dd><p>Check if array is tensor data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id1">
 <h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -354,6 +350,11 @@ If <cite>components</cite> is None, the component count if tensor-like (&gt;3 co
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

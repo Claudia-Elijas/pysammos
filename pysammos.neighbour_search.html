@@ -9,6 +9,7 @@
   <title>Neighbour Search &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -166,11 +167,6 @@ Assumes padding: start_indices[0] = 0, start_indices[-1] = len(visibility).</p>
 <dt class="sig sig-object py" id="pysammos.neighbour_search.grid_particle_search.particle_node_match">
 <span class="sig-prename descclassname"><span class="pre">pysammos.neighbour_search.grid_particle_search.</span></span><span class="sig-name descname"><span class="pre">particle_node_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">GridPoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/neighbour_search/grid_particle_search.html#particle_node_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.neighbour_search.grid_particle_search.particle_node_match" title="Link to this definition"></a></dt>
 <dd><p>Find particles within a cutoff distance of each grid point using kd-tree queries.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id1">
 <h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -193,6 +189,11 @@ The neighbors of grid point i are located in particle_indices_flat[start_indices
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <p>A k-d tree is a data structure built from recursively bisecting the search space in every dimension and collecting the coordinates of those splitting planes. Below is a simplified example of a kd-tree in 2D:</p>

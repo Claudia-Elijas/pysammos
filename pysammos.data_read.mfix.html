@@ -9,6 +9,7 @@
   <title>Mfix &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -117,11 +118,6 @@ and contact points.</p>
 <dt class="sig sig-object py" id="pysammos.data_read.mfix.cell_data.contacts">
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.cell_data.</span></span><span class="sig-name descname"><span class="pre">contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Part_ids_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_ids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Force_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'total_force'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Contact_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'contact_points'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/cell_data.html#contacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.cell_data.contacts" title="Link to this definition"></a></dt>
 <dd><p>Extract contact data from the input connection, including particle IDs, total forces, and contact points.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
-</dd>
-</dl>
 <section id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -148,6 +144,11 @@ and contact points.</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <p>pysammos.data_read.mfix.file_read module</p>
@@ -165,11 +166,6 @@ The appropriate VTK reader is selected based on the detected file type, allowing
 <dt class="sig sig-object py" id="pysammos.data_read.mfix.file_read.get_file_type">
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.file_read.</span></span><span class="sig-name descname"><span class="pre">get_file_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/file_read.html#get_file_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.file_read.get_file_type" title="Link to this definition"></a></dt>
 <dd><p>Detects the type of VTK file (PolyData or UnstructuredGrid) by inspecting the file content.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
-</dd>
-</dl>
 <section id="id1">
 <h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -189,6 +185,11 @@ The appropriate VTK reader is selected based on the detected file type, allowing
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -255,11 +256,6 @@ and contact points.
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.point_data.</span></span><span class="sig-name descname"><span class="pre">contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_i_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Particle_ID_1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_j_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Particle_ID_2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Force_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FORCE_CHAIN_FC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Contact_ij_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/point_data.html#contacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.point_data.contacts" title="Link to this definition"></a></dt>
 <dd><p>Extracts contact data from the input connection, including particle IDs, total forces
 and contact points.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]</span></p>
-</dd>
-</dl>
 <section id="id3">
 <h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -300,6 +296,11 @@ the corresponding output will be None.</p></li>
 <li><p>The function returns the arrays of particle IDs, total forces, and contact points.</p></li>
 </ul>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -313,11 +314,6 @@ the corresponding output will be None.</p></li>
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_read.mfix.point_data.</span></span><span class="sig-name descname"><span class="pre">particles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">InputConnection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Global_ID_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Particle_ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Velocity_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Velocity'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Diameter_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Diameter'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Density_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Density'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Volume_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Volume'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mass_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Mass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Radius_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Radius'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Coordination_Number_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Coordination_Number'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_read/mfix/point_data.html#particles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_read.mfix.point_data.particles" title="Link to this definition"></a></dt>
 <dd><p>Extracts particle data from the input connection, including position, global ID,
 velocity, diameter, density, volume, mass, and coordination number.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id4">
 <h3>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -380,6 +376,11 @@ the corresponding output will be None.</p></li>
 <li><p>The function returns the sorted arrays and the bounds of the point data.</p></li>
 </ul>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <p>pysammos.data_read.mfix.utils module</p>

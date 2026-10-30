@@ -9,6 +9,7 @@
   <title>Coarse Graining User-interface &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -155,11 +156,6 @@ For a roubust benchmarking at different w/d ratios, use a higher value like 10'0
 <dt class="sig sig-object py" id="pysammos.coarse_graining.CoarseGraining.data_sampling">
 <span class="sig-name descname"><span class="pre">data_sampling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/coarse_graining.html#CoarseGraining.data_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.coarse_graining.CoarseGraining.data_sampling" title="Link to this definition"></a></dt>
 <dd><p>Load the particle data for the first time step to obtain particle data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
-</dd>
-</dl>
 <section id="outputs">
 <h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -182,6 +178,11 @@ For a roubust benchmarking at different w/d ratios, use a higher value like 10'0
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -247,11 +248,6 @@ It takes into account the smoothing length calculated in <a class="reference int
 <dt class="sig sig-object py" id="pysammos.coarse_graining.CoarseGraining.get_particle_size_statistics">
 <span class="sig-name descname"><span class="pre">get_particle_size_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diameter_t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/coarse_graining.html#CoarseGraining.get_particle_size_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.coarse_graining.CoarseGraining.get_particle_size_statistics" title="Link to this definition"></a></dt>
 <dd><p>Calculate particle size statistics based on particle diameter and mass.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id2">
 <h3>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -274,6 +270,11 @@ It takes into account the smoothing length calculated in <a class="reference int
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

@@ -9,6 +9,7 @@
   <title>Grid Generation &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -173,11 +174,6 @@ if <cite>automatic_range</cite> is False.</p>
 <span class="sig-name descname"><span class="pre">Automatic_Range</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/grid_generation/regular_cuboid.html#Grid_Generation.Automatic_Range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Automatic_Range" title="Link to this definition"></a></dt>
 <dd><p>Automatically determine the grid coordinate ranges
 based on domain bounds and kernel size.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id2">
 <h4>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
 <dl class="simple">
@@ -203,17 +199,17 @@ based on domain bounds and kernel size.</p>
 <p>The method offsets the bounds by <span class="math notranslate nohighlight">\(2.5\,c + 0.5\,d_\mathrm{max}\)</span>, where <span class="math notranslate nohighlight">\(c\)</span> is the smoothing length and <span class="math notranslate nohighlight">\(d_\mathrm{max}\)</span> is the maximum particle diameter,
 to avoid boundary effects.</p>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Create_grid_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z_transect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_res_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xyz'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/grid_generation/regular_cuboid.html#Grid_Generation.Create_grid_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points" title="Link to this definition"></a></dt>
 <dd><p>Create structured grid points in 1D, 2D, or 3D.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id3">
 <h4>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
 <dl>
@@ -263,17 +259,17 @@ generating points along that axis.</p>
 <li><p>This method uses <cite>np.meshgrid</cite> to create structured grids.</p></li>
 </ul>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pysammos.grid_generation.regular_cuboid.Grid_Generation.Generate">
 <span class="sig-name descname"><span class="pre">Generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/grid_generation/regular_cuboid.html#Grid_Generation.Generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Generate" title="Link to this definition"></a></dt>
 <dd><p>Generate the computational grid points.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id5">
 <h4>Outputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
 <dl class="simple">
@@ -293,6 +289,11 @@ generating points along that axis.</p>
 <li><p>The method calls <a class="reference internal" href="#pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points" title="pysammos.grid_generation.regular_cuboid.Grid_Generation.Create_grid_points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Create_grid_points()</span></code></a> to build the grid.</p></li>
 </ul>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

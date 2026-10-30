@@ -9,6 +9,7 @@
   <title>Contacts &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -170,11 +171,6 @@ for each contact pair, accounting for both directions of interaction.</p></li>
 <span class="sig-prename descclassname"><span class="pre">pysammos.data_handle.contacts.particle_mapper.</span></span><span class="sig-name descname"><span class="pre">map_contact_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Global_ID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_LL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_I</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Fij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Contact_Points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ModelAxesRanges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AxesPeriodicity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Return_Volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Particle_Phase_Array_t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_handle/contacts/particle_mapper.html#map_contact_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_handle.contacts.particle_mapper.map_contact_data" title="Link to this definition"></a></dt>
 <dd><p>Maps global particle data to contact pair data, duplicates arrays for both interaction directions,
 and computes branch vectors for fabric tensor analysis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-</dl>
 <section id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -231,6 +227,11 @@ If None, branch vectors are computed using particle diameters.</p>
 <li><p>Designed for use in granular material simulations and fabric tensor analysis.</p></li>
 </ul>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

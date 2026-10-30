@@ -9,6 +9,7 @@
   <title>Complete &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -200,12 +201,12 @@ and center-to-center vector can be computed as follows.</p>
 <span class="go">[[-1.  0. ]]</span>
 </pre></div>
 </div>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
@@ -256,12 +257,12 @@ The function handles periodic boundary corrections along each axis.</p>
 <dt>d<span class="classifier">ndarray, shape (N, 3).</span></dt><dd><p>Periodically corrected center-to-center vectors.</p>
 </dd>
 </dl>
+</section>
 <dl class="field-list simple">
-<dt class="field-odd">rtype<span class="colon">:</span></dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>
@@ -285,11 +286,6 @@ excludes isolated particles (rattlers) that have fewer than two contacts.</p>
 <p>Counts the number of times each particle ID appears in the contact list,
 returning both the full list and the filtered one (excluding particles with
 fewer than two contacts).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
-</dd>
-</dl>
 <section id="id3">
 <h3>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -316,6 +312,11 @@ fewer than two contacts).</p>
 </pre></div>
 </div>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

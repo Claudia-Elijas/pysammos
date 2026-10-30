@@ -9,6 +9,7 @@
   <title>Quality Check &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -123,11 +124,6 @@ may arise due to the use of ghost particles or other parallelization artifacts.<
 <dd><p>Remove duplicate particle interaction pairs and associated data.</p>
 <p>Uses <cite>get_unique_pairs()</cite> to retain only the first occurrence of each
 particle pair (treating (A, B) and (B, A) as duplicates).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]</span></p>
-</dd>
-</dl>
 <section id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -154,6 +150,11 @@ particle pair (treating (A, B) and (B, A) as duplicates).</p>
 </dd>
 </dl>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>]]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -163,11 +164,6 @@ particle pair (treating (A, B) and (B, A) as duplicates).</p>
 <p>Given two arrays representing particle interactions, this function identifies
 all unique unordered pairs (i.e., (A, B) and (B, A) are treated as the same)
 and returns the indices of the first occurrence of each pair.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
-</dd>
-</dl>
 <section id="id1">
 <h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <dl class="simple">
@@ -193,6 +189,11 @@ and returns the indices of the first occurrence of each pair.</p>
 </pre></div>
 </div>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

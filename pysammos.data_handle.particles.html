@@ -9,6 +9,7 @@
   <title>Particles &mdash; pysammos 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
       <link rel="stylesheet" type="text/css" href="_static/my_theme.css?v=7cf6b6ba" />
 
   
@@ -118,11 +119,6 @@ Currently, it includes the following function:</p>
 <dd><p>Calculate the D50 (median diameter) from sorted particle diameters and their corresponding masses.
 The D50 is the diameter at which 50% of the total mass is contained in particles smaller than this diameter.</p>
 <p>The mathematical formula is given by:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
-</dd>
-</dl>
 <div class="math notranslate nohighlight">
 \[D_{50} = \frac{d_{i-1} + (0.5 - F_{i-1}) \cdot (d_i - d_{i-1})}{F_i - F_{i-1}}\]</div>
 <p>where <span class="math notranslate nohighlight">\(F_i\)</span> is the cumulative mass fraction at diameter <span class="math notranslate nohighlight">\(d_i\)</span>,
@@ -153,6 +149,11 @@ and <span class="math notranslate nohighlight">\(F_{i-1}\)</span> is the cumulat
 </pre></div>
 </div>
 </section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
