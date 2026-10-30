@@ -260,13 +260,13 @@ class CoarseGraining:
             The coarse graining calculation mode, either "Monodisperse" or "Polydisperse".
         
         """
-        # raise error if self.d50 is not defined because it depends on running get_particle_size_statistics first
-        if not hasattr(self, 'd50'):
-            raise ValueError("d50 is not defined. Please run get_particle_size_statistics first.") 
+        # raise error if self.d32 is not defined because it depends on running get_particle_size_statistics first
+        if not hasattr(self, 'd32'):
+            raise ValueError("d32 is not defined. Please run get_particle_size_statistics first.") 
 
         # IGNORE phases
         if self.ignore_phases:
-            self.phases = np.array([[self.d50,density_t0.mean()]]) # use mean density and d50 as phase
+            self.phases = np.array([[self.d32,density_t0.mean()]]) # use mean density and d50 as phase
             print("Ignoring phases. Using mean density and d50 as phase.")
             self.Phase_Array = None
             self.cg_calc_mode = "Monodisperse"
@@ -1015,8 +1015,8 @@ class CoarseGraining:
         print("... particle phases identified")
 
         # 4. Set coarse-graining resolution
-        self.set_resolution(average_diameter=self.d50, w_mult=w_d_user)
-        print("... coarse-graining resolution set: w/d = ", self.w / self.d43)
+        self.set_resolution(average_diameter=self.d32, w_mult=w_d_user)
+        print("... coarse-graining resolution set: w/d = ", self.w / self.d32)
 
         # 5. Generate grid
         self.generate_grid()
@@ -1077,15 +1077,15 @@ class CoarseGraining:
         bounds, diameter, density, mass, global_id = self.data_sampling()
 
         # 2. Compute particle size statistics
-        self.get_particle_size_statistics(diameter, mass); print(f" >>> Particle size used: d43 = {self.d43}")
+        self.get_particle_size_statistics(diameter, mass); print(f" >>> Particle size used: d32 = {self.d32}")
 
         # 3. Set to monodisperse mode for the sweep
         self.cg_calc_mode = "Monodisperse"
-        self.phases = np.array([[self.d43, np.mean(density)]])  # single phase with d50 and mean density
+        self.phases = np.array([[self.d32, np.mean(density)]])  # single phase with d50 and mean density
         self.Phase_Array = None
     
         # 4. Set appropriate resolution
-        self.set_resolution(self.d43) ; print("CG range: c = ", self.c)
+        self.set_resolution(self.d32) ; print("CG range: c = ", self.c)
 
         # 5. Generate (3D) grid
         n = 3 # Number of points per direction
@@ -1103,11 +1103,11 @@ class CoarseGraining:
         data_t = self._load_data(t)
 
         # 7. Get values of w and c
-        w_values = w_d * self.d43
+        w_values = w_d * self.d32
         c_values = np.zeros_like(w_values)
         for i in range(len(w_values)): 
             c_values[i] = calc_cutoff(w_values[i], self.weight_function)
-        c_d = c_values / self.d43 # added to match JP's benchmark models convention
+        c_d = c_values / self.d32 # added to match JP's benchmark models convention
 
         # 8. Iterate over c values
         for i in range(len(c_values)):

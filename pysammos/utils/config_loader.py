@@ -79,6 +79,7 @@ def load_config(path_to_ini="config.ini"):
         "key_mapping": parse_dict("key_mapping", config),   # Keys will now keep their capitalization
         "grid_info": parse_grid_info(config),
         "fields_to_export": parse_bool_dict("fields_to_export", config),
+        "time_average": str2bool(config["output_options"]["time_average"]),
         "smoothing_function": config["smoothing_function"]["type"],
         "h5_output": str2bool(config["output_options"]["h5_output"]),
         "vkthdf_output": str2bool(config["output_options"]["vkthdf_output"]),
