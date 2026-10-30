@@ -484,8 +484,9 @@ class CoarseGraining:
 
         1. Assign particles to grid nodes using the `_assign_particles_to_grid_nodes` method.
         2. Compute weights for particles and contacts using the `_compute_weights` method.
-        3. Compute coarse-grained fields based on the dependencies defined in `field_dependencies.py` 
-           using the :func:`_compute_fields` method.
+        3. Compute the primary coarse-grained fields based on the dependencies defined in `field_dependencies.py` 
+           using the :func:`_compute_primary_fields` method.
+        4. Compute secondary fields based on the primary fields using the :func:`_compute_derived_fields` method. 
 
         Inputs
         ------
@@ -504,8 +505,10 @@ class CoarseGraining:
         particle_to_grid_map = self._assign_particles_to_grid_nodes(data) ; print("... particles assigned to grid nodes")
         # 2. compute weights for particles and contacts
         weights_particle, weights_integral = self._compute_weights(particle_to_grid_map, data); print("... weights computed")
-        # 3. compute coarse-grained fields needed for export
-        cg_fields = self._compute_fields(data, particle_to_grid_map, weights_particle, weights_integral); print("... fields computed")
+        # 3. compute primary coarse-grained fields (+ velocity and its gradient, needed for the kinetic tensor)
+        primary, velocity_fields = self._compute_fields(data, particle_to_grid_map, weights_particle, weights_integral)
+        # 4. compute derived fields and select those to export
+        cg_fields = self._derive(primary, velocity_fields); print("... fields computed")
         
         return cg_fields
     
