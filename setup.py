@@ -1,5 +1,5 @@
 # setup file
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
@@ -11,7 +11,7 @@ setup(
     long_description=open('README.md').read(),
     author='Claudia Elijas-Parra',
     author_email='claudia.elijas.parra@gmail.com',
-    packages=['pysammos'],
+    packages=find_packages(include=["pysammos", "pysammos.*"]),
     install_requires=requirements,
     license="GPL-3.0",
     classifiers=[
