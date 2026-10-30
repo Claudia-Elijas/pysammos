@@ -530,7 +530,7 @@ class CoarseGraining:
         # 4. compute derived fields and select those to export
         cg_fields = self._derive(primary, velocity_fields); print("... fields computed")
 
-        return cg_fields
+        return cg_fields, primary
     
     def _write_results(self, results_timestep:dict, time_step:int, time_of_timestep:int,
                        label:str = None, attrs:dict = None):
