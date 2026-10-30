@@ -921,6 +921,13 @@ class CoarseGraining:
             A dictionary containing the particle and contact data for the current time step,
             returned by :func:`_load_data`.
 
+        Outputs
+        -------
+        slice_fields : dict
+            The sliced granular temperatures of the time step (granular_temperature_Kamrin, granular_temperature_LAMMPS).
+        positions : np.ndarray, shape (Nslices, 3)
+            Positions of the slices.
+
         Notes
         -----
             The output files are written in .h5 format, allowing for easy access and visualization of the granular temperature data.
@@ -957,17 +964,21 @@ class CoarseGraining:
             mass_all=Mass, 
             particle_positions_all=Position
         )
+       
+        # positions of the slices: x and z in the middle of the grid range
+        x_middle = np.full(len(slices_y), (self.GridPoints[:,0].min() + self.GridPoints[:,0].max()) / 2)
+        z_middle = np.full(len(slices_y), (self.GridPoints[:,2].min() + self.GridPoints[:,2].max()) / 2)
+        positions = np.column_stack((x_middle, slices_y, z_middle))
+        slice_fields = {"granular_temperature_Kamrin": GranularTemperature_KimKamrin20,
+                        "granular_temperature_LAMMPS": GranularTemperature_LAMMPS}
         # write .h5 files
         manager = H5XarrayManager(f"{self.output_path}CG_GranularTemperature_slices.h5")
         if time_step == 0: # Only add positions for the first time step
-            # make the x and z positions the middle of the range 
-            x_middle = np.full(len(slices_y), (self.GridPoints[:,0].min() + self.GridPoints[:,0].max()) / 2)
-            z_middle = np.full(len(slices_y), (self.GridPoints[:,2].min() + self.GridPoints[:,2].max()) / 2)
-            manager.add_positions(np.column_stack((x_middle, slices_y, z_middle)))
-        manager.update_h5py_file({"granular_temperature_Kamrin": GranularTemperature_KimKamrin20, 
-                                  "granular_temperature_LAMMPS": GranularTemperature_LAMMPS}, 
-                                  dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+            manager.add_positions(positions)
+        manager.update_h5py_file(slice_fields, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
         print(f"  File successfully written to {manager.filename}")
+        
+        return slice_fields, positions      
 
     def run(self, w_d_user=0.75):
         """
