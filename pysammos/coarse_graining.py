@@ -355,6 +355,10 @@ class CoarseGraining:
         1. Load particle and contact data for the current time step, using the :func:`_load_data` method.
         2. Compute coarse-grained fields based on the loaded data, using the :func:`_fields_single_time` method.
         3. Write the computed results to .h5 and .VTKHDF files, using the :func:`_write_results` method.
+
+        4. If ``time_average`` is True, the primary fields of every time step are added to a
+        :class:`TimeAverageAccumulator`, and the time averages are written at the end (:func:`_write_time_average`).
+ 
         
         """
 
@@ -365,23 +369,37 @@ class CoarseGraining:
             raise ValueError("Phase_Array is not defined. Please run get_particle_phases first.")
                                                                  
         print(" "); print("-------------------- Calculating Coarse Grained Fields --------------------"); print(" ")
-        
-        # time loop
+
+        acc = TimeAverageAccumulator() if self.time_average else None # fresh sum for every call  
+
+        # time loop 
         for t in range(len(self.time_steps)):
             print(f"---> Time step {t}: time {self.time_steps[t]:04d} ................................................")
             time_of_timestep = self.time_steps[t]
             time_start = time.time()
             # ========================================================================
+            
+            # standard single time step CG calculation
             data = self._load_data(time_of_timestep); print("... data loaded") # Read the data for the current time step
-            results = self._fields_single_time(data) # Calculate the CG fields for that time step
+            results, primary = self._fields_single_time(data) # Calculate the CG fields for that time step
             self._write_results(results, t, time_of_timestep); print("... results written") # Write the results to .h5 and .VTKHDF files
+
+            # load to TimeAverageAccumulator if specified
+            if acc is not None:
+                acc.add(primary, time_of_timestep)
+                print("... primary fields added to time average accumulator")
+
             # sliced granular temperature if specified
             if self.field_to_export.get("granular_temperature_slices", True):
                 self._granular_temperature_sliced_calc_and_write(data, t, time_of_timestep)
-            # ========================================================================
+                        
+            # ========================================================================           
             time_end = time.time()
             print(f">> time step {t} took {time_end - time_start} to run."); print("  ")
-            pass
+
+        # export (calc mean and write) time average if specified
+        if acc is not None:
+            self._export_time_average(acc)
     
     def _load_data(self, time_of_timestep:int) -> dict:
         """
@@ -509,7 +527,7 @@ class CoarseGraining:
         primary, velocity_fields = self._compute_fields(data, particle_to_grid_map, weights_particle, weights_integral)
         # 4. compute derived fields and select those to export
         cg_fields = self._derive(primary, velocity_fields); print("... fields computed")
-        
+
         return cg_fields
     
     def _write_results(self, results_timestep:dict, time_step:int, time_of_timestep:int,
