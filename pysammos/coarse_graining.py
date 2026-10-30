@@ -1102,7 +1102,7 @@ class CoarseGraining:
         for i in range(len(c_values)):
             self.c = c_values[i]
             print(f"       -> Processing c/d = {c_d[i]:.4f})") #print(f"       -> Processing w/d = {w_d[i]:.2f}")
-            cg_fields_t = self._fields_single_time(data_t)
+            cg_fields_t, _ = self._fields_single_time(data_t)
                 
             # write .h5 files 
             manager = H5XarrayManager(f"{self.output_path}w_sweep_{self.weight_function}.h5") 
