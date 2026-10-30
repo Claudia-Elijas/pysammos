@@ -62,7 +62,7 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
     --------
     Position_sorted : np.ndarray, shape (N, 3).
         The sorted positions of the particles.
-    Global_ID_sorted : np.ndarray, shape (N,).
+    Global_ID_sorted : np.ndarray of int64, shape (N,).
         The sorted global IDs of the particles.
     Velocity_sorted : np.ndarray, shape (N, 3), optional
         The sorted velocities of the particles, if available.
@@ -103,7 +103,7 @@ def particles(InputConnection:vtk.vtkAlgorithmOutput,
         
         Global_ID = get_point_data_variable(Global_ID_string, poly_output)
         sorted_idx = np.argsort(Global_ID)
-        Global_ID_sorted = Global_ID[sorted_idx].astype(np.int32)
+        Global_ID_sorted = Global_ID[sorted_idx].astype(np.int64)
 
         Position = vtk_to_numpy(poly_output.GetPoints().GetData())
         Position_sorted = Position[sorted_idx].astype(np.float32)
@@ -183,9 +183,9 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
 
     Otuputs
     --------
-    Particle_i : np.ndarray, shape (N,)
+    Particle_i : np.ndarray of int64, shape (N,)
         The particle IDs of the first particles involved in the contacts.
-    Particle_j : np.ndarray, shape (N,)
+    Particle_j : np.ndarray of int64, shape (N,)
         The particle IDs of the second particles involved in the contacts.
     F_ij : np.ndarray, shape (N, 3)
         The total forces acting on the contacts, if available.
@@ -207,14 +207,15 @@ def contacts(InputConnection:vtk.vtkAlgorithmOutput,
  
     poly_output = InputConnection.GetOutput()
     F_ij = get_point_data_variable(Force_ij_string, poly_output).astype(np.float32) if Force_ij_string else None
-    Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.float32) if Particle_i_string else None
-    Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.float32) if Particle_j_string else None
+    # ids stay integers so they match Global_ID exactly (float32 is exact only up to 2**24)
+    Particle_i = get_point_data_variable(Particle_i_string, poly_output).astype(np.int64) if Particle_i_string else None
+    Particle_j = get_point_data_variable(Particle_j_string, poly_output).astype(np.int64) if Particle_j_string else None
     Contact_ij = get_point_data_variable(Contact_ij_string, poly_output).astype(np.float32) if Contact_ij_string else None
 
     # only to benchmark with JP's contact data reader
     # poly_output = InputConnection.GetOutput().GetCellData(); print("Contact Data loaded as Cell Data")
     # F_ij = vtk_to_numpy(poly_output.GetArray(Force_ij_string)).astype(np.float32)
-    # contact_ids = vtk_to_numpy(poly_output.GetArray(Particle_i_string)).astype(np.float32)
+    # contact_ids = vtk_to_numpy(poly_output.GetArray(Particle_i_string)).astype(np.int64)
     # Particle_i = contact_ids[:, 0]
     # Particle_j = contact_ids[:, 1]
     # Contact_ij = vtk_to_numpy(poly_output.GetArray(Contact_ij_string)).astype(np.float32)

@@ -85,6 +85,7 @@ The `grid_info` section specifies the grid parameters for the coarse graining pr
     - The `x_min`, `x_max`, `y_min`, and `y_max` parameters define the spatial extent of the grid.
     - The `z_transect` is set to '0.0', indicating that the coarse graining will be performed at this z-level.
     - The `x_axis_periodic` is set to '`True`', indicating that the x-axis is periodic, while the y and z axes are non-periodic.
+    - The optional `x_box_length` (`y_box_length`, `z_box_length`), not set here, is the length of the simulation box along a periodic axis. Without it, the length is taken from the bounds of the data: the box of a LAMMPS dump, or the extent of the particle centres in MFIX files. That extent falls short of the box, so for MFIX data it only wraps the branch vectors, as in earlier versions, the fields within c of a periodic boundary miss the particles on the other side, and Pysammos prints a warning.
 Find the corresponding documentation in the following page: :ref:`grid_generation`.
 
 

@@ -59,7 +59,7 @@ def map_contact_data(Global_ID:np.ndarray, Position:np.ndarray, Diameter:np.ndar
         If None, branch vectors are computed using particle diameters.
 
     ModelAxesRanges : np.ndarray, shape (3,)
-        Ranges of the model axes for periodic boundary conditions.
+        Length of the simulation box along each axis, used along the periodic axes.
 
     AxesPeriodicity : np.ndarray of bool, shape (3,)
         Indicates which axes are periodic.
@@ -94,6 +94,8 @@ def map_contact_data(Global_ID:np.ndarray, Position:np.ndarray, Diameter:np.ndar
     Notes
     -----
     - The function assumes that `Global_ID` is sorted for efficient mapping.
+    - Contacts with a particle ID that is not in `Global_ID` are removed from every contact
+      array, and the number removed is printed.
     - Arrays are duplicated to account for both directions of each contact pair.
     - Branch vectors are computed using either contact points (if provided) or particle diameters.
     - Designed for use in granular material simulations and fabric tensor analysis.
@@ -104,10 +106,18 @@ def map_contact_data(Global_ID:np.ndarray, Position:np.ndarray, Diameter:np.ndar
     inds_glob_LL = np.searchsorted(Global_ID, Particle_LL)
     inds_glob_I  = np.searchsorted(Global_ID, Particle_I) 
     
-    valid_LL = Global_ID[inds_glob_LL] == Particle_LL
-    valid_I = Global_ID[inds_glob_I] == Particle_I
-    inds_glob_LL = inds_glob_LL[valid_LL]
-    inds_glob_I = inds_glob_I[valid_I] 
+    # Keep a contact only if both its particles are in the particle data, with one mask
+    # for every contact array so they stay aligned. Indices are clipped because
+    # searchsorted returns len(Global_ID) for an ID above the largest one.
+    last = len(Global_ID) - 1
+    valid = (Global_ID[np.minimum(inds_glob_LL, last)] == Particle_LL) & \
+            (Global_ID[np.minimum(inds_glob_I, last)] == Particle_I)
+    print('  Contacts dropped (particle ID not found in particle data): ', np.count_nonzero(~valid))
+    inds_glob_LL = inds_glob_LL[valid]
+    inds_glob_I = inds_glob_I[valid]
+    Fij = Fij[valid]
+    if Contact_Points is not None:
+        Contact_Points = Contact_Points[valid]
 
     # Get arrays from VELOCITY files
     Pos_LL = Position[inds_glob_LL] # Positions (to calculate branch vector)
