@@ -819,7 +819,7 @@ class CoarseGraining:
         velocity_fields = {"velocity": Velocity_CG, "velocity_gradient": GradV_CG}
         return primary_fields, velocity_fields
     
-    def _compute_derived_fields(self, primary:dict, velocity_fields:dict = None) -> dict:
+    def _compute_derived_fields(self,  primary:dict, velocity_fields:dict = None) -> dict:
         """
         Compute the derived coarse-grained fields from the primary ones and select those to export.
         Used for every time step by :func:`_fields_single_time`, and for the time averages by
@@ -846,7 +846,35 @@ class CoarseGraining:
                                                        phases=self.phases, grid_info=self.grid_info)
         return derived_fields.select_exports(fields, self.field_to_export)
      
-    def _granular_temperature_sliced_calc_and_write(self, data:dict, time_step:int, time_of_timestep:int):
+    def _export_time_average(self, acc:TimeAverageAccumulator):
+        """
+        Write the time averages of the coarse-grained fields to
+        CG_{weight_function}_{cg_calc_mode}_time_averaged.h5 / .vtkhdf, and the time average of the sliced
+        granular temperature, if computed, to CG_GranularTemperature_slices_time_averaged.h5. The time steps
+        averaged are stored in the attribute ``time_steps_averaged`` of the .h5 files.
+ 
+        Inputs
+        ------
+        acc : TimeAverageAccumulator
+            The running sums of the primary fields over the time steps processed.
+        """
+        steps = acc.time_steps
+        print(f"Writing time averages over {len(steps)} time steps ({steps[0]} to {steps[-1]}) ...")
+        attrs = {"time_steps_averaged": steps}
+ 
+        results = self._derive(acc.mean())  # derived fields from the averaged primary fields
+        self._write_results(results, 0, int(steps[0]), label="time_averaged", attrs=attrs)
+ 
+        if acc.has_slices:
+            name = f"{self.output_path}CG_GranularTemperature_slices_time_averaged.h5"
+            if os.path.exists(name):
+                os.remove(name)
+            manager = H5XarrayManager(name)
+            manager.add_positions(acc.slice_positions)
+            manager.update_h5py_file(acc.mean_slices(), dim_index=0, dim_value=int(steps[0]), dim_name="time")
+            manager.add_attrs(attrs)
+    
+    def _export_granular_temperature_sliced(self, data:dict, time_step:int, time_of_timestep:int):
     
         """
         Write the sliced granular temperature results to .h5 files for a given time step.
