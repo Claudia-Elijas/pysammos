@@ -22,6 +22,8 @@ This module contains the following class:
     Initializes the manager with the specified HDF5 file.   
     
     Methods:
+    
+        - :meth:`add_attrs`: Adds attributes to the root of the HDF5 file
         - :meth:`add_positions`: Adds grid point positions to the HDF5 file
         - :meth:`add_phases`: Adds phase labels to the HDF5 file
         - :meth:`update_h5py_file`: Saves a single step of data to the HDF5 file at a specific index with a custom dimension value.
@@ -66,6 +68,19 @@ class H5XarrayManager:
 
         """
         self.filename = filename
+
+    def add_attrs(self, attrs: dict):
+        """
+        Add attributes to the root of the HDF5 file (overwriting attributes with the same name).
+ 
+        Inputs
+        ------
+        attrs : dict
+            Attribute names and values, e.g. {"time_steps_averaged": np.array([...])}.
+ 
+        """
+        with h5py.File(self.filename, "a") as f:
+            f.attrs.update(attrs)
 
     def add_positions(self, positions: np.ndarray):
         """
