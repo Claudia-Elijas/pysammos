@@ -391,7 +391,9 @@ class CoarseGraining:
 
             # sliced granular temperature if specified
             if self.field_to_export.get("granular_temperature_slices", True):
-                self._granular_temperature_sliced_calc_and_write(data, t, time_of_timestep)
+                slices, slice_positions = self._granular_temperature_sliced_calc_and_write(data, t, time_of_timestep)
+                if acc is not None: # load sliced granular temperature to TimeAverageAccumulator if specified
+                    acc.add_slices(slices, slice_positions)
                         
             # ========================================================================           
             time_end = time.time()
