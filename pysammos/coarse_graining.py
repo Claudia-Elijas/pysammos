@@ -695,11 +695,13 @@ class CoarseGraining:
 
         return W_p, Wint_c
 
-    def _compute_fields(self, data:dict, g:dict, W_p:np.ndarray, Wint_c:np.ndarray) -> dict:
-
+    def _compute_primary_fields(self, data:dict, g:dict, W_p:np.ndarray, Wint_c:np.ndarray) -> Tuple[dict, dict]:
+ 
         """
-        Compute coarse-grained fields for a given time step that are specified in :func:`fields_to_compute`.
-
+        Compute the primary coarse-grained fields for a given time step that are specified in :func:`fields_to_compute`.
+        Primary fields are kernel-weighted sums over particles or contacts; the fields derived from them
+        are computed by :func:`_compute_derived_fields`.
+ 
         Inputs
         ------
         data : dict
@@ -711,295 +713,139 @@ class CoarseGraining:
             The weights for particles, where N is the number of particles, computed in :func:`_compute_weights`.
         Wint_c : np.ndarray, shape (M,)
             The integral of the weights for contacts, where M is the number of contacts, computed in :func:`_compute_weights`.
-
+ 
         Outputs
         -------
-        cg_fields : dict
-            A dictionary containing the coarse-grained fields computed for the current time step,
-            based on the specified fields to export in :func:`fields_to_export`. Note that the fields to
-            compute are defined in :func:`fields_to_compute`, which is derived from :func:`fields_to_export`.
-
+        primary_fields : dict
+            The primary coarse-grained fields (keys ``derived_fields.PRIMARY_FIELDS``, None if not computed).
+        velocity_fields : dict
+            ``velocity`` and ``velocity_gradient`` (None if not computed). They are derived fields, but are
+            needed here for the kinetic and fluctuation tensors, so they are passed on to :func:`_compute_derived_fields`
+            instead of being computed twice.
+ 
         """
-        
+ 
         print(f"Computing Coarse Graining fields...")
-
+ 
         # 1. Unpack data
-        Position = data["Position"]
-        Velocity = data["Velocity"]
-        Diameter = data["Diameter"]
-        Density = data["Density"]
-        Mass = data["Mass"]
-        Volume = data["Volume"]
-        Coordination_Number = data["Coordination_Number"]
-        Phase_Array_p = data["Phase_Array"]
-        Position_i = data["Position_i"]
-        Force_i = data["Force_i"]
-        BranchVector_i = data["BranchVector_i"]
-        CenterToCenterVector_LL = data["CenterToCenterVector_LL"]
-        Volume_i = data["Volume_i"]
-        PhaseArray_i = data["PhaseArray_i"]
-        d_inContact_mean = data["d_inContact_mean"]
-        r_ri = g["r_ri"]
-        grid_ind_p = g["grid_ind_p"]
-        part_ind_p = g["part_ind_p"]
-        grid_ind_c = g["grid_ind_c"]
-        part_ind_c = g["part_ind_c"]   
-
-
+        #Position = data["Position"] ; d_inContact_mean = data["d_inContact_mean"] ;  Position_i = data["Position_i"] 
+        Velocity = data["Velocity"] ; Diameter = data["Diameter"] ; Density = data["Density"]; Mass = data["Mass"]; Volume = data["Volume"]
+        Coordination_Number = data["Coordination_Number"] ; r_ri = g["r_ri"]
+        Phase_Array_p = data["Phase_Array"] ; PhaseArray_i = data["PhaseArray_i"]
+        Force_i = data["Force_i"];  BranchVector_i = data["BranchVector_i"]; 
+        CenterToCenterVector_LL = data["CenterToCenterVector_LL"]; Volume_i = data["Volume_i"]; 
+        grid_ind_p = g["grid_ind_p"] ; part_ind_p = g["part_ind_p"]
+        grid_ind_c = g["grid_ind_c"] ; part_ind_c = g["part_ind_c"]
+  
         # 2. Compute fields based on the fields to compute ..................................................................
+        VolumeFraction_CG = DensityMixture_CG = MomentumDens_CG = Velocity_CG = VelocityBulk_CG = GradV_CG = None
+        KineticTensor_CG = FluctuationTensor_CG = ContactTensor_CG = None
+        d43_CG = d32_CG = CoordinationNumber_rattlers = FabricTensor_Monodisperse_CG = None
+ 
         # volume fraction
         if "volume_fraction" in self.fields_to_compute:
             VolumeFraction_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Volume, None, Phase_Array_p, self.cg_calc_mode)
             print('  volume fraction done')
-
+ 
         # density
         if "density_mixture" in self.fields_to_compute:
             DensityMixture_CG = dispatcher.scalar(W_p, part_ind_p, grid_ind_p, Mass, None, Phase_Array_p, self.cg_calc_mode)
             print('  mixture density done')
-    
-        # velocity
+ 
+        # momentum density
         if "momentum_density" in self.fields_to_compute:
             MomentumDens_CG = dispatcher.vector(W_p, part_ind_p, grid_ind_p, Velocity, Mass,  Phase_Array_p, self.cg_calc_mode)
             print('  momentum density done')
-
-        # velocity and kinetic tensor  
-        # Check what velocity gradient method is specified
+ 
+        # velocity and its gradient (derived, but needed here for the kinetic tensor)
         if self.velocity_gradient_method not in ["finite_difference", "least_squares"]:
-            raise ValueError("Invalid velocity_gradient_method input in CoarseGraining class: choose from 'finite_difference' or 'least_squares'.")  
-        # Check if we have phase information
-        if self.cg_calc_mode == 'Monodisperse':  # Monodisperse case
-            if "velocity" in self.fields_to_compute:
-                Velocity_CG = MomentumDens_CG / DensityMixture_CG[:, np.newaxis] # Velocity CG
-                print('  velocity done')
-
-            if "velocity_gradient" in self.fields_to_compute:
-                if self.velocity_gradient_method == "least_squares":
-                    GradV_CG = secondary.compute_velgrad_leastsquares(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG) # Velocity Gradient  least squares
-                elif self.velocity_gradient_method == "finite_difference":
-                    GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG, self.Nodes, self.Spacing) # Velocity Gradient finite difference
-                print('  velocity gradient done')
-
-            if "kinetic_tensor" in self.fields_to_compute:
-                KineticTensor_CG, FluctuationTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG, GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
-                print('  kinetic tensor done')
-
-        else:  # Polydisperse case
-            if "velocity" in self.fields_to_compute:
-                Velocity_CG = MomentumDens_CG / DensityMixture_CG[..., np.newaxis] # Velocity CG
-                print('  velocity done')
-
-            if "velocity_gradient" in self.fields_to_compute:
-                if self.velocity_gradient_method == "least_squares":
-                    GradV_CG = secondary.compute_velgrad_leastsquares(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:,0,:]) # Velocity Gradient  least squares
-                elif self.velocity_gradient_method == "finite_difference":
-                    GradV_CG = secondary.compute_vector_bulk_gradient(Velocity_CG[:,0,:], self.Nodes, self.Spacing) # Velocity Gradient
-                print('  velocity gradient done')
-
-            if "kinetic_tensor" in self.fields_to_compute:
-                KineticTensor_CG, FluctuationTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, Velocity_CG[:, 0, :], GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
-                print('  kinetic tensor done')
-
-
+            raise ValueError("Invalid velocity_gradient_method input in CoarseGraining class: choose from 'finite_difference' or 'least_squares'.")
+ 
+        if "velocity" in self.fields_to_compute:
+            Velocity_CG = derived_fields.velocity_from_momentum(MomentumDens_CG, DensityMixture_CG)
+            VelocityBulk_CG = derived_fields.bulk_velocity(Velocity_CG, self.cg_calc_mode)
+            print('  velocity done')
+ 
+        if "velocity_gradient" in self.fields_to_compute:
+            if self.velocity_gradient_method == "least_squares":
+                GradV_CG = secondary.compute_velgrad_leastsquares(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, VelocityBulk_CG) # Velocity Gradient least squares
+            elif self.velocity_gradient_method == "finite_difference":
+                GradV_CG = derived_fields.velocity_gradient_fd(Velocity_CG, self.cg_calc_mode, self.Nodes, self.Spacing) # Velocity Gradient finite difference
+            print('  velocity gradient done')
+ 
+        # kinetic and fluctuation tensors (relative to the velocity field of this time step)
+        if "kinetic_tensor" in self.fields_to_compute:
+            KineticTensor_CG, FluctuationTensor_CG = dispatcher.kinetic_tensor(W_p, part_ind_p, grid_ind_p, r_ri, Velocity, Mass, VelocityBulk_CG, GradV_CG, Phase_Array_p, self.cg_calc_mode) # Kinetic tensor
+            print('  kinetic tensor done')
+ 
         # contact tensor
         if "contact_tensor" in self.fields_to_compute:
             ContactTensor_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, Force_i, BranchVector_i, None, PhaseArray_i, self.cg_calc_mode)
             print('  contact tensor done')
-    
-        # Density of particle cg
-        if "density_particle" in self.fields_to_compute:
-            DensityParticle_CG = DensityMixture_CG / VolumeFraction_CG
-            print('  particle density done')
-
-        # Total stress tensor
-        if "total_stress_tensor" in self.fields_to_compute:
-            TotalStressTensor_CG = KineticTensor_CG + ContactTensor_CG
-            TotalStressTensor_CG_xyz_mag = secondary.compute_second_invariant(TotalStressTensor_CG, factor=0.5) # calculate the second invariant of the total stress tensor
-            # deviatoric stress
-            TotalStressDeviator_xyz = secondary.compute_deviatoric_tensor(TotalStressTensor_CG[...,:, :]) # 3D
-            TotalStressDeviator_xy = secondary.compute_deviatoric_tensor(TotalStressTensor_CG[...,:2,:2]) # 2D
-            TotalStressDeviator_xyz_mag = secondary.compute_second_invariant(TotalStressDeviator_xyz, factor=0.5) # 3D mag
-            TotalStressDeviator_xy_mag = secondary.compute_second_invariant(TotalStressDeviator_xy, factor=0.5) # 2D mag
-            print('  total stress done')
-
-        # Volume-weighted mean diameter, d43
+ 
+        # Volume-weighted mean diameter, d43, and Sauter mean diameter, d32
         if "d43" in self.fields_to_compute:
             d43_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=3)
             print('  d43 done')
         if "d32" in self.fields_to_compute:
             d32_CG = scalars.mean_grainsize(W_p, part_ind_p, grid_ind_p, Diameter, n_flag=2)
             print('  d32 done')
-  
-        # l_CG = None
+ 
         # Coordination number
         if "coordination_number" in self.fields_to_compute:
             CoordinationNumber_rattlers = scalars.scalar_x_volume(W_p, part_ind_p, grid_ind_p, Coordination_Number)
             print('  Z done')
-        # Pressure
-        if "pressure" in self.fields_to_compute:
-            Pressure_xyz = secondary.compute_pressure(TotalStressTensor_CG)
-            Pressure_xy = secondary.compute_pressure(TotalStressTensor_CG[...,0:2, 0:2])
-            Pressure_x = TotalStressTensor_CG[...,0, 0] 
-            Pressure_y = TotalStressTensor_CG[...,1, 1] 
-            Pressure_z = TotalStressTensor_CG[...,2, 2] 
-            print('  pressure done')
-
-        # granular temperature
-        if "granular_temperature" in self.fields_to_compute:
-            GranularTemperature_xyz = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG) 
-            GranularTemperature_x = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG[...,0,0]) 
-            GranularTemperature_y = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG[...,1,1]) 
-            GranularTemperature_z = secondary.compute_granular_temperature(DensityMixture_CG, FluctuationTensor_CG[...,2,2]) 
-            print('  granular temp done')
-
-        # shear rate tensor 
-        if "shear_rate_tensor" in self.fields_to_compute:
-            # 2d - grid
-            ShearRateTensor_xy = secondary.compute_shear_rate_tensor(GradV_CG[...,0:2, 0:2])
-            ShearRateTensor_xy_mag = secondary.compute_second_invariant(ShearRateTensor_xy, factor=2) # 2D mag
-            # shear rate deviator 
-            ShearRateDeviator_xy = secondary.compute_deviatoric_tensor(ShearRateTensor_xy)
-            ShearRateDeviator_xy_mag = secondary.compute_second_invariant(ShearRateDeviator_xy, factor=2) # 2D mag
-            # 3d - grid
-            if self.grid_info["grid_dimension"] == 3:
-                ShearRateTensor_xyz = secondary.compute_shear_rate_tensor(GradV_CG)
-                ShearRateTensor_xyz_mag = secondary.compute_second_invariant(ShearRateTensor_xyz, factor=2) # 3D mag
-                # shear rate deviator 
-                ShearRateDeviator_xyz = secondary.compute_deviatoric_tensor(ShearRateTensor_xyz)
-                ShearRateDeviator_xyz_mag = secondary.compute_second_invariant(ShearRateDeviator_xyz, factor=2) # 3D mag
-            print('  shear rate done')
  
-        # inertial number
-        if "inertial_number" in self.fields_to_compute:
-            # ADD INERTIAL NUMBER WITH DEVIATORIC SHEAR RATE TENSOR
-            
-            InertialNumber_xy_Pxyz_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxy_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Py_d43 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d43_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxyz_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xyz, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Pxy_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_xy, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
-            InertialNumber_xy_Py_d32 = secondary.compute_inertial_number(ShearRateTensor_xy_mag, Pressure_y, DensityParticle_CG, d32_CG, self.phases[:,1], self.phases[:,0])
-            # InertialNumber_xy_Pxyz_l = None
-            # InertialNumbe_xy_Pxy_l = None
-            # Inertial_Number_xy_Py_l = None
-            print('  inertial number done')
- 
-        # frictional coefficient
-        if "frictional_coefficient" in self.fields_to_compute:
-            FrictionalCoefficient_Dxy_Pxyz = TotalStressDeviator_xy_mag / Pressure_xyz
-            FrictionalCoefficient_Dxy_Pxy = TotalStressDeviator_xy_mag / Pressure_xy
-            FrictionalCoefficient_Dxy_Py = TotalStressDeviator_xy_mag / Pressure_y
-            FrictionalCoefficient_Dxyz_Pxyz = TotalStressDeviator_xyz_mag / Pressure_xyz
-            FrictionalCoefficient_Dxyz_Pxy = TotalStressDeviator_xyz_mag / Pressure_xy
-            FrictionalCoefficient_Dxyz_Py = TotalStressDeviator_xyz_mag / Pressure_y
-            FrictionalCoefficient_01_Pxyz = TotalStressTensor_CG[...,0,1] / Pressure_xyz
-            FrictionalCoefficient_01_Pxy = TotalStressTensor_CG[...,0,1] / Pressure_xy
-            FrictionalCoefficient_01_Py = TotalStressTensor_CG[...,0,1] / Pressure_y
-            print('  mu done')
-    
         # fabric tensor
         if "fabric_tensor" in self.fields_to_compute:
             l_i_mag = np.linalg.norm(CenterToCenterVector_LL, axis=-1) # calculate the magnitude of the branch vector
             l_i_normalised = CenterToCenterVector_LL / l_i_mag[:, np.newaxis]
-            l_inContact_mean = np.mean(l_i_mag)
             FabricTensor_Monodisperse_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, l_i_normalised, l_i_normalised, Volume_i, None, "Monodisperse")
-            #FabricTensor_Sun = Compute_Bulk_FabricTensor_Sun2015(l_i_normalised)
             print('  frabric tensor done')
-
-        
-        # 3. Prepare results for export based on fields to export ................................................
-        
-        # Prepare results dictionary
-        results = {}
-
-        # volume fraction
-        if self.field_to_export.get("volume_fraction"): results["volume_fraction"] = VolumeFraction_CG
-
-        # density of mixture
-        if self.field_to_export.get("density_mixture"): results["density_mixture"] = DensityMixture_CG
-
-        # particle density
-        if self.field_to_export.get("density_particle"): results["density_particle"] = DensityParticle_CG
-
-        # particle size
-        if self.field_to_export.get("d32"): results["d32"] = d32_CG
-        if self.field_to_export.get("d43"): results["d43"] = d43_CG
-
-        # particle contacts
-        if self.field_to_export.get("coordination_number"): results["coordination_number"] = CoordinationNumber_rattlers
-        if self.field_to_export.get("coordination_number_without_rattlers"): results["coordination_number_without_rattlers"] = None
-
-        # velocity
-        if self.field_to_export.get("momentum_density"): results["momentum_density"] = MomentumDens_CG
-        if self.field_to_export.get("velocity"): results["velocity"] = Velocity_CG
-        if self.field_to_export.get("velocity_gradient"): results["velocity_gradient"] = GradV_CG
-
-        # stress tensor
-        if self.field_to_export.get("kinetic_tensor"): results["kinetic_tensor"] = KineticTensor_CG
-        if self.field_to_export.get("contact_tensor"): results["contact_tensor"] = ContactTensor_CG
-        if self.field_to_export.get("total_stress_tensor"): 
-            results["total_stress_tensor_xy_dev"] = TotalStressDeviator_xy
-            results["total_stress_tensor_xy_dev_mag"] = TotalStressDeviator_xy_mag
-            results["total_stress_tensor_xyz"] = TotalStressTensor_CG
-            results["total_stress_tensor_xyz_mag"] = TotalStressTensor_CG_xyz_mag
-            results["total_stress_tensor_xyz_dev"] = TotalStressDeviator_xyz
-            results["total_stress_tensor_xyz_dev_mag"] = TotalStressDeviator_xyz_mag
-
-        # fabric tensor
-        if self.field_to_export.get("fabric_tensor"): results["fabric_tensor"] = FabricTensor_Monodisperse_CG
-        #if self.field_to_export.get("fabric_tensor_Sun"): results["fabric_tensor_Sun"] = FabricTensor_Sun
-
-        # shear rate tensor
-        if self.field_to_export.get("shear_rate_tensor"): 
-            results["shear_rate_tensor_xy"] = ShearRateTensor_xy
-            results["shear_rate_tensor_xy_mag"] = ShearRateTensor_xy_mag
-            results["shear_rate_tensor_xy_dev"] = ShearRateDeviator_xy
-            results["shear_rate_tensor_xy_dev_mag"] = ShearRateDeviator_xy_mag
-            if self.grid_info["grid_dimension"] == 3:
-                results["shear_rate_tensor_xyz"] = ShearRateTensor_xyz
-                results["shear_rate_tensor_xyz_mag"] = ShearRateTensor_xyz_mag
-                results["shear_rate_tensor_xyz_dev"] = ShearRateDeviator_xyz
-                results["shear_rate_tensor_xyz_dev_mag"] = ShearRateDeviator_xyz_mag
-
-        # pressure
-        if self.field_to_export.get("pressure"): 
-            results["pressure_xyz"] = Pressure_xyz
-            results["pressure_xy"] = Pressure_xy
-            results["pressure_x"] = Pressure_x
-            results["pressure_y"] = Pressure_y
-            results["pressure_z"] = Pressure_z
-
-        # granular temperature
-        if self.field_to_export.get("granular_temperature"): 
-            results["granular_temperature_xyz"] = GranularTemperature_xyz
-            results["granular_temperature_x"] = GranularTemperature_x
-            results["granular_temperature_y"] = GranularTemperature_y
-            results["granular_temperature_z"] = GranularTemperature_z
-
-        # inertial number
-        if self.field_to_export.get("inertial_number"): 
-            results["inertial_number_Sxy_Pxyz_d43"] = InertialNumber_xy_Pxyz_d43
-            results["inertial_number_Sxy_Pxy_d43"] = InertialNumber_xy_Pxy_d43
-            results["inertial_number_Sxy_Py_d43"] = InertialNumber_xy_Py_d43
-            results["inertial_number_Sxy_Pxyz_d32"] = InertialNumber_xy_Pxyz_d32
-            results["inertial_number_Sxy_Pxy_d32"] = InertialNumber_xy_Pxy_d32
-            results["inertial_number_Sxy_Py_d32"] = InertialNumber_xy_Py_d32
-
-        # frictional coefficient
-        if self.field_to_export.get("frictional_coefficient"): 
-            results["frictional_coefficient_Dxy_Pxyz"] = FrictionalCoefficient_Dxy_Pxyz
-            results["frictional_coefficient_Dxy_Pxy"] = FrictionalCoefficient_Dxy_Pxy
-            results["frictional_coefficient_Dxy_Py"] = FrictionalCoefficient_Dxy_Py
-            results["frictional_coefficient_Dxyz_Pxyz"] = FrictionalCoefficient_Dxyz_Pxyz
-            results["frictional_coefficient_Dxyz_Pxy"] = FrictionalCoefficient_Dxyz_Pxy
-            results["frictional_coefficient_Dxyz_Py"] = FrictionalCoefficient_Dxyz_Py
-            results["frictional_coefficient_01_Pxyz"] = FrictionalCoefficient_01_Pxyz
-            results["frictional_coefficient_01_Pxy"] = FrictionalCoefficient_01_Pxy
-            results["frictional_coefficient_01_Py"] = FrictionalCoefficient_01_Py
-       
-                    
-        
-        return results
-
+ 
+        # 3. Return primary fields and the velocity fields already computed ................................................
+        primary_fields = {
+            "volume_fraction": VolumeFraction_CG,
+            "density_mixture": DensityMixture_CG,
+            "momentum_density": MomentumDens_CG,
+            "kinetic_tensor": KineticTensor_CG,
+            "fluctuation_tensor": FluctuationTensor_CG,
+            "contact_tensor": ContactTensor_CG,
+            "d43": d43_CG,
+            "d32": d32_CG,
+            "coordination_number": CoordinationNumber_rattlers,
+            "fabric_tensor": FabricTensor_Monodisperse_CG,
+        }
+        velocity_fields = {"velocity": Velocity_CG, "velocity_gradient": GradV_CG}
+        return primary_fields, velocity_fields
+    
+    def _compute_derived_fields(self, primary:dict, velocity_fields:dict = None) -> dict:
+        """
+        Compute the derived coarse-grained fields from the primary ones and select those to export.
+        Used for every time step by :func:`_fields_single_time`, and for the time averages by
+        :func:`_write_time_average`.
+ 
+        Inputs
+        ------
+        primary : dict
+            Primary coarse-grained fields, from :func:`_compute_primary_fields` or :meth:`TimeAverageAccumulator.mean`.
+        velocity_fields : dict, optional
+            ``velocity`` and ``velocity_gradient`` already computed for this time step by :func:`_compute_primary_fields`.
+            If None (time averages), they are computed from ``primary``, the gradient by finite differences.
+ 
+        Outputs
+        -------
+        cg_fields : dict
+            A dictionary containing the coarse-grained fields specified in :func:`fields_to_export`.
+        """
+        fields = {**primary, **(velocity_fields or {})}
+        fields = derived_fields.add_velocity_fields(fields, fields_to_compute=self.fields_to_compute,
+                                                    cg_calc_mode=self.cg_calc_mode,
+                                                    nodes=self.Nodes, spacing=self.Spacing)
+        fields = derived_fields.compute_derived_fields(fields, fields_to_compute=self.fields_to_compute,
+                                                       phases=self.phases, grid_info=self.grid_info)
+        return derived_fields.select_exports(fields, self.field_to_export)
+     
     def _granular_temperature_sliced_calc_and_write(self, data:dict, time_step:int, time_of_timestep:int):
     
         """
