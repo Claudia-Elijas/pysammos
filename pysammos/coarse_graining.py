@@ -1015,20 +1015,26 @@ class CoarseGraining:
     
 
         time_timesteps = []
+        acc = TimeAverageAccumulator() if self.time_average else None
         # 6. Iterate over time steps
         for t_idx, t in enumerate(self.time_steps):
             # time a single timestep
             timestep_start = time.time()
-
+ 
             print(f"Processing time step {t} ({t_idx+1}/{len(self.time_steps)})...")
             data_t = self._load_data(t)
             print("... data loaded")
-            cg_fields_t = self._fields_single_time(data_t)
+            cg_fields_t, primary_t = self._fields_single_time(data_t)
             self._write_results(cg_fields_t, t_idx, t)
             print("... results written\n")
-
+            if acc is not None:
+                acc.add(primary_t, t)
+ 
             timestep_end = time.time()
             time_timesteps.append(timestep_end - timestep_start)
+ 
+        if acc is not None:
+            self._write_time_average(acc)
             
         print("Coarse-graining process completed, summary:")
         print(f">>> Number of grid points: {self.GridPoints.shape[0]}")
