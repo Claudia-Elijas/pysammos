@@ -30,6 +30,7 @@ from .spatial_weights.hashtable_search import make_hash_table, hash_table_search
 from .spatial_weights.utils import integration_scalar, trapezoidal_integration, compute_dist_along_branch
 # particle-node correspondence
 from .neighbour_search.grid_particle_search import particle_node_match, calc_displacement
+from .neighbour_search.periodic import resolve_simulation_box, check_particles_in_box, periodic_images
 # grid generation
 from .grid_generation import regular_cuboid 
 # handle data
@@ -92,6 +93,10 @@ class CoarseGraining:
         Type of weight function to use for coarse graining. It can be one of the following: 'Gaussian', 'Lucy', 'HeavySide'.
     fields_to_export : dict
         Fields to be exported.
+    simulation_box : list of 3 entries, optional
+        Limits of the DEM simulation box, [(xmin, xmax), (ymin, ymax), (zmin, zmax)], with None for an
+        axis whose limits are not given. Required on every periodic axis (see ``grid_info``), where it
+        sets the period of the domain; not used on the other axes. Default is None.
     time_average : bool
         Whether to perform time averaging of the computed fields.
     ignore_phases : bool
@@ -116,6 +121,7 @@ class CoarseGraining:
                  grid_info:dict,
                  weight_function:str, 
                  fields_to_export:dict, 
+                 simulation_box:list = None,
                  time_average:bool = False,
                  ignore_phases:bool = True,
                  vkthdf_output:bool = True,
@@ -134,6 +140,11 @@ class CoarseGraining:
         self.DEM_keymap = DEM_keymap
         # CG grid info dictionary
         self.grid_info = grid_info
+        self.periodic = np.array([grid_info["x_axis_periodic"],
+                                  grid_info["y_axis_periodic"],
+                                  grid_info["z_axis_periodic"]], dtype=bool)
+        # simulation box for periodic boundary conditions
+        self.box_lo, self.box_hi = resolve_simulation_box(simulation_box, self.periodic)
         # CG smoothing function of choice
         self.weight_function = weight_function
         # custom outputs and their dependencies
@@ -453,13 +464,14 @@ class CoarseGraining:
         Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og = contact_data
         
         # Handle contact data
-        Bounds_t = np.array(bounds_t).reshape(3,2) ; Ranges_t = Bounds_t[:, 1] - Bounds_t[:, 0] # update the model domain bounds for a robust calc of branch vecot
+        check_particles_in_box(bounds_t, self.box_lo, self.box_hi, self.periodic, tolerance=getattr(self, "dmax", 0.0))
+        Ranges_t = np.where(self.periodic, self.box_hi - self.box_lo, np.inf)  # only used on periodic axes
         Particle_i, Particle_j, F_ij, Contact_ij = duplicates.delete(Particle_i_og, Particle_j_og, F_ij_og, Contact_ij_og) # remove duplicates 
         
         Position_i, Force_i, BranchVector_i, CenterToCenterVector_LL_dup, Volume_i, Phase_Array_i_t, d_inContact_mean = map_contact_data(
         Global_ID, Position, Diameter, Density, Volume, 
         Particle_i, Particle_j, F_ij, Contact_ij,
-        ModelAxesRanges=Ranges_t, AxesPeriodicity=np.array([self.grid_info["x_axis_periodic"], self.grid_info["y_axis_periodic"],self.grid_info["z_axis_periodic"]]),
+        ModelAxesRanges=Ranges_t, AxesPeriodicity=self.periodic, 
         Return_Volume=True, Particle_Phase_Array_t=self.Phase_Array) 
         print("  Contact data loaded and mapped")
         # calculate coordination number
