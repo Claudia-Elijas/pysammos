@@ -1,11 +1,28 @@
 import configparser
 import ast
+import configparser
+
+# helper functions for parsing config files
 
 def str2bool(s):
     return s.lower() in ("true", "1", "yes")
 
-# def parse_dict(section, config):
-#     return {k: None if v == "None" else v for k, v in config.items(section)}
+def parse_simulation_box(config):
+    """
+    [simulation_box] section -> [(xmin, xmax), (ymin, ymax), (zmin, zmax)], None for 'None' or missing
+    entries; None if the section is missing (allowed only without periodic axes).
+    """
+    if not config.has_section("simulation_box"):
+        return None
+    box = []
+    for axis in ("x", "y", "z"):
+        value = config["simulation_box"].get(f"{axis}_range", "None").strip()
+        if value == "None":
+            box.append(None)
+        else:
+            lo, hi = (float(v) for v in value.strip("[]()").split(","))
+            box.append((lo, hi))
+    return box
 
 def parse_dict(section, config):
     result = {}
@@ -59,7 +76,7 @@ def parse_grid_info(config):
         "z_axis_periodic": grid_cfg.getboolean("z_axis_periodic"),
     }
 
-import configparser
+# Config loader function
 
 def load_config(path_to_ini="config.ini") -> dict:
     """
@@ -82,6 +99,7 @@ def load_config(path_to_ini="config.ini") -> dict:
         "DEM_software": config["DEM_software"]["name"],
         "DEM_keymap": parse_dict("key_mapping", config),
         "grid_info": parse_grid_info(config),
+        "simulation_box": parse_simulation_box(config),
         "weight_function": config["smoothing_function"]["type"],
         "fields_to_export": parse_bool_dict("fields_to_export", config),
         "ignore_phases": str2bool(config["flags"]["partialignore"]),
