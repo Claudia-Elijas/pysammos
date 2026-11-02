@@ -45,18 +45,12 @@ from .macroscopic_fields.gridded import secondary
 from .macroscopic_fields.gridded import scalars
 from .macroscopic_fields.sliced import granular_temperature as sliced
 from .macroscopic_fields.gridded import derived_fields
+from .macroscopic_fields.gridded.derived_fields import PHASE_INDEPENDENT_FIELDS
 # time averaging
 from .time_average.accumulator import TimeAverageAccumulator
 # data writing
 from .data_write.h5.writer import H5XarrayManager
 from .data_write.vtkhdf.writer import VTKHDFWriter
-
-# Fields written once per grid point (not per phase) in the polydisperse .vtkhdf ouput 
-PHASE_INDEPENDENT_FIELDS = ["d32", "d43", "coordination_number", "velocity_gradient", "fabric_tensor",
-                            "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
-                            "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
-                            "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
-                            "shear_rate_tensor_xy_dev", "shear_rate_tensor_xy_dev_mag"]
  
  
 # supress warnings 

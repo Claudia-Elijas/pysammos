@@ -23,6 +23,12 @@ import numpy as np
 
 from . import secondary
 
+# Fields written once per grid point (not per phase) in the polydisperse .vtkhdf ouput 
+PHASE_INDEPENDENT_FIELDS = ["d32", "d43", "coordination_number", "velocity_gradient", "fabric_tensor",
+                            "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
+                            "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
+                            "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
+                            "shear_rate_tensor_xy_dev", "shear_rate_tensor_xy_dev_mag"]
 
 #: Primary fields: the inputs of the derived fields, and the fields averaged in time.
 PRIMARY_FIELDS = ("volume_fraction", "density_mixture", "momentum_density",
