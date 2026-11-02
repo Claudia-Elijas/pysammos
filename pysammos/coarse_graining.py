@@ -391,7 +391,7 @@ class CoarseGraining:
 
             # sliced granular temperature if specified
             if self.field_to_export.get("granular_temperature_slices", True):
-                slices, slice_positions = self._granular_temperature_sliced_calc_and_write(data, t, time_of_timestep)
+                slices, slice_positions = self._export_granular_temperature_sliced(data, t, time_of_timestep)
                 if acc is not None: # load sliced granular temperature to TimeAverageAccumulator if specified
                     acc.add_slices(slices, slice_positions)
                         
@@ -518,6 +518,9 @@ class CoarseGraining:
         cg_fields : dict
             A dictionary containing the coarse-grained fields, specified in :func:`fields_to_export`, 
             computed for the current time step
+        primary : dict  
+            A dictionary containing the primary coarse-grained fields computed for the current time step, 
+            which are used to compute the secondary fields.
             
         """
         
@@ -526,9 +529,9 @@ class CoarseGraining:
         # 2. compute weights for particles and contacts
         weights_particle, weights_integral = self._compute_weights(particle_to_grid_map, data); print("... weights computed")
         # 3. compute primary coarse-grained fields (+ velocity and its gradient, needed for the kinetic tensor)
-        primary, velocity_fields = self._compute_fields(data, particle_to_grid_map, weights_particle, weights_integral)
+        primary, velocity_fields = self._compute_primary_fields(data, particle_to_grid_map, weights_particle, weights_integral)
         # 4. compute derived fields and select those to export
-        cg_fields = self._derive(primary, velocity_fields); print("... fields computed")
+        cg_fields = self._compute_derived_fields(primary, velocity_fields); print("... fields computed")
 
         return cg_fields, primary
     
@@ -894,7 +897,7 @@ class CoarseGraining:
         print(f"Writing time averages over {len(steps)} time steps ({steps[0]} to {steps[-1]}) ...")
         attrs = {"time_steps_averaged": steps}
  
-        results = self._derive(acc.mean())  # derived fields from the averaged primary fields
+        results = self._compute_derived_fields(acc.mean())  # derived fields from the averaged primary fields
         self._write_results(results, 0, int(steps[0]), label="time_averaged", attrs=attrs)
  
         if acc.has_slices:
