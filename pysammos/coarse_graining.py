@@ -661,14 +661,22 @@ class CoarseGraining:
         """
 
         print(f"Matching particles to grid points ...")
+        if self.periodic.any():
+            print(f"  Periodic axes: {', '.join(a for a, p in zip('xyz', self.periodic) if p)}")
+ 
+        def match(positions):
+            """Neighbours within c of every grid node, with periodic images; indices of original rows."""
+            positions_ext, original = periodic_images(positions, self.box_lo, self.box_hi,
+                                                      self.periodic, self.c)
+            start_ind, ext_ind = particle_node_match(self.GridPoints, positions_ext, self.c)  # kd-tree function
+            r_ri, r_ri_dist = calc_displacement(self.GridPoints, positions_ext, start_ind, ext_ind)  # displacement to the (image) position
+            return start_ind, original[ext_ind].astype(np.int32), r_ri, r_ri_dist
+ 
         # particle data .........................................
-        grid_ind_p, part_ind_p = particle_node_match(self.GridPoints, data["Position"], self.c) # kd-tree function
-        r_ri, r_ri_dist = calc_displacement(self.GridPoints, data["Position"], grid_ind_p, part_ind_p) # calculate the displacement and distance
+        grid_ind_p, part_ind_p, r_ri, r_ri_dist = match(data["Position"])
         # contact data ...........................................
-        grid_ind_c, part_ind_c = particle_node_match(self.GridPoints, data["Position_i"], self.c) # kd-tree function
-        r_ri_c, _ = calc_displacement(self.GridPoints, data["Position_i"], grid_ind_c, part_ind_c)
-                            
-
+        grid_ind_c, part_ind_c, r_ri_c, _ = match(data["Position_i"])
+ 
         return {
             "grid_ind_p": grid_ind_p,
             "part_ind_p": part_ind_p,
