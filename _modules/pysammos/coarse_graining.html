@@ -107,6 +107,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.spatial_weights.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">integration_scalar</span><span class="p">,</span> <span class="n">trapezoidal_integration</span><span class="p">,</span> <span class="n">compute_dist_along_branch</span>
 <span class="c1"># particle-node correspondence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.neighbour_search.grid_particle_search</span><span class="w"> </span><span class="kn">import</span> <span class="n">particle_node_match</span><span class="p">,</span> <span class="n">calc_displacement</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.neighbour_search.periodic</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_simulation_box</span><span class="p">,</span> <span class="n">check_particles_in_box</span><span class="p">,</span> <span class="n">periodic_images</span>
 <span class="c1"># grid generation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.grid_generation</span><span class="w"> </span><span class="kn">import</span> <span class="n">regular_cuboid</span> 
 <span class="c1"># handle data</span>
@@ -121,18 +122,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">scalars</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.sliced</span><span class="w"> </span><span class="kn">import</span> <span class="n">granular_temperature</span> <span class="k">as</span> <span class="n">sliced</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">derived_fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded.derived_fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">PHASE_INDEPENDENT_FIELDS</span>
 <span class="c1"># time averaging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.time_average.accumulator</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeAverageAccumulator</span>
 <span class="c1"># data writing</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.h5.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5XarrayManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.vtkhdf.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">VTKHDFWriter</span>
-
-<span class="c1"># Fields written once per grid point (not per phase) in the polydisperse .vtkhdf ouput </span>
-<span class="n">PHASE_INDEPENDENT_FIELDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"d32"</span><span class="p">,</span> <span class="s2">"d43"</span><span class="p">,</span> <span class="s2">"coordination_number"</span><span class="p">,</span> <span class="s2">"velocity_gradient"</span><span class="p">,</span> <span class="s2">"fabric_tensor"</span><span class="p">,</span>
-                            <span class="s2">"shear_rate_tensor_xyz"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xyz_mag"</span><span class="p">,</span>
-                            <span class="s2">"shear_rate_tensor_xy"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xy_mag"</span><span class="p">,</span>
-                            <span class="s2">"shear_rate_tensor_xyz_dev"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xyz_dev_mag"</span><span class="p">,</span>
-                            <span class="s2">"shear_rate_tensor_xy_dev"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xy_dev_mag"</span><span class="p">]</span>
  
  
 <span class="c1"># supress warnings </span>
@@ -171,6 +166,10 @@
 <span class="sd">        Type of weight function to use for coarse graining. It can be one of the following: 'Gaussian', 'Lucy', 'HeavySide'.</span>
 <span class="sd">    fields_to_export : dict</span>
 <span class="sd">        Fields to be exported.</span>
+<span class="sd">    simulation_box : list of 3 entries, optional</span>
+<span class="sd">        Limits of the DEM simulation box, [(xmin, xmax), (ymin, ymax), (zmin, zmax)], with None for an</span>
+<span class="sd">        axis whose limits are not given. Required on every periodic axis (see ``grid_info``), where it</span>
+<span class="sd">        sets the period of the domain; not used on the other axes. Default is None.</span>
 <span class="sd">    time_average : bool</span>
 <span class="sd">        Whether to perform time averaging of the computed fields.</span>
 <span class="sd">    ignore_phases : bool</span>
@@ -195,6 +194,7 @@
                  <span class="n">grid_info</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span>
                  <span class="n">weight_function</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> 
                  <span class="n">fields_to_export</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> 
+                 <span class="n">simulation_box</span><span class="p">:</span><span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">time_average</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">ignore_phases</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">vkthdf_output</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -213,6 +213,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">DEM_keymap</span> <span class="o">=</span> <span class="n">DEM_keymap</span>
         <span class="c1"># CG grid info dictionary</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span> <span class="o">=</span> <span class="n">grid_info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">"x_axis_periodic"</span><span class="p">],</span>
+                                  <span class="n">grid_info</span><span class="p">[</span><span class="s2">"y_axis_periodic"</span><span class="p">],</span>
+                                  <span class="n">grid_info</span><span class="p">[</span><span class="s2">"z_axis_periodic"</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="c1"># simulation box for periodic boundary conditions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_lo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_hi</span> <span class="o">=</span> <span class="n">resolve_simulation_box</span><span class="p">(</span><span class="n">simulation_box</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">)</span>
         <span class="c1"># CG smoothing function of choice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span> <span class="o">=</span> <span class="n">weight_function</span>
         <span class="c1"># custom outputs and their dependencies</span>
@@ -550,13 +555,14 @@
         <span class="n">Particle_i_og</span><span class="p">,</span> <span class="n">Particle_j_og</span><span class="p">,</span> <span class="n">F_ij_og</span><span class="p">,</span> <span class="n">Contact_ij_og</span> <span class="o">=</span> <span class="n">contact_data</span>
         
         <span class="c1"># Handle contact data</span>
-        <span class="n">Bounds_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bounds_t</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="p">;</span> <span class="n">Ranges_t</span> <span class="o">=</span> <span class="n">Bounds_t</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">Bounds_t</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># update the model domain bounds for a robust calc of branch vecot</span>
+        <span class="n">check_particles_in_box</span><span class="p">(</span><span class="n">bounds_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_hi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"dmax"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">Ranges_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_hi</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lo</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>  <span class="c1"># only used on periodic axes</span>
         <span class="n">Particle_i</span><span class="p">,</span> <span class="n">Particle_j</span><span class="p">,</span> <span class="n">F_ij</span><span class="p">,</span> <span class="n">Contact_ij</span> <span class="o">=</span> <span class="n">duplicates</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">Particle_i_og</span><span class="p">,</span> <span class="n">Particle_j_og</span><span class="p">,</span> <span class="n">F_ij_og</span><span class="p">,</span> <span class="n">Contact_ij_og</span><span class="p">)</span> <span class="c1"># remove duplicates </span>
         
         <span class="n">Position_i</span><span class="p">,</span> <span class="n">Force_i</span><span class="p">,</span> <span class="n">BranchVector_i</span><span class="p">,</span> <span class="n">CenterToCenterVector_LL_dup</span><span class="p">,</span> <span class="n">Volume_i</span><span class="p">,</span> <span class="n">Phase_Array_i_t</span><span class="p">,</span> <span class="n">d_inContact_mean</span> <span class="o">=</span> <span class="n">map_contact_data</span><span class="p">(</span>
         <span class="n">Global_ID</span><span class="p">,</span> <span class="n">Position</span><span class="p">,</span> <span class="n">Diameter</span><span class="p">,</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Volume</span><span class="p">,</span> 
         <span class="n">Particle_i</span><span class="p">,</span> <span class="n">Particle_j</span><span class="p">,</span> <span class="n">F_ij</span><span class="p">,</span> <span class="n">Contact_ij</span><span class="p">,</span>
-        <span class="n">ModelAxesRanges</span><span class="o">=</span><span class="n">Ranges_t</span><span class="p">,</span> <span class="n">AxesPeriodicity</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">"x_axis_periodic"</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">"y_axis_periodic"</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">"z_axis_periodic"</span><span class="p">]]),</span>
+        <span class="n">ModelAxesRanges</span><span class="o">=</span><span class="n">Ranges_t</span><span class="p">,</span> <span class="n">AxesPeriodicity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span> 
         <span class="n">Return_Volume</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Particle_Phase_Array_t</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Phase_Array</span><span class="p">)</span> 
         <span class="nb">print</span><span class="p">(</span><span class="s2">"  Contact data loaded and mapped"</span><span class="p">)</span>
         <span class="c1"># calculate coordination number</span>
@@ -746,14 +752,22 @@
 <span class="sd">        """</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Matching particles to grid points ..."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Periodic axes: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">zip</span><span class="p">(</span><span class="s1">'xyz'</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+ 
+        <span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="n">positions</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">"""Neighbours within c of every grid node, with periodic images; indices of original rows."""</span>
+            <span class="n">positions_ext</span><span class="p">,</span> <span class="n">original</span> <span class="o">=</span> <span class="n">periodic_images</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_hi</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">start_ind</span><span class="p">,</span> <span class="n">ext_ind</span> <span class="o">=</span> <span class="n">particle_node_match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">positions_ext</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>  <span class="c1"># kd-tree function</span>
+            <span class="n">r_ri</span><span class="p">,</span> <span class="n">r_ri_dist</span> <span class="o">=</span> <span class="n">calc_displacement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">positions_ext</span><span class="p">,</span> <span class="n">start_ind</span><span class="p">,</span> <span class="n">ext_ind</span><span class="p">)</span>  <span class="c1"># displacement to the (image) position</span>
+            <span class="k">return</span> <span class="n">start_ind</span><span class="p">,</span> <span class="n">original</span><span class="p">[</span><span class="n">ext_ind</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">r_ri_dist</span>
+ 
         <span class="c1"># particle data .........................................</span>
-        <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">part_ind_p</span> <span class="o">=</span> <span class="n">particle_node_match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Position"</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span> <span class="c1"># kd-tree function</span>
-        <span class="n">r_ri</span><span class="p">,</span> <span class="n">r_ri_dist</span> <span class="o">=</span> <span class="n">calc_displacement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Position"</span><span class="p">],</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">)</span> <span class="c1"># calculate the displacement and distance</span>
+        <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">r_ri_dist</span> <span class="o">=</span> <span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"Position"</span><span class="p">])</span>
         <span class="c1"># contact data ...........................................</span>
-        <span class="n">grid_ind_c</span><span class="p">,</span> <span class="n">part_ind_c</span> <span class="o">=</span> <span class="n">particle_node_match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Position_i"</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span> <span class="c1"># kd-tree function</span>
-        <span class="n">r_ri_c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">calc_displacement</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Position_i"</span><span class="p">],</span> <span class="n">grid_ind_c</span><span class="p">,</span> <span class="n">part_ind_c</span><span class="p">)</span>
-                            
-
+        <span class="n">grid_ind_c</span><span class="p">,</span> <span class="n">part_ind_c</span><span class="p">,</span> <span class="n">r_ri_c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">match</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"Position_i"</span><span class="p">])</span>
+ 
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">"grid_ind_p"</span><span class="p">:</span> <span class="n">grid_ind_p</span><span class="p">,</span>
             <span class="s2">"part_ind_p"</span><span class="p">:</span> <span class="n">part_ind_p</span><span class="p">,</span>
@@ -1102,7 +1116,7 @@
 <span class="sd">        """</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Starting coarse-graining process..."</span><span class="p">)</span>
         <span class="c1"># time the entire process</span>
-        <span class="n">prep_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="c1"># 1. Sample initial particle data</span>
         <span class="n">bounds</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">global_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_sampling</span><span class="p">()</span>
@@ -1124,36 +1138,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_grid</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">"... grid generated"</span><span class="p">)</span>
 
-        <span class="n">prep_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    
+        <span class="c1"># 6. Iterate over each time step    </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields_in_time</span><span class="p">()</span>
 
-        <span class="n">time_timesteps</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">acc</span> <span class="o">=</span> <span class="n">TimeAverageAccumulator</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_average</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="c1"># 6. Iterate over time steps</span>
-        <span class="k">for</span> <span class="n">t_idx</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">):</span>
-            <span class="c1"># time a single timestep</span>
-            <span class="n">timestep_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
- 
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing time step </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">t_idx</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">)</span><span class="si">}</span><span class="s2">)..."</span><span class="p">)</span>
-            <span class="n">data_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"... data loaded"</span><span class="p">)</span>
-            <span class="n">cg_fields_t</span><span class="p">,</span> <span class="n">primary_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data_t</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_results</span><span class="p">(</span><span class="n">cg_fields_t</span><span class="p">,</span> <span class="n">t_idx</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"... results written</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">acc</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">primary_t</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
- 
-            <span class="n">timestep_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="n">time_timesteps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timestep_end</span> <span class="o">-</span> <span class="n">timestep_start</span><span class="p">)</span>
- 
-        <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_export_time_average</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+        <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Coarse-graining process completed, summary:"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; Number of grid points: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; Total preparation time: </span><span class="si">{</span><span class="n">prep_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prep_start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; Average time per time step: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">time_timesteps</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       &gt;&gt; duration per time step: </span><span class="si">{</span><span class="n">time_timesteps</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; Total run time: </span><span class="si">{</span><span class="n">time_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">time_start</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds"</span><span class="p">)</span>
         <span class="n">cores</span> <span class="o">=</span> <span class="n">get_num_threads</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; Number of cores used:  </span><span class="si">{</span><span class="n">cores</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 

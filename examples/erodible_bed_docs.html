@@ -108,7 +108,7 @@
              
   <section id="3D-coarse-graining-of-an-erodible-bed">
 <h1>3D coarse graining of an erodible bed<a class="headerlink" href="#3D-coarse-graining-of-an-erodible-bed" title="Link to this heading"></a></h1>
-<p>In this example, we coarse grain a 3D MFiX simulation of an erodible bed of spherical particles (no fluid) and plot vertical profiles of the coarse-grained fields over time.</p>
+<p>In this example, we coarse grain a 3D MFiX simulation of an erodible bed of spherical particles (no fluid) with periodic boundaries, and plot vertical profiles of the coarse-grained fields over time.</p>
 <p>The files required for this example can be found in the repository:</p>
 <ul class="simple">
 <li><p>The DEM simulation data files in <code class="docutils literal notranslate"><span class="pre">examples/data_examples/erodible_bed/DEM_data/</span></code> (one time step, <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">=</span> <span class="pre">85</span></code>)</p></li>
@@ -157,7 +157,7 @@ Loading post_averaging package...
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -186,7 +186,7 @@ Working directory: /exports/csce/datastore/geos/users/s1857688/Coarse_Graining/p
 <h2>The configuration file<a class="headerlink" href="#The-configuration-file" title="Link to this heading"></a></h2>
 <p>For a description of every section, see the bedload transport example. The file used here is:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">CONFIG_FILE</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
@@ -248,6 +248,12 @@ z_transect = None
 x_axis_periodic = True
 y_axis_periodic = False
 z_axis_periodic = True
+
+[simulation_box]
+# limits of the DEM simulation box; required on every periodic axis in [grid_info]
+x_range = 0, 0.15
+y_range = None
+z_range = 0, 0.07
 
 [fields_to_export]
 volume_fraction = True

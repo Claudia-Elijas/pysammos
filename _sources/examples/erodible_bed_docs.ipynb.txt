@@ -13,7 +13,7 @@
    "id": "66c436aa",
    "metadata": {},
    "source": [
-    "In this example, we coarse grain a 3D MFiX simulation of an erodible bed of spherical particles (no fluid) and plot vertical profiles of the coarse-grained fields over time.\n",
+    "In this example, we coarse grain a 3D MFiX simulation of an erodible bed of spherical particles (no fluid) with periodic boundaries, and plot vertical profiles of the coarse-grained fields over time.\n",
     "\n",
     "The files required for this example can be found in the repository:\n",
     "\n",
@@ -76,7 +76,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": 1,
    "id": "4d4c0d4e",
    "metadata": {},
    "outputs": [
@@ -113,7 +113,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": 2,
    "id": "9f5fc7df",
    "metadata": {},
    "outputs": [
@@ -171,6 +171,12 @@
       "x_axis_periodic = True\n",
       "y_axis_periodic = False\n",
       "z_axis_periodic = True\n",
+      "\n",
+      "[simulation_box]\n",
+      "# limits of the DEM simulation box; required on every periodic axis in [grid_info]\n",
+      "x_range = 0, 0.15\n",
+      "y_range = None\n",
+      "z_range = 0, 0.07\n",
       "\n",
       "[fields_to_export]\n",
       "volume_fraction = True\n",

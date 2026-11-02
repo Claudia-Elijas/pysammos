@@ -110,7 +110,7 @@
              
   <section id="2D-coarse-graining-of-bedload-transport">
 <h1>2D coarse graining of bedload transport<a class="headerlink" href="#2D-coarse-graining-of-bedload-transport" title="Link to this heading"></a></h1>
-<p>In this example, we demonstrate how to use the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> to perform coarse graining on a 2D bedload transport simulation and plot the results. In order to do that, you can use the <code class="docutils literal notranslate"><span class="pre">compute_CG.ipynb</span></code> Jupyter notebook provided in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport</span></code> directory.</p>
+<p>In this example, we demonstrate how to use the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> to perform coarse graining on a 2D bedload transport simulation with periodic boundaries, and plot the results. In order to do that, you can use the <code class="docutils literal notranslate"><span class="pre">compute_CG.ipynb</span></code> Jupyter notebook provided in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport</span></code> directory.</p>
 <p>The files required for this example can be found in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport</span></code> directory of the repository:</p>
 <ul class="simple">
 <li><p>The DEM simualtion data files in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport/DEM_data</span></code> directory</p></li>
@@ -233,6 +233,13 @@ Loading post_averaging package...
 <span class="na">x_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 <span class="na">y_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
 <span class="na">z_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">simulation_box</span></code> section specifies the limits of the DEM simulation box, required on every periodic axis in <code class="docutils literal notranslate"><span class="pre">[grid_info]</span></code></p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[simulation_box]</span>
+<span class="na">x_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0, 0.5</span>
+<span class="na">y_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">z_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">fields_to_export</span></code> section specifies which coarse-grained fields to export.</p>
@@ -937,7 +944,7 @@ Processing key: time
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_bedload_docs_50_0.png" src="../_images/examples_bedload_docs_50_0.png" />
+<img alt="../_images/examples_bedload_docs_52_0.png" src="../_images/examples_bedload_docs_52_0.png" />
 </div>
 </div>
 </section>
@@ -976,7 +983,7 @@ Completed integration along profile dimension: y
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_bedload_docs_53_1.png" src="../_images/examples_bedload_docs_53_1.png" />
+<img alt="../_images/examples_bedload_docs_55_1.png" src="../_images/examples_bedload_docs_55_1.png" />
 </div>
 </div>
 </section>
@@ -1007,7 +1014,7 @@ Completed integration along profile dimension: y
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_bedload_docs_56_0.png" src="../_images/examples_bedload_docs_56_0.png" />
+<img alt="../_images/examples_bedload_docs_58_0.png" src="../_images/examples_bedload_docs_58_0.png" />
 </div>
 </div>
 </section>
@@ -1033,7 +1040,7 @@ Completed integration along profile dimension: y
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_bedload_docs_59_0.png" src="../_images/examples_bedload_docs_59_0.png" />
+<img alt="../_images/examples_bedload_docs_61_0.png" src="../_images/examples_bedload_docs_61_0.png" />
 </div>
 </div>
 <p>Note that time averaging of non-linear fields, e.g. inertial number, is constructred from the time-averaged quantities, instead of taking the time series average of the non-linear field of interest. The difference between these two calculations is shown below:</p>
@@ -1065,7 +1072,7 @@ Completed integration along profile dimension: y
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_bedload_docs_61_0.png" src="../_images/examples_bedload_docs_61_0.png" />
+<img alt="../_images/examples_bedload_docs_63_0.png" src="../_images/examples_bedload_docs_63_0.png" />
 </div>
 </div>
 </section>
