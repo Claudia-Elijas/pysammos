@@ -4,7 +4,7 @@ Periodic boundaries for the grid-particle search.
 In a periodic domain, a grid node within the cutoff :math:`c` of a periodic face also has neighbours
 on the opposite side of the domain. This module provides:
 
-    - :func:`simulation_box`: the limits of the DEM simulation box given by the user, checked against
+    - :func:`resolve_simulation_box`: the limits of the DEM simulation box given by the user, checked against
       the periodic axes.
     - :func:`check_particles_in_box`: a warning if particles lie outside the box on a periodic axis.
     - :func:`periodic_images`: the particle positions extended with their periodic images that
@@ -23,7 +23,8 @@ import numpy as np
 AXES = ("x", "y", "z")
 
 
-def simulation_box(box_ranges: Optional[Sequence], periodic: Sequence[bool]) -> Tuple[np.ndarray, np.ndarray]:
+
+def resolve_simulation_box(box_ranges: Optional[Sequence], periodic: Sequence[bool]) -> Tuple[np.ndarray, np.ndarray]:
     """
     Limits of the DEM simulation box, as given by the user.
 
@@ -114,7 +115,7 @@ def periodic_images(positions: np.ndarray, box_lo: np.ndarray, box_hi: np.ndarra
     positions : np.ndarray, shape (N, 3)
         Particle (or contact) positions.
     box_lo, box_hi : np.ndarray, shape (3,)
-        Limits of the simulation box (see :func:`simulation_box`); may be infinite on non-periodic axes.
+        Limits of the simulation box (see :func:`resolve_simulation_box`); may be infinite on non-periodic axes.
     periodic : sequence of 3 bool
         Periodicity of the x, y and z axes.
     margin : float
