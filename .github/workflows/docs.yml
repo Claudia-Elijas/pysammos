@@ -22,6 +22,7 @@ jobs:
           pip install sphinx-rtd-theme
           pip install nbsphinx ipykernel
           pip install sphinx-autodoc-typehints
+          sudo apt-get install -y pandoc
           pip install -r requirements.txt
 
       - name: Build docs
