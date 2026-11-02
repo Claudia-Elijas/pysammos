@@ -61,31 +61,44 @@ def parse_grid_info(config):
 
 import configparser
 
-def load_config(path_to_ini="config.ini"):
+def load_config(path_to_ini="config.ini") -> dict:
+    """
+    Read a pysammos .ini file and return the keyword arguments of CoarseGraining,
+    so that  CoarseGraining(**load_config("config.ini"))  works.
+    """
     config = configparser.ConfigParser()
-    config.optionxform = str  
-    config.read(path_to_ini)
+    config.optionxform = str
+    if not config.read(path_to_ini):
+        raise FileNotFoundError(f"Config file not found: {path_to_ini}")
 
-    config_data = {
-        "particles_path": config["paths"]["particles_path"],
+    kwargs = {
+        "particle_path": config["paths"]["particles_path"],
         "contacts_path": config["paths"]["contacts_path"],
         "output_path": config["paths"]["output_path"],
-        "t0": int(config["timesteps"]["t0"]),
-        "tf": int(config["timesteps"]["tf"]),
-        "dt": int(config["timesteps"]["dt"]),
+        "start_timestep": int(config["timesteps"]["t0"]),
+        "end_timestep": int(config["timesteps"]["tf"]),
+        "dt_time_step": int(config["timesteps"]["dt"]),
         "t_pad": int(config["timesteps"]["t_pad"]),
         "DEM_software": config["DEM_software"]["name"],
-        "partialignore": str2bool(config["flags"]["partialignore"]),
-        "key_mapping": parse_dict("key_mapping", config),   # Keys will now keep their capitalization
+        "DEM_keymap": parse_dict("key_mapping", config),
         "grid_info": parse_grid_info(config),
+        "weight_function": config["smoothing_function"]["type"],
         "fields_to_export": parse_bool_dict("fields_to_export", config),
-        "time_average": str2bool(config["output_options"]["time_average"]),
-        "smoothing_function": config["smoothing_function"]["type"],
-        "h5_output": str2bool(config["output_options"]["h5_output"]),
+        "ignore_phases": str2bool(config["flags"]["partialignore"]),
+        "time_average": config.getboolean("output_options", "time_average", fallback=False),
         "vkthdf_output": str2bool(config["output_options"]["vkthdf_output"]),
+        "h5_output": str2bool(config["output_options"]["h5_output"]),
     }
 
-    return config_data
+    # optional settings: only passed if present, so the defaults stay in CoarseGraining.__init__
+    if config.has_section("advanced"):
+        adv = config["advanced"]
+        if "velocity_gradient_method" in adv:
+            kwargs["velocity_gradient_method"] = adv["velocity_gradient_method"]
+        if "search_sampling_factor" in adv:
+            kwargs["search_sampling_factor"] = int(adv["search_sampling_factor"])
+
+    return kwargs
 
 
 

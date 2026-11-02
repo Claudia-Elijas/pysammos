@@ -21,24 +21,7 @@ cfg = load_config("config.ini")
 print("-------------------- config.ini file read --------------------")
 
 # Initialize the CoarseGraining class with the loaded configuration
-CG = CoarseGraining(
-    particle_path=cfg["particles_path"],
-    contacts_path=cfg["contacts_path"],
-    output_path=cfg["output_path"],
-    start_timestep=cfg["t0"],
-    end_timestep=cfg["tf"],
-    dt_time_step=cfg["dt"],
-    t_pad=cfg["t_pad"],
-    DEM_keymap=cfg["key_mapping"],
-    DEM_software=cfg["DEM_software"],
-    grid_info=cfg["grid_info"],
-    weight_function=cfg["smoothing_function"],
-    fields_to_export=cfg["fields_to_export"],
-    ignore_phases=cfg["partialignore"],
-    vkthdf_output=cfg["vkthdf_output"],
-    h5_output=cfg["h5_output"],
-
-                    )  
+CG = CoarseGraining(**cfg)
 print("  ") ; print("-------------------- CoarseGraining class initialised --------------------")
                         
 # -------------------  COARSE-GRAINING WORK FLOW  ------------------------- # 
