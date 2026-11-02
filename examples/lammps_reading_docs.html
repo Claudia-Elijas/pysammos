@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coarse graining LAMMPS output &mdash; pysammos 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+      <link rel="stylesheet" type="text/css" href="../_static/my_theme.css?v=7cf6b6ba" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7df0f304"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Benchmarks" href="../benchmarks.html" />
+    <link rel="prev" title="2D polydisperse coarse graining of a Janssen pile" href="janssen_pile_docs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Tutorials and Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bedload_docs.html">2D coarse graining of bedload transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="erodible_bed_docs.html">3D coarse graining of an erodible bed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="janssen_pile_docs.html">2D polydisperse coarse graining of a Janssen pile</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Coarse graining LAMMPS output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Import-packages">Import packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#The-configuration-file">The configuration file</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Mapping-the-LAMMPS-dump-columns">Mapping the LAMMPS dump columns</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Initialise-the-CoarseGraining-class">Initialise the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Run-the-coarse-graining">Run the coarse graining</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">Tutorials and Examples</a></li>
+      <li class="breadcrumb-item active">Coarse graining LAMMPS output</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/lammps_reading_docs.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Coarse-graining-LAMMPS-output">
+<h1>Coarse graining LAMMPS output<a class="headerlink" href="#Coarse-graining-LAMMPS-output" title="Link to this heading"></a></h1>
+<p>In this example, we demonstrate how to use the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> class to perform coarse graining of LAMMPS output: a 3D granular assembly of spherical particles, read from LAMMPS dump files.</p>
+<p>The files required for this example can be found in the repository:</p>
+<ul class="simple">
+<li><p>The DEM simulation data files in <code class="docutils literal notranslate"><span class="pre">examples/data_examples/lammps_reading/DEM_data/</span></code> (<code class="docutils literal notranslate"><span class="pre">dump_particles/</span></code> and <code class="docutils literal notranslate"><span class="pre">dump_forcechain/</span></code>)</p></li>
+<li><p>The configuration file <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> in <code class="docutils literal notranslate"><span class="pre">examples/LAMMPS_reading/</span></code></p></li>
+</ul>
+<p>The same workflow can be run from the <code class="docutils literal notranslate"><span class="pre">compute_CG.ipynb</span></code> notebook in <code class="docutils literal notranslate"><span class="pre">examples/LAMMPS_reading/</span></code>. This example focuses on reading LAMMPS data; for the visualisation of the coarse-grained fields, see the MFiX examples.</p>
+<section id="Import-packages">
+<h2>Import packages<a class="headerlink" href="#Import-packages" title="Link to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.utils.config_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.coarse_graining</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoarseGraining</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Hello from pysammos
+Loading macroscopic_fields package...
+Loading data_read package...
+Loading particle_phase package...
+Loading spatial_weights package...
+Loading neighbour_search package...
+Loading grid_generation package...
+Loading data_handle package...
+Loading data_write package...
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="c1"># The paths inside config.ini (DEM data, output folder) are relative to the example folder,</span>
+<span class="c1"># so we work from examples/LAMMPS_reading/ and read its config.ini.</span>
+<span class="k">if</span> <span class="s2">"EXAMPLE_DIR"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>          <span class="c1"># resolve once, so the cell can be re-run</span>
+    <span class="n">EXAMPLE_DIR</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"../../examples/LAMMPS_reading"</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">EXAMPLE_DIR</span><span class="p">)</span>
+<span class="n">CONFIG_FILE</span> <span class="o">=</span> <span class="n">EXAMPLE_DIR</span> <span class="o">/</span> <span class="s2">"config.ini"</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Working directory:"</span><span class="p">,</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Working directory: /exports/csce/datastore/geos/users/s1857688/Coarse_Graining/pysammos/examples/LAMMPS_reading
+</pre></div></div>
+</div>
+</section>
+<section id="The-configuration-file">
+<h2>The configuration file<a class="headerlink" href="#The-configuration-file" title="Link to this heading"></a></h2>
+<p>The configuration file <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> contains the parameters for the coarse-graining process. You can modify the parameters in this file to suit your needs. For a description of every section, see the bedload transport example. The file used here is:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[paths]</span>
+<span class="na">particles_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">../data_examples/lammps_reading/DEM_data/dump_particles/particles.</span>
+<span class="na">contacts_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">../data_examples/lammps_reading/DEM_data/dump_forcechain/forcechain.</span>
+<span class="na">output_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./PysammosCG/</span>
+
+<span class="k">[timesteps]</span>
+<span class="na">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">11991</span>
+<span class="na">tf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">11991</span>
+<span class="na">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">t_pad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">9</span>
+
+<span class="k">[smoothing_function]</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Lucy</span>
+
+<span class="k">[flags]</span>
+<span class="na">partialignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="k">[key_mapping]</span>
+<span class="na">Global_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">id</span>
+<span class="na">Particle_Position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[x, y, z]</span>
+<span class="na">Particle_Velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[vx, vy, vz]</span>
+<span class="na">Particle_Diameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">diameter</span>
+<span class="na">Particle_Density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">v_pdens</span>
+<span class="na">Particle_Volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">v_pvol</span>
+<span class="na">Particle_Mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mass</span>
+<span class="na">Particle_Radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">radius</span>
+<span class="na">Coordination_Number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">c_Z</span>
+<span class="na">Particle_i_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">c_pl[1]</span>
+<span class="na">Particle_j_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">c_pl[2]</span>
+<span class="na">Force_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[c_pr[1], c_pr[2], c_pr[3]]</span>
+<span class="na">Contact_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+
+<span class="k">[DEM_software]</span>
+<span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">lammps</span>
+
+<span class="k">[grid_info]</span>
+<span class="na">grid_dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+<span class="na">grid_axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">xyz</span>
+<span class="na">automatic_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">x_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.005</span>
+<span class="na">x_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.10</span>
+<span class="na">y_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.005</span>
+<span class="na">y_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.44</span>
+<span class="na">z_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.005</span>
+<span class="na">z_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.05</span>
+<span class="na">x_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">y_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">z_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">x_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">y_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">z_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="k">[fields_to_export]</span>
+<span class="na">volume_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">density_particle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">density_mixture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">momentum_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">velocity_gradient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">kinetic_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">contact_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">total_stress_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature_slices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">fabric_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">inertial_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">coordination_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d43</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">frictional_coefficient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">shear_rate_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+
+<span class="k">[output_options]</span>
+<span class="na">vkthdf_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">h5_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+<section id="Mapping-the-LAMMPS-dump-columns">
+<h3>Mapping the LAMMPS dump columns<a class="headerlink" href="#Mapping-the-LAMMPS-dump-columns" title="Link to this heading"></a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">DEM_software</span> <span class="pre">=</span> <span class="pre">lammps</span></code>, the <code class="docutils literal notranslate"><span class="pre">key_mapping</span></code> section gives the <strong>column names of the dump files</strong>. The headers of the two dump files show the available columns:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">particles_dump</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"../data_examples/lammps_reading/DEM_data/dump_particles"</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"particles.*"</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">contacts_dump</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"../data_examples/lammps_reading/DEM_data/dump_forcechain"</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"forcechain.*"</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">dump</span> <span class="ow">in</span> <span class="p">(</span><span class="n">particles_dump</span><span class="p">,</span> <span class="n">contacts_dump</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"--- </span><span class="si">{</span><span class="n">dump</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+--- particles.000011991.dump
+ITEM: TIMESTEP
+11991
+ITEM: NUMBER OF ATOMS
+35648
+ITEM: BOX BOUNDS pp pp fm
+-1.0000000000000001e-01 1.0000000000000001e-01
+-1.0000000000000001e-01 1.0000000000000001e-01
+0.0000000000000000e+00 5.0000000000000000e-01
+ITEM: ATOMS id type diameter radius mass v_pdens x y z xu yu zu vx vy vz v_pvol c_Z
+
+--- forcechain.000011991.dump
+ITEM: TIMESTEP
+11991
+ITEM: NUMBER OF ENTRIES
+105362
+ITEM: BOX BOUNDS pp pp fm
+-1.0000000000000001e-01 1.0000000000000001e-01
+-1.0000000000000001e-01 1.0000000000000001e-01
+0.0000000000000000e+00 5.0000000000000000e-01
+ITEM: ENTRIES index c_pl[1] c_pl[2] c_pr[1] c_pr[2] c_pr[3] c_pr[4] c_pr[5] c_pr[6] c_pr[7]
+
+</pre></div></div>
+</div>
+<ul class="simple">
+<li><p>Vector quantities are given as a list of columns, e.g. <code class="docutils literal notranslate"><span class="pre">Particle_Position</span> <span class="pre">=</span> <span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z]</span></code> and <code class="docutils literal notranslate"><span class="pre">Particle_Velocity</span> <span class="pre">=</span> <span class="pre">[vx,</span> <span class="pre">vy,</span> <span class="pre">vz]</span></code>.</p></li>
+<li><p>Per-atom variables and computes keep their LAMMPS names, e.g. <code class="docutils literal notranslate"><span class="pre">Particle_Density</span> <span class="pre">=</span> <span class="pre">v_pdens</span></code>, <code class="docutils literal notranslate"><span class="pre">Particle_Volume</span> <span class="pre">=</span> <span class="pre">v_pvol</span></code>, <code class="docutils literal notranslate"><span class="pre">Coordination_Number</span> <span class="pre">=</span> <span class="pre">c_Z</span></code>.</p></li>
+<li><p>In the contact (local) dump, <code class="docutils literal notranslate"><span class="pre">Particle_i_ID</span> <span class="pre">=</span> <span class="pre">c_pl[1]</span></code> and <code class="docutils literal notranslate"><span class="pre">Particle_j_ID</span> <span class="pre">=</span> <span class="pre">c_pl[2]</span></code> are the IDs of the two particles in contact, and <code class="docutils literal notranslate"><span class="pre">Force_ij</span> <span class="pre">=</span> <span class="pre">[c_pr[1],</span> <span class="pre">c_pr[2],</span> <span class="pre">c_pr[3]]</span></code> are the force components.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Contact_ij</span> <span class="pre">=</span> <span class="pre">None</span></code>: the contact points are not in the dump, so Pysammos calculates them from the particle positions and diameters.</p></li>
+</ul>
+<p>In <code class="docutils literal notranslate"><span class="pre">grid_info</span></code>, the three <code class="docutils literal notranslate"><span class="pre">*_axis_periodic</span></code> flags should match the boundary flags of the simulation box, given in the dump header (<code class="docutils literal notranslate"><span class="pre">ITEM:</span> <span class="pre">BOX</span> <span class="pre">BOUNDS</span> <span class="pre">...</span></code>, where <code class="docutils literal notranslate"><span class="pre">p</span></code> means periodic). They are used to correct the branch vectors of contacts that cross a periodic boundary. With <code class="docutils literal notranslate"><span class="pre">automatic_grid</span> <span class="pre">=</span> <span class="pre">True</span></code>, the grid range is set from the particle bounds and the <code class="docutils literal notranslate"><span class="pre">x/y/z_min/max</span></code> values are not used.</p>
+</section>
+</section>
+<section id="Initialise-the-CoarseGraining-class">
+<h2>Initialise the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> class<a class="headerlink" href="#Initialise-the-CoarseGraining-class" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">load_config</span></code> returns the arguments of <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> as a dictionary, so they can be passed directly with <code class="docutils literal notranslate"><span class="pre">**</span></code>. You can also give each argument explicitly, as shown in the bedload transport example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">CONFIG_FILE</span><span class="p">)</span>
+<span class="n">CG</span> <span class="o">=</span> <span class="n">CoarseGraining</span><span class="p">(</span><span class="o">**</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Output path created: ./PysammosCG/
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">DEM_software</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">time_steps</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&#39;lammps&#39;, array([11991]))
+</pre></div></div>
+</div>
+</section>
+<section id="Run-the-coarse-graining">
+<h2>Run the coarse graining<a class="headerlink" href="#Run-the-coarse-graining" title="Link to this heading"></a></h2>
+<p>The whole workflow can be run with a single command:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here we run it step by step instead, to show what each step does.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="janssen_pile_docs.html" class="btn btn-neutral float-left" title="2D polydisperse coarse graining of a Janssen pile" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../benchmarks.html" class="btn btn-neutral float-right" title="Benchmarks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

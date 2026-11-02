@@ -17,6 +17,7 @@
       <script src="../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -119,9 +120,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">secondary</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">scalars</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.sliced</span><span class="w"> </span><span class="kn">import</span> <span class="n">granular_temperature</span> <span class="k">as</span> <span class="n">sliced</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">derived_fields</span>
+<span class="c1"># time averaging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.time_average.accumulator</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeAverageAccumulator</span>
 <span class="c1"># data writing</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.h5.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5XarrayManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.vtkhdf.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">VTKHDFWriter</span>
+
+<span class="c1"># Fields written once per grid point (not per phase) in the polydisperse .vtkhdf ouput </span>
+<span class="n">PHASE_INDEPENDENT_FIELDS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"d32"</span><span class="p">,</span> <span class="s2">"d43"</span><span class="p">,</span> <span class="s2">"coordination_number"</span><span class="p">,</span> <span class="s2">"velocity_gradient"</span><span class="p">,</span> <span class="s2">"fabric_tensor"</span><span class="p">,</span>
+                            <span class="s2">"shear_rate_tensor_xyz"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xyz_mag"</span><span class="p">,</span>
+                            <span class="s2">"shear_rate_tensor_xy"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xy_mag"</span><span class="p">,</span>
+                            <span class="s2">"shear_rate_tensor_xyz_dev"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xyz_dev_mag"</span><span class="p">,</span>
+                            <span class="s2">"shear_rate_tensor_xy_dev"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xy_dev_mag"</span><span class="p">]</span>
+ 
  
 <span class="c1"># supress warnings </span>
 <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
@@ -159,8 +171,10 @@
 <span class="sd">        Type of weight function to use for coarse graining. It can be one of the following: 'Gaussian', 'Lucy', 'HeavySide'.</span>
 <span class="sd">    fields_to_export : dict</span>
 <span class="sd">        Fields to be exported.</span>
+<span class="sd">    time_average : bool</span>
+<span class="sd">        Whether to perform time averaging of the computed fields.</span>
 <span class="sd">    ignore_phases : bool</span>
-<span class="sd">        Whether to ignore particle phases.  </span>
+<span class="sd">        Whether to ignore particle phases in the coarse graining process. If True, all particles are treated as a single phase.  </span>
 <span class="sd">    vkthdf_output : bool, optional</span>
 <span class="sd">        Whether to output VTKHDF files. Default is True.</span>
 <span class="sd">    h5_output : bool, optional</span>
@@ -181,7 +195,8 @@
                  <span class="n">grid_info</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span>
                  <span class="n">weight_function</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> 
                  <span class="n">fields_to_export</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> 
-                 <span class="n">ignore_phases</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+                 <span class="n">time_average</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">ignore_phases</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">vkthdf_output</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">h5_output</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">search_sampling_factor</span><span class="p">:</span><span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
@@ -200,11 +215,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span> <span class="o">=</span> <span class="n">grid_info</span>
         <span class="c1"># CG smoothing function of choice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span> <span class="o">=</span> <span class="n">weight_function</span>
-        <span class="c1"># CG partial fields ignore</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_phases</span> <span class="o">=</span> <span class="n">ignore_phases</span>
         <span class="c1"># custom outputs and their dependencies</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span> <span class="o">=</span> <span class="n">fields_to_export</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span> <span class="o">=</span> <span class="n">get_fields_to_compute</span><span class="p">(</span><span class="n">fields_to_export</span><span class="p">)</span>
+        <span class="c1"># CG partial fields ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_phases</span> <span class="o">=</span> <span class="n">ignore_phases</span>
+        <span class="c1"># time averaging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_average</span> <span class="o">=</span> <span class="n">time_average</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_average</span><span class="p">:</span>
+            <span class="c1"># the accumulator needs the volume fraction (grain-size weights) and the mixture density</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span> <span class="o">|=</span> <span class="n">get_fields_to_compute</span><span class="p">({</span><span class="s2">"volume_fraction"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"density_mixture"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
         <span class="c1"># create output path folder </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">):</span>
@@ -327,13 +347,13 @@
 <span class="sd">            The coarse graining calculation mode, either "Monodisperse" or "Polydisperse".</span>
 <span class="sd">        </span>
 <span class="sd">        """</span>
-        <span class="c1"># raise error if self.d50 is not defined because it depends on running get_particle_size_statistics first</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'d50'</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"d50 is not defined. Please run get_particle_size_statistics first."</span><span class="p">)</span> 
+        <span class="c1"># raise error if self.d32 is not defined because it depends on running get_particle_size_statistics first</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'d32'</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"d32 is not defined. Please run get_particle_size_statistics first."</span><span class="p">)</span> 
 
         <span class="c1"># IGNORE phases</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_phases</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">d50</span><span class="p">,</span><span class="n">density_t0</span><span class="o">.</span><span class="n">mean</span><span class="p">()]])</span> <span class="c1"># use mean density and d50 as phase</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">d32</span><span class="p">,</span><span class="n">density_t0</span><span class="o">.</span><span class="n">mean</span><span class="p">()]])</span> <span class="c1"># use mean density and d50 as phase</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"Ignoring phases. Using mean density and d50 as phase."</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Phase_Array</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">=</span> <span class="s2">"Monodisperse"</span>
@@ -431,6 +451,10 @@
 <span class="sd">        1. Load particle and contact data for the current time step, using the :func:`_load_data` method.</span>
 <span class="sd">        2. Compute coarse-grained fields based on the loaded data, using the :func:`_fields_single_time` method.</span>
 <span class="sd">        3. Write the computed results to .h5 and .VTKHDF files, using the :func:`_write_results` method.</span>
+
+<span class="sd">        4. If ``time_average`` is True, the primary fields of every time step are added to a</span>
+<span class="sd">        :class:`TimeAverageAccumulator`, and the time averages are written at the end (:func:`_write_time_average`).</span>
+<span class="sd"> </span>
 <span class="sd">        </span>
 <span class="sd">        """</span>
 
@@ -441,23 +465,39 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Phase_Array is not defined. Please run get_particle_phases first."</span><span class="p">)</span>
                                                                  
         <span class="nb">print</span><span class="p">(</span><span class="s2">" "</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"-------------------- Calculating Coarse Grained Fields --------------------"</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">" "</span><span class="p">)</span>
-        
-        <span class="c1"># time loop</span>
+
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">TimeAverageAccumulator</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_average</span> <span class="k">else</span> <span class="kc">None</span> <span class="c1"># fresh sum for every call  </span>
+
+        <span class="c1"># time loop </span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">)):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"---&gt; Time step </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">: time </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="n">t</span><span class="p">]</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2"> ................................................"</span><span class="p">)</span>
             <span class="n">time_of_timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
             <span class="n">time_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="c1"># ========================================================================</span>
+            
+            <span class="c1"># standard single time step CG calculation</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">time_of_timestep</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"... data loaded"</span><span class="p">)</span> <span class="c1"># Read the data for the current time step</span>
-            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1"># Calculate the CG fields for that time step</span>
+            <span class="n">results</span><span class="p">,</span> <span class="n">primary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1"># Calculate the CG fields for that time step</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"... results written"</span><span class="p">)</span> <span class="c1"># Write the results to .h5 and .VTKHDF files</span>
+
+            <span class="c1"># load to TimeAverageAccumulator if specified</span>
+            <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">acc</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">primary</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"... primary fields added to time average accumulator"</span><span class="p">)</span>
+
             <span class="c1"># sliced granular temperature if specified</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"granular_temperature_slices"</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_granular_temperature_sliced_calc_and_write</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">)</span>
-            <span class="c1"># ========================================================================</span>
+                <span class="n">slices</span><span class="p">,</span> <span class="n">slice_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_export_granular_temperature_sliced</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># load sliced granular temperature to TimeAverageAccumulator if specified</span>
+                    <span class="n">acc</span><span class="o">.</span><span class="n">add_slices</span><span class="p">(</span><span class="n">slices</span><span class="p">,</span> <span class="n">slice_positions</span><span class="p">)</span>
+                        
+            <span class="c1"># ========================================================================           </span>
             <span class="n">time_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt; time step </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> took </span><span class="si">{</span><span class="n">time_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">time_start</span><span class="si">}</span><span class="s2"> to run."</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"  "</span><span class="p">)</span>
-            <span class="k">pass</span></div>
+
+        <span class="c1"># export (calc mean and write) time average if specified</span>
+        <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_export_time_average</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span></div>
 
     
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -561,8 +601,9 @@
 
 <span class="sd">        1. Assign particles to grid nodes using the `_assign_particles_to_grid_nodes` method.</span>
 <span class="sd">        2. Compute weights for particles and contacts using the `_compute_weights` method.</span>
-<span class="sd">        3. Compute coarse-grained fields based on the dependencies defined in `field_dependencies.py` </span>
-<span class="sd">           using the :func:`_compute_fields` method.</span>
+<span class="sd">        3. Compute the primary coarse-grained fields based on the dependencies defined in `field_dependencies.py` </span>
+<span class="sd">           using the :func:`_compute_primary_fields` method.</span>
+<span class="sd">        4. Compute secondary fields based on the primary fields using the :func:`_compute_derived_fields` method. </span>
 
 <span class="sd">        Inputs</span>
 <span class="sd">        ------</span>
@@ -574,6 +615,9 @@
 <span class="sd">        cg_fields : dict</span>
 <span class="sd">            A dictionary containing the coarse-grained fields, specified in :func:`fields_to_export`, </span>
 <span class="sd">            computed for the current time step</span>
+<span class="sd">        primary : dict  </span>
+<span class="sd">            A dictionary containing the primary coarse-grained fields computed for the current time step, </span>
+<span class="sd">            which are used to compute the secondary fields.</span>
 <span class="sd">            </span>
 <span class="sd">        """</span>
         
@@ -581,16 +625,19 @@
         <span class="n">particle_to_grid_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assign_particles_to_grid_nodes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">;</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"... particles assigned to grid nodes"</span><span class="p">)</span>
         <span class="c1"># 2. compute weights for particles and contacts</span>
         <span class="n">weights_particle</span><span class="p">,</span> <span class="n">weights_integral</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_weights</span><span class="p">(</span><span class="n">particle_to_grid_map</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"... weights computed"</span><span class="p">)</span>
-        <span class="c1"># 3. compute coarse-grained fields needed for export</span>
-        <span class="n">cg_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_fields</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">particle_to_grid_map</span><span class="p">,</span> <span class="n">weights_particle</span><span class="p">,</span> <span class="n">weights_integral</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"... fields computed"</span><span class="p">)</span>
-        
-        <span class="k">return</span> <span class="n">cg_fields</span>
-    
-    <span class="k">def</span><span class="w"> </span><span class="nf">_write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_timestep</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Write the computed coarse-grained fields to .h5 and .VTKHDF files </span>
-<span class="sd">        for a given time step  in the specified output path.</span>
+        <span class="c1"># 3. compute primary coarse-grained fields (+ velocity and its gradient, needed for the kinetic tensor)</span>
+        <span class="n">primary</span><span class="p">,</span> <span class="n">velocity_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_primary_fields</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">particle_to_grid_map</span><span class="p">,</span> <span class="n">weights_particle</span><span class="p">,</span> <span class="n">weights_integral</span><span class="p">)</span>
+        <span class="c1"># 4. compute derived fields and select those to export</span>
+        <span class="n">cg_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_derived_fields</span><span class="p">(</span><span class="n">primary</span><span class="p">,</span> <span class="n">velocity_fields</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"... fields computed"</span><span class="p">)</span>
 
+        <span class="k">return</span> <span class="n">cg_fields</span><span class="p">,</span> <span class="n">primary</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_timestep</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                       <span class="n">label</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">attrs</span><span class="p">:</span><span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write the computed coarse-grained fields to .h5 and .VTKHDF files</span>
+<span class="sd">        for a given time step  in the specified output path.</span>
+<span class="sd"> </span>
 <span class="sd">        Inputs</span>
 <span class="sd">        ------</span>
 <span class="sd">        results_timestep : dict</span>
@@ -599,7 +646,14 @@
 <span class="sd">            The index of the current time step in the simulation.</span>
 <span class="sd">        time_of_timestep : int</span>
 <span class="sd">            The actual time value corresponding to the current time step as given in :func:`time_steps`.</span>
-<span class="sd">    </span>
+<span class="sd">        label : str, optional</span>
+<span class="sd">            If None (default), the time step is appended to the time series CG_{weight_function}_{cg_calc_mode}.h5</span>
+<span class="sd">            and written to CG_{weight_function}_{cg_calc_mode}_{time:04d}.vtkhdf.</span>
+<span class="sd">            If given (e.g. "time_averaged"), the results are written as a standalone snapshot to</span>
+<span class="sd">            CG_{weight_function}_{cg_calc_mode}_{label}.h5 / .vtkhdf, replacing any existing .h5 file.</span>
+<span class="sd">        attrs : dict, optional</span>
+<span class="sd">            Attributes stored on the root of the .h5 file (e.g. the time steps averaged).</span>
+<span class="sd"> </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">            The output files are written in both .h5 and .VTKHDF formats,</span>
@@ -607,48 +661,49 @@
 <span class="sd">            The .h5 file contains the coarse-grained positions and phases (if applicable),</span>
 <span class="sd">            while the .VTKHDF file contains the coarse-grained fields in a format suitable for visualization</span>
 <span class="sd">            using VTK-compatible software. The output files are named according to the weight function and coarse-graining calculation mode.</span>
-<span class="sd">            For example, if the weight function is "Gaussian" and the calculation mode is "Monodisperse", </span>
+<span class="sd">            For example, if the weight function is "Gaussian" and the calculation mode is "Monodisperse",</span>
 <span class="sd">            the output files will be named "CG_Gaussian_Monodisperse.h5" and "CG_Gaussian_Monodisperse_0001.vtkhdf".</span>
 <span class="sd">            If the calculation mode is "Polydisperse", the output files will include phase information</span>
 <span class="sd">            in their names, such as "CG_Gaussian_Polydisperse_Phase_1.vtkhdf".</span>
-<span class="sd">         </span>
-
-<span class="sd">        """</span> 
-
-
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing results for timestep </span><span class="si">{</span><span class="n">time_of_timestep</span><span class="si">}</span><span class="s2">..."</span><span class="p">)</span>
-        
+<span class="sd"> </span>
+<span class="sd">        """</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">CG_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>   <span class="c1"># time series</span>
+            <span class="n">h5_name</span><span class="p">,</span> <span class="n">vtk_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">.h5"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_of_timestep</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">new_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>               <span class="c1"># standalone snapshot</span>
+            <span class="n">h5_name</span><span class="p">,</span> <span class="n">vtk_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">.h5"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">new_file</span> <span class="o">=</span> <span class="kc">True</span>
+ 
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing results for </span><span class="si">{</span><span class="n">label</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="sa">f</span><span class="s1">'timestep </span><span class="si">{</span><span class="n">time_of_timestep</span><span class="si">}</span><span class="s1">'</span><span class="si">}</span><span class="s2">..."</span><span class="p">)</span>
+ 
         <span class="c1"># write .h5 files</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5_output</span><span class="p">:</span> 
-            <span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">CG_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="si">}</span><span class="s2">.h5"</span><span class="p">)</span> 
-            <span class="k">if</span> <span class="n">time_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Only add positions and phases for the first time step</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5_output</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">h5_name</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">h5_name</span><span class="p">)</span>   <span class="c1"># update_h5py_file appends, so stale data would otherwise persist</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="n">h5_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span> <span class="c1"># Only add positions and phases for a new file</span>
                 <span class="n">manager</span><span class="o">.</span><span class="n">add_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">"Polydisperse"</span><span class="p">:</span>
                     <span class="n">phase_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Bulk"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"Phase_</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">]</span>
                     <span class="n">manager</span><span class="o">.</span><span class="n">add_phases</span><span class="p">(</span><span class="n">phase_labels</span><span class="p">)</span>
             <span class="n">manager</span><span class="o">.</span><span class="n">update_h5py_file</span><span class="p">(</span><span class="n">results_timestep</span><span class="p">,</span> <span class="n">dim_index</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">dim_value</span><span class="o">=</span><span class="n">time_of_timestep</span><span class="p">,</span> <span class="n">dim_name</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
-        
-        <span class="c1"># write .VTKHDF files </span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vkthdf_output</span><span class="p">:</span> 
-            <span class="n">writer</span> <span class="o">=</span> <span class="n">VTKHDFWriter</span><span class="p">(</span><span class="n">node_dimensions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span>  
-                            <span class="n">node_spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">,</span> 
+            <span class="k">if</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">manager</span><span class="o">.</span><span class="n">add_attrs</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+ 
+        <span class="c1"># write .VTKHDF files</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vkthdf_output</span><span class="p">:</span>
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">VTKHDFWriter</span><span class="p">(</span><span class="n">node_dimensions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span>
+                            <span class="n">node_spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">,</span>
                             <span class="n">origin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span>
-                            <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">CG_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">time_of_timestep</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                            <span class="n">path</span><span class="o">=</span><span class="n">vtk_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">"Monodisperse"</span><span class="p">:</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data_dict</span><span class="o">=</span><span class="n">results_timestep</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">"Polydisperse"</span><span class="p">:</span> 
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">"Polydisperse"</span><span class="p">:</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">write_polydisperse</span><span class="p">(</span><span class="n">data_dict</span><span class="o">=</span><span class="n">results_timestep</span><span class="p">,</span>
-                                            <span class="n">n_phases</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> 
-                                            <span class="n">phase_indepen_field_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"d32"</span><span class="p">,</span> <span class="s2">"d43"</span><span class="p">,</span> 
-                                                                        <span class="s2">"coordination_number"</span><span class="p">,</span> 
-                                                                        <span class="s2">"velocity_gradient"</span><span class="p">,</span>
-                                                                        <span class="s2">"fabric_tensor"</span><span class="p">,</span> 
-                                                                        <span class="s2">"shear_rate_tensor_xyz"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xyz_mag"</span><span class="p">,</span>
-                                                                        <span class="s2">"shear_rate_tensor_xy"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xy_mag"</span><span class="p">,</span>
-                                                                        <span class="s2">"shear_rate_tensor_xyz_dev"</span><span class="p">,</span> <span class="s2">"shear_rate_tensor_xyz_dev_mag"</span><span class="p">,</span>
-                                                                        <span class="s2">"shear_rate_tensor_xy_dev"</span><span class="p">,</span><span class="s2">"shear_rate_tensor_xy_dev_mag"</span>
-                                                                        <span class="p">])</span>
-
+                                          <span class="n">n_phases</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                                          <span class="n">phase_indepen_field_names</span><span class="o">=</span><span class="n">PHASE_INDEPENDENT_FIELDS</span><span class="p">)</span>
+                
     <span class="k">def</span><span class="w"> </span><span class="nf">_assign_particles_to_grid_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Assign particles to grid nodes and calculate displacements and distances.</span>
@@ -772,11 +827,13 @@
 
         <span class="k">return</span> <span class="n">W_p</span><span class="p">,</span> <span class="n">Wint_c</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">W_p</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Wint_c</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_primary_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">W_p</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Wint_c</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w"> </span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Compute coarse-grained fields for a given time step that are specified in :func:`fields_to_compute`.</span>
-
+<span class="sd">        Compute the primary coarse-grained fields for a given time step that are specified in :func:`fields_to_compute`.</span>
+<span class="sd">        Primary fields are kernel-weighted sums over particles or contacts; the fields derived from them</span>
+<span class="sd">        are computed by :func:`_compute_derived_fields`.</span>
+<span class="sd"> </span>
 <span class="sd">        Inputs</span>
 <span class="sd">        ------</span>
 <span class="sd">        data : dict</span>
@@ -788,296 +845,168 @@
 <span class="sd">            The weights for particles, where N is the number of particles, computed in :func:`_compute_weights`.</span>
 <span class="sd">        Wint_c : np.ndarray, shape (M,)</span>
 <span class="sd">            The integral of the weights for contacts, where M is the number of contacts, computed in :func:`_compute_weights`.</span>
-
+<span class="sd"> </span>
 <span class="sd">        Outputs</span>
 <span class="sd">        -------</span>
-<span class="sd">        cg_fields : dict</span>
-<span class="sd">            A dictionary containing the coarse-grained fields computed for the current time step,</span>
-<span class="sd">            based on the specified fields to export in :func:`fields_to_export`. Note that the fields to</span>
-<span class="sd">            compute are defined in :func:`fields_to_compute`, which is derived from :func:`fields_to_export`.</span>
-
+<span class="sd">        primary_fields : dict</span>
+<span class="sd">            The primary coarse-grained fields (keys ``derived_fields.PRIMARY_FIELDS``, None if not computed).</span>
+<span class="sd">        velocity_fields : dict</span>
+<span class="sd">            ``velocity`` and ``velocity_gradient`` (None if not computed). They are derived fields, but are</span>
+<span class="sd">            needed here for the kinetic and fluctuation tensors, so they are passed on to :func:`_compute_derived_fields`</span>
+<span class="sd">            instead of being computed twice.</span>
+<span class="sd"> </span>
 <span class="sd">        """</span>
-        
+ 
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Computing Coarse Graining fields..."</span><span class="p">)</span>
-
+ 
         <span class="c1"># 1. Unpack data</span>
-        <span class="n">Position</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Position"</span><span class="p">]</span>
-        <span class="n">Velocity</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Velocity"</span><span class="p">]</span>
-        <span class="n">Diameter</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Diameter"</span><span class="p">]</span>
-        <span class="n">Density</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Density"</span><span class="p">]</span>
-        <span class="n">Mass</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Mass"</span><span class="p">]</span>
-        <span class="n">Volume</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Volume"</span><span class="p">]</span>
-        <span class="n">Coordination_Number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Coordination_Number"</span><span class="p">]</span>
-        <span class="n">Phase_Array_p</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Phase_Array"</span><span class="p">]</span>
-        <span class="n">Position_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Position_i"</span><span class="p">]</span>
-        <span class="n">Force_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Force_i"</span><span class="p">]</span>
-        <span class="n">BranchVector_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"BranchVector_i"</span><span class="p">]</span>
-        <span class="n">CenterToCenterVector_LL</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"CenterToCenterVector_LL"</span><span class="p">]</span>
-        <span class="n">Volume_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Volume_i"</span><span class="p">]</span>
-        <span class="n">PhaseArray_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"PhaseArray_i"</span><span class="p">]</span>
-        <span class="n">d_inContact_mean</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"d_inContact_mean"</span><span class="p">]</span>
-        <span class="n">r_ri</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"r_ri"</span><span class="p">]</span>
-        <span class="n">grid_ind_p</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"grid_ind_p"</span><span class="p">]</span>
-        <span class="n">part_ind_p</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"part_ind_p"</span><span class="p">]</span>
-        <span class="n">grid_ind_c</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"grid_ind_c"</span><span class="p">]</span>
-        <span class="n">part_ind_c</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"part_ind_c"</span><span class="p">]</span>   
-
-
+        <span class="c1">#Position = data["Position"] ; d_inContact_mean = data["d_inContact_mean"] ;  Position_i = data["Position_i"] </span>
+        <span class="n">Velocity</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Velocity"</span><span class="p">]</span> <span class="p">;</span> <span class="n">Diameter</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Diameter"</span><span class="p">]</span> <span class="p">;</span> <span class="n">Density</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Density"</span><span class="p">];</span> <span class="n">Mass</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Mass"</span><span class="p">];</span> <span class="n">Volume</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Volume"</span><span class="p">]</span>
+        <span class="n">Coordination_Number</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Coordination_Number"</span><span class="p">]</span> <span class="p">;</span> <span class="n">r_ri</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"r_ri"</span><span class="p">]</span>
+        <span class="n">Phase_Array_p</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Phase_Array"</span><span class="p">]</span> <span class="p">;</span> <span class="n">PhaseArray_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"PhaseArray_i"</span><span class="p">]</span>
+        <span class="n">Force_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Force_i"</span><span class="p">];</span>  <span class="n">BranchVector_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"BranchVector_i"</span><span class="p">];</span> 
+        <span class="n">CenterToCenterVector_LL</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"CenterToCenterVector_LL"</span><span class="p">];</span> <span class="n">Volume_i</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Volume_i"</span><span class="p">];</span> 
+        <span class="n">grid_ind_p</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"grid_ind_p"</span><span class="p">]</span> <span class="p">;</span> <span class="n">part_ind_p</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"part_ind_p"</span><span class="p">]</span>
+        <span class="n">grid_ind_c</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"grid_ind_c"</span><span class="p">]</span> <span class="p">;</span> <span class="n">part_ind_c</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">"part_ind_c"</span><span class="p">]</span>
+  
         <span class="c1"># 2. Compute fields based on the fields to compute ..................................................................</span>
+        <span class="n">VolumeFraction_CG</span> <span class="o">=</span> <span class="n">DensityMixture_CG</span> <span class="o">=</span> <span class="n">MomentumDens_CG</span> <span class="o">=</span> <span class="n">Velocity_CG</span> <span class="o">=</span> <span class="n">VelocityBulk_CG</span> <span class="o">=</span> <span class="n">GradV_CG</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">KineticTensor_CG</span> <span class="o">=</span> <span class="n">FluctuationTensor_CG</span> <span class="o">=</span> <span class="n">ContactTensor_CG</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">d43_CG</span> <span class="o">=</span> <span class="n">d32_CG</span> <span class="o">=</span> <span class="n">CoordinationNumber_rattlers</span> <span class="o">=</span> <span class="n">FabricTensor_Monodisperse_CG</span> <span class="o">=</span> <span class="kc">None</span>
+ 
         <span class="c1"># volume fraction</span>
         <span class="k">if</span> <span class="s2">"volume_fraction"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">VolumeFraction_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">Volume</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Phase_Array_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  volume fraction done'</span><span class="p">)</span>
-
+ 
         <span class="c1"># density</span>
         <span class="k">if</span> <span class="s2">"density_mixture"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">DensityMixture_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Phase_Array_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  mixture density done'</span><span class="p">)</span>
-    
-        <span class="c1"># velocity</span>
+ 
+        <span class="c1"># momentum density</span>
         <span class="k">if</span> <span class="s2">"momentum_density"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">MomentumDens_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span>  <span class="n">Phase_Array_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  momentum density done'</span><span class="p">)</span>
-
-        <span class="c1"># velocity and kinetic tensor  </span>
-        <span class="c1"># Check what velocity gradient method is specified</span>
+ 
+        <span class="c1"># velocity and its gradient (derived, but needed here for the kinetic tensor)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_gradient_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"finite_difference"</span><span class="p">,</span> <span class="s2">"least_squares"</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Invalid velocity_gradient_method input in CoarseGraining class: choose from 'finite_difference' or 'least_squares'."</span><span class="p">)</span>  
-        <span class="c1"># Check if we have phase information</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s1">'Monodisperse'</span><span class="p">:</span>  <span class="c1"># Monodisperse case</span>
-            <span class="k">if</span> <span class="s2">"velocity"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-                <span class="n">Velocity_CG</span> <span class="o">=</span> <span class="n">MomentumDens_CG</span> <span class="o">/</span> <span class="n">DensityMixture_CG</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># Velocity CG</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">'  velocity done'</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="s2">"velocity_gradient"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_gradient_method</span> <span class="o">==</span> <span class="s2">"least_squares"</span><span class="p">:</span>
-                    <span class="n">GradV_CG</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_velgrad_leastsquares</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Velocity_CG</span><span class="p">)</span> <span class="c1"># Velocity Gradient  least squares</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_gradient_method</span> <span class="o">==</span> <span class="s2">"finite_difference"</span><span class="p">:</span>
-                    <span class="n">GradV_CG</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_vector_bulk_gradient</span><span class="p">(</span><span class="n">Velocity_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">)</span> <span class="c1"># Velocity Gradient finite difference</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">'  velocity gradient done'</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="s2">"kinetic_tensor"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-                <span class="n">KineticTensor_CG</span><span class="p">,</span> <span class="n">FluctuationTensor_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">kinetic_tensor</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Velocity_CG</span><span class="p">,</span> <span class="n">GradV_CG</span><span class="p">,</span> <span class="n">Phase_Array_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span> <span class="c1"># Kinetic tensor</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">'  kinetic tensor done'</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Polydisperse case</span>
-            <span class="k">if</span> <span class="s2">"velocity"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-                <span class="n">Velocity_CG</span> <span class="o">=</span> <span class="n">MomentumDens_CG</span> <span class="o">/</span> <span class="n">DensityMixture_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c1"># Velocity CG</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">'  velocity done'</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="s2">"velocity_gradient"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_gradient_method</span> <span class="o">==</span> <span class="s2">"least_squares"</span><span class="p">:</span>
-                    <span class="n">GradV_CG</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_velgrad_leastsquares</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Velocity_CG</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:])</span> <span class="c1"># Velocity Gradient  least squares</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_gradient_method</span> <span class="o">==</span> <span class="s2">"finite_difference"</span><span class="p">:</span>
-                    <span class="n">GradV_CG</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_vector_bulk_gradient</span><span class="p">(</span><span class="n">Velocity_CG</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">)</span> <span class="c1"># Velocity Gradient</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">'  velocity gradient done'</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="s2">"kinetic_tensor"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-                <span class="n">KineticTensor_CG</span><span class="p">,</span> <span class="n">FluctuationTensor_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">kinetic_tensor</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Velocity_CG</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">GradV_CG</span><span class="p">,</span> <span class="n">Phase_Array_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span> <span class="c1"># Kinetic tensor</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">'  kinetic tensor done'</span><span class="p">)</span>
-
-
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Invalid velocity_gradient_method input in CoarseGraining class: choose from 'finite_difference' or 'least_squares'."</span><span class="p">)</span>
+ 
+        <span class="k">if</span> <span class="s2">"velocity"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
+            <span class="n">Velocity_CG</span> <span class="o">=</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">velocity_from_momentum</span><span class="p">(</span><span class="n">MomentumDens_CG</span><span class="p">,</span> <span class="n">DensityMixture_CG</span><span class="p">)</span>
+            <span class="n">VelocityBulk_CG</span> <span class="o">=</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">bulk_velocity</span><span class="p">(</span><span class="n">Velocity_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'  velocity done'</span><span class="p">)</span>
+ 
+        <span class="k">if</span> <span class="s2">"velocity_gradient"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_gradient_method</span> <span class="o">==</span> <span class="s2">"least_squares"</span><span class="p">:</span>
+                <span class="n">GradV_CG</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_velgrad_leastsquares</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">VelocityBulk_CG</span><span class="p">)</span> <span class="c1"># Velocity Gradient least squares</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_gradient_method</span> <span class="o">==</span> <span class="s2">"finite_difference"</span><span class="p">:</span>
+                <span class="n">GradV_CG</span> <span class="o">=</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">velocity_gradient_fd</span><span class="p">(</span><span class="n">Velocity_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">)</span> <span class="c1"># Velocity Gradient finite difference</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'  velocity gradient done'</span><span class="p">)</span>
+ 
+        <span class="c1"># kinetic and fluctuation tensors (relative to the velocity field of this time step)</span>
+        <span class="k">if</span> <span class="s2">"kinetic_tensor"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
+            <span class="n">KineticTensor_CG</span><span class="p">,</span> <span class="n">FluctuationTensor_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">kinetic_tensor</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">r_ri</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">VelocityBulk_CG</span><span class="p">,</span> <span class="n">GradV_CG</span><span class="p">,</span> <span class="n">Phase_Array_p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span> <span class="c1"># Kinetic tensor</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'  kinetic tensor done'</span><span class="p">)</span>
+ 
         <span class="c1"># contact tensor</span>
         <span class="k">if</span> <span class="s2">"contact_tensor"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">ContactTensor_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">Wint_c</span><span class="p">,</span> <span class="n">part_ind_c</span><span class="p">,</span> <span class="n">grid_ind_c</span><span class="p">,</span> <span class="n">Force_i</span><span class="p">,</span> <span class="n">BranchVector_i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">PhaseArray_i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  contact tensor done'</span><span class="p">)</span>
-    
-        <span class="c1"># Density of particle cg</span>
-        <span class="k">if</span> <span class="s2">"density_particle"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-            <span class="n">DensityParticle_CG</span> <span class="o">=</span> <span class="n">DensityMixture_CG</span> <span class="o">/</span> <span class="n">VolumeFraction_CG</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'  particle density done'</span><span class="p">)</span>
-
-        <span class="c1"># Total stress tensor</span>
-        <span class="k">if</span> <span class="s2">"total_stress_tensor"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-            <span class="n">TotalStressTensor_CG</span> <span class="o">=</span> <span class="n">KineticTensor_CG</span> <span class="o">+</span> <span class="n">ContactTensor_CG</span>
-            <span class="n">TotalStressTensor_CG_xyz_mag</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_second_invariant</span><span class="p">(</span><span class="n">TotalStressTensor_CG</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="c1"># calculate the second invariant of the total stress tensor</span>
-            <span class="c1"># deviatoric stress</span>
-            <span class="n">TotalStressDeviator_xyz</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_deviatoric_tensor</span><span class="p">(</span><span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,:,</span> <span class="p">:])</span> <span class="c1"># 3D</span>
-            <span class="n">TotalStressDeviator_xy</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_deviatoric_tensor</span><span class="p">(</span><span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="mi">2</span><span class="p">,:</span><span class="mi">2</span><span class="p">])</span> <span class="c1"># 2D</span>
-            <span class="n">TotalStressDeviator_xyz_mag</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_second_invariant</span><span class="p">(</span><span class="n">TotalStressDeviator_xyz</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="c1"># 3D mag</span>
-            <span class="n">TotalStressDeviator_xy_mag</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_second_invariant</span><span class="p">(</span><span class="n">TotalStressDeviator_xy</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="c1"># 2D mag</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'  total stress done'</span><span class="p">)</span>
-
-        <span class="c1"># Volume-weighted mean diameter, d43</span>
+ 
+        <span class="c1"># Volume-weighted mean diameter, d43, and Sauter mean diameter, d32</span>
         <span class="k">if</span> <span class="s2">"d43"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">d43_CG</span> <span class="o">=</span> <span class="n">scalars</span><span class="o">.</span><span class="n">mean_grainsize</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">Diameter</span><span class="p">,</span> <span class="n">n_flag</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  d43 done'</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">"d32"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">d32_CG</span> <span class="o">=</span> <span class="n">scalars</span><span class="o">.</span><span class="n">mean_grainsize</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">Diameter</span><span class="p">,</span> <span class="n">n_flag</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  d32 done'</span><span class="p">)</span>
-  
-        <span class="c1"># l_CG = None</span>
+ 
         <span class="c1"># Coordination number</span>
         <span class="k">if</span> <span class="s2">"coordination_number"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">CoordinationNumber_rattlers</span> <span class="o">=</span> <span class="n">scalars</span><span class="o">.</span><span class="n">scalar_x_volume</span><span class="p">(</span><span class="n">W_p</span><span class="p">,</span> <span class="n">part_ind_p</span><span class="p">,</span> <span class="n">grid_ind_p</span><span class="p">,</span> <span class="n">Coordination_Number</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  Z done'</span><span class="p">)</span>
-        <span class="c1"># Pressure</span>
-        <span class="k">if</span> <span class="s2">"pressure"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-            <span class="n">Pressure_xyz</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_pressure</span><span class="p">(</span><span class="n">TotalStressTensor_CG</span><span class="p">)</span>
-            <span class="n">Pressure_xy</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_pressure</span><span class="p">(</span><span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">Pressure_x</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> 
-            <span class="n">Pressure_y</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> 
-            <span class="n">Pressure_z</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> 
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'  pressure done'</span><span class="p">)</span>
-
-        <span class="c1"># granular temperature</span>
-        <span class="k">if</span> <span class="s2">"granular_temperature"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-            <span class="n">GranularTemperature_xyz</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_granular_temperature</span><span class="p">(</span><span class="n">DensityMixture_CG</span><span class="p">,</span> <span class="n">FluctuationTensor_CG</span><span class="p">)</span> 
-            <span class="n">GranularTemperature_x</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_granular_temperature</span><span class="p">(</span><span class="n">DensityMixture_CG</span><span class="p">,</span> <span class="n">FluctuationTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> 
-            <span class="n">GranularTemperature_y</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_granular_temperature</span><span class="p">(</span><span class="n">DensityMixture_CG</span><span class="p">,</span> <span class="n">FluctuationTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> 
-            <span class="n">GranularTemperature_z</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_granular_temperature</span><span class="p">(</span><span class="n">DensityMixture_CG</span><span class="p">,</span> <span class="n">FluctuationTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span> 
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'  granular temp done'</span><span class="p">)</span>
-
-        <span class="c1"># shear rate tensor </span>
-        <span class="k">if</span> <span class="s2">"shear_rate_tensor"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-            <span class="c1"># 2d - grid</span>
-            <span class="n">ShearRateTensor_xy</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_shear_rate_tensor</span><span class="p">(</span><span class="n">GradV_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">ShearRateTensor_xy_mag</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_second_invariant</span><span class="p">(</span><span class="n">ShearRateTensor_xy</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># 2D mag</span>
-            <span class="c1"># shear rate deviator </span>
-            <span class="n">ShearRateDeviator_xy</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_deviatoric_tensor</span><span class="p">(</span><span class="n">ShearRateTensor_xy</span><span class="p">)</span>
-            <span class="n">ShearRateDeviator_xy_mag</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_second_invariant</span><span class="p">(</span><span class="n">ShearRateDeviator_xy</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># 2D mag</span>
-            <span class="c1"># 3d - grid</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">"grid_dimension"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">ShearRateTensor_xyz</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_shear_rate_tensor</span><span class="p">(</span><span class="n">GradV_CG</span><span class="p">)</span>
-                <span class="n">ShearRateTensor_xyz_mag</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_second_invariant</span><span class="p">(</span><span class="n">ShearRateTensor_xyz</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># 3D mag</span>
-                <span class="c1"># shear rate deviator </span>
-                <span class="n">ShearRateDeviator_xyz</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_deviatoric_tensor</span><span class="p">(</span><span class="n">ShearRateTensor_xyz</span><span class="p">)</span>
-                <span class="n">ShearRateDeviator_xyz_mag</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_second_invariant</span><span class="p">(</span><span class="n">ShearRateDeviator_xyz</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># 3D mag</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'  shear rate done'</span><span class="p">)</span>
  
-        <span class="c1"># inertial number</span>
-        <span class="k">if</span> <span class="s2">"inertial_number"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-            <span class="c1"># ADD INERTIAL NUMBER WITH DEVIATORIC SHEAR RATE TENSOR</span>
-            
-            <span class="n">InertialNumber_xy_Pxyz_d43</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_inertial_number</span><span class="p">(</span><span class="n">ShearRateTensor_xy_mag</span><span class="p">,</span> <span class="n">Pressure_xyz</span><span class="p">,</span> <span class="n">DensityParticle_CG</span><span class="p">,</span> <span class="n">d43_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">InertialNumber_xy_Pxy_d43</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_inertial_number</span><span class="p">(</span><span class="n">ShearRateTensor_xy_mag</span><span class="p">,</span> <span class="n">Pressure_xy</span><span class="p">,</span> <span class="n">DensityParticle_CG</span><span class="p">,</span> <span class="n">d43_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">InertialNumber_xy_Py_d43</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_inertial_number</span><span class="p">(</span><span class="n">ShearRateTensor_xy_mag</span><span class="p">,</span> <span class="n">Pressure_y</span><span class="p">,</span> <span class="n">DensityParticle_CG</span><span class="p">,</span> <span class="n">d43_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">InertialNumber_xy_Pxyz_d32</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_inertial_number</span><span class="p">(</span><span class="n">ShearRateTensor_xy_mag</span><span class="p">,</span> <span class="n">Pressure_xyz</span><span class="p">,</span> <span class="n">DensityParticle_CG</span><span class="p">,</span> <span class="n">d32_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">InertialNumber_xy_Pxy_d32</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_inertial_number</span><span class="p">(</span><span class="n">ShearRateTensor_xy_mag</span><span class="p">,</span> <span class="n">Pressure_xy</span><span class="p">,</span> <span class="n">DensityParticle_CG</span><span class="p">,</span> <span class="n">d32_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">InertialNumber_xy_Py_d32</span> <span class="o">=</span> <span class="n">secondary</span><span class="o">.</span><span class="n">compute_inertial_number</span><span class="p">(</span><span class="n">ShearRateTensor_xy_mag</span><span class="p">,</span> <span class="n">Pressure_y</span><span class="p">,</span> <span class="n">DensityParticle_CG</span><span class="p">,</span> <span class="n">d32_CG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
-            <span class="c1"># InertialNumber_xy_Pxyz_l = None</span>
-            <span class="c1"># InertialNumbe_xy_Pxy_l = None</span>
-            <span class="c1"># Inertial_Number_xy_Py_l = None</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'  inertial number done'</span><span class="p">)</span>
- 
-        <span class="c1"># frictional coefficient</span>
-        <span class="k">if</span> <span class="s2">"frictional_coefficient"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
-            <span class="n">FrictionalCoefficient_Dxy_Pxyz</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xy_mag</span> <span class="o">/</span> <span class="n">Pressure_xyz</span>
-            <span class="n">FrictionalCoefficient_Dxy_Pxy</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xy_mag</span> <span class="o">/</span> <span class="n">Pressure_xy</span>
-            <span class="n">FrictionalCoefficient_Dxy_Py</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xy_mag</span> <span class="o">/</span> <span class="n">Pressure_y</span>
-            <span class="n">FrictionalCoefficient_Dxyz_Pxyz</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xyz_mag</span> <span class="o">/</span> <span class="n">Pressure_xyz</span>
-            <span class="n">FrictionalCoefficient_Dxyz_Pxy</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xyz_mag</span> <span class="o">/</span> <span class="n">Pressure_xy</span>
-            <span class="n">FrictionalCoefficient_Dxyz_Py</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xyz_mag</span> <span class="o">/</span> <span class="n">Pressure_y</span>
-            <span class="n">FrictionalCoefficient_01_Pxyz</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">Pressure_xyz</span>
-            <span class="n">FrictionalCoefficient_01_Pxy</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">Pressure_xy</span>
-            <span class="n">FrictionalCoefficient_01_Py</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">Pressure_y</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">'  mu done'</span><span class="p">)</span>
-    
         <span class="c1"># fabric tensor</span>
         <span class="k">if</span> <span class="s2">"fabric_tensor"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
             <span class="n">l_i_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">CenterToCenterVector_LL</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># calculate the magnitude of the branch vector</span>
             <span class="n">l_i_normalised</span> <span class="o">=</span> <span class="n">CenterToCenterVector_LL</span> <span class="o">/</span> <span class="n">l_i_mag</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-            <span class="n">l_inContact_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">l_i_mag</span><span class="p">)</span>
             <span class="n">FabricTensor_Monodisperse_CG</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">Wint_c</span><span class="p">,</span> <span class="n">part_ind_c</span><span class="p">,</span> <span class="n">grid_ind_c</span><span class="p">,</span> <span class="n">l_i_normalised</span><span class="p">,</span> <span class="n">l_i_normalised</span><span class="p">,</span> <span class="n">Volume_i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Monodisperse"</span><span class="p">)</span>
-            <span class="c1">#FabricTensor_Sun = Compute_Bulk_FabricTensor_Sun2015(l_i_normalised)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'  frabric tensor done'</span><span class="p">)</span>
-
-        
-        <span class="c1"># 3. Prepare results for export based on fields to export ................................................</span>
-        
-        <span class="c1"># Prepare results dictionary</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="c1"># volume fraction</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"volume_fraction"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"volume_fraction"</span><span class="p">]</span> <span class="o">=</span> <span class="n">VolumeFraction_CG</span>
-
-        <span class="c1"># density of mixture</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"density_mixture"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"density_mixture"</span><span class="p">]</span> <span class="o">=</span> <span class="n">DensityMixture_CG</span>
-
-        <span class="c1"># particle density</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"density_particle"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"density_particle"</span><span class="p">]</span> <span class="o">=</span> <span class="n">DensityParticle_CG</span>
-
-        <span class="c1"># particle size</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"d32"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"d32"</span><span class="p">]</span> <span class="o">=</span> <span class="n">d32_CG</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"d43"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"d43"</span><span class="p">]</span> <span class="o">=</span> <span class="n">d43_CG</span>
-
-        <span class="c1"># particle contacts</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"coordination_number"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"coordination_number"</span><span class="p">]</span> <span class="o">=</span> <span class="n">CoordinationNumber_rattlers</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"coordination_number_without_rattlers"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"coordination_number_without_rattlers"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="c1"># velocity</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"momentum_density"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"momentum_density"</span><span class="p">]</span> <span class="o">=</span> <span class="n">MomentumDens_CG</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"velocity"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Velocity_CG</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"velocity_gradient"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"velocity_gradient"</span><span class="p">]</span> <span class="o">=</span> <span class="n">GradV_CG</span>
-
-        <span class="c1"># stress tensor</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"kinetic_tensor"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"kinetic_tensor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">KineticTensor_CG</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"contact_tensor"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"contact_tensor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ContactTensor_CG</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"total_stress_tensor"</span><span class="p">):</span> 
-            <span class="n">results</span><span class="p">[</span><span class="s2">"total_stress_tensor_xy_dev"</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xy</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"total_stress_tensor_xy_dev_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xy_mag</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"total_stress_tensor_xyz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"total_stress_tensor_xyz_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalStressTensor_CG_xyz_mag</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"total_stress_tensor_xyz_dev"</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xyz</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"total_stress_tensor_xyz_dev_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">TotalStressDeviator_xyz_mag</span>
-
-        <span class="c1"># fabric tensor</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"fabric_tensor"</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="s2">"fabric_tensor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FabricTensor_Monodisperse_CG</span>
-        <span class="c1">#if self.field_to_export.get("fabric_tensor_Sun"): results["fabric_tensor_Sun"] = FabricTensor_Sun</span>
-
-        <span class="c1"># shear rate tensor</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shear_rate_tensor"</span><span class="p">):</span> 
-            <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateTensor_xy</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xy_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateTensor_xy_mag</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xy_dev"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateDeviator_xy</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xy_dev_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateDeviator_xy_mag</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">"grid_dimension"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xyz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateTensor_xyz</span>
-                <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xyz_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateTensor_xyz_mag</span>
-                <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xyz_dev"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateDeviator_xyz</span>
-                <span class="n">results</span><span class="p">[</span><span class="s2">"shear_rate_tensor_xyz_dev_mag"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ShearRateDeviator_xyz_mag</span>
-
-        <span class="c1"># pressure</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pressure"</span><span class="p">):</span> 
-            <span class="n">results</span><span class="p">[</span><span class="s2">"pressure_xyz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pressure_xyz</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"pressure_xy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pressure_xy</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"pressure_x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pressure_x</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"pressure_y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pressure_y</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"pressure_z"</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pressure_z</span>
-
-        <span class="c1"># granular temperature</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"granular_temperature"</span><span class="p">):</span> 
-            <span class="n">results</span><span class="p">[</span><span class="s2">"granular_temperature_xyz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">GranularTemperature_xyz</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"granular_temperature_x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">GranularTemperature_x</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"granular_temperature_y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">GranularTemperature_y</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"granular_temperature_z"</span><span class="p">]</span> <span class="o">=</span> <span class="n">GranularTemperature_z</span>
-
-        <span class="c1"># inertial number</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"inertial_number"</span><span class="p">):</span> 
-            <span class="n">results</span><span class="p">[</span><span class="s2">"inertial_number_Sxy_Pxyz_d43"</span><span class="p">]</span> <span class="o">=</span> <span class="n">InertialNumber_xy_Pxyz_d43</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"inertial_number_Sxy_Pxy_d43"</span><span class="p">]</span> <span class="o">=</span> <span class="n">InertialNumber_xy_Pxy_d43</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"inertial_number_Sxy_Py_d43"</span><span class="p">]</span> <span class="o">=</span> <span class="n">InertialNumber_xy_Py_d43</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"inertial_number_Sxy_Pxyz_d32"</span><span class="p">]</span> <span class="o">=</span> <span class="n">InertialNumber_xy_Pxyz_d32</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"inertial_number_Sxy_Pxy_d32"</span><span class="p">]</span> <span class="o">=</span> <span class="n">InertialNumber_xy_Pxy_d32</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"inertial_number_Sxy_Py_d32"</span><span class="p">]</span> <span class="o">=</span> <span class="n">InertialNumber_xy_Py_d32</span>
-
-        <span class="c1"># frictional coefficient</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"frictional_coefficient"</span><span class="p">):</span> 
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_Dxy_Pxyz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_Dxy_Pxyz</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_Dxy_Pxy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_Dxy_Pxy</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_Dxy_Py"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_Dxy_Py</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_Dxyz_Pxyz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_Dxyz_Pxyz</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_Dxyz_Pxy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_Dxyz_Pxy</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_Dxyz_Py"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_Dxyz_Py</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_01_Pxyz"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_01_Pxyz</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_01_Pxy"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_01_Pxy</span>
-            <span class="n">results</span><span class="p">[</span><span class="s2">"frictional_coefficient_01_Py"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FrictionalCoefficient_01_Py</span>
-       
-                    
-        
-        <span class="k">return</span> <span class="n">results</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_granular_temperature_sliced_calc_and_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+ 
+        <span class="c1"># 3. Return primary fields and the velocity fields already computed ................................................</span>
+        <span class="n">primary_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"volume_fraction"</span><span class="p">:</span> <span class="n">VolumeFraction_CG</span><span class="p">,</span>
+            <span class="s2">"density_mixture"</span><span class="p">:</span> <span class="n">DensityMixture_CG</span><span class="p">,</span>
+            <span class="s2">"momentum_density"</span><span class="p">:</span> <span class="n">MomentumDens_CG</span><span class="p">,</span>
+            <span class="s2">"kinetic_tensor"</span><span class="p">:</span> <span class="n">KineticTensor_CG</span><span class="p">,</span>
+            <span class="s2">"fluctuation_tensor"</span><span class="p">:</span> <span class="n">FluctuationTensor_CG</span><span class="p">,</span>
+            <span class="s2">"contact_tensor"</span><span class="p">:</span> <span class="n">ContactTensor_CG</span><span class="p">,</span>
+            <span class="s2">"d43"</span><span class="p">:</span> <span class="n">d43_CG</span><span class="p">,</span>
+            <span class="s2">"d32"</span><span class="p">:</span> <span class="n">d32_CG</span><span class="p">,</span>
+            <span class="s2">"coordination_number"</span><span class="p">:</span> <span class="n">CoordinationNumber_rattlers</span><span class="p">,</span>
+            <span class="s2">"fabric_tensor"</span><span class="p">:</span> <span class="n">FabricTensor_Monodisperse_CG</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">velocity_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"velocity"</span><span class="p">:</span> <span class="n">Velocity_CG</span><span class="p">,</span> <span class="s2">"velocity_gradient"</span><span class="p">:</span> <span class="n">GradV_CG</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">primary_fields</span><span class="p">,</span> <span class="n">velocity_fields</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_derived_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">primary</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">velocity_fields</span><span class="p">:</span><span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Compute the derived coarse-grained fields from the primary ones and select those to export.</span>
+<span class="sd">        Used for every time step by :func:`_fields_single_time`, and for the time averages by</span>
+<span class="sd">        :func:`_write_time_average`.</span>
+<span class="sd"> </span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        primary : dict</span>
+<span class="sd">            Primary coarse-grained fields, from :func:`_compute_primary_fields` or :meth:`TimeAverageAccumulator.mean`.</span>
+<span class="sd">        velocity_fields : dict, optional</span>
+<span class="sd">            ``velocity`` and ``velocity_gradient`` already computed for this time step by :func:`_compute_primary_fields`.</span>
+<span class="sd">            If None (time averages), they are computed from ``primary``, the gradient by finite differences.</span>
+<span class="sd"> </span>
+<span class="sd">        Outputs</span>
+<span class="sd">        -------</span>
+<span class="sd">        cg_fields : dict</span>
+<span class="sd">            A dictionary containing the coarse-grained fields specified in :func:`fields_to_export`.</span>
+<span class="sd">        """</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">primary</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">velocity_fields</span> <span class="ow">or</span> <span class="p">{})}</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">add_velocity_fields</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">fields_to_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">,</span>
+                                                    <span class="n">cg_calc_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">,</span>
+                                                    <span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">)</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">compute_derived_fields</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">fields_to_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">,</span>
+                                                       <span class="n">phases</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">,</span> <span class="n">grid_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">select_exports</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="p">)</span>
+     
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_time_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acc</span><span class="p">:</span><span class="n">TimeAverageAccumulator</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write the time averages of the coarse-grained fields to</span>
+<span class="sd">        CG_{weight_function}_{cg_calc_mode}_time_averaged.h5 / .vtkhdf, and the time average of the sliced</span>
+<span class="sd">        granular temperature, if computed, to CG_GranularTemperature_slices_time_averaged.h5. The time steps</span>
+<span class="sd">        averaged are stored in the attribute ``time_steps_averaged`` of the .h5 files.</span>
+<span class="sd"> </span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        acc : TimeAverageAccumulator</span>
+<span class="sd">            The running sums of the primary fields over the time steps processed.</span>
+<span class="sd">        """</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">acc</span><span class="o">.</span><span class="n">time_steps</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing time averages over </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span><span class="si">}</span><span class="s2"> time steps (</span><span class="si">{</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">) ..."</span><span class="p">)</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"time_steps_averaged"</span><span class="p">:</span> <span class="n">steps</span><span class="p">}</span>
+ 
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_derived_fields</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>  <span class="c1"># derived fields from the averaged primary fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">label</span><span class="o">=</span><span class="s2">"time_averaged"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+ 
+        <span class="k">if</span> <span class="n">acc</span><span class="o">.</span><span class="n">has_slices</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">CG_GranularTemperature_slices_time_averaged.h5"</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">add_positions</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">slice_positions</span><span class="p">)</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">update_h5py_file</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">mean_slices</span><span class="p">(),</span> <span class="n">dim_index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dim_value</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dim_name</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">add_attrs</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">_export_granular_temperature_sliced</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">time_step</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">time_of_timestep</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Write the sliced granular temperature results to .h5 files for a given time step.</span>
@@ -1091,6 +1020,13 @@
 <span class="sd">        data : dict</span>
 <span class="sd">            A dictionary containing the particle and contact data for the current time step,</span>
 <span class="sd">            returned by :func:`_load_data`.</span>
+
+<span class="sd">        Outputs</span>
+<span class="sd">        -------</span>
+<span class="sd">        slice_fields : dict</span>
+<span class="sd">            The sliced granular temperatures of the time step (granular_temperature_Kamrin, granular_temperature_LAMMPS).</span>
+<span class="sd">        positions : np.ndarray, shape (Nslices, 3)</span>
+<span class="sd">            Positions of the slices.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -1128,17 +1064,21 @@
             <span class="n">mass_all</span><span class="o">=</span><span class="n">Mass</span><span class="p">,</span> 
             <span class="n">particle_positions_all</span><span class="o">=</span><span class="n">Position</span>
         <span class="p">)</span>
+       
+        <span class="c1"># positions of the slices: x and z in the middle of the grid range</span>
+        <span class="n">x_middle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">slices_y</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">z_middle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">slices_y</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">x_middle</span><span class="p">,</span> <span class="n">slices_y</span><span class="p">,</span> <span class="n">z_middle</span><span class="p">))</span>
+        <span class="n">slice_fields</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"granular_temperature_Kamrin"</span><span class="p">:</span> <span class="n">GranularTemperature_KimKamrin20</span><span class="p">,</span>
+                        <span class="s2">"granular_temperature_LAMMPS"</span><span class="p">:</span> <span class="n">GranularTemperature_LAMMPS</span><span class="p">}</span>
         <span class="c1"># write .h5 files</span>
         <span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">CG_GranularTemperature_slices.h5"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">time_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Only add positions for the first time step</span>
-            <span class="c1"># make the x and z positions the middle of the range </span>
-            <span class="n">x_middle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">slices_y</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="n">z_middle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">slices_y</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="n">manager</span><span class="o">.</span><span class="n">add_positions</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">x_middle</span><span class="p">,</span> <span class="n">slices_y</span><span class="p">,</span> <span class="n">z_middle</span><span class="p">)))</span>
-        <span class="n">manager</span><span class="o">.</span><span class="n">update_h5py_file</span><span class="p">({</span><span class="s2">"granular_temperature_Kamrin"</span><span class="p">:</span> <span class="n">GranularTemperature_KimKamrin20</span><span class="p">,</span> 
-                                  <span class="s2">"granular_temperature_LAMMPS"</span><span class="p">:</span> <span class="n">GranularTemperature_LAMMPS</span><span class="p">},</span> 
-                                  <span class="n">dim_index</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">dim_value</span><span class="o">=</span><span class="n">time_of_timestep</span><span class="p">,</span> <span class="n">dim_name</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">add_positions</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">update_h5py_file</span><span class="p">(</span><span class="n">slice_fields</span><span class="p">,</span> <span class="n">dim_index</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">dim_value</span><span class="o">=</span><span class="n">time_of_timestep</span><span class="p">,</span> <span class="n">dim_name</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  File successfully written to </span><span class="si">{</span><span class="n">manager</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">slice_fields</span><span class="p">,</span> <span class="n">positions</span>      
 
 <div class="viewcode-block" id="CoarseGraining.run">
 <a class="viewcode-back" href="../../pysammos.html#pysammos.coarse_graining.CoarseGraining.run">[docs]</a>
@@ -1177,8 +1117,8 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">"... particle phases identified"</span><span class="p">)</span>
 
         <span class="c1"># 4. Set coarse-graining resolution</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="n">average_diameter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">d50</span><span class="p">,</span> <span class="n">w_mult</span><span class="o">=</span><span class="n">w_d_user</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"... coarse-graining resolution set: w/d = "</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="n">average_diameter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">d32</span><span class="p">,</span> <span class="n">w_mult</span><span class="o">=</span><span class="n">w_d_user</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"... coarse-graining resolution set: w/d = "</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">d32</span><span class="p">)</span>
 
         <span class="c1"># 5. Generate grid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_grid</span><span class="p">()</span>
@@ -1188,20 +1128,26 @@
     
 
         <span class="n">time_timesteps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">TimeAverageAccumulator</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_average</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="c1"># 6. Iterate over time steps</span>
         <span class="k">for</span> <span class="n">t_idx</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">):</span>
             <span class="c1"># time a single timestep</span>
             <span class="n">timestep_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-
+ 
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing time step </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">t_idx</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">)</span><span class="si">}</span><span class="s2">)..."</span><span class="p">)</span>
             <span class="n">data_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"... data loaded"</span><span class="p">)</span>
-            <span class="n">cg_fields_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data_t</span><span class="p">)</span>
+            <span class="n">cg_fields_t</span><span class="p">,</span> <span class="n">primary_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data_t</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_write_results</span><span class="p">(</span><span class="n">cg_fields_t</span><span class="p">,</span> <span class="n">t_idx</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"... results written</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-
+            <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">acc</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">primary_t</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+ 
             <span class="n">timestep_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">time_timesteps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timestep_end</span> <span class="o">-</span> <span class="n">timestep_start</span><span class="p">)</span>
+ 
+        <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_export_time_average</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
             
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Coarse-graining process completed, summary:"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&gt;&gt;&gt; Number of grid points: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -1236,15 +1182,15 @@
         <span class="n">bounds</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">global_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_sampling</span><span class="p">()</span>
 
         <span class="c1"># 2. Compute particle size statistics</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_particle_size_statistics</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">mass</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">" &gt;&gt;&gt; Particle size used: d43 = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_particle_size_statistics</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">mass</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">" &gt;&gt;&gt; Particle size used: d32 = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">d32</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># 3. Set to monodisperse mode for the sweep</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">=</span> <span class="s2">"Monodisperse"</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">density</span><span class="p">)]])</span>  <span class="c1"># single phase with d50 and mean density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">d32</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">density</span><span class="p">)]])</span>  <span class="c1"># single phase with d50 and mean density</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Phase_Array</span> <span class="o">=</span> <span class="kc">None</span>
     
         <span class="c1"># 4. Set appropriate resolution</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d43</span><span class="p">)</span> <span class="p">;</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"CG range: c = "</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d32</span><span class="p">)</span> <span class="p">;</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"CG range: c = "</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
 
         <span class="c1"># 5. Generate (3D) grid</span>
         <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># Number of points per direction</span>
@@ -1262,17 +1208,17 @@
         <span class="n">data_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_data</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
         <span class="c1"># 7. Get values of w and c</span>
-        <span class="n">w_values</span> <span class="o">=</span> <span class="n">w_d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">d43</span>
+        <span class="n">w_values</span> <span class="o">=</span> <span class="n">w_d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">d32</span>
         <span class="n">c_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">w_values</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">w_values</span><span class="p">)):</span> 
             <span class="n">c_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">calc_cutoff</span><span class="p">(</span><span class="n">w_values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="p">)</span>
-        <span class="n">c_d</span> <span class="o">=</span> <span class="n">c_values</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">d43</span> <span class="c1"># added to match JP's benchmark models convention</span>
+        <span class="n">c_d</span> <span class="o">=</span> <span class="n">c_values</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">d32</span> <span class="c1"># added to match JP's benchmark models convention</span>
 
         <span class="c1"># 8. Iterate over c values</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c_values</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">c_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"       -&gt; Processing c/d = </span><span class="si">{</span><span class="n">c_d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span> <span class="c1">#print(f"       -&gt; Processing w/d = {w_d[i]:.2f}")</span>
-            <span class="n">cg_fields_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data_t</span><span class="p">)</span>
+            <span class="n">cg_fields_t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields_single_time</span><span class="p">(</span><span class="n">data_t</span><span class="p">)</span>
                 
             <span class="c1"># write .h5 files </span>
             <span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="si">}</span><span class="s2">w_sweep_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span><span class="si">}</span><span class="s2">.h5"</span><span class="p">)</span> 

@@ -1,0 +1,1106 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D coarse graining of bedload transport &mdash; pysammos 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+      <link rel="stylesheet" type="text/css" href="../_static/my_theme.css?v=7cf6b6ba" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7df0f304"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3D coarse graining of an erodible bed" href="erodible_bed_docs.html" />
+    <link rel="prev" title="Tutorials and Examples" href="../examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Tutorials and Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2D coarse graining of bedload transport</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Import-packages">Import packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Completing-the-Configuration-file">Completing the Configuration file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Run-the-coarse-graining">Run the coarse graining</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#1.-Load-the-size-relevant-particle-data-for-the-first-time-step">1. Load the size-relevant particle data for the first time step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.-Calculate-the-particle-size-range">2. Calculate the particle size range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#3.-Get-the-phases">3. Get the phases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#4.-Calculate-the-CG-grid-spacing">4. Calculate the CG grid spacing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#5.-Generate-the-CG-grid">5. Generate the CG grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#6.-Calculate-the-CG-fields">6. Calculate the CG fields</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Plotting-the-Results-in-Python">Plotting the Results in Python</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#1.-Initialize-the-H5XarrayManager-to-read-the-coarse-grained-data">1. Initialize the H5XarrayManager to read the coarse-grained data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.-Plotting-the-mixture-density-field-at-a-specific-time-step">2. Plotting the mixture density field at a specific time step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#3.-Plotting-the-granular-temperature-field-at-a-specific-time-step">3. Plotting the granular temperature field at a specific time step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#4.-Plotting-the-granular-temperature-slices-calculated-with-other-methods">4. Plotting the granular temperature slices calculated with other methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#5.-Plotting-time-averaged-data">5. Plotting time-averaged data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="erodible_bed_docs.html">3D coarse graining of an erodible bed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="janssen_pile_docs.html">2D polydisperse coarse graining of a Janssen pile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lammps_reading_docs.html">Coarse graining LAMMPS output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">Tutorials and Examples</a></li>
+      <li class="breadcrumb-item active">2D coarse graining of bedload transport</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/bedload_docs.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="2D-coarse-graining-of-bedload-transport">
+<h1>2D coarse graining of bedload transport<a class="headerlink" href="#2D-coarse-graining-of-bedload-transport" title="Link to this heading"></a></h1>
+<p>In this example, we demonstrate how to use the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> to perform coarse graining on a 2D bedload transport simulation and plot the results. In order to do that, you can use the <code class="docutils literal notranslate"><span class="pre">compute_CG.ipynb</span></code> Jupyter notebook provided in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport</span></code> directory.</p>
+<p>The files required for this example can be found in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport</span></code> directory of the repository:</p>
+<ul class="simple">
+<li><p>The DEM simualtion data files in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport/DEM_data</span></code> directory</p></li>
+<li><p>The configuration file <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> in the <code class="docutils literal notranslate"><span class="pre">examples/bedload_transport</span></code> directory</p></li>
+</ul>
+<section id="Import-packages">
+<h2>Import packages<a class="headerlink" href="#Import-packages" title="Link to this heading"></a></h2>
+<p>First, ensure you have the necessary libraries installed:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.utils.config_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.coarse_graining</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoarseGraining</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.data_write.h5.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5XarrayManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysammos.post_averaging.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">VerticalIntegrator</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Hello from pysammos
+Loading macroscopic_fields package...
+Loading data_read package...
+Loading particle_phase package...
+Loading spatial_weights package...
+Loading neighbour_search package...
+Loading grid_generation package...
+Loading data_handle package...
+Loading data_write package...
+Loading post_averaging package...
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Completing-the-Configuration-file">
+<h2>Completing the Configuration file<a class="headerlink" href="#Completing-the-Configuration-file" title="Link to this heading"></a></h2>
+<p>Before running the coarse graining, ensure that the <code class="docutils literal notranslate"><span class="pre">config.ini</span></code> file is properly set up. The configuration file contains various sections, marked by headers in square brackets.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">paths</span></code> section specifies the input and output file paths.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[paths]</span>
+<span class="na">particles_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./VTU/DES_FB1_</span>
+<span class="na">contacts_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./VTU/ENTIRE_DOMAIN_</span>
+<span class="na">output_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./PysammosCG/</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">timesteps</span></code> section defines the time range and interval for the coarse graining process. <code class="docutils literal notranslate"><span class="pre">t0</span></code> is the starting timestep, <code class="docutils literal notranslate"><span class="pre">tf</span></code> is the ending timestep, and <code class="docutils literal notranslate"><span class="pre">dt</span></code> is the timestep interval. Note that the <code class="docutils literal notranslate"><span class="pre">t_pad</span></code> parameter is used to specify the number of zero-padding to be added to the <code class="docutils literal notranslate"><span class="pre">t0</span></code> and <code class="docutils literal notranslate"><span class="pre">tf</span></code> values when reading the DEM simulation data files. This is useful when the timestep numbers in the filenames have leading zeros.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[timesteps]</span>
+<span class="na">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">150</span>
+<span class="na">tf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">152</span>
+<span class="na">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">t_pad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">smoothing_function</span></code> section defines the <code class="docutils literal notranslate"><span class="pre">type</span></code> of smoothing function to be used for coarse graining. In this case, we are using the Lucy function. Find the corresponding documentation in the page <code class="docutils literal notranslate"><span class="pre">kernels_module</span></code>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[smoothing_function]</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Lucy</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">flags</span></code> section defines the <code class="docutils literal notranslate"><span class="pre">partialignore</span></code> flag, which indicates whether to ignore particle phases during the coarse graining process. It will force the number phases to be one if it is set to True.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[flags]</span>
+<span class="na">partialignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">key_mapping</span></code> section maps the DEM simulation data fields to the expected keys used in the coarse graining process.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[key_mapping]</span>
+<span class="na">Global_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Particle_ID</span>
+<span class="na">Particle_Velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Velocity</span>
+<span class="na">Particle_Diameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Diameter</span>
+<span class="na">Particle_Density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Density</span>
+<span class="na">Particle_Volume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Volume</span>
+<span class="na">Particle_Mass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Mass</span>
+<span class="na">Particle_Radius</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">Coordination_Number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">Particle_i_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Particle_ID_1</span>
+<span class="na">Particle_j_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Particle_ID_2</span>
+<span class="na">Force_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">FORCE_CHAIN_FC</span>
+<span class="na">Contact_ij</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">FORCE_CHAIN_CONTACT_POINT</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">DEM_software</span></code> section specifies the DEM software used for the simulation. In this case, it is set to <code class="docutils literal notranslate"><span class="pre">mfix</span></code>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[DEM_software]</span>
+<span class="na">software</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mfix</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">grid_info</span></code> section specifies the grid parameters for the coarse graining process, including the grid dimensions, axes, and boundaries.</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">grid_dimension</span></code> is set to '2' for a 2D simulation.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">grid_axes</span></code> are set to '<code class="docutils literal notranslate"><span class="pre">xy</span></code>', indicating that the coarse graining will be performed in the x and y directions.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">automatic_grid</span></code> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>, allowing for manual specification of grid boundaries.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">x_min</span></code>, <code class="docutils literal notranslate"><span class="pre">x_max</span></code>, <code class="docutils literal notranslate"><span class="pre">y_min</span></code>, and <code class="docutils literal notranslate"><span class="pre">y_max</span></code> parameters define the spatial extent of the grid.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">z_transect</span></code> is set to '0.0', indicating that the coarse graining will be performed at this z-level.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">x_axis_periodic</span></code> is set to '<code class="docutils literal notranslate"><span class="pre">True</span></code>', indicating that the x-axis is periodic, while the y and z axes are non-periodic.</p></li>
+</ul>
+<p>Find the corresponding documentation in the following page: <code class="docutils literal notranslate"><span class="pre">grid_generation</span></code>.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[grid_info]</span>
+<span class="na">grid_dimension</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+<span class="na">grid_axes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">xy</span>
+<span class="na">automatic_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">x_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.00105</span>
+<span class="na">x_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.5</span>
+<span class="na">y_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.001</span>
+<span class="na">y_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.24</span>
+<span class="na">z_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">z_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">x_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">y_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">z_transect</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0</span>
+<span class="na">x_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">y_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">z_axis_periodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">fields_to_export</span></code> section specifies which coarse-grained fields to export.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[fields_to_export]</span>
+<span class="na">volume_fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">density_particle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">density_mixture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">momentum_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">velocity_gradient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">kinetic_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">contact_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">total_stress_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">granular_temperature_slices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">fabric_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">inertial_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">coordination_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d43</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">d32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">frictional_coefficient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">shear_rate_tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">output_options</span></code> section defines the output formats for the coarse-grained data, including <code class="docutils literal notranslate"><span class="pre">vkthdf</span></code> and <code class="docutils literal notranslate"><span class="pre">h5</span></code> formats. Additionally, <code class="docutils literal notranslate"><span class="pre">time_average</span></code> defines whether time-averaged quantities will be exported into seperate files.</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[output_options]</span>
+<span class="na">vkthdf_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="na">h5_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<span class="na">time_average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+</pre></div>
+</div>
+</section>
+<section id="Run-the-coarse-graining">
+<h2>Run the coarse graining<a class="headerlink" href="#Run-the-coarse-graining" title="Link to this heading"></a></h2>
+<p>We should initialize the configuration and the coarse graining object. You can either do it through the configuration file and the <code class="docutils literal notranslate"><span class="pre">load_config</span></code> function, or you can directly input the parameters (that you have entered in the configuration file) into the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> class arguments.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the configuration from the ini file</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="s2">"./config.ini"</span><span class="p">)</span>
+
+<span class="c1"># Initialize the CoarseGraining class with the loaded configuration</span>
+<span class="n">CG</span> <span class="o">=</span> <span class="n">CoarseGraining</span><span class="p">(</span>
+    <span class="n">particle_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"particle_path"</span><span class="p">],</span>
+    <span class="n">contacts_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"contacts_path"</span><span class="p">],</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"output_path"</span><span class="p">],</span>
+    <span class="n">start_timestep</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"start_timestep"</span><span class="p">],</span>
+    <span class="n">end_timestep</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"end_timestep"</span><span class="p">],</span>
+    <span class="n">dt_time_step</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"dt_time_step"</span><span class="p">],</span>
+    <span class="n">t_pad</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"t_pad"</span><span class="p">],</span>
+    <span class="n">DEM_keymap</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"DEM_keymap"</span><span class="p">],</span>
+    <span class="n">DEM_software</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"DEM_software"</span><span class="p">],</span>
+    <span class="n">grid_info</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"grid_info"</span><span class="p">],</span>
+    <span class="n">weight_function</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"weight_function"</span><span class="p">],</span>
+    <span class="n">fields_to_export</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"fields_to_export"</span><span class="p">],</span>
+    <span class="n">time_average</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"time_average"</span><span class="p">],</span>
+    <span class="n">ignore_phases</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"ignore_phases"</span><span class="p">],</span>
+    <span class="n">h5_output</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"h5_output"</span><span class="p">],</span>
+    <span class="n">vkthdf_output</span><span class="o">=</span><span class="n">cfg</span><span class="p">[</span><span class="s2">"vkthdf_output"</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Output path already exists: ./PysammosCG/
+</pre></div></div>
+</div>
+<p>If you use the <code class="docutils literal notranslate"><span class="pre">load_config</span></code> to load the configuration file entries, you can input the <code class="docutils literal notranslate"><span class="pre">CoarseGraining</span></code> arguments directly:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="s2">"config.ini"</span><span class="p">)</span>
+<span class="n">CG</span> <span class="o">=</span> <span class="n">CoarseGraining</span><span class="p">(</span><span class="o">**</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Output path already exists: ./PysammosCG/
+</pre></div></div>
+</div>
+<p>Next, we can perform the coarse graining on the simulation data. You can either do it with a single command:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Starting coarse-graining process...
+Sampling data for the first time step to obtain particle properties and bounds ...
+XML-based PolyData detected.
+... initial particle data sampled
+... particle size statistics computed
+Ignoring phases. Using mean density and d50 as phase.
+... particle phases identified
+... coarse-graining resolution set: w/d =  0.75
+Generating Grid with Customised Grid Ranges
+Customised grid bounds: x = [0.00105, 0.5], y = [0.001, 0.24], z = [None, None], x_transect = None, y_transect = None, z_transect = 0.0
+... grid generated
+Processing time step 150 (1/3)...
+Loading data ...
+  Particle data loaded
+  Repeated pairs in contact data:  1142
+  Contact data loaded and mapped
+  Coordination number not required. Skipping its calculation.
+... data loaded
+Matching particles to grid points ...
+... particles assigned to grid nodes
+Computing weights ...
+  Using Lucy kernel with cutoff 0.024164815722222066 and search sampling factor 1000
+... weights computed
+Computing Coarse Graining fields...
+  volume fraction done
+  mixture density done
+  momentum density done
+  velocity done
+  velocity gradient done
+  kinetic tensor done
+  contact tensor done
+  d43 done
+  d32 done
+  frabric tensor done
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+... fields computed
+Writing results for timestep 150...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/exports/csce/datastore/geos/users/s1857688/Coarse_Graining/pysammos/pysammos/macroscopic_fields/gridded/derived_fields.py:216: RuntimeWarning: divide by zero encountered in divide
+  out[f&#34;frictional_coefficient_{s_name}_P{p_name}&#34;] = tau / out[f&#34;pressure_{p_name}&#34;]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0150.vtkhdf
+... results written
+
+Processing time step 151 (2/3)...
+Loading data ...
+  Particle data loaded
+  Repeated pairs in contact data:  1140
+  Contact data loaded and mapped
+  Coordination number not required. Skipping its calculation.
+... data loaded
+Matching particles to grid points ...
+... particles assigned to grid nodes
+Computing weights ...
+  Using Lucy kernel with cutoff 0.024164815722222066 and search sampling factor 1000
+... weights computed
+Computing Coarse Graining fields...
+  volume fraction done
+  mixture density done
+  momentum density done
+  velocity done
+  velocity gradient done
+  kinetic tensor done
+  contact tensor done
+  d43 done
+  d32 done
+  frabric tensor done
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+... fields computed
+Writing results for timestep 151...
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0151.vtkhdf
+... results written
+
+Processing time step 152 (3/3)...
+Loading data ...
+  Particle data loaded
+  Repeated pairs in contact data:  1165
+  Contact data loaded and mapped
+  Coordination number not required. Skipping its calculation.
+... data loaded
+Matching particles to grid points ...
+... particles assigned to grid nodes
+Computing weights ...
+  Using Lucy kernel with cutoff 0.024164815722222066 and search sampling factor 1000
+... weights computed
+Computing Coarse Graining fields...
+  volume fraction done
+  mixture density done
+  momentum density done
+  velocity done
+  velocity gradient done
+  kinetic tensor done
+  contact tensor done
+  d43 done
+  d32 done
+  frabric tensor done
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+... fields computed
+Writing results for timestep 152...
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0152.vtkhdf
+... results written
+
+Writing time averages over 3 time steps (150 to 152) ...
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+Writing results for time_averaged...
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse_time_averaged.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_time_averaged.vtkhdf
+Coarse-graining process completed, summary:
+&gt;&gt;&gt; Number of grid points: 903
+&gt;&gt;&gt; Total preparation time: 0.01 seconds
+&gt;&gt;&gt; Average time per time step: 1.63 seconds
+       &gt;&gt; duration per time step: [4.6882545948028564, 0.10654568672180176, 0.10777664184570312]
+&gt;&gt;&gt; Number of cores used:  2
+</pre></div></div>
+</div>
+<p>or running each step of the workflow separately:</p>
+<section id="1.-Load-the-size-relevant-particle-data-for-the-first-time-step">
+<h3>1. Load the size-relevant particle data for the first time step<a class="headerlink" href="#1.-Load-the-size-relevant-particle-data-for-the-first-time-step" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Bounds_t0</span><span class="p">,</span> <span class="n">Diameter_t0</span><span class="p">,</span> <span class="n">Density_t0</span><span class="p">,</span> <span class="n">Mass_t0</span><span class="p">,</span> <span class="n">GlobalID_t0</span> <span class="o">=</span> <span class="n">CG</span><span class="o">.</span><span class="n">data_sampling</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Sampling data for the first time step to obtain particle properties and bounds ...
+XML-based PolyData detected.
+</pre></div></div>
+</div>
+</section>
+<section id="2.-Calculate-the-particle-size-range">
+<h3>2. Calculate the particle size range<a class="headerlink" href="#2.-Calculate-the-particle-size-range" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="n">CG</span><span class="o">.</span><span class="n">get_particle_size_statistics</span><span class="p">(</span><span class="n">Diameter_t0</span><span class="p">,</span> <span class="n">Mass_t0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"&gt;&gt; Particle size statistics: "</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       d43: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">d43</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       dmax: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">dmax</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       d50: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">d50</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       d32: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">d32</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       drms: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">drms</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&gt;&gt; Particle size statistics:
+       d43:  0.01651367411185649
+       dmax:  0.019993
+       d50:  0.016306963
+       d32:  0.016109877148148044
+       drms:  0.015422490500786803
+</pre></div></div>
+</div>
+</section>
+<section id="3.-Get-the-phases">
+<h3>3. Get the phases<a class="headerlink" href="#3.-Get-the-phases" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">get_particle_phases</span><span class="p">(</span><span class="n">Diameter_t0</span><span class="p">,</span> <span class="n">Density_t0</span><span class="p">,</span> <span class="n">GlobalID_t0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"&gt;&gt; Phases: "</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       Diameters: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       Densities: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">phases</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignoring phases. Using mean density and d50 as phase.
+&gt;&gt; Phases:
+       Diameters:  [0.01610988]
+       Densities:  [2700.]
+</pre></div></div>
+</div>
+</section>
+<section id="4.-Calculate-the-CG-grid-spacing">
+<h3>4. Calculate the CG grid spacing<a class="headerlink" href="#4.-Calculate-the-CG-grid-spacing" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">set_resolution</span><span class="p">(</span><span class="n">CG</span><span class="o">.</span><span class="n">d32</span><span class="p">)</span> <span class="c1"># here you can input different number, to make w and c bigger or smaller</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"&gt;&gt; Coarse Graining resolution: "</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       c:"</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       w:"</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&gt;&gt; Coarse Graining resolution:
+       c: 0.024164815722222066
+       w: 0.012082407861111033
+</pre></div></div>
+</div>
+</section>
+<section id="5.-Generate-the-CG-grid">
+<h3>5. Generate the CG grid<a class="headerlink" href="#5.-Generate-the-CG-grid" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">generate_grid</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"&gt;&gt; Grid: "</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       Grid Points: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">GridPoints</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">"First Point: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       Nodes: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">Nodes</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"       Spacing: "</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">Spacing</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Generating Grid with Customised Grid Ranges
+Customised grid bounds: x = [0.00105, 0.5], y = [0.001, 0.24], z = [None, None], x_transect = None, y_transect = None, z_transect = 0.0
+&gt;&gt; Grid:
+       Grid Points:  (903, 3) First Point:  [0.00105 0.001   0.     ]
+       Nodes:  [43 21  1]
+       Spacing:  [0.01187976 0.01195   ]
+</pre></div></div>
+</div>
+</section>
+<section id="6.-Calculate-the-CG-fields">
+<h3>6. Calculate the CG fields<a class="headerlink" href="#6.-Calculate-the-CG-fields" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CG</span><span class="o">.</span><span class="n">fields_in_time</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+-------------------- Calculating Coarse Grained Fields --------------------
+
+---&gt; Time step 0: time 0150 ................................................
+Loading data ...
+  Particle data loaded
+  Repeated pairs in contact data:  1142
+  Contact data loaded and mapped
+  Coordination number not required. Skipping its calculation.
+... data loaded
+Matching particles to grid points ...
+... particles assigned to grid nodes
+Computing weights ...
+  Using Lucy kernel with cutoff 0.024164815722222066 and search sampling factor 1000
+... weights computed
+Computing Coarse Graining fields...
+  volume fraction done
+  mixture density done
+  momentum density done
+  velocity done
+  velocity gradient done
+  kinetic tensor done
+  contact tensor done
+  d43 done
+  d32 done
+  frabric tensor done
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+... fields computed
+Writing results for timestep 150...
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0150.vtkhdf
+... results written
+... primary fields added to time average accumulator
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+  File successfully written to ./PysammosCG/CG_GranularTemperature_slices.h5
+&gt;&gt; time step 0 took 2.198777198791504 to run.
+
+---&gt; Time step 1: time 0151 ................................................
+Loading data ...
+  Particle data loaded
+  Repeated pairs in contact data:  1140
+  Contact data loaded and mapped
+  Coordination number not required. Skipping its calculation.
+... data loaded
+Matching particles to grid points ...
+... particles assigned to grid nodes
+Computing weights ...
+  Using Lucy kernel with cutoff 0.024164815722222066 and search sampling factor 1000
+... weights computed
+Computing Coarse Graining fields...
+  volume fraction done
+  mixture density done
+  momentum density done
+  velocity done
+  velocity gradient done
+  kinetic tensor done
+  contact tensor done
+  d43 done
+  d32 done
+  frabric tensor done
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+... fields computed
+Writing results for timestep 151...
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0151.vtkhdf
+... results written
+... primary fields added to time average accumulator
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+  File successfully written to ./PysammosCG/CG_GranularTemperature_slices.h5
+&gt;&gt; time step 1 took 0.5893969535827637 to run.
+
+---&gt; Time step 2: time 0152 ................................................
+Loading data ...
+  Particle data loaded
+  Repeated pairs in contact data:  1165
+  Contact data loaded and mapped
+  Coordination number not required. Skipping its calculation.
+... data loaded
+Matching particles to grid points ...
+... particles assigned to grid nodes
+Computing weights ...
+  Using Lucy kernel with cutoff 0.024164815722222066 and search sampling factor 1000
+... weights computed
+Computing Coarse Graining fields...
+  volume fraction done
+  mixture density done
+  momentum density done
+  velocity done
+  velocity gradient done
+  kinetic tensor done
+  contact tensor done
+  d43 done
+  d32 done
+  frabric tensor done
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+... fields computed
+Writing results for timestep 152...
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_0152.vtkhdf
+... results written
+... primary fields added to time average accumulator
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices.h5
+  File successfully written to ./PysammosCG/CG_GranularTemperature_slices.h5
+&gt;&gt; time step 2 took 0.6125955581665039 to run.
+
+Writing time averages over 3 time steps (150 to 152) ...
+  particle density done
+  total stress done
+  pressure done
+  granular temp done
+  shear rate done
+  inertial number done
+  mu done
+Writing results for time_averaged...
+  File successfully updated to ./PysammosCG/CG_Lucy_Monodisperse_time_averaged.h5
+  Warning: VTKHDFWriter promoting 2D ImageData (nz=1) to thin 3D (nz=2) for VTK compatibility.
+  File successfully written to ./PysammosCG/CG_Lucy_Monodisperse_time_averaged.vtkhdf
+  File successfully updated to ./PysammosCG/CG_GranularTemperature_slices_time_averaged.h5
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Plotting-the-Results-in-Python">
+<h2>Plotting the Results in Python<a class="headerlink" href="#Plotting-the-Results-in-Python" title="Link to this heading"></a></h2>
+<p>After running the above code, the coarse-grained fields will be saved in the specified output directory. To visualize the results from the <code class="docutils literal notranslate"><span class="pre">.h5</span></code> files, you can use the provided Jupyter notebook <code class="docutils literal notranslate"><span class="pre">visualization_bedload_transport.ipynb</span></code> in the same directory.</p>
+<section id="1.-Initialize-the-H5XarrayManager-to-read-the-coarse-grained-data">
+<h3>1. Initialize the H5XarrayManager to read the coarse-grained data<a class="headerlink" href="#1.-Initialize-the-H5XarrayManager-to-read-the-coarse-grained-data" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># gridded data</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">"./PysammosCG/CG_Lucy_Monodisperse.h5"</span><span class="p">)</span>
+<span class="n">bedload_CG</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+
+<span class="c1"># time-averaged gridded data</span>
+<span class="n">manager_avg</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">"./PysammosCG/CG_Lucy_Monodisperse_time_averaged.h5"</span><span class="p">)</span>
+<span class="n">bedload_CG_avg</span> <span class="o">=</span> <span class="n">manager_avg</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+
+<span class="c1"># sliced granular temperature data</span>
+<span class="n">manager_gt</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">"./PysammosCG/CG_GranularTemperature_slices.h5"</span><span class="p">)</span>
+<span class="n">slices_gt</span> <span class="o">=</span> <span class="n">manager_gt</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+
+<span class="c1"># sliced granular temperature time averaged</span>
+<span class="n">manager_gt_avg</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">"./PysammosCG/CG_GranularTemperature_slices_time_averaged.h5"</span><span class="p">)</span>
+<span class="n">slices_gt_avg</span> <span class="o">=</span> <span class="n">manager_gt_avg</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Processing key: density_mixture
+Processing key: fabric_tensor
+Processing key: frictional_coefficient_01_Pxy
+Processing key: frictional_coefficient_01_Pxyz
+Processing key: frictional_coefficient_01_Py
+Processing key: frictional_coefficient_Dxy_Pxy
+Processing key: frictional_coefficient_Dxy_Pxyz
+Processing key: frictional_coefficient_Dxy_Py
+Processing key: frictional_coefficient_Dxyz_Pxy
+Processing key: frictional_coefficient_Dxyz_Pxyz
+Processing key: frictional_coefficient_Dxyz_Py
+Processing key: granular_temperature_x
+Processing key: granular_temperature_xyz
+Processing key: granular_temperature_y
+Processing key: granular_temperature_z
+Processing key: inertial_number_Sxy_Pxy_d32
+Processing key: inertial_number_Sxy_Pxy_d43
+Processing key: inertial_number_Sxy_Pxyz_d32
+Processing key: inertial_number_Sxy_Pxyz_d43
+Processing key: inertial_number_Sxy_Py_d32
+Processing key: inertial_number_Sxy_Py_d43
+Processing key: positions
+Processing key: pressure_x
+Processing key: pressure_xy
+Processing key: pressure_xyz
+Processing key: pressure_y
+Processing key: pressure_z
+Processing key: time
+Processing key: total_stress_tensor_xy_dev
+Processing key: total_stress_tensor_xy_dev_mag
+Processing key: total_stress_tensor_xyz
+Processing key: total_stress_tensor_xyz_dev
+Processing key: total_stress_tensor_xyz_dev_mag
+Processing key: total_stress_tensor_xyz_mag
+Processing key: velocity
+Processing key: velocity_gradient
+Processing key: volume_fraction
+Processing key: density_mixture
+Processing key: fabric_tensor
+Processing key: frictional_coefficient_01_Pxy
+Processing key: frictional_coefficient_01_Pxyz
+Processing key: frictional_coefficient_01_Py
+Processing key: frictional_coefficient_Dxy_Pxy
+Processing key: frictional_coefficient_Dxy_Pxyz
+Processing key: frictional_coefficient_Dxy_Py
+Processing key: frictional_coefficient_Dxyz_Pxy
+Processing key: frictional_coefficient_Dxyz_Pxyz
+Processing key: frictional_coefficient_Dxyz_Py
+Processing key: granular_temperature_x
+Processing key: granular_temperature_xyz
+Processing key: granular_temperature_y
+Processing key: granular_temperature_z
+Processing key: inertial_number_Sxy_Pxy_d32
+Processing key: inertial_number_Sxy_Pxy_d43
+Processing key: inertial_number_Sxy_Pxyz_d32
+Processing key: inertial_number_Sxy_Pxyz_d43
+Processing key: inertial_number_Sxy_Py_d32
+Processing key: inertial_number_Sxy_Py_d43
+Processing key: positions
+Processing key: pressure_x
+Processing key: pressure_xy
+Processing key: pressure_xyz
+Processing key: pressure_y
+Processing key: pressure_z
+Processing key: time
+Processing key: total_stress_tensor_xy_dev
+Processing key: total_stress_tensor_xy_dev_mag
+Processing key: total_stress_tensor_xyz
+Processing key: total_stress_tensor_xyz_dev
+Processing key: total_stress_tensor_xyz_dev_mag
+Processing key: total_stress_tensor_xyz_mag
+Processing key: velocity
+Processing key: velocity_gradient
+Processing key: volume_fraction
+Processing key: granular_temperature_Kamrin
+Processing key: granular_temperature_LAMMPS
+Processing key: positions
+Processing key: time
+Processing key: granular_temperature_Kamrin
+Processing key: granular_temperature_LAMMPS
+Processing key: positions
+Processing key: time
+</pre></div></div>
+</div>
+</section>
+<section id="2.-Plotting-the-mixture-density-field-at-a-specific-time-step">
+<h3>2. Plotting the mixture density field at a specific time step<a class="headerlink" href="#2.-Plotting-the-mixture-density-field-at-a-specific-time-step" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create figure and axis</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+
+<span class="c1"># Plot DEM particle positions</span>
+<span class="n">bedload_DEM</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">'../data_examples/bedload_transport/DEM_data/DES_FB1_0150.vtp'</span><span class="p">)</span>
+<span class="n">bedload_particles</span> <span class="o">=</span> <span class="n">bedload_DEM</span><span class="o">.</span><span class="n">points</span>
+<span class="n">x_particle</span> <span class="o">=</span> <span class="n">bedload_particles</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">];</span> <span class="n">y_particle</span> <span class="o">=</span> <span class="n">bedload_particles</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_particle</span><span class="p">,</span> <span class="n">y_particle</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">'k'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Particle Positions'</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Plot the CG data</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bedload_CG</span><span class="o">.</span><span class="n">density_mixture</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+<span class="n">sc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">var</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="s1">'viridis'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'CG Density'</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'s'</span><span class="p">)</span>
+
+<span class="c1"># Add colorbar and labels</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Density'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'X Position'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Y Position'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">' Coarse-Grained Mixture Density'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_bedload_docs_50_0.png" src="../_images/examples_bedload_docs_50_0.png" />
+</div>
+</div>
+</section>
+<section id="3.-Plotting-the-granular-temperature-field-at-a-specific-time-step">
+<h3>3. Plotting the granular temperature field at a specific time step<a class="headerlink" href="#3.-Plotting-the-granular-temperature-field-at-a-specific-time-step" title="Link to this heading"></a></h3>
+<p>The vertical profiles of the coarse-grained fields can be plotted using the following code, which uses the subpackage <code class="docutils literal notranslate"><span class="pre">vertical_profiles</span></code>. Below we plot the profile of density_mixture of the first time step, after performing vertical intergration to obtain vertical profiles.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Perform vertical integration</span>
+<span class="n">VI</span> <span class="o">=</span> <span class="n">VerticalIntegrator</span><span class="p">(</span><span class="n">bedload_CG</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">)</span>
+<span class="n">vertical_ds_general</span> <span class="o">=</span> <span class="n">VI</span><span class="o">.</span><span class="n">integration</span><span class="p">()</span>
+
+<span class="c1"># plot the profile of density_mixture of the first time step</span>
+<span class="n">vertical_ds_general</span><span class="p">[</span><span class="s1">'density_mixture'</span><span class="p">]</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Density Mixture General'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">'y coordinate'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">'Integrated Density Mixture'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">'Vertical Profile of Integrated Density Mixture at First Time Step'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Starting integration along profile dimension: y
+Completed integration along profile dimension: y
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_bedload_docs_53_1.png" src="../_images/examples_bedload_docs_53_1.png" />
+</div>
+</div>
+</section>
+<section id="4.-Plotting-the-granular-temperature-slices-calculated-with-other-methods">
+<h3>4. Plotting the granular temperature slices calculated with other methods<a class="headerlink" href="#4.-Plotting-the-granular-temperature-slices-calculated-with-other-methods" title="Link to this heading"></a></h3>
+<p>Pysammos provides the granular temperature slices along specified transects using other methods. See the documentation for more details: check the page <code class="docutils literal notranslate"><span class="pre">gran_temp_slices</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot first time step vertical profile comparing Kamrin and LAMMPS</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">slices_gt</span><span class="o">.</span><span class="n">granular_temperature_Kamrin</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">slices_gt</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Granular Temperature Kamrin'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">slices_gt</span><span class="o">.</span><span class="n">granular_temperature_LAMMPS</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">slices_gt</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Granular Temperature LAMMPS'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'orange'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Granular Temperature'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Y Position'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Granular Temperature Vertical Profile at z=0, Timestep 0'</span><span class="p">)</span>
+<span class="c1">#gridlines</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="c1"># log scale x axis</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_bedload_docs_56_0.png" src="../_images/examples_bedload_docs_56_0.png" />
+</div>
+</div>
+</section>
+<section id="5.-Plotting-time-averaged-data">
+<h3>5. Plotting time-averaged data<a class="headerlink" href="#5.-Plotting-time-averaged-data" title="Link to this heading"></a></h3>
+<p>Pysammos also calculates time-averaged quantities, below we show how to visualise them:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">slices_gt_avg</span><span class="o">.</span><span class="n">granular_temperature_Kamrin</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">slices_gt_avg</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"blue"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'X Position'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Granular Temperature Kamrin'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Time-Averaged Granular Temperature Kamrin Profile'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_bedload_docs_59_0.png" src="../_images/examples_bedload_docs_59_0.png" />
+</div>
+</div>
+<p>Note that time averaging of non-linear fields, e.g. inertial number, is constructred from the time-averaged quantities, instead of taking the time series average of the non-linear field of interest. The difference between these two calculations is shown below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate time-averaged and time series averaged inertial numbers</span>
+<span class="n">I_tav</span> <span class="o">=</span> <span class="n">bedload_CG_avg</span><span class="o">.</span><span class="n">inertial_number_Sxy_Pxy_d32</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
+<span class="n">I_ts_averaged</span> <span class="o">=</span> <span class="n">bedload_CG</span><span class="o">.</span><span class="n">inertial_number_Sxy_Pxy_d32</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">'time'</span><span class="p">)</span>
+
+<span class="c1"># plot difference between time-averaged inertial number and time series averaged inertial number</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">I_tav</span><span class="p">,</span> <span class="n">bedload_CG_avg</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Time-Averaged Inertial Number [correct]'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">I_ts_averaged</span><span class="p">,</span>  <span class="n">bedload_CG_avg</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">'Time Series Averaged Inertial Number [incorrect]'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'orange'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Inertial Number'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Y Position'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'Comparison of Time-Averaged Inertial Number Profiles'</span><span class="p">)</span>
+<span class="c1">#gridlines</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="c1"># log scale x axis</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">'lower right'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_bedload_docs_61_0.png" src="../_images/examples_bedload_docs_61_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../examples.html" class="btn btn-neutral float-left" title="Tutorials and Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="erodible_bed_docs.html" class="btn btn-neutral float-right" title="3D coarse graining of an erodible bed" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

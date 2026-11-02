@@ -1,0 +1,338 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "52adccfa",
+   "metadata": {},
+   "source": [
+    "# Coarse graining LAMMPS output"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f4bc50d",
+   "metadata": {},
+   "source": [
+    "In this example, we demonstrate how to use the `CoarseGraining` class to perform coarse graining of LAMMPS output: a 3D granular assembly of spherical particles, read from LAMMPS dump files.\n",
+    "\n",
+    "The files required for this example can be found in the repository:\n",
+    "\n",
+    "- The DEM simulation data files in `examples/data_examples/lammps_reading/DEM_data/` (`dump_particles/` and `dump_forcechain/`)\n",
+    "- The configuration file `config.ini` in `examples/LAMMPS_reading/`\n",
+    "\n",
+    "The same workflow can be run from the `compute_CG.ipynb` notebook in `examples/LAMMPS_reading/`. This example focuses on reading LAMMPS data; for the visualisation of the coarse-grained fields, see the MFiX examples."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1713b56b",
+   "metadata": {},
+   "source": [
+    "## Import packages"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "46dd0bc7",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Hello from pysammos\n",
+      "Loading macroscopic_fields package...\n",
+      "Loading data_read package...\n",
+      "Loading particle_phase package...\n",
+      "Loading spatial_weights package...\n",
+      "Loading neighbour_search package...\n",
+      "Loading grid_generation package...\n",
+      "Loading data_handle package...\n",
+      "Loading data_write package...\n"
+     ]
+    }
+   ],
+   "source": [
+    "from pysammos.utils.config_loader import load_config\n",
+    "from pysammos.coarse_graining import CoarseGraining"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "ef197c59",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Working directory: /exports/csce/datastore/geos/users/s1857688/Coarse_Graining/pysammos/examples/LAMMPS_reading\n"
+     ]
+    }
+   ],
+   "source": [
+    "from pathlib import Path\n",
+    "import os\n",
+    "\n",
+    "# The paths inside config.ini (DEM data, output folder) are relative to the example folder,\n",
+    "# so we work from examples/LAMMPS_reading/ and read its config.ini.\n",
+    "if \"EXAMPLE_DIR\" not in globals():          # resolve once, so the cell can be re-run\n",
+    "    EXAMPLE_DIR = (Path.cwd() / \"../../examples/LAMMPS_reading\").resolve()\n",
+    "os.chdir(EXAMPLE_DIR)\n",
+    "CONFIG_FILE = EXAMPLE_DIR / \"config.ini\"\n",
+    "print(\"Working directory:\", Path.cwd())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f2b8abf2",
+   "metadata": {},
+   "source": [
+    "## The configuration file\n",
+    "\n",
+    "The configuration file `config.ini` contains the parameters for the coarse-graining process. You can modify the parameters in this file to suit your needs. For a description of every section, see the bedload transport example. The file used here is:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cf517ef8",
+   "metadata": {},
+   "source": [
+    "```ini\n",
+    "[paths]\n",
+    "particles_path = ../data_examples/lammps_reading/DEM_data/dump_particles/particles.\n",
+    "contacts_path = ../data_examples/lammps_reading/DEM_data/dump_forcechain/forcechain.\n",
+    "output_path = ./PysammosCG/\n",
+    "\n",
+    "[timesteps] \n",
+    "t0 = 11991\n",
+    "tf = 11991 \n",
+    "dt = 1\n",
+    "t_pad = 9 \n",
+    "\n",
+    "[smoothing_function]\n",
+    "type = Lucy\n",
+    "\n",
+    "[flags]\n",
+    "partialignore = True\n",
+    "\n",
+    "[key_mapping]\n",
+    "Global_ID = id\n",
+    "Particle_Position = [x, y, z]\n",
+    "Particle_Velocity = [vx, vy, vz]\n",
+    "Particle_Diameter = diameter\n",
+    "Particle_Density = v_pdens\n",
+    "Particle_Volume = v_pvol\n",
+    "Particle_Mass = mass\n",
+    "Particle_Radius = radius\n",
+    "Coordination_Number = c_Z\n",
+    "Particle_i_ID = c_pl[1]\n",
+    "Particle_j_ID = c_pl[2]\n",
+    "Force_ij = [c_pr[1], c_pr[2], c_pr[3]]\n",
+    "Contact_ij = None\n",
+    "\n",
+    "[DEM_software]\n",
+    "name = lammps\n",
+    "\n",
+    "[grid_info]\n",
+    "grid_dimension = 3\n",
+    "grid_axes = xyz\n",
+    "automatic_grid = True\n",
+    "x_min = 0.005\n",
+    "x_max = 0.10\n",
+    "y_min = 0.005\n",
+    "y_max = 0.44\n",
+    "z_min = 0.005\n",
+    "z_max = 0.05\n",
+    "x_transect = None\n",
+    "y_transect = None\n",
+    "z_transect = None\n",
+    "x_axis_periodic = True\n",
+    "y_axis_periodic = False\n",
+    "z_axis_periodic = True\n",
+    "\n",
+    "[fields_to_export]\n",
+    "volume_fraction = True\n",
+    "density_particle = False\n",
+    "density_mixture = True\n",
+    "momentum_density = False\n",
+    "velocity = True\n",
+    "velocity_gradient = False\n",
+    "kinetic_tensor = False\n",
+    "contact_tensor = False\n",
+    "total_stress_tensor = True\n",
+    "pressure = True\n",
+    "granular_temperature = True\n",
+    "granular_temperature_slices = True\n",
+    "fabric_tensor = False\n",
+    "inertial_number = True\n",
+    "coordination_number = False\n",
+    "d43 = False\n",
+    "d32 = False\n",
+    "frictional_coefficient = True\n",
+    "shear_rate_tensor = False\n",
+    "\n",
+    "[output_options]\n",
+    "vkthdf_output = True\n",
+    "h5_output = True\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "20f6e51d",
+   "metadata": {},
+   "source": [
+    "### Mapping the LAMMPS dump columns\n",
+    "\n",
+    "With `DEM_software = lammps`, the `key_mapping` section gives the **column names of the dump files**. The headers of the two dump files show the available columns:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "ce76f64e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "--- particles.000011991.dump\n",
+      "ITEM: TIMESTEP\n",
+      "11991\n",
+      "ITEM: NUMBER OF ATOMS\n",
+      "35648\n",
+      "ITEM: BOX BOUNDS pp pp fm\n",
+      "-1.0000000000000001e-01 1.0000000000000001e-01\n",
+      "-1.0000000000000001e-01 1.0000000000000001e-01\n",
+      "0.0000000000000000e+00 5.0000000000000000e-01\n",
+      "ITEM: ATOMS id type diameter radius mass v_pdens x y z xu yu zu vx vy vz v_pvol c_Z\n",
+      "\n",
+      "--- forcechain.000011991.dump\n",
+      "ITEM: TIMESTEP\n",
+      "11991\n",
+      "ITEM: NUMBER OF ENTRIES\n",
+      "105362\n",
+      "ITEM: BOX BOUNDS pp pp fm\n",
+      "-1.0000000000000001e-01 1.0000000000000001e-01\n",
+      "-1.0000000000000001e-01 1.0000000000000001e-01\n",
+      "0.0000000000000000e+00 5.0000000000000000e-01\n",
+      "ITEM: ENTRIES index c_pl[1] c_pl[2] c_pr[1] c_pr[2] c_pr[3] c_pr[4] c_pr[5] c_pr[6] c_pr[7]\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "particles_dump = sorted(Path(\"../data_examples/lammps_reading/DEM_data/dump_particles\").glob(\"particles.*\"))[0]\n",
+    "contacts_dump = sorted(Path(\"../data_examples/lammps_reading/DEM_data/dump_forcechain\").glob(\"forcechain.*\"))[0]\n",
+    "for dump in (particles_dump, contacts_dump):\n",
+    "    print(f\"--- {dump.name}\")\n",
+    "    with open(dump) as f:\n",
+    "        print(\"\".join(next(f) for _ in range(9)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2baab81b",
+   "metadata": {},
+   "source": [
+    "- Vector quantities are given as a list of columns, e.g. `Particle_Position = [x, y, z]` and `Particle_Velocity = [vx, vy, vz]`.\n",
+    "- Per-atom variables and computes keep their LAMMPS names, e.g. `Particle_Density = v_pdens`, `Particle_Volume = v_pvol`, `Coordination_Number = c_Z`.\n",
+    "- In the contact (local) dump, `Particle_i_ID = c_pl[1]` and `Particle_j_ID = c_pl[2]` are the IDs of the two particles in contact, and `Force_ij = [c_pr[1], c_pr[2], c_pr[3]]` are the force components.\n",
+    "- `Contact_ij = None`: the contact points are not in the dump, so Pysammos calculates them from the particle positions and diameters.\n",
+    "\n",
+    "In `grid_info`, the three `*_axis_periodic` flags should match the boundary flags of the simulation box, given in the dump header (`ITEM: BOX BOUNDS ...`, where `p` means periodic). They are used to correct the branch vectors of contacts that cross a periodic boundary. With `automatic_grid = True`, the grid range is set from the particle bounds and the `x/y/z_min/max` values are not used."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2428091c",
+   "metadata": {},
+   "source": [
+    "## Initialise the `CoarseGraining` class\n",
+    "\n",
+    "`load_config` returns the arguments of `CoarseGraining` as a dictionary, so they can be passed directly with `**`. You can also give each argument explicitly, as shown in the bedload transport example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "c49a501a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Output path created: ./PysammosCG/\n"
+     ]
+    }
+   ],
+   "source": [
+    "cfg = load_config(CONFIG_FILE)\n",
+    "CG = CoarseGraining(**cfg)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "f482ff32",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "('lammps', array([11991]))"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "CG.DEM_software, CG.time_steps"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c9da3500",
+   "metadata": {},
+   "source": [
+    "## Run the coarse graining\n",
+    "\n",
+    "The whole workflow can be run with a single command:\n",
+    "\n",
+    "```python\n",
+    "CG.run()\n",
+    "```\n",
+    "\n",
+    "Here we run it step by step instead, to show what each step does."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Pysammos_Env",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.11"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -17,6 +17,7 @@
       <script src="../../../../_static/documentation_options.js?v=7df0f304"></script>
       <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -98,6 +99,8 @@
 <span class="sd">    Initializes the manager with the specified HDF5 file.   </span>
 <span class="sd">    </span>
 <span class="sd">    Methods:</span>
+<span class="sd">    </span>
+<span class="sd">        - :meth:`add_attrs`: Adds attributes to the root of the HDF5 file</span>
 <span class="sd">        - :meth:`add_positions`: Adds grid point positions to the HDF5 file</span>
 <span class="sd">        - :meth:`add_phases`: Adds phase labels to the HDF5 file</span>
 <span class="sd">        - :meth:`update_h5py_file`: Saves a single step of data to the HDF5 file at a specific index with a custom dimension value.</span>
@@ -144,6 +147,22 @@
 
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+
+<div class="viewcode-block" id="H5XarrayManager.add_attrs">
+<a class="viewcode-back" href="../../../../pysammos.data_write.h5.html#pysammos.data_write.h5.writer.H5XarrayManager.add_attrs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add attributes to the root of the HDF5 file (overwriting attributes with the same name).</span>
+<span class="sd"> </span>
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        attrs : dict</span>
+<span class="sd">            Attribute names and values, e.g. {"time_steps_averaged": np.array([...])}.</span>
+<span class="sd"> </span>
+<span class="sd">        """</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="H5XarrayManager.add_positions">
 <a class="viewcode-back" href="../../../../pysammos.data_write.h5.html#pysammos.data_write.h5.writer.H5XarrayManager.add_positions">[docs]</a>

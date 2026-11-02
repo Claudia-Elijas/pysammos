@@ -18,6 +18,7 @@
       <script src="_static/documentation_options.js?v=7df0f304"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -123,15 +124,16 @@ interface for data analysis using xarray.</p>
 with new data. It also includes methods to convert the HDF5 file into an xarray Dataset,
 handling various data shapes and ensuring appropriate dimension names.
 Initializes the manager with the specified HDF5 file.</p>
-<dl class="simple">
-<dt>Methods:</dt><dd><ul class="simple">
+<p>Methods:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_attrs()</span></code>: Adds attributes to the root of the HDF5 file</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_positions()</span></code>: Adds grid point positions to the HDF5 file</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_phases()</span></code>: Adds phase labels to the HDF5 file</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_h5py_file()</span></code>: Saves a single step of data to the HDF5 file at a specific index with a custom dimension value.</p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">h5_to_xarray()</span></code>: Loads the HDF5 file as an xarray Dataset, handling various data shapes and ensuring appropriate dimension names.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd>
 </dl>
 <dl class="py class">
@@ -160,11 +162,24 @@ Initializes the manager with the specified HDF5 file.</p>
 </pre></div>
 </div>
 <dl class="py method">
+<dt class="sig sig-object py" id="pysammos.data_write.h5.writer.H5XarrayManager.add_attrs">
+<span class="sig-name descname"><span class="pre">add_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/h5/writer.html#H5XarrayManager.add_attrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.h5.writer.H5XarrayManager.add_attrs" title="Link to this definition"></a></dt>
+<dd><p>Add attributes to the root of the HDF5 file (overwriting attributes with the same name).</p>
+<section id="id1">
+<h4>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>attrs<span class="classifier">dict</span></dt><dd><p>Attribute names and values, e.g. {&quot;time_steps_averaged&quot;: np.array([...])}.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pysammos.data_write.h5.writer.H5XarrayManager.add_phases">
 <span class="sig-name descname"><span class="pre">add_phases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase_labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/h5/writer.html#H5XarrayManager.add_phases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.h5.writer.H5XarrayManager.add_phases" title="Link to this definition"></a></dt>
 <dd><p>Add phase labels to the HDF5 file if not already present.</p>
-<section id="id1">
-<h4>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<section id="id2">
+<h4>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>phase_labels<span class="classifier">list or array-like of str</span></dt><dd><p>List of phase label names.</p>
 </dd>
@@ -176,8 +191,8 @@ Initializes the manager with the specified HDF5 file.</p>
 <dt class="sig sig-object py" id="pysammos.data_write.h5.writer.H5XarrayManager.add_positions">
 <span class="sig-name descname"><span class="pre">add_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/h5/writer.html#H5XarrayManager.add_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.h5.writer.H5XarrayManager.add_positions" title="Link to this definition"></a></dt>
 <dd><p>Add grid point positions to the HDF5 file if not already present.</p>
-<section id="id2">
-<h4>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<section id="id3">
+<h4>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>positions<span class="classifier">array-like, shape (n_points, 3)</span></dt><dd><p>Array of grid point positions.</p>
 </dd>
@@ -189,8 +204,8 @@ Initializes the manager with the specified HDF5 file.</p>
 <dt class="sig sig-object py" id="pysammos.data_write.h5.writer.H5XarrayManager.h5_to_xarray">
 <span class="sig-name descname"><span class="pre">h5_to_xarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/h5/writer.html#H5XarrayManager.h5_to_xarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.h5.writer.H5XarrayManager.h5_to_xarray" title="Link to this definition"></a></dt>
 <dd><p>Load the HDF5 file as an xarray Dataset.</p>
-<section id="id3">
-<h4>Inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<section id="id4">
+<h4>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>dim_name<span class="classifier">str, optional</span></dt><dd><p>Name of the main dimension (default is &quot;time&quot;).</p>
 </dd>
@@ -216,8 +231,8 @@ Initializes the manager with the specified HDF5 file.</p>
 <dt class="sig sig-object py" id="pysammos.data_write.h5.writer.H5XarrayManager.update_h5py_file">
 <span class="sig-name descname"><span class="pre">update_h5py_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/data_write/h5/writer.html#H5XarrayManager.update_h5py_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.data_write.h5.writer.H5XarrayManager.update_h5py_file" title="Link to this definition"></a></dt>
 <dd><p>Save a single step of data to an HDF5 file at a specific index, with a custom dimension value.</p>
-<section id="id4">
-<h4>Inputs<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<section id="id5">
+<h4>Inputs<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
 <dl class="simple">
 <dt>data_dict<span class="classifier">dict</span></dt><dd><p>Dictionary where keys are variable names and values are arrays to store.</p>
 </dd>
