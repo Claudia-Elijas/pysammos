@@ -1048,7 +1048,7 @@ class CoarseGraining:
             time_timesteps.append(timestep_end - timestep_start)
  
         if acc is not None:
-            self._write_time_average(acc)
+            self._export_time_average(acc)
             
         print("Coarse-graining process completed, summary:")
         print(f">>> Number of grid points: {self.GridPoints.shape[0]}")
