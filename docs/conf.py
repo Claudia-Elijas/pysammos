@@ -28,15 +28,20 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints", 
-    "sphinx.ext.viewcode"
+    "sphinx.ext.viewcode",
+    "nbsphinx",
 ]
 
+nbsphinx_thumbnails = {
+    'examples/lammps_reading_docs': '_static/lammps_logo.png'} 
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 
+nbsphinx_execute = 'never'
+
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ["build", "**.ipynb_checkpoints"]
 
 language = 'english'
 

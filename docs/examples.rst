@@ -3,12 +3,13 @@ Tutorials and Examples
 
 Here are some example usages of Pysammos's coarse-graining framework, from the building and explanation of the configuration files to the visualisation of the coarse-grained fields.
 
-The first Pysammos release (v1.0.0) includes the various examples for DEM models in MFiX. Below is an example of a 2D bedload transport simulation. 
+The first Pysammos release (v1.0.0) includes the various examples for DEM models in MFiX. 
 
-.. toctree::
-   :maxdepth: 2
+.. nbgallery::
 
-   examples/bedload_transport
+   examples/bedload_docs.ipynb
+   examples/erodible_bed_docs.ipynb
+   examples/janssen_pile_docs.ipynb
 
 
 
@@ -16,10 +17,9 @@ In the second Pysammos release (v1.1.0), the examples for DEM models in LAMMPS a
 This example shows how to enter the inputs to the ``CoarseGraining`` class. The subsequent visualisation of the coarse-grained fields is not included in the example,
 but can be implemented from other MFiX examples found in the documentation or the `examples` directory.
 
-.. toctree::
-   :maxdepth: 2
+.. nbgallery::
 
-   examples/cg_from_lammps_files
+   examples/lammps_reading_docs.ipynb
 
 
 .. note:: 
