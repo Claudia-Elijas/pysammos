@@ -25,7 +25,8 @@ programme that can be ran on at the same time as other processes.
 - Processes MFIX-DEM simulation data 
 - Processes LAMMPS simulation data (v.1.1.0 and above)
 - Processes particle data of any shape and size distribution
-- Customisable coarse-graining mesh
+- Customisable coarse-graining mesh, accounting for periodic boundary conditions
+- Available time-averaged and instantaneous coarse-graining methods
 - Outputs continuum fields in vtkhdf format for Paraview visualisation and in h5 format for data analysis
 - Benchmarked against other open-source and commercial CG codes
 - Open-source and free to use
