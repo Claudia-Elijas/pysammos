@@ -5,19 +5,17 @@ we employ a mathematical framework called Coarse-Graining (CG).
 
 Pysammos is a Python package designed with the aim of providing a user-friendly Coarse-Graining workflow to post-process data from the MFiX and LAMMPS (v.1.1.0 and above) open-source DEM software, and provide a streamlined visualisation in widely-used open-source visualisation software, ParaView. This code package provides flexibility in the output variable selection, mesh parametrisation, and data analysis of the obtained results. Pysammmos is also designed to invite geoscientists to incorporate DEM in their research, as many processes studied in geosciences involve discrete elements that are currently modelled as a continuum could benefit from a discrete insight. Similarly, to enhance DEM analysis by extracting continuum fields without the need to handle inner-level source code. The efficient algorithmic complexity exhibited by Pysammos avoids the requirement of extensive computational resources, making it a programme that can be ran on at the same time as other processes.
 
-This library is distributed under the GNU General Public License v3.0. Contributions are welcome, and can be made via pull requests on the GitHub repository.
+This package is distributed under the [GNU General Public License v3.0.](https://claudia-elijas.github.io/pysammos/license.html) Contributions are welcome, and can be made via [Pull Requests](https://github.com/Claudia-Elijas/pysammos/pulls) on the GitHub repository.
+
+The API documentation is available in [Pysammos Documentation](https://claudia-elijas.github.io/pysammos/modules.html) page.
+
+Several coarse graining examples can be found in the [Tutorials and Examples](https://claudia-elijas.github.io/pysammos/examples.html) page.
 
 ## How to cite
 
 If you use **Pysammos** in your research, please cite the following paper:
 
   Elijas-Parra, C., Breard, E. C. P., Morrissey, J. P., Zrelak, P. J., and Naylor, M. (2026). Pysammos 1.0.0: a discrete-to-continuum transformation Python tool to analyse the rheology of granular materials. Geoscientific Model Development, 19, 9519–9553. https://doi.org/10.5194/gmd-19-9519-2026
-
-## Documentation
-
-Find detailed documentation of the code here:
-
-https://Claudia-Elijas.github.io/pysammos/
 
 ## Installation
 
