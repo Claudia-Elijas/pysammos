@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tutorials and Examples &mdash; pysammos 0.1.1 documentation</title>
+  <title>Tutorials and Examples &mdash; pysammos 1.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
@@ -16,7 +16,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=7df0f304"></script>
+      <script src="_static/documentation_options.js?v=edff2ab1"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -87,19 +87,25 @@
   <section id="tutorials-and-examples">
 <h1>Tutorials and Examples<a class="headerlink" href="#tutorials-and-examples" title="Link to this heading"></a></h1>
 <p>Here are some example usages of Pysammos's coarse-graining framework, from the building and explanation of the configuration files to the visualisation of the coarse-grained fields.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These examples are kept up to date with the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch on GitHub, not with a
+specific release. If something doesn't match your installation, update to the
+latest code with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code>.</p>
+</div>
 <p>The first Pysammos release (v1.0.0) includes the various examples for DEM models in MFiX.</p>
 <div class="toctree-wrapper compound">
 <div class="nbsphinx-gallery">
 <a class="reference internal" href="examples/bedload_docs.html">
-  <div><img alt="" src="./_images/examples_bedload_docs_63_0.png"></div>
+  <div><img alt="" src="./_images/examples_bedload_docs_67_0.png"></div>
   <div>2D coarse graining of bedload transport</div>
 </a>
 <a class="reference internal" href="examples/erodible_bed_docs.html">
-  <div><img alt="" src="./_images/examples_erodible_bed_docs_36_0.png"></div>
+  <div><img alt="" src="./_images/examples_erodible_bed_docs_37_0.png"></div>
   <div>3D coarse graining of an erodible bed</div>
 </a>
 <a class="reference internal" href="examples/janssen_pile_docs.html">
-  <div><img alt="" src="./_images/examples_janssen_pile_docs_31_0.png"></div>
+  <div><img alt="" src="./_images/examples_janssen_pile_docs_32_0.png"></div>
   <div>2D polydisperse coarse graining of a Janssen pile</div>
 </a>
 </div>
@@ -114,6 +120,12 @@ but can be implemented from other MFiX examples found in the documentation or th
   <div>Coarse graining LAMMPS output</div>
 </a>
 </div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Once you have run the coarse-graining workflow, re-running it with a different
+number of time steps, spatial scale or set of variables requires a <strong>new output
+folder</strong>: change <code class="docutils literal notranslate"><span class="pre">output_path</span></code> in <code class="docutils literal notranslate"><span class="pre">config.ini</span></code>, or delete the previous results first.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D coarse graining of an erodible bed &mdash; pysammos 0.1.1 documentation</title>
+  <title>3D coarse graining of an erodible bed &mdash; pysammos 1.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
@@ -16,7 +16,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7df0f304"></script>
+      <script src="../_static/documentation_options.js?v=edff2ab1"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -310,6 +310,9 @@ time_average = False
 Output path created: ./PysammosCG/
 </pre></div></div>
 </div>
+<div class="admonition warning">
+<p><strong>Re-running the coarse graining:</strong> Pysammos writes its results to <code class="docutils literal notranslate"><span class="pre">output_path</span></code>. If you have already run the workflow and want to run it again with a different number of time steps, a different spatial scale (grid/kernel width) or different exported variables, either change <code class="docutils literal notranslate"><span class="pre">output_path</span></code> to a new folder name (e.g. <code class="docutils literal notranslate"><span class="pre">./PysammosCG_run2/</span></code>) or delete the previous results first.</p>
+</div>
 </section>
 <section id="Run-the-coarse-graining">
 <h2>Run the coarse graining<a class="headerlink" href="#Run-the-coarse-graining" title="Link to this heading"></a></h2>
@@ -589,7 +592,7 @@ Completed integration along profile dimension: y
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_erodible_bed_docs_27_0.png" src="../_images/examples_erodible_bed_docs_27_0.png" />
+<img alt="../_images/examples_erodible_bed_docs_28_0.png" src="../_images/examples_erodible_bed_docs_28_0.png" />
 </div>
 </div>
 </section>
@@ -1587,7 +1590,7 @@ Completed integration along profile dimension: y
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_erodible_bed_docs_36_0.png" src="../_images/examples_erodible_bed_docs_36_0.png" />
+<img alt="../_images/examples_erodible_bed_docs_37_0.png" src="../_images/examples_erodible_bed_docs_37_0.png" />
 </div>
 </div>
 <p>The gridded granular temperature is lower than the slice temperatures: it is computed relative to the coarse-grained velocity field at the kernel scale <code class="docutils literal notranslate"><span class="pre">w</span></code>, so it depends on <code class="docutils literal notranslate"><span class="pre">w</span></code> (see the documentation of the sliced granular temperature).</p>
