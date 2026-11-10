@@ -9,14 +9,13 @@ Here are some example usages of Pysammos's coarse-graining framework, from the b
    latest code with ``git pull`` and ``pip install -e .``. 
 
 
-The first Pysammos release (v1.0.0) includes the various examples for DEM models in MFiX. 
+The first Pysammos release (v1.0.0) includes the various examples for DEM models in MFiX, they have been updated to run with the latest status of pysammos. 
 
 .. nbgallery::
 
    examples/bedload_docs.ipynb
    examples/erodible_bed_docs.ipynb
    examples/janssen_pile_docs.ipynb
-
 
 
 In the second Pysammos release (v1.1.0), the examples for DEM models in LAMMPS are included. Below is an example of a 3D granular column collapse simulation.
