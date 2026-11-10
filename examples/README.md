@@ -15,7 +15,9 @@ You can either:
 
 ## Example Simulations
 
-In this folder you will find the following example simulations: 
+In this folder you will find the following example simulations
+
+> **Note:** These examples are written for the latest version of Pysammos. If you're using an older version, please update first (`git pull` then `pip install -e .`).
 
 1. Bedload transport:
     - 2D

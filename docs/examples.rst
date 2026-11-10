@@ -3,6 +3,12 @@ Tutorials and Examples
 
 Here are some example usages of Pysammos's coarse-graining framework, from the building and explanation of the configuration files to the visualisation of the coarse-grained fields.
 
+.. note::
+   These examples are kept up to date with the ``main`` branch on GitHub, not with a
+   specific release. If something doesn't match your installation, update to the
+   latest code with ``git pull`` and ``pip install -e .``. 
+
+
 The first Pysammos release (v1.0.0) includes the various examples for DEM models in MFiX. 
 
 .. nbgallery::
@@ -21,6 +27,11 @@ but can be implemented from other MFiX examples found in the documentation or th
 
    examples/lammps_reading_docs.ipynb
 
+
+.. warning::
+   Once you have run the coarse-graining workflow, re-running it with a different
+   number of time steps, spatial scale or set of variables requires a **new output
+   folder**: change ``output_path`` in ``config.ini``, or delete the previous results first.
 
 .. note:: 
    The data files for the examples are not included in the repository due to their large size (~1.3GB). 
