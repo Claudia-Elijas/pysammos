@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from pysammos.macroscopic_fields.gridded import derived_fields as df
+from pysammos.macroscopic_fields.gridded import sff
 from pysammos.macroscopic_fields.field_dependencies import get_fields_to_compute
 
 ALL_FLAGS = {flag: True for flag in df.EXPORT_GROUPS if flag != "coordination_number_without_rattlers"}
@@ -27,6 +28,15 @@ def grid_coords(nodes, spacing):
 def phase_table():
     """phases array as in CoarseGraining: column 0 diameters, column 1 densities."""
     return np.array([[1.0e-3, 2500.0], [3.0e-3, 2700.0]])[:NPHASES]
+
+
+def sff_moments(N, n_contacts=60, seed=0):
+    """Contact moments (the same set at every node) of random contacts, well conditioned."""
+    rng = np.random.default_rng(seed)
+    n = rng.normal(size=(n_contacts, 3))
+    n /= np.linalg.norm(n, axis=1)[:, None]
+    g = rng.uniform(0.5, 1.5, (n_contacts, 1)) * n + 0.2 * rng.normal(size=(n_contacts, 3))
+    return np.tile(sff.moments_from_contacts(n, g), (N, 1))
 
 
 def analytic_fields(N, mode, PD=(4.0, 5.0, 6.0), tau=1.5, gamma=2.0, T0=0.3, rho=1200.0, phi=0.5, d=2e-3):
@@ -53,6 +63,7 @@ def analytic_fields(N, mode, PD=(4.0, 5.0, 6.0), tau=1.5, gamma=2.0, T0=0.3, rho
         "d32": np.full(N, d),
         "coordination_number": np.full(N, 4.0),
         "fabric_tensor": np.broadcast_to(np.eye(3) / 3, (N, 3, 3)).copy(),
+        "sff_moments": sff_moments(N),
         "velocity": np.zeros(shape + (3,)),
         "velocity_gradient": grad_v,
     }
