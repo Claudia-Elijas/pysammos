@@ -112,6 +112,7 @@
 <p><a class="reference internal" href="#vectors"><span class="std std-ref">Vectors module</span></a></p>
 <p><a class="reference internal" href="#tensors"><span class="std std-ref">Tensors module</span></a></p>
 <p><a class="reference internal" href="#secondary"><span class="std std-ref">Secondary module</span></a></p>
+<p><a class="reference internal" href="#sff"><span class="std std-ref">SFF module</span></a></p>
 <section id="dispatcher-module">
 <span id="dipatcher"></span><h2>Dispatcher module<a class="headerlink" href="#dispatcher-module" title="Link to this heading"></a></h2>
 <p>pysammos.macroscopic_fields.gridded.dispatcher module</p>
@@ -1367,6 +1368,228 @@ The velocity field at a particle position is approximated as:</p>
 <h3>Outputs<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt>GradV<span class="classifier">(G, 3, 3) ndarray</span></dt><dd><p>Velocity gradient tensor at each grid point.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="sff-module">
+<span id="sff"></span><h2>SFF module<a class="headerlink" href="#sff-module" title="Link to this heading"></a></h2>
+<p>pysammos.macroscopic_fields.gridded.sff module</p>
+<p id="module-pysammos.macroscopic_fields.gridded.sff">Stress-force-fabric (SFF) friction of the contact stress, with the cross terms between the anisotropies.</p>
+<p>The contact stress of a granular material is an angular average over the contact normals
+<span class="math notranslate nohighlight">\(\mathbf{n}\)</span>. Let <span class="math notranslate nohighlight">\(\mathbf{g} = \ell \mathbf{f}\)</span> be a contact force <span class="math notranslate nohighlight">\(\mathbf{f}\)</span>
+weighted by its branch length <span class="math notranslate nohighlight">\(\ell\)</span>, with normal part <span class="math notranslate nohighlight">\(g_n\)</span> and tangential part
+<span class="math notranslate nohighlight">\(\mathbf{g}_t\)</span>. If the contact probability, the normal force and the tangential force depend on
+<span class="math notranslate nohighlight">\(\mathbf{n}\)</span> through three symmetric traceless anisotropy tensors,</p>
+<div class="math notranslate nohighlight">
+\[p(\mathbf{n}) = \frac{1 + \mathbf{A}_c : \mathbf{n}\mathbf{n}}{4\pi}, \qquad
+g_n(\mathbf{n}) = g_0\,(1 + \mathbf{A}_n : \mathbf{n}\mathbf{n}), \qquad
+\mathbf{g}_t(\mathbf{n}) = g_0\,[\,\mathbf{A}_t \mathbf{n} - (\mathbf{A}_t : \mathbf{n}\mathbf{n})\,\mathbf{n}\,],\]</div>
+<p>then the contact stress is <span class="math notranslate nohighlight">\(\boldsymbol{\sigma}_c = 3 P_c \mathbf{Q} / \mathrm{tr}\,\mathbf{Q}\)</span> with the
+contact pressure <span class="math notranslate nohighlight">\(P_c\)</span> taken from the measured contact tensor and</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{Q} = \mathbf{I} + \mathbf{L} + \mathbf{C}, \qquad
+\mathbf{L} = \tfrac{2}{5}(\mathbf{A}_c + \mathbf{A}_n) + \tfrac{3}{5}\mathbf{A}_t,\]</div>
+<div class="math notranslate nohighlight">
+\[\mathbf{C} = \tfrac{2}{35}\Big\{ [\mathbf{A}_c : (\mathbf{A}_n - \mathbf{A}_t)]\,\mathbf{I}
++ 2(\mathbf{A}_c\mathbf{A}_n + \mathbf{A}_n\mathbf{A}_c)
++ \tfrac{3}{2}(\mathbf{A}_c\mathbf{A}_t + \mathbf{A}_t\mathbf{A}_c) \Big\}.\]</div>
+<p><span class="math notranslate nohighlight">\(\mathbf{L}\)</span> is the usual linear SFF relation. <span class="math notranslate nohighlight">\(\mathbf{C}\)</span> holds the cross terms, the products
+between the three anisotropies that the linear relation drops; they follow from the sixth-order moments of
+the unit sphere. The three tensors are full 3x3 tensors, so their principal axes need not coincide.
+The relation reconstructs the friction of the contact stress; the contact pressure is not predicted.
+Adding the measured kinetic stress gives</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\sigma}^{SFF} = \boldsymbol{\sigma}_c^{SFF} + \boldsymbol{\sigma}_k, \qquad
+P = P_c + P_k, \qquad
+\mu_{SFF} = \frac{\sqrt{\tfrac12\, \mathrm{dev}\,\boldsymbol{\sigma}^{SFF} : \mathrm{dev}\,\boldsymbol{\sigma}^{SFF}}}{P},\]</div>
+<p>which has the convention of <code class="docutils literal notranslate"><span class="pre">frictional_coefficient_Dxyz_Pxyz</span></code>.</p>
+<p class="rubric">Use in a run</p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">sff_friction</span> <span class="pre">=</span> <span class="pre">True</span></code> in the <code class="docutils literal notranslate"><span class="pre">[fields_to_export]</span></code> section of <code class="docutils literal notranslate"><span class="pre">config.ini</span></code>. It needs the contact
+forces and the branch vectors, like the contact tensor, and it is computed for the bulk (all phases together).
+The group exports</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fabric_anisotropy_tensor</span></code>, <code class="docutils literal notranslate"><span class="pre">normal_force_anisotropy_tensor</span></code> and <code class="docutils literal notranslate"><span class="pre">tangential_force_anisotropy_tensor</span></code>
+(<span class="math notranslate nohighlight">\(\mathbf{A}_c\)</span>, <span class="math notranslate nohighlight">\(\mathbf{A}_n\)</span>, <span class="math notranslate nohighlight">\(\mathbf{A}_t\)</span>),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">contact_stress_tensor_SFF</span></code> (<span class="math notranslate nohighlight">\(\boldsymbol{\sigma}_c^{SFF}\)</span>, with the cross terms),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frictional_coefficient_SFF_Dxyz_Pxyz</span></code> (<span class="math notranslate nohighlight">\(\mu_{SFF}\)</span> with the cross terms) and
+<code class="docutils literal notranslate"><span class="pre">frictional_coefficient_SFF_linear_Dxyz_Pxyz</span></code> (the same with <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> only).</p></li>
+</ul>
+<p class="rubric">How the anisotropies are measured</p>
+<p>All sums below run over the contact entries with the kernel weights of the contact tensor.</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{A}_c = \tfrac{15}{2}\,\mathrm{dev}\,\langle \mathbf{n}\mathbf{n} \rangle\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\((g_0, \mathbf{B})\)</span> minimise <span class="math notranslate nohighlight">\(\sum_c w_c\,[\,g_{n,c} - g_0 - \mathbf{B} : \mathbf{n}_c\mathbf{n}_c\,]^2\)</span>
+over a scalar <span class="math notranslate nohighlight">\(g_0\)</span> and a symmetric traceless <span class="math notranslate nohighlight">\(\mathbf{B}\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{A}_n = \mathbf{B}/g_0\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{T}\)</span> minimises <span class="math notranslate nohighlight">\(\sum_c w_c\,\| \mathbf{g}_{t,c} - (\mathbf{I} - \mathbf{n}_c\mathbf{n}_c)\,\mathbf{T}\mathbf{n}_c \|^2\)</span>
+over a symmetric traceless <span class="math notranslate nohighlight">\(\mathbf{T}\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{A}_t = \mathbf{T}/g_0\)</span>.</p></li>
+</ul>
+<p>Both fits are linear least squares whose normal equations contain only kernel-weighted sums of products of
+the contact normal and the contact force. Those 35 sums are the <em>primary</em> field <code class="docutils literal notranslate"><span class="pre">sff_moments</span></code>: they are
+computed at every time step by <a class="reference internal" href="#pysammos.macroscopic_fields.gridded.sff.coarse_grain_moments" title="pysammos.macroscopic_fields.gridded.sff.coarse_grain_moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">coarse_grain_moments()</span></code></a>, they are the only SFF quantity that is
+averaged in time, and the anisotropies and the friction are derived from them by <a class="reference internal" href="#pysammos.macroscopic_fields.gridded.sff.sff_fields" title="pysammos.macroscopic_fields.gridded.sff.sff_fields"><code class="xref py py-func docutils literal notranslate"><span class="pre">sff_fields()</span></code></a>, as for
+every other derived field. A node where the fits are undetermined (no contacts, too few contact
+directions) is set to NaN.</p>
+<p class="rubric">References</p>
+<p>Rothenburg and Bathurst (1989), Geotechnique 39(4), 601-614; Guo and Zhao (2013), Computers and Geotechnics 47, 1-15.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.BASIS">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">BASIS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">array([[[</span> <span class="pre">0.70710678,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">-0.70710678,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">]],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[[-0.40824829,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span> <span class="pre">-0.40824829,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.81649658]],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.70710678,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.70710678,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">]],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.70710678],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.70710678,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">]],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.70710678],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[</span> <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">,</span>&#160; <span class="pre">0.70710678,</span>&#160; <span class="pre">0.</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">]]])</span></span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.BASIS" title="Link to this definition"></a></dt>
+<dd><p>Orthonormal basis (Frobenius product) of the symmetric traceless 3x3 tensors, shape (5, 3, 3).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.M4_INDEX">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">M4_INDEX</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">2),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">2),</span> <span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">2,</span> <span class="pre">2),</span> <span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1),</span> <span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">2),</span> <span class="pre">(0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">2),</span> <span class="pre">(0,</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2),</span> <span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1),</span> <span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">2),</span> <span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">2),</span> <span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2),</span> <span class="pre">(2,</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2))</span></span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.M4_INDEX" title="Link to this definition"></a></dt>
+<dd><p>Independent components of the symmetric fourth-order tensor n_i n_j n_k n_l (i &lt;= j &lt;= k &lt;= l).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.MIN_RCOND">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">MIN_RCOND</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-08</span></span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.MIN_RCOND" title="Link to this definition"></a></dt>
+<dd><p>Smallest ratio of the smallest to the largest eigenvalue of the normal equations for a node to be fitted.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.SYM6">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">SYM6</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((0,</span> <span class="pre">0),</span> <span class="pre">(1,</span> <span class="pre">1),</span> <span class="pre">(2,</span> <span class="pre">2),</span> <span class="pre">(0,</span> <span class="pre">1),</span> <span class="pre">(0,</span> <span class="pre">2),</span> <span class="pre">(1,</span> <span class="pre">2))</span></span><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.SYM6" title="Link to this definition"></a></dt>
+<dd><p>Components of a symmetric 3x3 tensor, in the order xx, yy, zz, xy, xz, yz.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.anisotropies">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">anisotropies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/sff.html#anisotropies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.anisotropies" title="Link to this definition"></a></dt>
+<dd><p>Contact, normal-force and tangential-force anisotropy tensors from the moments.</p>
+<section id="id46">
+<h3>Inputs<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>moments<span class="classifier">np.ndarray, shape (Npoints, 35)</span></dt><dd><p>Moments of <a class="reference internal" href="#pysammos.macroscopic_fields.gridded.sff.coarse_grain_moments" title="pysammos.macroscopic_fields.gridded.sff.coarse_grain_moments"><code class="xref py py-func docutils literal notranslate"><span class="pre">coarse_grain_moments()</span></code></a> (or their time average).</p>
+</dd>
+<dt>rcond<span class="classifier">float, optional</span></dt><dd><p>A node is fitted only if the smallest eigenvalue of both normal-equation matrices exceeds
+<code class="docutils literal notranslate"><span class="pre">rcond</span></code> times the largest one; otherwise its tensors are NaN.</p>
+</dd>
+</dl>
+</section>
+<section id="id47">
+<h3>Outputs<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Ac, An, At<span class="classifier">np.ndarray, shape (Npoints, 3, 3)</span></dt><dd><p>Symmetric traceless anisotropy tensors; NaN where undefined (no contacts, too few directions,
+or a non-positive mean normal force <code class="docutils literal notranslate"><span class="pre">g_0</span></code>).</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.coarse_grain_moments">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">coarse_grain_moments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_to_center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/sff.html#coarse_grain_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.coarse_grain_moments" title="Link to this definition"></a></dt>
+<dd><p>Kernel-weighted moments of the contacts at every grid node (the primary field <code class="docutils literal notranslate"><span class="pre">sff_moments</span></code>).</p>
+<p>The weights, visibility and grid indices are those of the contact tensor (<code class="docutils literal notranslate"><span class="pre">Wint_c</span></code>, <code class="docutils literal notranslate"><span class="pre">part_ind_c</span></code>
+and <code class="docutils literal notranslate"><span class="pre">grid_ind_c</span></code> of <a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining" title="pysammos.coarse_graining.CoarseGraining"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoarseGraining</span></code></a>); the contact arrays are those
+of <a class="reference internal" href="#pysammos.macroscopic_fields.gridded.sff.contact_vectors" title="pysammos.macroscopic_fields.gridded.sff.contact_vectors"><code class="xref py py-func docutils literal notranslate"><span class="pre">contact_vectors()</span></code></a>.</p>
+<section id="id48">
+<h3>Outputs<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>moments<span class="classifier">np.ndarray, shape (Npoints, 35)</span></dt><dd><p>Sums over the contacts visible from each node; the layout is given in the module source and
+read back by <a class="reference internal" href="#pysammos.macroscopic_fields.gridded.sff.anisotropies" title="pysammos.macroscopic_fields.gridded.sff.anisotropies"><code class="xref py py-func docutils literal notranslate"><span class="pre">anisotropies()</span></code></a>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.contact_stress_shape">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">contact_stress_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ac</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">An</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">At</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/sff.html#contact_stress_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.contact_stress_shape" title="Link to this definition"></a></dt>
+<dd><p>Contact stress divided by the contact pressure, <span class="math notranslate nohighlight">\(\boldsymbol{\sigma}_c / P_c\)</span>, which has trace 3.</p>
+<section id="id49">
+<h3>Inputs<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>Ac, An, At<span class="classifier">np.ndarray, shape (..., 3, 3)</span></dt><dd><p>Anisotropy tensors (symmetric, traceless).</p>
+</dd>
+<dt>cross_terms<span class="classifier">bool, optional</span></dt><dd><p>True: <span class="math notranslate nohighlight">\(3\mathbf{Q}/\mathrm{tr}\,\mathbf{Q}\)</span> with the cross terms. False: the linear relation
+<span class="math notranslate nohighlight">\(\mathbf{I} + \mathbf{L}\)</span>.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.contact_vectors">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">contact_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center_to_center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/sff.html#contact_vectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.contact_vectors" title="Link to this definition"></a></dt>
+<dd><p>Contact normals and branch-length weighted forces of the contact entries.</p>
+<section id="id50">
+<h3>Inputs<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>center_to_center<span class="classifier">np.ndarray, shape (M, 3)</span></dt><dd><p>Vector between the two particle centres of each contact entry.</p>
+</dd>
+<dt>force<span class="classifier">np.ndarray, shape (M, 3)</span></dt><dd><p>Contact force of each entry.</p>
+</dd>
+<dt>branch<span class="classifier">np.ndarray, shape (M, 3)</span></dt><dd><p>Branch vector of each entry (contact point to particle centre); only its length is used.</p>
+</dd>
+</dl>
+</section>
+<section id="id51">
+<h3>Outputs<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>normals<span class="classifier">np.ndarray, shape (M, 3)</span></dt><dd><p>Unit vectors along <code class="docutils literal notranslate"><span class="pre">center_to_center</span></code>.</p>
+</dd>
+<dt>g<span class="classifier">np.ndarray, shape (M, 3)</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">force</span></code> times the branch length.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.friction_from_stress">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">friction_from_stress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma_contact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_kinetic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/sff.html#friction_from_stress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.friction_from_stress" title="Link to this definition"></a></dt>
+<dd><p>mu = sqrt(1/2 dev(sigma) : dev(sigma)) / pressure, with sigma = sigma_contact + sigma_kinetic.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.moments_from_contacts">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">moments_from_contacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/sff.html#moments_from_contacts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.moments_from_contacts" title="Link to this definition"></a></dt>
+<dd><p>Moments of one set of contacts, in plain numpy (a whole box, or a reference for the grid kernel).</p>
+<section id="id52">
+<h3>Inputs<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>normals<span class="classifier">np.ndarray, shape (M, 3)</span></dt><dd><p>Unit contact normals.</p>
+</dd>
+<dt>g<span class="classifier">np.ndarray, shape (M, 3)</span></dt><dd><p>Branch-length weighted contact forces.</p>
+</dd>
+<dt>weights<span class="classifier">np.ndarray, shape (M,), optional</span></dt><dd><p>Weight of each contact (default 1).</p>
+</dd>
+</dl>
+</section>
+<section id="id53">
+<h3>Outputs<a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<p>moments : np.ndarray, shape (35,)</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysammos.macroscopic_fields.gridded.sff.sff_fields">
+<span class="sig-prename descclassname"><span class="pre">pysammos.macroscopic_fields.gridded.sff.</span></span><span class="sig-name descname"><span class="pre">sff_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinetic_tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/macroscopic_fields/gridded/sff.html#sff_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.macroscopic_fields.gridded.sff.sff_fields" title="Link to this definition"></a></dt>
+<dd><p>Anisotropies, SFF contact stress and SFF friction coefficients (bulk, all three dimensions).</p>
+<section id="id54">
+<h3>Inputs<a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>moments<span class="classifier">np.ndarray, shape (Npoints, 35)</span></dt><dd><p>Primary field <code class="docutils literal notranslate"><span class="pre">sff_moments</span></code> of one time step or its time average.</p>
+</dd>
+<dt>contact_tensor, kinetic_tensor<span class="classifier">np.ndarray, shape (Npoints, 3, 3) or (Npoints, Nphases+1, 3, 3)</span></dt><dd><p>Primary stress tensors; the bulk (phase index 0) is used in Polydisperse mode.</p>
+</dd>
+<dt>rcond<span class="classifier">float, optional</span></dt><dd><p>See <a class="reference internal" href="#pysammos.macroscopic_fields.gridded.sff.anisotropies" title="pysammos.macroscopic_fields.gridded.sff.anisotropies"><code class="xref py py-func docutils literal notranslate"><span class="pre">anisotropies()</span></code></a>.</p>
+</dd>
+</dl>
+</section>
+<section id="id55">
+<h3>Outputs<a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>fields<span class="classifier">dict</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">fabric_anisotropy_tensor</span></code>, <code class="docutils literal notranslate"><span class="pre">normal_force_anisotropy_tensor</span></code>, <code class="docutils literal notranslate"><span class="pre">tangential_force_anisotropy_tensor</span></code>,
+<code class="docutils literal notranslate"><span class="pre">contact_stress_tensor_SFF</span></code> (with the cross terms), <code class="docutils literal notranslate"><span class="pre">frictional_coefficient_SFF_Dxyz_Pxyz</span></code> (with the
+cross terms) and <code class="docutils literal notranslate"><span class="pre">frictional_coefficient_SFF_linear_Dxyz_Pxyz</span></code> (linear relation only). The pressure
+is the measured one, so the denominator equals that of <code class="docutils literal notranslate"><span class="pre">frictional_coefficient_Dxyz_Pxyz</span></code>.</p>
 </dd>
 </dl>
 </section>

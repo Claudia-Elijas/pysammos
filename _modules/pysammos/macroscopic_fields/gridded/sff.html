@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="english" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysammos.macroscopic_fields.gridded.sff &mdash; pysammos 1.2.0  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/my_theme.css?v=7cf6b6ba" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=36fa149a"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            pysammos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Pysammos Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../benchmarks.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pysammos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pysammos.macroscopic_fields.gridded.sff</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pysammos.macroscopic_fields.gridded.sff</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">Stress-force-fabric (SFF) friction of the contact stress, with the cross terms between the anisotropies.</span>
+
+<span class="sd">The contact stress of a granular material is an angular average over the contact normals</span>
+<span class="sd">:math:`\mathbf{n}`. Let :math:`\mathbf{g} = \ell \mathbf{f}` be a contact force :math:`\mathbf{f}`</span>
+<span class="sd">weighted by its branch length :math:`\ell`, with normal part :math:`g_n` and tangential part</span>
+<span class="sd">:math:`\mathbf{g}_t`. If the contact probability, the normal force and the tangential force depend on</span>
+<span class="sd">:math:`\mathbf{n}` through three symmetric traceless anisotropy tensors,</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    p(\mathbf{n}) = \frac{1 + \mathbf{A}_c : \mathbf{n}\mathbf{n}}{4\pi}, \qquad</span>
+<span class="sd">    g_n(\mathbf{n}) = g_0\,(1 + \mathbf{A}_n : \mathbf{n}\mathbf{n}), \qquad</span>
+<span class="sd">    \mathbf{g}_t(\mathbf{n}) = g_0\,[\,\mathbf{A}_t \mathbf{n} - (\mathbf{A}_t : \mathbf{n}\mathbf{n})\,\mathbf{n}\,],</span>
+
+<span class="sd">then the contact stress is :math:`\boldsymbol{\sigma}_c = 3 P_c \mathbf{Q} / \mathrm{tr}\,\mathbf{Q}` with the</span>
+<span class="sd">contact pressure :math:`P_c` taken from the measured contact tensor and</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    \mathbf{Q} = \mathbf{I} + \mathbf{L} + \mathbf{C}, \qquad</span>
+<span class="sd">    \mathbf{L} = \tfrac{2}{5}(\mathbf{A}_c + \mathbf{A}_n) + \tfrac{3}{5}\mathbf{A}_t,</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    \mathbf{C} = \tfrac{2}{35}\Big\{ [\mathbf{A}_c : (\mathbf{A}_n - \mathbf{A}_t)]\,\mathbf{I}</span>
+<span class="sd">    + 2(\mathbf{A}_c\mathbf{A}_n + \mathbf{A}_n\mathbf{A}_c)</span>
+<span class="sd">    + \tfrac{3}{2}(\mathbf{A}_c\mathbf{A}_t + \mathbf{A}_t\mathbf{A}_c) \Big\}.</span>
+
+<span class="sd">:math:`\mathbf{L}` is the usual linear SFF relation. :math:`\mathbf{C}` holds the cross terms, the products</span>
+<span class="sd">between the three anisotropies that the linear relation drops; they follow from the sixth-order moments of</span>
+<span class="sd">the unit sphere. The three tensors are full 3x3 tensors, so their principal axes need not coincide.</span>
+<span class="sd">The relation reconstructs the friction of the contact stress; the contact pressure is not predicted.</span>
+<span class="sd">Adding the measured kinetic stress gives</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    \boldsymbol{\sigma}^{SFF} = \boldsymbol{\sigma}_c^{SFF} + \boldsymbol{\sigma}_k, \qquad</span>
+<span class="sd">    P = P_c + P_k, \qquad</span>
+<span class="sd">    \mu_{SFF} = \frac{\sqrt{\tfrac12\, \mathrm{dev}\,\boldsymbol{\sigma}^{SFF} : \mathrm{dev}\,\boldsymbol{\sigma}^{SFF}}}{P},</span>
+
+<span class="sd">which has the convention of ``frictional_coefficient_Dxyz_Pxyz``.</span>
+
+<span class="sd">.. rubric:: Use in a run</span>
+
+<span class="sd">Set ``sff_friction = True`` in the ``[fields_to_export]`` section of ``config.ini``. It needs the contact</span>
+<span class="sd">forces and the branch vectors, like the contact tensor, and it is computed for the bulk (all phases together).</span>
+<span class="sd">The group exports</span>
+
+<span class="sd">- ``fabric_anisotropy_tensor``, ``normal_force_anisotropy_tensor`` and ``tangential_force_anisotropy_tensor``</span>
+<span class="sd">  (:math:`\mathbf{A}_c`, :math:`\mathbf{A}_n`, :math:`\mathbf{A}_t`),</span>
+<span class="sd">- ``contact_stress_tensor_SFF`` (:math:`\boldsymbol{\sigma}_c^{SFF}`, with the cross terms),</span>
+<span class="sd">- ``frictional_coefficient_SFF_Dxyz_Pxyz`` (:math:`\mu_{SFF}` with the cross terms) and</span>
+<span class="sd">  ``frictional_coefficient_SFF_linear_Dxyz_Pxyz`` (the same with :math:`\mathbf{L}` only).</span>
+
+<span class="sd">.. rubric:: How the anisotropies are measured</span>
+
+<span class="sd">All sums below run over the contact entries with the kernel weights of the contact tensor.</span>
+
+<span class="sd">- :math:`\mathbf{A}_c = \tfrac{15}{2}\,\mathrm{dev}\,\langle \mathbf{n}\mathbf{n} \rangle`.</span>
+<span class="sd">- :math:`(g_0, \mathbf{B})` minimise :math:`\sum_c w_c\,[\,g_{n,c} - g_0 - \mathbf{B} : \mathbf{n}_c\mathbf{n}_c\,]^2`</span>
+<span class="sd">  over a scalar :math:`g_0` and a symmetric traceless :math:`\mathbf{B}`, and :math:`\mathbf{A}_n = \mathbf{B}/g_0`.</span>
+<span class="sd">- :math:`\mathbf{T}` minimises :math:`\sum_c w_c\,\| \mathbf{g}_{t,c} - (\mathbf{I} - \mathbf{n}_c\mathbf{n}_c)\,\mathbf{T}\mathbf{n}_c \|^2`</span>
+<span class="sd">  over a symmetric traceless :math:`\mathbf{T}`, and :math:`\mathbf{A}_t = \mathbf{T}/g_0`.</span>
+
+<span class="sd">Both fits are linear least squares whose normal equations contain only kernel-weighted sums of products of</span>
+<span class="sd">the contact normal and the contact force. Those 35 sums are the *primary* field ``sff_moments``: they are</span>
+<span class="sd">computed at every time step by :func:`coarse_grain_moments`, they are the only SFF quantity that is</span>
+<span class="sd">averaged in time, and the anisotropies and the friction are derived from them by :func:`sff_fields`, as for</span>
+<span class="sd">every other derived field. A node where the fits are undetermined (no contacts, too few contact</span>
+<span class="sd">directions) is set to NaN.</span>
+
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">Rothenburg and Bathurst (1989), Geotechnique 39(4), 601-614; Guo and Zhao (2013), Computers and Geotechnics 47, 1-15.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">njit</span><span class="p">,</span> <span class="n">prange</span><span class="p">,</span> <span class="n">int32</span><span class="p">,</span> <span class="n">float64</span>
+
+<span class="c1">#: Smallest ratio of the smallest to the largest eigenvalue of the normal equations for a node to be fitted.</span>
+<span class="n">MIN_RCOND</span> <span class="o">=</span> <span class="mf">1.0e-8</span>
+
+<span class="c1">#: Components of a symmetric 3x3 tensor, in the order xx, yy, zz, xy, xz, yz.</span>
+<span class="n">SYM6</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="c1">#: Independent components of the symmetric fourth-order tensor n_i n_j n_k n_l (i &lt;= j &lt;= k &lt;= l).</span>
+<span class="n">M4_INDEX</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># Layout of the moment vector of one node:</span>
+<span class="c1">#   0         sum w                       number of contacts</span>
+<span class="c1">#   1..6      sum w n n                   (xx, yy, zz, xy, xz, yz)</span>
+<span class="c1">#   7..21     sum w n n n n               (15 independent components)</span>
+<span class="c1">#   22        sum w g_n                   g_n = g . n</span>
+<span class="c1">#   23..28    sum w g_n n n               (6 components)</span>
+<span class="c1">#   29..34    sum w sym(g_t (x) n)        g_t = g - g_n n  (6 components)</span>
+<span class="n">_I_COUNT</span><span class="p">,</span> <span class="n">_I_M2</span><span class="p">,</span> <span class="n">_I_M4</span><span class="p">,</span> <span class="n">_I_G0</span><span class="p">,</span> <span class="n">_I_G2</span><span class="p">,</span> <span class="n">_I_H</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">29</span>
+<span class="n">N_MOMENTS</span> <span class="o">=</span> <span class="mi">35</span>
+
+<span class="n">_SYM6</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">SYM6</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+<span class="n">_M4_IDX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">M4_INDEX</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="c1"># symmetric traceless 3x3 tensors: orthonormal basis, constant contraction tables</span>
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="n">_S2</span><span class="p">,</span> <span class="n">_S6</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">6.0</span><span class="p">)</span>
+
+<span class="c1">#: Orthonormal basis (Frobenius product) of the symmetric traceless 3x3 tensors, shape (5, 3, 3).</span>
+<span class="n">BASIS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span> <span class="o">/</span> <span class="n">_S2</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span> <span class="o">/</span> <span class="n">_S6</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">_S2</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">_S2</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">_S2</span><span class="p">,</span>
+<span class="p">])</span>
+
+<span class="c1"># (E_k E_l)_ab, used by the tangential normal equations</span>
+<span class="n">_EE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"kab,lbc-&gt;klac"</span><span class="p">,</span> <span class="n">BASIS</span><span class="p">,</span> <span class="n">BASIS</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_basis_contraction_m4</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Table T[k, l, m] with E_k : M4 : E_l = sum_m T[k, l, m] M4_m for the 15 independent components."""</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">M4_INDEX</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">M4_INDEX</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="n">idx</span><span class="p">)):</span>   <span class="c1"># every distinct index tuple once</span>
+            <span class="n">table</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">m</span><span class="p">]</span> <span class="o">+=</span> <span class="n">BASIS</span><span class="p">[:,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">BASIS</span><span class="p">[:,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">][</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">table</span>
+
+
+<span class="n">_T4</span> <span class="o">=</span> <span class="n">_basis_contraction_m4</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sym6_to_tensor</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""(..., 6) components xx, yy, zz, xy, xz, yz -&gt; (..., 3, 3) symmetric tensors."""</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SYM6</span><span class="p">):</span>
+        <span class="n">out</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_coefficients</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""(..., 5) coefficients on the basis -&gt; (..., 3, 3) symmetric traceless tensors."""</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"...k,kab-&gt;...ab"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">BASIS</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deviator</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">axis1</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_swap</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="c1"># primary field: kernel-weighted moments of the contacts</span>
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="contact_vectors">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.contact_vectors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">contact_vectors</span><span class="p">(</span><span class="n">center_to_center</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Contact normals and branch-length weighted forces of the contact entries.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    center_to_center : np.ndarray, shape (M, 3)</span>
+<span class="sd">        Vector between the two particle centres of each contact entry.</span>
+<span class="sd">    force : np.ndarray, shape (M, 3)</span>
+<span class="sd">        Contact force of each entry.</span>
+<span class="sd">    branch : np.ndarray, shape (M, 3)</span>
+<span class="sd">        Branch vector of each entry (contact point to particle centre); only its length is used.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    normals : np.ndarray, shape (M, 3)</span>
+<span class="sd">        Unit vectors along ``center_to_center``.</span>
+<span class="sd">    g : np.ndarray, shape (M, 3)</span>
+<span class="sd">        ``force`` times the branch length.</span>
+<span class="sd">    """</span>
+    <span class="n">c2c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center_to_center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c2c</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="n">c2c</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">*</span> <span class="n">ell</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">normals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">g</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@njit</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,:](</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">int32</span><span class="p">[:],</span> <span class="n">int32</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">[:,:],</span> <span class="n">float64</span><span class="p">[:,:]),</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_moments_csr</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">visibility</span><span class="p">,</span> <span class="n">grid_indices</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Kernel-weighted moments of the contacts at every grid node (see :func:`coarse_grain_moments`).</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    weights : (N_vis,) float64 array</span>
+<span class="sd">        Coarse-graining weights for each visible contact entry.</span>
+<span class="sd">    visibility : (N_vis,) int32 array</span>
+<span class="sd">        Contact-entry indices corresponding to each entry in the weights array.</span>
+<span class="sd">    grid_indices : (N_points + 2,) int32 array</span>
+<span class="sd">        Start/end indices into the visibility array for each grid point.</span>
+<span class="sd">        Assumes padding: first = 0, last = len(visibility).</span>
+<span class="sd">    normals : (M, 3) float64 array</span>
+<span class="sd">        Unit normal of each contact entry.</span>
+<span class="sd">    g : (M, 3) float64 array</span>
+<span class="sd">        Branch-length weighted force of each contact entry.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    out : (N_points, 35) float64 array</span>
+<span class="sd">        The 35 moments of each node, in the layout read back by :func:`anisotropies`.</span>
+<span class="sd">    """</span>
+    <span class="n">n_points</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid_indices</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_points</span><span class="p">,</span> <span class="n">N_MOMENTS</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prange</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N_MOMENTS</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">grid_indices</span><span class="p">[</span><span class="n">p</span><span class="p">],</span> <span class="n">grid_indices</span><span class="p">[</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">visibility</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">nv</span> <span class="o">=</span> <span class="n">normals</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+            <span class="n">gv</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+            <span class="n">gn</span> <span class="o">=</span> <span class="n">gv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">gv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">gv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">acc</span><span class="p">[</span><span class="n">_I_COUNT</span><span class="p">]</span> <span class="o">+=</span> <span class="n">w</span>
+            <span class="n">acc</span><span class="p">[</span><span class="n">_I_G0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">gn</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">_SYM6</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">_SYM6</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">nn</span> <span class="o">=</span> <span class="n">nv</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+                <span class="n">acc</span><span class="p">[</span><span class="n">_I_M2</span> <span class="o">+</span> <span class="n">s</span><span class="p">]</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">nn</span>
+                <span class="n">acc</span><span class="p">[</span><span class="n">_I_G2</span> <span class="o">+</span> <span class="n">s</span><span class="p">]</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">gn</span> <span class="o">*</span> <span class="n">nn</span>
+                <span class="n">acc</span><span class="p">[</span><span class="n">_I_H</span> <span class="o">+</span> <span class="n">s</span><span class="p">]</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">gv</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">+</span> <span class="n">gv</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="n">a</span><span class="p">])</span> <span class="o">-</span> <span class="n">gn</span> <span class="o">*</span> <span class="n">nn</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">):</span>
+                <span class="n">acc</span><span class="p">[</span><span class="n">_I_M4</span> <span class="o">+</span> <span class="n">m</span><span class="p">]</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="n">_M4_IDX</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="n">_M4_IDX</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="n">_M4_IDX</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span> <span class="o">*</span> <span class="n">nv</span><span class="p">[</span><span class="n">_M4_IDX</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">acc</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="coarse_grain_moments">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.coarse_grain_moments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">coarse_grain_moments</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">visibility</span><span class="p">,</span> <span class="n">grid_indices</span><span class="p">,</span> <span class="n">center_to_center</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Kernel-weighted moments of the contacts at every grid node (the primary field ``sff_moments``).</span>
+
+<span class="sd">    The weights, visibility and grid indices are those of the contact tensor (``Wint_c``, ``part_ind_c``</span>
+<span class="sd">    and ``grid_ind_c`` of :class:`~pysammos.coarse_graining.CoarseGraining`); the contact arrays are those</span>
+<span class="sd">    of :func:`contact_vectors`.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    moments : np.ndarray, shape (Npoints, 35)</span>
+<span class="sd">        Sums over the contacts visible from each node; the layout is given in the module source and</span>
+<span class="sd">        read back by :func:`anisotropies`.</span>
+<span class="sd">    """</span>
+    <span class="n">normals</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="n">contact_vectors</span><span class="p">(</span><span class="n">center_to_center</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_moments_csr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">visibility</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">grid_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">normals</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="moments_from_contacts">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.moments_from_contacts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">moments_from_contacts</span><span class="p">(</span><span class="n">normals</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Moments of one set of contacts, in plain numpy (a whole box, or a reference for the grid kernel).</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    normals : np.ndarray, shape (M, 3)</span>
+<span class="sd">        Unit contact normals.</span>
+<span class="sd">    g : np.ndarray, shape (M, 3)</span>
+<span class="sd">        Branch-length weighted contact forces.</span>
+<span class="sd">    weights : np.ndarray, shape (M,), optional</span>
+<span class="sd">        Weight of each contact (default 1).</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    moments : np.ndarray, shape (35,)</span>
+<span class="sd">    """</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">normals</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">gn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ci,ci-&gt;c"</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">gt</span> <span class="o">=</span> <span class="n">g</span> <span class="o">-</span> <span class="n">gn</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">N_MOMENTS</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="n">_I_COUNT</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">m</span><span class="p">[</span><span class="n">_I_G0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">gn</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">SYM6</span><span class="p">):</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">b</span><span class="p">]</span>
+        <span class="n">m</span><span class="p">[</span><span class="n">_I_M2</span> <span class="o">+</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">nn</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">m</span><span class="p">[</span><span class="n">_I_G2</span> <span class="o">+</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">gn</span> <span class="o">*</span> <span class="n">nn</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">m</span><span class="p">[</span><span class="n">_I_H</span> <span class="o">+</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">gt</span><span class="p">[:,</span> <span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">b</span><span class="p">]</span> <span class="o">+</span> <span class="n">gt</span><span class="p">[:,</span> <span class="n">b</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">a</span><span class="p">]))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">M4_INDEX</span><span class="p">):</span>
+        <span class="n">m</span><span class="p">[</span><span class="n">_I_M4</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">b</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">c</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span><span class="p">[:,</span> <span class="n">d</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="c1"># derived: anisotropies from the moments</span>
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_well_conditioned</span><span class="p">(</span><span class="n">matrices</span><span class="p">,</span> <span class="n">rcond</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Boolean mask of the (finite, positive semi-definite) matrices whose smallest eigenvalue exceeds rcond * largest."""</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">matrices</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">eig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">matrices</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+        <span class="n">ok</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">eig</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">rcond</span> <span class="o">*</span> <span class="n">eig</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ok</span>
+
+
+<div class="viewcode-block" id="anisotropies">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.anisotropies">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">anisotropies</span><span class="p">(</span><span class="n">moments</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="n">MIN_RCOND</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Contact, normal-force and tangential-force anisotropy tensors from the moments.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    moments : np.ndarray, shape (Npoints, 35)</span>
+<span class="sd">        Moments of :func:`coarse_grain_moments` (or their time average).</span>
+<span class="sd">    rcond : float, optional</span>
+<span class="sd">        A node is fitted only if the smallest eigenvalue of both normal-equation matrices exceeds</span>
+<span class="sd">        ``rcond`` times the largest one; otherwise its tensors are NaN.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    Ac, An, At : np.ndarray, shape (Npoints, 3, 3)</span>
+<span class="sd">        Symmetric traceless anisotropy tensors; NaN where undefined (no contacts, too few directions,</span>
+<span class="sd">        or a non-positive mean normal force ``g_0``).</span>
+<span class="sd">    """</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moments</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+    <span class="n">npts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">m</span><span class="p">[:,</span> <span class="n">_I_COUNT</span><span class="p">]</span>
+    <span class="n">M2</span> <span class="o">=</span> <span class="n">_sym6_to_tensor</span><span class="p">(</span><span class="n">m</span><span class="p">[:,</span> <span class="n">_I_M2</span><span class="p">:</span><span class="n">_I_M2</span> <span class="o">+</span> <span class="mi">6</span><span class="p">])</span>
+    <span class="n">M4</span> <span class="o">=</span> <span class="n">m</span><span class="p">[:,</span> <span class="n">_I_M4</span><span class="p">:</span><span class="n">_I_M4</span> <span class="o">+</span> <span class="mi">15</span><span class="p">]</span>
+    <span class="n">G2</span> <span class="o">=</span> <span class="n">_sym6_to_tensor</span><span class="p">(</span><span class="n">m</span><span class="p">[:,</span> <span class="n">_I_G2</span><span class="p">:</span><span class="n">_I_G2</span> <span class="o">+</span> <span class="mi">6</span><span class="p">])</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">_sym6_to_tensor</span><span class="p">(</span><span class="n">m</span><span class="p">[:,</span> <span class="n">_I_H</span><span class="p">:</span><span class="n">_I_H</span> <span class="o">+</span> <span class="mi">6</span><span class="p">])</span>
+
+    <span class="n">e_M2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"kab,pab-&gt;pk"</span><span class="p">,</span> <span class="n">BASIS</span><span class="p">,</span> <span class="n">M2</span><span class="p">)</span>
+    <span class="n">e_M4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"klm,pm-&gt;pkl"</span><span class="p">,</span> <span class="n">_T4</span><span class="p">,</span> <span class="n">M4</span><span class="p">)</span>
+
+    <span class="c1"># normal force: unknowns (g0, B_1 ... B_5), the matrix is the Gram matrix of the features (1, E_k : nn)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">npts</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">A</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+    <span class="n">A</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">e_M2</span>
+    <span class="n">A</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_M2</span>
+    <span class="n">A</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">e_M4</span>
+    <span class="n">rhs_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">m</span><span class="p">[:,</span> <span class="n">_I_G0</span><span class="p">:</span><span class="n">_I_G0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"kab,pab-&gt;pk"</span><span class="p">,</span> <span class="n">BASIS</span><span class="p">,</span> <span class="n">G2</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># tangential force: unknowns T_1 ... T_5, the matrix is the Gram matrix of (E_k n) - (n . E_k n) n</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"klab,pab-&gt;pkl"</span><span class="p">,</span> <span class="n">_EE</span><span class="p">,</span> <span class="n">M2</span><span class="p">)</span> <span class="o">-</span> <span class="n">e_M4</span>
+    <span class="n">rhs_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"kab,pab-&gt;pk"</span><span class="p">,</span> <span class="n">BASIS</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+
+    <span class="n">Ac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">npts</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">An</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">npts</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">At</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">npts</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">_well_conditioned</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">rcond</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">_well_conditioned</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">rcond</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Ac</span><span class="p">,</span> <span class="n">An</span><span class="p">,</span> <span class="n">At</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">fit</span><span class="p">],</span> <span class="n">rhs_n</span><span class="p">[</span><span class="n">fit</span><span class="p">][</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">fit</span><span class="p">],</span> <span class="n">rhs_t</span><span class="p">[</span><span class="n">fit</span><span class="p">][</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">g0</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">g0</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+    <span class="n">fit</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">g0</span> <span class="o">=</span> <span class="n">fit</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">u</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">g0</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">g0</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">Ac</span><span class="p">[</span><span class="n">fit</span><span class="p">]</span> <span class="o">=</span> <span class="mf">7.5</span> <span class="o">*</span> <span class="n">_deviator</span><span class="p">(</span><span class="n">M2</span><span class="p">[</span><span class="n">fit</span><span class="p">]</span> <span class="o">/</span> <span class="n">count</span><span class="p">[</span><span class="n">fit</span><span class="p">][:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">An</span><span class="p">[</span><span class="n">fit</span><span class="p">]</span> <span class="o">=</span> <span class="n">_from_coefficients</span><span class="p">(</span><span class="n">u</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="n">scale</span>
+    <span class="n">At</span><span class="p">[</span><span class="n">fit</span><span class="p">]</span> <span class="o">=</span> <span class="n">_from_coefficients</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+    <span class="k">return</span> <span class="n">Ac</span><span class="p">,</span> <span class="n">An</span><span class="p">,</span> <span class="n">At</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<span class="c1"># derived: contact stress and friction</span>
+<span class="c1"># ---------------------------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="contact_stress_shape">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.contact_stress_shape">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">contact_stress_shape</span><span class="p">(</span><span class="n">Ac</span><span class="p">,</span> <span class="n">An</span><span class="p">,</span> <span class="n">At</span><span class="p">,</span> <span class="n">cross_terms</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">    Contact stress divided by the contact pressure, :math:`\boldsymbol{\sigma}_c / P_c`, which has trace 3.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    Ac, An, At : np.ndarray, shape (..., 3, 3)</span>
+<span class="sd">        Anisotropy tensors (symmetric, traceless).</span>
+<span class="sd">    cross_terms : bool, optional</span>
+<span class="sd">        True: :math:`3\mathbf{Q}/\mathrm{tr}\,\mathbf{Q}` with the cross terms. False: the linear relation</span>
+<span class="sd">        :math:`\mathbf{I} + \mathbf{L}`.</span>
+<span class="sd">    """</span>
+    <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">linear</span> <span class="o">=</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="p">(</span><span class="n">Ac</span> <span class="o">+</span> <span class="n">An</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="n">At</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cross_terms</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">eye</span> <span class="o">+</span> <span class="n">linear</span>
+    <span class="n">AcAn</span> <span class="o">=</span> <span class="n">Ac</span> <span class="o">@</span> <span class="n">An</span>
+    <span class="n">AcAt</span> <span class="o">=</span> <span class="n">Ac</span> <span class="o">@</span> <span class="n">At</span>
+    <span class="n">scalar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"...ij,...ij-&gt;..."</span><span class="p">,</span> <span class="n">Ac</span><span class="p">,</span> <span class="n">An</span> <span class="o">-</span> <span class="n">At</span><span class="p">)</span>
+    <span class="n">cross</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="mf">35.0</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">scalar</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">eye</span>
+                            <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">AcAn</span> <span class="o">+</span> <span class="n">_swap</span><span class="p">(</span><span class="n">AcAn</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">AcAt</span> <span class="o">+</span> <span class="n">_swap</span><span class="p">(</span><span class="n">AcAt</span><span class="p">)))</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">eye</span> <span class="o">+</span> <span class="n">linear</span> <span class="o">+</span> <span class="n">cross</span>
+    <span class="k">return</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">Q</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">axis1</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bulk</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Bulk tensor: the field itself (Monodisperse) or its phase index 0 (Polydisperse)."""</span>
+    <span class="k">return</span> <span class="n">tensor</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">tensor</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span> <span class="k">else</span> <span class="n">tensor</span>
+
+
+<div class="viewcode-block" id="friction_from_stress">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.friction_from_stress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">friction_from_stress</span><span class="p">(</span><span class="n">sigma_contact</span><span class="p">,</span> <span class="n">sigma_kinetic</span><span class="p">,</span> <span class="n">pressure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""mu = sqrt(1/2 dev(sigma) : dev(sigma)) / pressure, with sigma = sigma_contact + sigma_kinetic."""</span>
+    <span class="n">dev</span> <span class="o">=</span> <span class="n">_deviator</span><span class="p">(</span><span class="n">sigma_contact</span> <span class="o">+</span> <span class="n">sigma_kinetic</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"...ij,...ij-&gt;..."</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="n">dev</span><span class="p">))</span> <span class="o">/</span> <span class="n">pressure</span></div>
+
+
+
+<div class="viewcode-block" id="sff_fields">
+<a class="viewcode-back" href="../../../../pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.sff_fields">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sff_fields</span><span class="p">(</span><span class="n">moments</span><span class="p">,</span> <span class="n">contact_tensor</span><span class="p">,</span> <span class="n">kinetic_tensor</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="n">MIN_RCOND</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Anisotropies, SFF contact stress and SFF friction coefficients (bulk, all three dimensions).</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    moments : np.ndarray, shape (Npoints, 35)</span>
+<span class="sd">        Primary field ``sff_moments`` of one time step or its time average.</span>
+<span class="sd">    contact_tensor, kinetic_tensor : np.ndarray, shape (Npoints, 3, 3) or (Npoints, Nphases+1, 3, 3)</span>
+<span class="sd">        Primary stress tensors; the bulk (phase index 0) is used in Polydisperse mode.</span>
+<span class="sd">    rcond : float, optional</span>
+<span class="sd">        See :func:`anisotropies`.</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    fields : dict</span>
+<span class="sd">        ``fabric_anisotropy_tensor``, ``normal_force_anisotropy_tensor``, ``tangential_force_anisotropy_tensor``,</span>
+<span class="sd">        ``contact_stress_tensor_SFF`` (with the cross terms), ``frictional_coefficient_SFF_Dxyz_Pxyz`` (with the</span>
+<span class="sd">        cross terms) and ``frictional_coefficient_SFF_linear_Dxyz_Pxyz`` (linear relation only). The pressure</span>
+<span class="sd">        is the measured one, so the denominator equals that of ``frictional_coefficient_Dxyz_Pxyz``.</span>
+<span class="sd">    """</span>
+    <span class="n">sigma_c</span> <span class="o">=</span> <span class="n">_bulk</span><span class="p">(</span><span class="n">contact_tensor</span><span class="p">)</span>
+    <span class="n">sigma_k</span> <span class="o">=</span> <span class="n">_bulk</span><span class="p">(</span><span class="n">kinetic_tensor</span><span class="p">)</span>
+    <span class="n">contact_pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">sigma_c</span><span class="p">,</span> <span class="n">axis1</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">sigma_c</span> <span class="o">+</span> <span class="n">sigma_k</span><span class="p">,</span> <span class="n">axis1</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.0</span>
+
+    <span class="n">Ac</span><span class="p">,</span> <span class="n">An</span><span class="p">,</span> <span class="n">At</span> <span class="o">=</span> <span class="n">anisotropies</span><span class="p">(</span><span class="n">moments</span><span class="p">,</span> <span class="n">rcond</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">contact_stress_shape</span><span class="p">(</span><span class="n">Ac</span><span class="p">,</span> <span class="n">An</span><span class="p">,</span> <span class="n">At</span><span class="p">,</span> <span class="n">cross_terms</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">shape_linear</span> <span class="o">=</span> <span class="n">contact_stress_shape</span><span class="p">(</span><span class="n">Ac</span><span class="p">,</span> <span class="n">An</span><span class="p">,</span> <span class="n">At</span><span class="p">,</span> <span class="n">cross_terms</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">sigma_sff</span> <span class="o">=</span> <span class="n">contact_pressure</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">shape</span>
+    <span class="n">sigma_sff_linear</span> <span class="o">=</span> <span class="n">contact_pressure</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">shape_linear</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"fabric_anisotropy_tensor"</span><span class="p">:</span> <span class="n">Ac</span><span class="p">,</span>
+        <span class="s2">"normal_force_anisotropy_tensor"</span><span class="p">:</span> <span class="n">An</span><span class="p">,</span>
+        <span class="s2">"tangential_force_anisotropy_tensor"</span><span class="p">:</span> <span class="n">At</span><span class="p">,</span>
+        <span class="s2">"contact_stress_tensor_SFF"</span><span class="p">:</span> <span class="n">sigma_sff</span><span class="p">,</span>
+        <span class="s2">"frictional_coefficient_SFF_Dxyz_Pxyz"</span><span class="p">:</span> <span class="n">friction_from_stress</span><span class="p">(</span><span class="n">sigma_sff</span><span class="p">,</span> <span class="n">sigma_k</span><span class="p">,</span> <span class="n">pressure</span><span class="p">),</span>
+        <span class="s2">"frictional_coefficient_SFF_linear_Dxyz_Pxyz"</span><span class="p">:</span> <span class="n">friction_from_stress</span><span class="p">(</span><span class="n">sigma_sff_linear</span><span class="p">,</span> <span class="n">sigma_k</span><span class="p">,</span> <span class="n">pressure</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Claudia Elijas-Parra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -22,6 +22,8 @@ This subpackage contains the following modules:
 
 :ref:`secondary`
 
+:ref:`sff`
+
 
 .. _dipatcher:
 
@@ -80,6 +82,18 @@ Secondary module
 pysammos.macroscopic\_fields.gridded.secondary module
 
 .. automodule:: pysammos.macroscopic_fields.gridded.secondary
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. _sff:
+
+SFF module
+----------
+
+pysammos.macroscopic\_fields.gridded.sff module
+
+.. automodule:: pysammos.macroscopic_fields.gridded.sff
    :members:
    :undoc-members:
    :show-inheritance:
