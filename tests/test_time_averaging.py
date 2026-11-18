@@ -9,6 +9,7 @@ import pytest
 
 from pysammos.time_average.accumulator import TimeAverageAccumulator, ARITHMETIC_FIELDS
 from pysammos.macroscopic_fields.gridded import derived_fields as df
+from pysammos.macroscopic_fields.gridded import sff
 from pysammos.macroscopic_fields.field_dependencies import get_fields_to_compute
 
 NPHASES = 2
@@ -52,8 +53,20 @@ def random_step(rng, mode, nan_nodes=()):
     f["d32"] = rng.uniform(1e-3, 3e-3, N)
     f["coordination_number"] = rng.uniform(2, 6, N)
     f["fabric_tensor"] = sym(rng.normal(0, 1, (N, 3, 3)))
+    f["sff_moments"] = random_sff_moments(rng, N)
     f["fluctuation_tensor"][list(nan_nodes)] = np.nan
     return f
+
+
+def random_sff_moments(rng, n_nodes, n_contacts=60):
+    """Contact moments of random contacts at every node, well conditioned, shape (n_nodes, 35)."""
+    out = []
+    for _ in range(n_nodes):
+        n = rng.normal(size=(n_contacts, 3))
+        n /= np.linalg.norm(n, axis=1)[:, None]
+        g = rng.uniform(0.5, 1.5, (n_contacts, 1)) * n + 0.2 * rng.normal(size=(n_contacts, 3))
+        out.append(sff.moments_from_contacts(n, g))
+    return np.array(out)
 
 
 def derive(primary, mode, velocity_fields=None):

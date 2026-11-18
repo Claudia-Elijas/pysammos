@@ -43,6 +43,7 @@ from .data_handle.contacts.complete import coordination_number
 from .macroscopic_fields.gridded import dispatcher 
 from .macroscopic_fields.gridded import secondary
 from .macroscopic_fields.gridded import scalars
+from .macroscopic_fields.gridded import sff
 from .macroscopic_fields.sliced import granular_temperature as sliced
 from .macroscopic_fields.gridded import derived_fields
 from .macroscopic_fields.gridded.derived_fields import PHASE_INDEPENDENT_FIELDS
@@ -789,7 +790,7 @@ class CoarseGraining:
         # 2. Compute fields based on the fields to compute ..................................................................
         VolumeFraction_CG = DensityMixture_CG = MomentumDens_CG = Velocity_CG = VelocityBulk_CG = GradV_CG = None
         KineticTensor_CG = FluctuationTensor_CG = ContactTensor_CG = None
-        d43_CG = d32_CG = CoordinationNumber_rattlers = FabricTensor_Monodisperse_CG = None
+        d43_CG = d32_CG = CoordinationNumber_rattlers = FabricTensor_Monodisperse_CG = SFFMoments_CG = None
  
         # volume fraction
         if "volume_fraction" in self.fields_to_compute:
@@ -852,6 +853,11 @@ class CoarseGraining:
             FabricTensor_Monodisperse_CG = dispatcher.tensor(Wint_c, part_ind_c, grid_ind_c, l_i_normalised, l_i_normalised, Volume_i, None, "Monodisperse")
             print('  frabric tensor done')
  
+        # contact moments (normal, normal force and tangential force) for the stress-force-fabric friction
+        if "sff_moments" in self.fields_to_compute:
+            SFFMoments_CG = sff.coarse_grain_moments(Wint_c, part_ind_c, grid_ind_c, CenterToCenterVector_LL, Force_i, BranchVector_i)
+            print('  SFF contact moments done')
+
         # 3. Return primary fields and the velocity fields already computed ................................................
         primary_fields = {
             "volume_fraction": VolumeFraction_CG,
@@ -864,6 +870,7 @@ class CoarseGraining:
             "d32": d32_CG,
             "coordination_number": CoordinationNumber_rattlers,
             "fabric_tensor": FabricTensor_Monodisperse_CG,
+            "sff_moments": SFFMoments_CG,
         }
         velocity_fields = {"velocity": Velocity_CG, "velocity_gradient": GradV_CG}
         return primary_fields, velocity_fields

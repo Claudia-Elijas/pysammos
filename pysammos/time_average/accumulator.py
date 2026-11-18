@@ -31,7 +31,7 @@ from ..macroscopic_fields.gridded.derived_fields import PRIMARY_FIELDS
 
 #: Primary fields averaged arithmetically. The fluctuation tensor and the grain sizes need weights.
 ARITHMETIC_FIELDS = ("volume_fraction", "density_mixture", "momentum_density", "kinetic_tensor",
-                     "contact_tensor", "coordination_number", "fabric_tensor")
+                     "contact_tensor", "coordination_number", "fabric_tensor", "sff_moments")
 
 
 def _safe_divide(a, b):

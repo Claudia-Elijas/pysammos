@@ -22,18 +22,22 @@ passes them on; :func:`add_velocity_fields` only fills them in when they are mis
 import numpy as np
 
 from . import secondary
+from . import sff
 
 # Fields written once per grid point (not per phase) in the polydisperse .vtkhdf ouput 
 PHASE_INDEPENDENT_FIELDS = ["d32", "d43", "coordination_number", "velocity_gradient", "fabric_tensor",
                             "shear_rate_tensor_xyz", "shear_rate_tensor_xyz_mag",
                             "shear_rate_tensor_xy", "shear_rate_tensor_xy_mag",
                             "shear_rate_tensor_xyz_dev", "shear_rate_tensor_xyz_dev_mag",
-                            "shear_rate_tensor_xy_dev", "shear_rate_tensor_xy_dev_mag"]
+                            "shear_rate_tensor_xy_dev", "shear_rate_tensor_xy_dev_mag",
+                            "fabric_anisotropy_tensor", "normal_force_anisotropy_tensor",
+                            "tangential_force_anisotropy_tensor", "contact_stress_tensor_SFF",
+                            "frictional_coefficient_SFF_Dxyz_Pxyz", "frictional_coefficient_SFF_linear_Dxyz_Pxyz"]
 
 #: Primary fields: the inputs of the derived fields, and the fields averaged in time.
 PRIMARY_FIELDS = ("volume_fraction", "density_mixture", "momentum_density",
                   "kinetic_tensor", "fluctuation_tensor", "contact_tensor",
-                  "d43", "d32", "coordination_number", "fabric_tensor")
+                  "d43", "d32", "coordination_number", "fabric_tensor", "sff_moments")
 
 #: Output keys written for each flag of ``fields_to_export``, in the order they are written.
 EXPORT_GROUPS = {
@@ -68,6 +72,10 @@ EXPORT_GROUPS = {
                                "frictional_coefficient_Dxyz_Pxy", "frictional_coefficient_Dxyz_Py",
                                "frictional_coefficient_01_Pxyz", "frictional_coefficient_01_Pxy",
                                "frictional_coefficient_01_Py"],
+    # friction of the contact stress from the contact, normal-force and tangential-force anisotropies (bulk)
+    "sff_friction": ["fabric_anisotropy_tensor", "normal_force_anisotropy_tensor",
+                     "tangential_force_anisotropy_tensor", "contact_stress_tensor_SFF",
+                     "frictional_coefficient_SFF_Dxyz_Pxyz", "frictional_coefficient_SFF_linear_Dxyz_Pxyz"],
 }
 
 
@@ -221,6 +229,11 @@ def compute_derived_fields(fields: dict, *, fields_to_compute, phases: np.ndarra
             for p_name in ("xyz", "xy", "y"):
                 out[f"frictional_coefficient_{s_name}_P{p_name}"] = tau / out[f"pressure_{p_name}"]
         print('  mu done')
+
+    # stress-force-fabric friction of the contact stress, with the cross terms (see the sff module)
+    if "sff_friction" in fields_to_compute and fields.get("sff_moments") is not None:
+        out.update(sff.sff_fields(fields["sff_moments"], fields["contact_tensor"], fields["kinetic_tensor"]))
+        print('  SFF friction done')
 
     return out
 
