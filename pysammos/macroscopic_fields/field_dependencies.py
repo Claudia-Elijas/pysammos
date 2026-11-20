@@ -5,12 +5,13 @@ field_dependencies = {
                 "velocity_gradient" : ["velocity"],
                 "shear_rate_tensor": ["velocity_gradient"],
                 "kinetic_tensor": ["velocity", "velocity_gradient"],
+                "fluctuation_tensor": ["kinetic_tensor"],
                 "total_stress_tensor": ["kinetic_tensor", "contact_tensor"],
                 "pressure": ["total_stress_tensor"],
                 "inertial_number": ["shear_rate_tensor", "pressure", "density_particle", "d43", "d32"],
                 "frictional_coefficient": ["total_stress_tensor", "pressure"],
                 "sff_friction": ["sff_moments", "kinetic_tensor", "contact_tensor"],
-                "granular_temperature": ["kinetic_tensor", "density_mixture"]
+                "granular_temperature": ["fluctuation_tensor", "density_mixture"]
                             }
 
 
