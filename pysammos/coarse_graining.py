@@ -46,7 +46,7 @@ from .macroscopic_fields.gridded import scalars
 from .macroscopic_fields.gridded import sff
 from .macroscopic_fields.sliced import granular_temperature as sliced
 from .macroscopic_fields.gridded import derived_fields
-from .macroscopic_fields.gridded.derived_fields import PHASE_INDEPENDENT_FIELDS
+from .macroscopic_fields.gridded.derived_fields import PHASE_INDEPENDENT_FIELDS, PRIMARY_FIELDS, PRIMARY_EXPORT_FLAGS, H5_ONLY_FIELDS
 # time averaging
 from .time_average.accumulator import TimeAverageAccumulator
 # data writing
@@ -118,6 +118,7 @@ class CoarseGraining:
                  fields_to_export:dict, 
                  simulation_box:list = None,
                  time_average:bool = False,
+                 export_primary_fields:bool = True,
                  ignore_phases:bool = True,
                  vkthdf_output:bool = True,
                  h5_output:bool = True,
@@ -143,7 +144,7 @@ class CoarseGraining:
         # CG smoothing function of choice
         self.weight_function = weight_function
         # custom outputs and their dependencies
-        self.field_to_export = fields_to_export
+        self.field_to_export = dict(fields_to_export)
         self.fields_to_compute = get_fields_to_compute(fields_to_export)
         # CG partial fields ignore
         self.ignore_phases = ignore_phases
@@ -152,6 +153,13 @@ class CoarseGraining:
         if self.time_average:
             # the accumulator needs the volume fraction (grain-size weights) and the mixture density
             self.fields_to_compute |= get_fields_to_compute({"volume_fraction": True, "density_mixture": True})
+        # export primary fields (relevant for customisable post-hoc spatial averaging)
+        self.export_primaries = export_primary_fields
+        if self.export_primaries:
+            self.fields_to_compute |= get_fields_to_compute({"volume_fraction": True, "density_mixture": True})
+            for flag in PRIMARY_EXPORT_FLAGS:
+                if flag in self.fields_to_compute:
+                    self.field_to_export[flag] = True
         # create output path folder 
         self.output_path = output_path
         if not os.path.exists(self.output_path):
