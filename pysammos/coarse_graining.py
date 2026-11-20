@@ -51,6 +51,7 @@ from .macroscopic_fields.gridded.derived_fields import PHASE_INDEPENDENT_FIELDS,
 from .time_average.accumulator import TimeAverageAccumulator
 # data writing
 from .data_write.h5.writer import H5XarrayManager
+from .data_write.h5.attributes import output_attributes
 from .data_write.vtkhdf.writer import VTKHDFWriter
  
  
@@ -606,6 +607,12 @@ class CoarseGraining:
                     phase_labels = ["Bulk"] + [f"Phase_{p}" for p in self.phases]
                     manager.add_phases(phase_labels)
             manager.update_h5py_file(results_timestep, dim_index=time_step, dim_value=time_of_timestep, dim_name="time")
+            if new_file:
+                manager.add_attrs(output_attributes(
+                    results_timestep, primary_names=list(PRIMARY_FIELDS) + ["fluctuation_weight"],
+                    export_primaries=self.export_primaries, cg_calc_mode=self.cg_calc_mode,
+                    phases=self.phases, grid_dimension=self.grid_info["grid_dimension"],
+                    nodes=self.Nodes, spacing=self.Spacing))
             if attrs:
                 manager.add_attrs(attrs)
  
