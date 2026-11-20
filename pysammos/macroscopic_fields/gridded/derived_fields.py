@@ -78,6 +78,11 @@ EXPORT_GROUPS = {
                      "frictional_coefficient_SFF_Dxyz_Pxyz", "frictional_coefficient_SFF_linear_Dxyz_Pxyz"],
 }
 
+# Define the primary export flags
+PRIMARY_EXPORT_FLAGS = [f for f in PRIMARY_FIELDS if f in EXPORT_GROUPS]
+
+# Define the derived export flags
+H5_ONLY_FIELDS = ("sff_moments", "fluctuation_weight")
 
 # ---------------------------------------------------------------------------------------------
 # velocity
