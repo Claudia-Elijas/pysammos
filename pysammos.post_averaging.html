@@ -19,6 +19,8 @@
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -104,72 +106,82 @@
 <section id="profiles-module">
 <span id="module-pysammos.post_averaging"></span><h2>Profiles module<a class="headerlink" href="#profiles-module" title="Link to this heading"></a></h2>
 <p>pysammos.post_averaging.profiles</p>
-<p id="module-pysammos.post_averaging.profiles">This module provides functionality to perform vertical integration of variables
-in an xarray.Dataset along a specified profile dimension (x, y, or z).
-The integration is done by grouping data points based on their coordinate values
-along the profile dimension and summing the values of variables that have a 'point'
-dimension. The summed values are then normalized by an area element factor calculated
-from the spacing and extent of the other two spatial dimensions.</p>
+<p id="module-pysammos.post_averaging.profiles">Post-hoc spatial averages of coarse-grained fields: over a whole region, or as a profile along x, y or z.</p>
+<p>The coarse-grained fields are split in primary fields (kernel-weighted sums over particles: volume
+fraction, mixture density, momentum density, kinetic, fluctuation and contact tensors, ...) and
+derived fields (nonlinear functions of them: velocity, shear rate, pressure, granular temperature,
+inertial number, frictional coefficient, ...), see <code class="xref py py-mod docutils literal notranslate"><span class="pre">pysammos.macroscopic_fields.gridded.derived_fields</span></code>.</p>
+<p>As for the time averages, only the primary fields are averaged (with the same weights,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">pysammos.time_average.accumulator.summable_terms()</span></code>), and the derived fields are then computed
+from the averages with the same code as for one time step:</p>
+<ul class="simple">
+<li><p>velocity: averaged momentum density over averaged mixture density (Favre average),</p></li>
+<li><p>velocity gradient: along a profile, finite differences of the profile velocity; across the averaged
+directions (and for a whole-region average), the slope of a least-squares fit of the grid-node velocities,
+weighted by the mixture density. On a 2D grid the collapsed direction has a zero gradient.</p></li>
+<li><p>granular temperature, stresses, pressure, shear rate, inertial number, frictional coefficients: from the above.</p></li>
+</ul>
+<p>Averaging the derived fields themselves (&quot;naive&quot; average) is biased wherever they vary within the
+averaged region, e.g. the mean of <span class="math notranslate nohighlight">\(1/\sqrt{p}\)</span> exceeds <span class="math notranslate nohighlight">\(1/\sqrt{\bar p}\)</span>. The primary fields
+are written by <a class="reference internal" href="pysammos.html#pysammos.coarse_graining.CoarseGraining" title="pysammos.coarse_graining.CoarseGraining"><code class="xref py py-class docutils literal notranslate"><span class="pre">CoarseGraining</span></code></a> with <code class="docutils literal notranslate"><span class="pre">export_primary_fields=True</span></code> (default);
+for files without them the naive average is only computed if the user agrees.</p>
+<p>Note that the kinetic and fluctuation tensors at each grid node are measured relative to the velocity
+at that node: the spatial variation of the coarse-grained velocity within the averaged region
+(<span class="math notranslate nohighlight">\(\rho (u - \bar{u}) \otimes (u - \bar{u})\)</span>) is not included in the averaged stress or temperature.</p>
 <dl class="simple">
-<dt>This module contains the <cite>VerticalIntegrator</cite> class with methods to:</dt><dd><ul class="simple">
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">get_position_data()</span></code> to extract position data for the specified profile dimension.</p></li>
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">get_area_factor()</span></code> to calculate the area element factor for normalization.</p></li>
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">integration()</span></code> to perform the vertical integration of relevant variables in the dataset.</p></li>
+<dt>This module contains:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#pysammos.post_averaging.profiles.SpatialAverager" title="pysammos.post_averaging.profiles.SpatialAverager"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpatialAverager</span></code></a> with <a class="reference internal" href="#pysammos.post_averaging.profiles.SpatialAverager.mean" title="pysammos.post_averaging.profiles.SpatialAverager.mean"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mean()</span></code></a> (one value per time step over a region)
+and <a class="reference internal" href="#pysammos.post_averaging.profiles.SpatialAverager.profile" title="pysammos.post_averaging.profiles.SpatialAverager.profile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">profile()</span></code></a> (profile along an axis, within a region),</p></li>
+<li><p><a class="reference internal" href="#pysammos.post_averaging.profiles.VerticalIntegrator" title="pysammos.post_averaging.profiles.VerticalIntegrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">VerticalIntegrator</span></code></a>, the former interface (a profile over the whole grid).</p></li>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">H5XarrayManager</span><span class="p">(</span><span class="s2">"CG_Lucy_Monodisperse.h5"</span><span class="p">)</span><span class="o">.</span><span class="n">h5_to_xarray</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">averager</span> <span class="o">=</span> <span class="n">SpatialAverager</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prof</span> <span class="o">=</span> <span class="n">averager</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>       <span class="c1"># profile along y of the region 0.1 &lt;= x &lt;= 0.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bulk</span> <span class="o">=</span> <span class="n">averager</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>             <span class="c1"># one value per time step over the region</span>
+</pre></div>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.STORED_PRIMARIES">
+<span class="sig-prename descclassname"><span class="pre">pysammos.post_averaging.profiles.</span></span><span class="sig-name descname"><span class="pre">STORED_PRIMARIES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('volume_fraction',</span> <span class="pre">'density_mixture',</span> <span class="pre">'momentum_density',</span> <span class="pre">'kinetic_tensor',</span> <span class="pre">'fluctuation_tensor',</span> <span class="pre">'contact_tensor',</span> <span class="pre">'d43',</span> <span class="pre">'d32',</span> <span class="pre">'coordination_number',</span> <span class="pre">'fabric_tensor',</span> <span class="pre">'sff_moments',</span> <span class="pre">'fluctuation_weight')</span></span><a class="headerlink" href="#pysammos.post_averaging.profiles.STORED_PRIMARIES" title="Link to this definition"></a></dt>
+<dd><p>Primary fields stored in the .h5 output (fluctuation_weight only in time averages).</p>
+</dd></dl>
+
 <dl class="py class">
-<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.VerticalIntegrator">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pysammos.post_averaging.profiles.</span></span><span class="sig-name descname"><span class="pre">VerticalIntegrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_dim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#VerticalIntegrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.VerticalIntegrator" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.SpatialAverager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pysammos.post_averaging.profiles.</span></span><span class="sig-name descname"><span class="pre">SpatialAverager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">naive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#SpatialAverager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.SpatialAverager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.VerticalIntegrator.get_area_factor">
-<span class="sig-name descname"><span class="pre">get_area_factor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#VerticalIntegrator.get_area_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.VerticalIntegrator.get_area_factor" title="Link to this definition"></a></dt>
-<dd><p>Calculate area element factor for normalization.</p>
+<p>Spatial averages of the coarse-grained fields of an .h5 output, over a region of the grid.</p>
 <section id="inputs">
 <h3>Inputs<a class="headerlink" href="#inputs" title="Link to this heading"></a></h3>
 <dl class="simple">
-<dt>coords_1<span class="classifier">xarray.DataArray</span></dt><dd><p>First coordinate array of coarse-grained data.</p>
+<dt>ds<span class="classifier">xr.Dataset</span></dt><dd><p>Coarse-grained output read with <code class="xref py py-meth docutils literal notranslate"><span class="pre">H5XarrayManager.h5_to_xarray()</span></code> (time series or time average).</p>
 </dd>
-<dt>coords_2<span class="classifier">xarray.DataArray</span></dt><dd><p>Second coordinate array of coarse-grained data.</p>
+<dt>region<span class="classifier">dict, optional</span></dt><dd><p>Limits of the region to average, e.g. <code class="docutils literal notranslate"><span class="pre">{&quot;x&quot;:</span> <span class="pre">(0.1,</span> <span class="pre">0.3),</span> <span class="pre">&quot;z&quot;:</span> <span class="pre">(None,</span> <span class="pre">0.05)}</span></code> (inclusive,
+None for no limit). Axes not given are not limited. Default is the whole grid.</p>
+</dd>
+<dt>naive<span class="classifier">bool or None, optional</span></dt><dd><p>What to do with requested fields whose primary fields are not in <code class="docutils literal notranslate"><span class="pre">ds</span></code>:
+True: average the fields themselves (biased, listed in the attribute <code class="docutils literal notranslate"><span class="pre">naive_average</span></code>);
+False: raise an error; None (default): ask the user.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.SpatialAverager.mean">
+<span class="sig-name descname"><span class="pre">mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields_to_export</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#SpatialAverager.mean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.SpatialAverager.mean" title="Link to this definition"></a></dt>
+<dd><p>Average over the whole region: one value per time step.</p>
+<section id="id1">
+<h4>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>fields_to_export<span class="classifier">dict, optional</span></dt><dd><p>Flags as in the <code class="docutils literal notranslate"><span class="pre">[fields_to_export]</span></code> config section. Default: every field in <code class="docutils literal notranslate"><span class="pre">ds</span></code>.</p>
 </dd>
 </dl>
 </section>
 <section id="outputs">
-<h3>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h3>
+<h4>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h4>
 <dl class="simple">
-<dt>area_element<span class="classifier">float</span></dt><dd><p>Area element factor for normalization.</p>
-</dd>
-</dl>
-</section>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.VerticalIntegrator.get_position_data">
-<span class="sig-name descname"><span class="pre">get_position_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#VerticalIntegrator.get_position_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.VerticalIntegrator.get_position_data" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.VerticalIntegrator.integration">
-<span class="sig-name descname"><span class="pre">integration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#VerticalIntegrator.integration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.VerticalIntegrator.integration" title="Link to this definition"></a></dt>
-<dd><p>Integrate all variables with a 'point' dimension by grouping along the y coordinate
-(either exact values or bins) and summing over the grouped 'point's, then multiply by area.</p>
-<section id="id1">
-<h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>ds<span class="classifier">xr.Dataset</span></dt><dd><p>Input dataset containing variables, some of which have a 'point' dim.</p>
-</dd>
-<dt>area_element<span class="classifier">float</span></dt><dd><p>Area element to multiply the integrated sums by.</p>
-</dd>
-<dt>profile_dim<span class="classifier">str</span></dt><dd><p>Name of the profile dimension (e.g., 'y', 'z', 'x').</p>
-</dd>
-</dl>
-</section>
-<section id="id2">
-<h3>Outputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>xr.Dataset</dt><dd><p>Dataset with variables (those that had 'point') integrated over vertical groups.
-Group dimension will be 'y' (exact).</p>
+<dt>xr.Dataset</dt><dd><p>Averaged fields, dimensions (time, [phase], ...).</p>
 </dd>
 </dl>
 </section>
@@ -180,6 +192,58 @@ Group dimension will be 'y' (exact).</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.SpatialAverager.profile">
+<span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields_to_export</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#SpatialAverager.profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.SpatialAverager.profile" title="Link to this definition"></a></dt>
+<dd><p>Profile along <code class="docutils literal notranslate"><span class="pre">axis</span></code>: average over the grid points of the region with the same <code class="docutils literal notranslate"><span class="pre">axis</span></code> coordinate.</p>
+<section id="id2">
+<h4>Inputs<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>axis<span class="classifier">str</span></dt><dd><p>Axis of the profile, 'x', 'y' or 'z'.</p>
+</dd>
+<dt>fields_to_export<span class="classifier">dict, optional</span></dt><dd><p>Flags as in the <code class="docutils literal notranslate"><span class="pre">[fields_to_export]</span></code> config section. Default: every field in <code class="docutils literal notranslate"><span class="pre">ds</span></code>.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h4>Outputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt>xr.Dataset</dt><dd><p>Averaged fields, dimensions (time, <code class="docutils literal notranslate"><span class="pre">axis</span></code>, [phase], ...).</p>
+</dd>
+</dl>
+</section>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.VerticalIntegrator">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pysammos.post_averaging.profiles.</span></span><span class="sig-name descname"><span class="pre">VerticalIntegrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">naive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#VerticalIntegrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.VerticalIntegrator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pysammos.post_averaging.profiles.SpatialAverager" title="pysammos.post_averaging.profiles.SpatialAverager"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpatialAverager</span></code></a></p>
+<p>Profile along <code class="docutils literal notranslate"><span class="pre">profile_dim</span></code> over the whole grid (former interface, kept for existing scripts).
+Equivalent to <code class="docutils literal notranslate"><span class="pre">SpatialAverager(ds,</span> <span class="pre">naive=naive).profile(profile_dim)</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.VerticalIntegrator.integration">
+<span class="sig-name descname"><span class="pre">integration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pysammos/post_averaging/profiles.html#VerticalIntegrator.integration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pysammos.post_averaging.profiles.VerticalIntegrator.integration" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysammos.post_averaging.profiles.WEIGHT_FIELDS">
+<span class="sig-prename descclassname"><span class="pre">pysammos.post_averaging.profiles.</span></span><span class="sig-name descname"><span class="pre">WEIGHT_FIELDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'density_mixture',</span> <span class="pre">'volume_fraction'}</span></span><a class="headerlink" href="#pysammos.post_averaging.profiles.WEIGHT_FIELDS" title="Link to this definition"></a></dt>
+<dd><p>Fields needed as weights by every spatial average, except of the arithmetic primaries.</p>
 </dd></dl>
 
 </section>

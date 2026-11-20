@@ -253,8 +253,6 @@
 </li>
       <li><a href="pysammos.html#pysammos.coarse_graining.CoarseGraining.generate_grid">generate_grid() (pysammos.coarse_graining.CoarseGraining method)</a>
 </li>
-      <li><a href="pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.get_area_factor">get_area_factor() (pysammos.post_averaging.profiles.VerticalIntegrator method)</a>
-</li>
       <li><a href="pysammos.data_read.mfix.html#pysammos.data_read.mfix.utils.get_bounds">get_bounds() (in module pysammos.data_read.mfix.utils)</a>
 </li>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_cell_array">get_cell_array() (in module pysammos.data_write.vtkhdf.core)</a>
@@ -290,8 +288,6 @@
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_point_tensor">get_point_tensor() (in module pysammos.data_write.vtkhdf.core)</a>
 </li>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.get_point_vector">get_point_vector() (in module pysammos.data_write.vtkhdf.core)</a>
-</li>
-      <li><a href="pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.get_position_data">get_position_data() (pysammos.post_averaging.profiles.VerticalIntegrator method)</a>
 </li>
       <li><a href="pysammos.data_handle.contacts.qualitycheck.html#pysammos.data_handle.contacts.qualitycheck.duplicates.get_unique_pairs">get_unique_pairs() (in module pysammos.data_handle.contacts.qualitycheck.duplicates)</a>
 </li>
@@ -372,6 +368,8 @@
       <li><a href="pysammos.spatial_weights.html#pysammos.spatial_weights.hashtable_search.make_hash_table">make_hash_table() (in module pysammos.spatial_weights.hashtable_search)</a>
 </li>
       <li><a href="pysammos.data_handle.contacts.html#pysammos.data_handle.contacts.particle_mapper.map_contact_data">map_contact_data() (in module pysammos.data_handle.contacts.particle_mapper)</a>
+</li>
+      <li><a href="pysammos.post_averaging.html#pysammos.post_averaging.profiles.SpatialAverager.mean">mean() (pysammos.post_averaging.profiles.SpatialAverager method)</a>
 </li>
       <li><a href="pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.scalars.mean_grainsize">mean_grainsize() (in module pysammos.macroscopic_fields.gridded.scalars)</a>
 </li>
@@ -499,6 +497,8 @@
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.point2cell_dimensions">point2cell_dimensions() (in module pysammos.data_write.vtkhdf.core)</a>
 </li>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.point2cell_extent">point2cell_extent() (in module pysammos.data_write.vtkhdf.core)</a>
+</li>
+      <li><a href="pysammos.post_averaging.html#pysammos.post_averaging.profiles.SpatialAverager.profile">profile() (pysammos.post_averaging.profiles.SpatialAverager method)</a>
 </li>
       <li>
     pysammos.coarse_graining
@@ -654,6 +654,8 @@
         <li><a href="pysammos.data_write.vtkhdf.html#module-pysammos.data_write.vtkhdf.core">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pysammos.data_write.vtkhdf.writer
 
@@ -661,8 +663,6 @@
         <li><a href="pysammos.data_write.vtkhdf.html#module-pysammos.data_write.vtkhdf.writer">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pysammos.grid_generation
 
@@ -876,10 +876,10 @@
 </li>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_4d_tensor">set_point_4d_tensor() (in module pysammos.data_write.vtkhdf.core)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_scalar">set_point_scalar() (in module pysammos.data_write.vtkhdf.core)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_symmetric_tensor">set_point_symmetric_tensor() (in module pysammos.data_write.vtkhdf.core)</a>
 </li>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.core.set_point_tensor">set_point_tensor() (in module pysammos.data_write.vtkhdf.core)</a>
@@ -889,6 +889,10 @@
       <li><a href="pysammos.html#pysammos.coarse_graining.CoarseGraining.set_resolution">set_resolution() (pysammos.coarse_graining.CoarseGraining method)</a>
 </li>
       <li><a href="pysammos.macroscopic_fields.gridded.html#pysammos.macroscopic_fields.gridded.sff.sff_fields">sff_fields() (in module pysammos.macroscopic_fields.gridded.sff)</a>
+</li>
+      <li><a href="pysammos.post_averaging.html#pysammos.post_averaging.profiles.SpatialAverager">SpatialAverager (class in pysammos.post_averaging.profiles)</a>
+</li>
+      <li><a href="pysammos.post_averaging.html#pysammos.post_averaging.profiles.STORED_PRIMARIES">STORED_PRIMARIES (in module pysammos.post_averaging.profiles)</a>
 </li>
       <li><a href="pysammos.html#pysammos.coarse_graining.CoarseGraining.sweep_CG_widths">sweep_CG_widths() (pysammos.coarse_graining.CoarseGraining method)</a>
 </li>
@@ -952,6 +956,8 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pysammos.post_averaging.html#pysammos.post_averaging.profiles.WEIGHT_FIELDS">WEIGHT_FIELDS (in module pysammos.post_averaging.profiles)</a>
+</li>
       <li><a href="pysammos.macroscopic_fields.sliced.html#pysammos.macroscopic_fields.sliced.utils.Wm">Wm() (in module pysammos.macroscopic_fields.sliced.utils)</a>
 </li>
       <li><a href="pysammos.data_write.vtkhdf.html#pysammos.data_write.vtkhdf.writer.VTKHDFWriter.write">write() (pysammos.data_write.vtkhdf.writer.VTKHDFWriter method)</a>

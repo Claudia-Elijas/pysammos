@@ -75,137 +75,354 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pysammos.post_averaging.profiles</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""</span>
-<span class="sd">This module provides functionality to perform vertical integration of variables</span>
-<span class="sd">in an xarray.Dataset along a specified profile dimension (x, y, or z).</span>
-<span class="sd">The integration is done by grouping data points based on their coordinate values</span>
-<span class="sd">along the profile dimension and summing the values of variables that have a 'point'</span>
-<span class="sd">dimension. The summed values are then normalized by an area element factor calculated</span>
-<span class="sd">from the spacing and extent of the other two spatial dimensions.</span>
+<span></span><span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">Post-hoc spatial averages of coarse-grained fields: over a whole region, or as a profile along x, y or z.</span>
 
-<span class="sd">This module contains the `VerticalIntegrator` class with methods to:</span>
-<span class="sd">    - :func:`get_position_data` to extract position data for the specified profile dimension.</span>
-<span class="sd">    - :func:`get_area_factor` to calculate the area element factor for normalization.</span>
-<span class="sd">    - :func:`integration` to perform the vertical integration of relevant variables in the dataset.</span>
+<span class="sd">The coarse-grained fields are split in primary fields (kernel-weighted sums over particles: volume</span>
+<span class="sd">fraction, mixture density, momentum density, kinetic, fluctuation and contact tensors, ...) and</span>
+<span class="sd">derived fields (nonlinear functions of them: velocity, shear rate, pressure, granular temperature,</span>
+<span class="sd">inertial number, frictional coefficient, ...), see :mod:`pysammos.macroscopic_fields.gridded.derived_fields`.</span>
 
+<span class="sd">As for the time averages, only the primary fields are averaged (with the same weights,</span>
+<span class="sd">:func:`pysammos.time_average.accumulator.summable_terms`), and the derived fields are then computed</span>
+<span class="sd">from the averages with the same code as for one time step:</span>
+
+<span class="sd">- velocity: averaged momentum density over averaged mixture density (Favre average),</span>
+<span class="sd">- velocity gradient: along a profile, finite differences of the profile velocity; across the averaged</span>
+<span class="sd">  directions (and for a whole-region average), the slope of a least-squares fit of the grid-node velocities,</span>
+<span class="sd">  weighted by the mixture density. On a 2D grid the collapsed direction has a zero gradient.</span>
+<span class="sd">- granular temperature, stresses, pressure, shear rate, inertial number, frictional coefficients: from the above.</span>
+
+<span class="sd">Averaging the derived fields themselves ("naive" average) is biased wherever they vary within the</span>
+<span class="sd">averaged region, e.g. the mean of :math:`1/\sqrt{p}` exceeds :math:`1/\sqrt{\bar p}`. The primary fields</span>
+<span class="sd">are written by :class:`~pysammos.coarse_graining.CoarseGraining` with ``export_primary_fields=True`` (default);</span>
+<span class="sd">for files without them the naive average is only computed if the user agrees.</span>
+
+<span class="sd">Note that the kinetic and fluctuation tensors at each grid node are measured relative to the velocity</span>
+<span class="sd">at that node: the spatial variation of the coarse-grained velocity within the averaged region</span>
+<span class="sd">(:math:`\rho (u - \bar{u}) \otimes (u - \bar{u})`) is not included in the averaged stress or temperature.</span>
+
+<span class="sd">This module contains:</span>
+<span class="sd">    - :class:`SpatialAverager` with :meth:`~SpatialAverager.mean` (one value per time step over a region)</span>
+<span class="sd">      and :meth:`~SpatialAverager.profile` (profile along an axis, within a region),</span>
+<span class="sd">    - :class:`VerticalIntegrator`, the former interface (a profile over the whole grid).</span>
+
+<span class="sd">Example</span>
+<span class="sd">-------</span>
+<span class="sd">&gt;&gt;&gt; ds = H5XarrayManager("CG_Lucy_Monodisperse.h5").h5_to_xarray()</span>
+<span class="sd">&gt;&gt;&gt; averager = SpatialAverager(ds, region={"x": (0.1, 0.3)})</span>
+<span class="sd">&gt;&gt;&gt; prof = averager.profile("y")       # profile along y of the region 0.1 &lt;= x &lt;= 0.3</span>
+<span class="sd">&gt;&gt;&gt; bulk = averager.mean()             # one value per time step over the region</span>
 <span class="sd">"""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..macroscopic_fields.field_dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_fields_to_compute</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">derived_fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..macroscopic_fields.gridded.derived_fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">EXPORT_GROUPS</span><span class="p">,</span> <span class="n">PRIMARY_FIELDS</span><span class="p">,</span> <span class="n">PHASE_INDEPENDENT_FIELDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..time_average.accumulator</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARITHMETIC_FIELDS</span><span class="p">,</span> <span class="n">summable_terms</span><span class="p">,</span> <span class="n">finalise</span>
+
+<span class="n">AXES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">)</span>
+
+<span class="c1">#: Primary fields stored in the .h5 output (fluctuation_weight only in time averages).</span>
+<span class="n">STORED_PRIMARIES</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">PRIMARY_FIELDS</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s2">"fluctuation_weight"</span><span class="p">,)</span>
+
+<span class="c1">#: Fields needed as weights by every spatial average, except of the arithmetic primaries.</span>
+<span class="n">WEIGHT_FIELDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"volume_fraction"</span><span class="p">,</span> <span class="s2">"density_mixture"</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="SpatialAverager">
+<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.SpatialAverager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpatialAverager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Spatial averages of the coarse-grained fields of an .h5 output, over a region of the grid.</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Coarse-grained output read with :meth:`H5XarrayManager.h5_to_xarray` (time series or time average).</span>
+<span class="sd">    region : dict, optional</span>
+<span class="sd">        Limits of the region to average, e.g. ``{"x": (0.1, 0.3), "z": (None, 0.05)}`` (inclusive,</span>
+<span class="sd">        None for no limit). Axes not given are not limited. Default is the whole grid.</span>
+<span class="sd">    naive : bool or None, optional</span>
+<span class="sd">        What to do with requested fields whose primary fields are not in ``ds``:</span>
+<span class="sd">        True: average the fields themselves (biased, listed in the attribute ``naive_average``);</span>
+<span class="sd">        False: raise an error; None (default): ask the user.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">region</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">naive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">"time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">naive</span> <span class="o">=</span> <span class="n">naive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"positions"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># region mask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">region</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">region</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="n">limits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">axis</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AXES</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"region keys must be 'x', 'y' or 'z', got </span><span class="si">{</span><span class="n">axis</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">limits</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="n">AXES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">axis</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">lo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">coord</span> <span class="o">&gt;=</span> <span class="n">lo</span>
+            <span class="k">if</span> <span class="n">hi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">coord</span> <span class="o">&lt;=</span> <span class="n">hi</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No grid point in the region </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span>
+
+        <span class="c1"># information on the coarse graining (attributes written by CoarseGraining, inferred for older files)</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cg_calc_mode"</span><span class="p">,</span> <span class="s2">"Polydisperse"</span> <span class="k">if</span> <span class="s2">"phase"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span> <span class="k">else</span> <span class="s2">"Monodisperse"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"phases_diameter_density"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                       <span class="k">if</span> <span class="s2">"phases_diameter_density"</span> <span class="ow">in</span> <span class="n">attrs</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_dimension</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"grid_dimension"</span><span class="p">,</span>
+                                            <span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[:,</span> <span class="n">a</span><span class="p">])</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">available_primaries</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">STORED_PRIMARIES</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">]</span>
+
+    <span class="c1"># ---------------------------------------------------------------- public</span>
+<div class="viewcode-block" id="SpatialAverager.mean">
+<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.SpatialAverager.mean">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields_to_export</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Average over the whole region: one value per time step.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        fields_to_export : dict, optional</span>
+<span class="sd">            Flags as in the ``[fields_to_export]`` config section. Default: every field in ``ds``.</span>
+
+<span class="sd">        Outputs</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            Averaged fields, dimensions (time, [phase], ...).</span>
+<span class="sd">        """</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_average</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fields_to_export</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"mean"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpatialAverager.profile">
+<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.SpatialAverager.profile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields_to_export</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Profile along ``axis``: average over the grid points of the region with the same ``axis`` coordinate.</span>
+
+<span class="sd">        Inputs</span>
+<span class="sd">        ------</span>
+<span class="sd">        axis : str</span>
+<span class="sd">            Axis of the profile, 'x', 'y' or 'z'.</span>
+<span class="sd">        fields_to_export : dict, optional</span>
+<span class="sd">            Flags as in the ``[fields_to_export]`` config section. Default: every field in ``ds``.</span>
+
+<span class="sd">        Outputs</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.Dataset</span>
+<span class="sd">            Averaged fields, dimensions (time, ``axis``, [phase], ...).</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">axis</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AXES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"axis must be one of 'x', 'y', or 'z'"</span><span class="p">)</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">AXES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">axis</span><span class="p">)],</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># grid planes (round-off safe)</span>
+        <span class="n">levels</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_average</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">levels</span><span class="p">),</span> <span class="n">fields_to_export</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"profile_</span><span class="si">{</span><span class="n">axis</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ---------------------------------------------------------------- which fields</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_split_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields_to_export</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Split the requested flags into those computed from the primaries and those averaged naively."""</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+        <span class="k">if</span> <span class="n">fields_to_export</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>   <span class="c1"># everything that is in the file</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">keys</span> <span class="ow">in</span> <span class="n">EXPORT_GROUPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">include</span> <span class="ow">in</span> <span class="n">fields_to_export</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">include</span> <span class="ow">and</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">EXPORT_GROUPS</span><span class="p">]</span>
+
+        <span class="n">correct</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="n">needed</span> <span class="o">=</span> <span class="n">get_fields_to_compute</span><span class="p">({</span><span class="n">flag</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">PRIMARY_FIELDS</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ARITHMETIC_FIELDS</span><span class="p">:</span>
+                <span class="n">needed</span> <span class="o">|=</span> <span class="n">WEIGHT_FIELDS</span>
+            <span class="n">lacking</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">needed</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">available_primaries</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">lacking</span><span class="p">:</span>
+                <span class="n">missing</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span> <span class="o">=</span> <span class="n">lacking</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">correct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+
+        <span class="n">naive</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="n">unavailable</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">missing</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">EXPORT_GROUPS</span><span class="p">[</span><span class="n">f</span><span class="p">])]</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"These fields cannot be averaged correctly because their primary fields are not in the file:</span><span class="se">\n</span><span class="s2">"</span>
+                       <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">flag</span><span class="si">}</span><span class="s2">: missing </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lack</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">lack</span> <span class="ow">in</span> <span class="n">missing</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+                       <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Re-run the coarse graining with export_primary_fields=True ([output_options] export_primary_fields = True)"</span>
+                         <span class="s2">" to average them correctly."</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">unavailable</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Not in the file at all, so they cannot be averaged: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unavailable</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accept_naive</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">naive</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">correct</span><span class="p">,</span> <span class="n">naive</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_accept_naive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Whether to average the fields without primaries naively (``naive``, or ask the user)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">naive</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">naive</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">They are averaged naively (biased where they vary in the region)."</span><span class="p">,</span>
+                              <span class="n">stacklevel</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">naive</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">answer</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">message</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">Average them naively instead (biased where they vary in the region)? [y/N] "</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>   <span class="c1"># no interactive input (batch job)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">answer</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">)</span>
+
+    <span class="c1"># ---------------------------------------------------------------- averaging</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">fields_to_export</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">correct</span><span class="p">,</span> <span class="n">naive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_flags</span><span class="p">(</span><span class="n">fields_to_export</span><span class="p">)</span>
+        <span class="n">ds</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span>
+        <span class="n">n_groups</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">n_groups</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">group_mean</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>   <span class="c1"># mean over the grid points of each group, first axis = point</span>
+            <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_groups</span><span class="p">,)</span> <span class="o">+</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sums</span> <span class="o">/</span> <span class="n">counts</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">*</span> <span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">correct_flags</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">fields_to_compute</span> <span class="o">=</span> <span class="n">get_fields_to_compute</span><span class="p">(</span><span class="n">correct_flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"inertial_number"</span> <span class="ow">in</span> <span class="n">fields_to_compute</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">"Polydisperse"</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The phases are not in the file (attribute phases_diameter_density): the polydisperse "</span>
+                                 <span class="s2">"inertial number cannot be computed. Re-run the coarse graining with the current version."</span><span class="p">)</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># unused when Monodisperse</span>
+        <span class="n">grid_info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"grid_dimension"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dimension</span><span class="p">}</span>
+        <span class="n">naive_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">naive</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">EXPORT_GROUPS</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">]</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]):</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">correct</span><span class="p">:</span>
+                <span class="n">primary</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">])[</span><span class="n">mask</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_primaries</span><span class="p">}</span>
+                <span class="n">mean_terms</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">group_mean</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">summable_terms</span><span class="p">(</span><span class="n">primary</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="n">averaged</span> <span class="o">=</span> <span class="n">finalise</span><span class="p">(</span><span class="n">mean_terms</span><span class="p">)</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">averaged</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">velocity_gradient</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">"velocity"</span> <span class="ow">in</span> <span class="n">fields_to_compute</span><span class="p">:</span>
+                    <span class="n">fields</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">velocity_from_momentum</span><span class="p">(</span><span class="n">averaged</span><span class="p">[</span><span class="s2">"momentum_density"</span><span class="p">],</span>
+                                                                               <span class="n">averaged</span><span class="p">[</span><span class="s2">"density_mixture"</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s2">"velocity_gradient"</span> <span class="ow">in</span> <span class="n">fields_to_compute</span><span class="p">:</span>
+                    <span class="n">fields</span><span class="p">[</span><span class="s2">"velocity_gradient"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_velocity_gradient</span><span class="p">(</span><span class="n">primary</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">])</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="n">derived_fields</span><span class="o">.</span><span class="n">compute_derived_fields</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">fields_to_compute</span><span class="o">=</span><span class="n">fields_to_compute</span><span class="p">,</span>
+                                                               <span class="n">phases</span><span class="o">=</span><span class="n">phases</span><span class="p">,</span> <span class="n">grid_info</span><span class="o">=</span><span class="n">grid_info</span><span class="p">)</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">derived_fields</span><span class="o">.</span><span class="n">select_exports</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">correct_flags</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">naive_keys</span><span class="p">:</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)[</span><span class="n">mask</span><span class="p">]</span>
+                <span class="n">sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_groups</span><span class="p">,)</span> <span class="o">+</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sums</span><span class="p">)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">sums</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">weights</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_dataset</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">naive</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_velocity_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primary</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">velocity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Gradient of the bulk velocity of each group, shape (Ngroups, 3, 3), [component, direction]:</span>
+<span class="sd">        along the profile, finite differences of the profile velocity; in the other directions, the slope</span>
+<span class="sd">        of a least-squares fit of the grid-node velocities weighted by the mixture density.</span>
+<span class="sd">        """</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">primary</span><span class="p">[</span><span class="s2">"density_mixture"</span><span class="p">]</span>
+        <span class="n">rho_bulk</span> <span class="o">=</span> <span class="n">rho</span> <span class="k">if</span> <span class="n">rho</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">rho</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">mom</span> <span class="o">=</span> <span class="n">primary</span><span class="p">[</span><span class="s2">"momentum_density"</span><span class="p">]</span>
+        <span class="n">mom_bulk</span> <span class="o">=</span> <span class="n">mom</span> <span class="k">if</span> <span class="n">mom</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">mom</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">node_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">mom_bulk</span><span class="p">,</span> <span class="n">rho_bulk</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mom_bulk</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">rho_bulk</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="n">n_groups</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">gradient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_groups</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">fit_axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">a</span> <span class="o">!=</span> <span class="n">AXES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_groups</span><span class="p">):</span>
+            <span class="n">in_group</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">==</span> <span class="n">g</span>
+            <span class="n">pos</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[</span><span class="n">in_group</span><span class="p">],</span> <span class="n">node_velocity</span><span class="p">[</span><span class="n">in_group</span><span class="p">],</span> <span class="n">rho_bulk</span><span class="p">[</span><span class="n">in_group</span><span class="p">]</span>
+            <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">fit_axes</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span> <span class="n">a</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>   <span class="c1"># directions with more than one grid plane</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">axes</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
+                <span class="n">gradient</span><span class="p">[</span><span class="n">g</span><span class="p">][:,</span> <span class="n">axes</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>    <span class="c1"># too few occupied nodes to fit a gradient</span>
+                <span class="k">continue</span>
+            <span class="n">centred</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[:,</span> <span class="n">axes</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span> <span class="n">axes</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">design</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">centred</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">design</span><span class="p">,</span> <span class="n">vel</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># (1+len(axes), 3)</span>
+            <span class="n">gradient</span><span class="p">[</span><span class="n">g</span><span class="p">][:,</span> <span class="n">axes</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">axis</span><span class="p">,</span> <span class="n">levels</span> <span class="o">=</span> <span class="n">profile</span>
+            <span class="n">v_bulk</span> <span class="o">=</span> <span class="n">velocity</span> <span class="k">if</span> <span class="n">velocity</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">velocity</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">v_bulk</span><span class="p">,</span> <span class="n">levels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">gradient</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">AXES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">axis</span><span class="p">)]</span> <span class="o">=</span> <span class="n">column</span>
+        <span class="k">return</span> <span class="n">gradient</span>
+
+    <span class="c1"># ---------------------------------------------------------------- output</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">naive</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span>
+        <span class="n">phase_dim</span> <span class="o">=</span> <span class="s2">"phase"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span> <span class="o">==</span> <span class="s2">"Polydisperse"</span>
+        <span class="n">n_phases</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"phase"</span><span class="p">]</span> <span class="k">if</span> <span class="n">phase_dim</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">lead</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,)</span> <span class="o">+</span> <span class="p">((</span><span class="n">profile</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span> <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">())</span>
+
+        <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>                 <span class="c1"># (time, Ngroups, ...)</span>
+            <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>                                    <span class="c1"># (time, ...)</span>
+            <span class="n">trailing</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">lead</span><span class="p">):])</span>
+            <span class="n">dims</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">phase_dim</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PHASE_INDEPENDENT_FIELDS</span> <span class="ow">and</span> <span class="n">trailing</span> <span class="ow">and</span> <span class="n">trailing</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">n_phases</span><span class="p">:</span>
+                <span class="n">dims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"phase"</span><span class="p">)</span>
+                <span class="n">trailing</span> <span class="o">=</span> <span class="n">trailing</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="n">trailing</span> <span class="o">==</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+                <span class="n">dims</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"dim1_3D"</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">trailing</span> <span class="o">==</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                <span class="n">dims</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"dim1_3D"</span><span class="p">,</span> <span class="s2">"dim2_3D"</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">trailing</span> <span class="o">==</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                <span class="n">dims</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"dim1_2D"</span><span class="p">,</span> <span class="s2">"dim2_2D"</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dims</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"dim_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trailing</span><span class="p">))]</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">lead</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">dims</span><span class="p">),</span> <span class="n">values</span><span class="p">)</span>
+
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coords</span><span class="p">[</span><span class="n">profile</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">phase_dim</span><span class="p">:</span>
+            <span class="n">coords</span><span class="p">[</span><span class="s2">"phase"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"phase"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                 <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"primary_fields"</span><span class="p">,</span> <span class="s2">"derived_fields"</span><span class="p">,</span> <span class="s2">"grid_nodes"</span><span class="p">,</span> <span class="s2">"grid_spacing"</span><span class="p">)}</span>
+        <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"spatial_average"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                      <span class="s2">"region"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span> <span class="ow">or</span> <span class="s2">"whole grid"</span><span class="p">),</span>
+                      <span class="s2">"naive_average"</span><span class="p">:</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">naive</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">EXPORT_GROUPS</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data_vars</span><span class="p">]})</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">data_vars</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="VerticalIntegrator">
 <a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">VerticalIntegrator</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">profile_dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VerticalIntegrator</span><span class="p">(</span><span class="n">SpatialAverager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Profile along ``profile_dim`` over the whole grid (former interface, kept for existing scripts).</span>
+<span class="sd">    Equivalent to ``SpatialAverager(ds, naive=naive).profile(profile_dim)``.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">profile_dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">naive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">naive</span><span class="o">=</span><span class="n">naive</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">=</span> <span class="n">profile_dim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">profile_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position_data</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">area_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_area_factor</span><span class="p">()</span>
 
-<div class="viewcode-block" id="VerticalIntegrator.get_position_data">
-<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.get_position_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_position_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">==</span> <span class="s1">'y'</span><span class="p">:</span>
-            <span class="n">dim_prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># y</span>
-            <span class="n">dim_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># x</span>
-            <span class="n">dim_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># z</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">==</span> <span class="s1">'x'</span><span class="p">:</span>
-            <span class="n">dim_prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># x</span>
-            <span class="n">dim_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># y</span>
-            <span class="n">dim_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># z</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span> <span class="o">==</span> <span class="s1">'z'</span><span class="p">:</span>
-            <span class="n">dim_prof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># z</span>
-            <span class="n">dim_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># x</span>
-            <span class="n">dim_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">'positions'</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># y</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"profile_dim must be one of 'x', 'y', or 'z'"</span><span class="p">)</span>
-        
-        <span class="k">return</span> <span class="n">dim_prof</span><span class="p">,</span> <span class="n">dim_1</span><span class="p">,</span> <span class="n">dim_2</span></div>
-
-        
-        
-    <span class="c1"># get area factor: general version</span>
-<div class="viewcode-block" id="VerticalIntegrator.get_area_factor">
-<a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.get_area_factor">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_area_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
-<span class="w">        </span><span class="sd">'''</span>
-
-<span class="sd">        Calculate area element factor for normalization. </span>
-
-<span class="sd">        Inputs</span>
-<span class="sd">        ------</span>
-<span class="sd">        coords_1 : xarray.DataArray</span>
-<span class="sd">            First coordinate array of coarse-grained data.</span>
-<span class="sd">        coords_2 : xarray.DataArray</span>
-<span class="sd">            Second coordinate array of coarse-grained data.</span>
-
-<span class="sd">        Outputs</span>
-<span class="sd">        -------</span>
-<span class="sd">        area_element : float</span>
-<span class="sd">            Area element factor for normalization.</span>
-
-<span class="sd">        '''</span>
-
-        <span class="n">factors</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords_2</span><span class="p">):</span>
-            <span class="n">unique</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="c1"># get unique coordinate values</span>
-            <span class="k">if</span> <span class="n">unique</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">continue</span>  <span class="c1"># collapsed dimension → ignore</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">unique</span><span class="p">))</span> <span class="c1"># average spacing between unique coordinates</span>
-            <span class="n">delta</span> <span class="o">=</span> <span class="n">unique</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">unique</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="c1"># total extent of the coordinate</span>
-            <span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="n">delta</span><span class="p">)</span> <span class="c1"># factor for this dimension</span>
-        <span class="n">area_element</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span> <span class="k">if</span> <span class="n">factors</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="c1"># default to 1.0 if no factors</span>
-
-        <span class="k">return</span> <span class="n">area_element</span></div>
-
-
-
-    <span class="c1"># general vertical integrate function</span>
 <div class="viewcode-block" id="VerticalIntegrator.integration">
 <a class="viewcode-back" href="../../../pysammos.post_averaging.html#pysammos.post_averaging.profiles.VerticalIntegrator.integration">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">integration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Integrate all variables with a 'point' dimension by grouping along the y coordinate</span>
-<span class="sd">        (either exact values or bins) and summing over the grouped 'point's, then multiply by area.</span>
-
-<span class="sd">        Inputs</span>
-<span class="sd">        ------</span>
-<span class="sd">        ds : xr.Dataset</span>
-<span class="sd">            Input dataset containing variables, some of which have a 'point' dim.</span>
-<span class="sd">        area_element : float</span>
-<span class="sd">            Area element to multiply the integrated sums by.</span>
-<span class="sd">        profile_dim : str</span>
-<span class="sd">            Name of the profile dimension (e.g., 'y', 'z', 'x').</span>
-
-<span class="sd">        Outputs</span>
-<span class="sd">        -------</span>
-<span class="sd">        xr.Dataset</span>
-<span class="sd">            Dataset with variables (those that had 'point') integrated over vertical groups.</span>
-<span class="sd">            Group dimension will be 'y' (exact).</span>
-<span class="sd">        """</span>
-
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Starting integration along profile dimension: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-        <span class="c1"># Ensure profile_dim is attached as a coordinate on the 'point' dimension</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="p">:</span> <span class="p">(</span><span class="s2">"point"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_points</span><span class="o">.</span><span class="n">data</span><span class="p">)})</span>
-
-        <span class="c1"># Select only variables that actually have the 'point' dimension</span>
-        <span class="n">vars_with_point</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s1">'point'</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">dims</span><span class="p">]</span>
-        <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">vars_with_point</span><span class="p">]</span>
-
-        <span class="c1"># Build the GroupBy over the selected variables</span>
-        <span class="n">gb</span> <span class="o">=</span> <span class="n">ds_sel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="p">)</span>
-
-        <span class="c1"># Sum within each group (reduces the grouped 'point' dim), then scale by area</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_element</span>
-
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Completed integration along profile dimension: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">profile_dim</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">out</span></div>
 </div>
 

@@ -123,11 +123,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">sff</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.sliced</span><span class="w"> </span><span class="kn">import</span> <span class="n">granular_temperature</span> <span class="k">as</span> <span class="n">sliced</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded</span><span class="w"> </span><span class="kn">import</span> <span class="n">derived_fields</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded.derived_fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">PHASE_INDEPENDENT_FIELDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.macroscopic_fields.gridded.derived_fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">PHASE_INDEPENDENT_FIELDS</span><span class="p">,</span> <span class="n">PRIMARY_FIELDS</span><span class="p">,</span> <span class="n">PRIMARY_EXPORT_FLAGS</span><span class="p">,</span> <span class="n">H5_ONLY_FIELDS</span>
 <span class="c1"># time averaging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.time_average.accumulator</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeAverageAccumulator</span>
 <span class="c1"># data writing</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.h5.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">H5XarrayManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.h5.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">output_attributes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.data_write.vtkhdf.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">VTKHDFWriter</span>
  
  
@@ -197,6 +198,7 @@
                  <span class="n">fields_to_export</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> 
                  <span class="n">simulation_box</span><span class="p">:</span><span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">time_average</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">export_primary_fields</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">ignore_phases</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">vkthdf_output</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">h5_output</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -222,7 +224,7 @@
         <span class="c1"># CG smoothing function of choice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weight_function</span> <span class="o">=</span> <span class="n">weight_function</span>
         <span class="c1"># custom outputs and their dependencies</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span> <span class="o">=</span> <span class="n">fields_to_export</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">fields_to_export</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span> <span class="o">=</span> <span class="n">get_fields_to_compute</span><span class="p">(</span><span class="n">fields_to_export</span><span class="p">)</span>
         <span class="c1"># CG partial fields ignore</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_phases</span> <span class="o">=</span> <span class="n">ignore_phases</span>
@@ -231,6 +233,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_average</span><span class="p">:</span>
             <span class="c1"># the accumulator needs the volume fraction (grain-size weights) and the mixture density</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span> <span class="o">|=</span> <span class="n">get_fields_to_compute</span><span class="p">({</span><span class="s2">"volume_fraction"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"density_mixture"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+        <span class="c1"># export primary fields (relevant for customisable post-hoc spatial averaging)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_primary_fields</span> <span class="o">=</span> <span class="n">export_primary_fields</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_primary_fields</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span> <span class="o">|=</span> <span class="n">get_fields_to_compute</span><span class="p">({</span><span class="s2">"volume_fraction"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"density_mixture"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">PRIMARY_EXPORT_FLAGS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields_to_compute</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">field_to_export</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># create output path folder </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">output_path</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">):</span>
@@ -695,11 +704,18 @@
                     <span class="n">phase_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Bulk"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"Phase_</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">]</span>
                     <span class="n">manager</span><span class="o">.</span><span class="n">add_phases</span><span class="p">(</span><span class="n">phase_labels</span><span class="p">)</span>
             <span class="n">manager</span><span class="o">.</span><span class="n">update_h5py_file</span><span class="p">(</span><span class="n">results_timestep</span><span class="p">,</span> <span class="n">dim_index</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">dim_value</span><span class="o">=</span><span class="n">time_of_timestep</span><span class="p">,</span> <span class="n">dim_name</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_file</span><span class="p">:</span>
+                <span class="n">manager</span><span class="o">.</span><span class="n">add_attrs</span><span class="p">(</span><span class="n">output_attributes</span><span class="p">(</span>
+                    <span class="n">results_timestep</span><span class="p">,</span> <span class="n">primary_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">PRIMARY_FIELDS</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"fluctuation_weight"</span><span class="p">],</span>
+                    <span class="n">export_primary_fields</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">export_primary_fields</span><span class="p">,</span> <span class="n">cg_calc_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cg_calc_mode</span><span class="p">,</span>
+                    <span class="n">phases</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">,</span> <span class="n">grid_dimension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_info</span><span class="p">[</span><span class="s2">"grid_dimension"</span><span class="p">],</span>
+                    <span class="n">nodes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">attrs</span><span class="p">:</span>
                 <span class="n">manager</span><span class="o">.</span><span class="n">add_attrs</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
  
         <span class="c1"># write .VTKHDF files</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vkthdf_output</span><span class="p">:</span>
+            <span class="n">results_timestep</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">results_timestep</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">H5_ONLY_FIELDS</span><span class="p">}</span>
             <span class="n">writer</span> <span class="o">=</span> <span class="n">VTKHDFWriter</span><span class="p">(</span><span class="n">node_dimensions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Nodes</span><span class="p">,</span>
                             <span class="n">node_spacing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Spacing</span><span class="p">,</span>
                             <span class="n">origin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">GridPoints</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span>
