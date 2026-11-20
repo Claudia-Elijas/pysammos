@@ -44,7 +44,7 @@ DEFAULTS = {
         **{f"{a}_axis_periodic": False for a in AXES},
     },
     "simulation_box": {f"{a}_range": None for a in AXES},
-    "output_options": {"vkthdf_output": True, "h5_output": True, "time_average": False},
+    "output_options": {"vkthdf_output": True, "h5_output": True, "time_average": False, "export_primary_fields": True},
     "advanced": {"velocity_gradient_method": None, "search_sampling_factor": None},  # None -> CoarseGraining default
 }
 
@@ -218,6 +218,7 @@ def load_config(path_to_ini="config.ini") -> dict:
         "time_average": get(config, "output_options", "time_average", bool, DEFAULTS["output_options"]["time_average"]),
         "vkthdf_output": get(config, "output_options", "vkthdf_output", bool, DEFAULTS["output_options"]["vkthdf_output"]),
         "h5_output": get(config, "output_options", "h5_output", bool, DEFAULTS["output_options"]["h5_output"]),
+        "export_primary_fields": get(config, "output_options", "export_primary_fields", bool, DEFAULTS["output_options"]["export_primary_fields"]),
     }
 
     # optional settings: only passed if given, so the defaults stay in CoarseGraining.__init__
