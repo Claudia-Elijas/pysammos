@@ -120,7 +120,9 @@ def test_none_fields_stay_none():
     mean = accumulate(steps).mean()
     assert mean["fabric_tensor"] is None and mean["d32"] is None and mean["fluctuation_tensor"] is None
     assert mean["d43"] is not None
-    assert set(mean) == set(df.PRIMARY_FIELDS)
+    # the time average also returns the weight of the fluctuation tensor (None if no tensor was added)
+    assert set(mean) == set(df.PRIMARY_FIELDS) | {"fluctuation_weight"}
+    assert mean["fluctuation_weight"] is None
 
 
 def test_no_aliasing_with_inputs():
@@ -271,7 +273,10 @@ def test_identical_steps_average_equals_single_step(mode):
     step = random_step(rng, mode)
     one = derive(step, mode)
     avg = derive(accumulate([step] * 4).mean(), mode)
-    assert set(one) == set(avg)
+    # the time average also carries fluctuation_weight: the mixture density where the tensor is defined
+    assert set(avg) == set(one) | {"fluctuation_weight"}
+    defined = np.isfinite(step["fluctuation_tensor"]).all(axis=(-2, -1))
+    np.testing.assert_allclose(avg["fluctuation_weight"], np.where(defined, step["density_mixture"], 0.0), rtol=1e-12)
     for key in one:
         if one[key] is None:
             assert avg[key] is None, key

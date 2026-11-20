@@ -6,7 +6,7 @@ Root attributes of the .h5 output, read by the post-hoc spatial averages
 import numpy as np
 
 
-def output_attributes(results: dict, primary_names, *, export_primaries: bool, cg_calc_mode: str,
+def output_attributes(results: dict, primary_names, *, export_primary_fields: bool, cg_calc_mode: str,
                       phases, grid_dimension: int, nodes, spacing) -> dict:
     """
     Attributes describing the fields of an .h5 output.
@@ -19,7 +19,7 @@ def output_attributes(results: dict, primary_names, *, export_primaries: bool, c
         Names of the primary fields (linear in the particle data, can be averaged directly),
         e.g. ``PRIMARY_FIELDS`` plus ``"fluctuation_weight"``. All other fields are derived
         (must be recomputed after averaging).
-    export_primaries : bool
+    export_primary_fields : bool
         Whether the primary fields needed by the derived fields were exported.
     cg_calc_mode : str
         'Monodisperse' or 'Polydisperse'.
@@ -40,7 +40,7 @@ def output_attributes(results: dict, primary_names, *, export_primaries: bool, c
     derived = [k for k in results if k not in primary_names]
     return {"primary_fields": primary,
             "derived_fields": derived,
-            "export_primaries": bool(export_primaries),
+            "export_primary_fields": bool(export_primary_fields),
             "cg_calc_mode": cg_calc_mode,
             "phases_diameter_density": np.asarray(phases, dtype=np.float64),
             "grid_dimension": int(grid_dimension),

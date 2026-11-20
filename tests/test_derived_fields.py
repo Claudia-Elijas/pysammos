@@ -238,7 +238,10 @@ def test_every_export_key_is_produced(mode):
     """Catches typos between EXPORT_GROUPS and the keys compute_derived_fields writes."""
     out = df.compute_derived_fields(analytic_fields(24, mode), fields_to_compute=ALL_COMPUTE,
                                     phases=phase_table(), grid_info={"grid_dimension": 3})
-    missing = [key for flag in ALL_FLAGS for key in df.EXPORT_GROUPS[flag] if key not in out]
+    # fluctuation_weight is only produced by the time averages (TimeAverageAccumulator.mean)
+    time_average_only = {"fluctuation_weight"}
+    missing = [key for flag in ALL_FLAGS for key in df.EXPORT_GROUPS[flag]
+               if key not in out and key not in time_average_only]
     assert not missing, missing
 
 

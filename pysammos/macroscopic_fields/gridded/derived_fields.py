@@ -51,6 +51,7 @@ EXPORT_GROUPS = {
     "momentum_density": ["momentum_density"],
     "velocity": ["velocity"],
     "velocity_gradient": ["velocity_gradient"],
+    "fluctuation_tensor": ["fluctuation_tensor", "fluctuation_weight"],
     "kinetic_tensor": ["kinetic_tensor"],
     "contact_tensor": ["contact_tensor"],
     "total_stress_tensor": ["total_stress_tensor_xy_dev", "total_stress_tensor_xy_dev_mag",
@@ -76,6 +77,7 @@ EXPORT_GROUPS = {
     "sff_friction": ["fabric_anisotropy_tensor", "normal_force_anisotropy_tensor",
                      "tangential_force_anisotropy_tensor", "contact_stress_tensor_SFF",
                      "frictional_coefficient_SFF_Dxyz_Pxyz", "frictional_coefficient_SFF_linear_Dxyz_Pxyz"],
+    "sff_moments": ["sff_moments"],
 }
 
 # Define the primary export flags

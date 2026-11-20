@@ -155,8 +155,8 @@ class CoarseGraining:
             # the accumulator needs the volume fraction (grain-size weights) and the mixture density
             self.fields_to_compute |= get_fields_to_compute({"volume_fraction": True, "density_mixture": True})
         # export primary fields (relevant for customisable post-hoc spatial averaging)
-        self.export_primaries = export_primary_fields
-        if self.export_primaries:
+        self.export_primary_fields = export_primary_fields
+        if self.export_primary_fields:
             self.fields_to_compute |= get_fields_to_compute({"volume_fraction": True, "density_mixture": True})
             for flag in PRIMARY_EXPORT_FLAGS:
                 if flag in self.fields_to_compute:
@@ -610,7 +610,7 @@ class CoarseGraining:
             if new_file:
                 manager.add_attrs(output_attributes(
                     results_timestep, primary_names=list(PRIMARY_FIELDS) + ["fluctuation_weight"],
-                    export_primaries=self.export_primaries, cg_calc_mode=self.cg_calc_mode,
+                    export_primary_fields=self.export_primary_fields, cg_calc_mode=self.cg_calc_mode,
                     phases=self.phases, grid_dimension=self.grid_info["grid_dimension"],
                     nodes=self.Nodes, spacing=self.Spacing))
             if attrs:
@@ -618,6 +618,7 @@ class CoarseGraining:
  
         # write .VTKHDF files
         if self.vkthdf_output:
+            results_timestep = {k: v for k, v in results_timestep.items() if k not in H5_ONLY_FIELDS}
             writer = VTKHDFWriter(node_dimensions=self.Nodes,
                             node_spacing=self.Spacing,
                             origin=self.GridPoints[0,:],

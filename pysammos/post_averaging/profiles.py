@@ -18,7 +18,7 @@ from the averages with the same code as for one time step:
 
 Averaging the derived fields themselves ("naive" average) is biased wherever they vary within the
 averaged region, e.g. the mean of :math:`1/\sqrt{p}` exceeds :math:`1/\sqrt{\bar p}`. The primary fields
-are written by :class:`~pysammos.coarse_graining.CoarseGraining` with ``export_primaries=True`` (default);
+are written by :class:`~pysammos.coarse_graining.CoarseGraining` with ``export_primary_fields=True`` (default);
 for files without them the naive average is only computed if the user agrees.
 
 Note that the kinetic and fluctuation tensors at each grid node are measured relative to the velocity
@@ -171,7 +171,7 @@ class SpatialAverager:
             unavailable = [f for f in missing if not any(k in ds.data_vars for k in EXPORT_GROUPS[f])]
             message = ("These fields cannot be averaged correctly because their primary fields are not in the file:\n"
                        + "\n".join(f"  {flag}: missing {', '.join(lack)}" for flag, lack in missing.items())
-                       + "\nRe-run the coarse graining with export_primaries=True ([output_options] export_primaries = True)"
+                       + "\nRe-run the coarse graining with export_primary_fields=True ([output_options] export_primary_fields = True)"
                          " to average them correctly.")
             if unavailable:
                 raise ValueError(message + f"\nNot in the file at all, so they cannot be averaged: {', '.join(unavailable)}.")

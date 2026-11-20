@@ -38,6 +38,7 @@ import numpy as np
 import xarray as xr
 
 
+
 class H5XarrayManager:
     """
     Manager for reading and writing HDF5 files with array data and converting to xarray Datasets.
@@ -245,11 +246,30 @@ class H5XarrayManager:
                 elif data.ndim >= 3 and data.shape[-1] == 3:
                     # For vectors (last dimension is 3)
                     dims = (dim_name, "point") + tuple(f"dim_{i}_{key}" for i in range(2, data.ndim-1)) + ("dim1_3D",)
+                elif data.ndim >= 3 and "point" in coords and data.shape[1] == len(coords["point"]):    # NEW
+                    # other per-point fields (e.g. sff_moments, shape (time, point, 35))                # NEW
+                    dims = (dim_name, "point") + tuple(f"dim_{i}_{key}" for i in range(2, data.ndim))    # NEW
                 else:
                     dims = (dim_name,) + tuple(f"dim_{i}_{key}" for i in range(1, data.ndim))
                 
                 # Ensure unique dimension names
                 data_vars[key] = (dims, data)
 
-        ds = xr.Dataset(data_vars, coords=coords)
+            # Convert attributes to plain Python values
+            attrs = {key: _attr_value(value) for key, value in f.attrs.items()}
+            
+        ds = xr.Dataset(data_vars, coords=coords, attrs=attrs)
+        
         return ds
+
+
+    
+def _attr_value(value):
+    """HDF5 attribute as a plain Python value (lists of str instead of arrays of bytes)."""
+    if isinstance(value, bytes):
+        return value.decode()
+    if isinstance(value, np.ndarray) and value.dtype.kind in ("S", "O", "U"):
+        return [v.decode() if isinstance(v, bytes) else str(v) for v in value.tolist()]
+    if isinstance(value, np.generic):
+        return value.item()
+    return value

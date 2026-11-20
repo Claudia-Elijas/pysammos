@@ -1,5 +1,5 @@
 """
-End-to-end checks of export_primaries + SpatialAverager, driving the real CoarseGraining export
+End-to-end checks of export_primary_fields + SpatialAverager, driving the real CoarseGraining export
 methods (_compute_derived_fields, _write_results, _export_time_average) with synthetic primary fields.
 Run from the repository root:  pytest tests/test_spatial_averaging.py -v
 """
@@ -27,12 +27,12 @@ def grid():
     return np.stack([m.ravel() for m in mesh], axis=-1)
 
 
-def make_cg(tmp_path, export_primaries=True, poly=False, time_average=True):
+def make_cg(tmp_path, export_primary_fields=True, poly=False, time_average=True):
     grid_info = {"grid_dimension": 3, **{f"{a}_axis_periodic": False for a in "xyz"}}
     cg = CoarseGraining(particle_path="", contacts_path="", output_path=str(tmp_path) + "/",
                         start_timestep=0, end_timestep=3, dt_time_step=1, t_pad=4, DEM_software="LAMMPS",
                         DEM_keymap={}, grid_info=grid_info, weight_function="Lucy", fields_to_export=EXPORT,
-                        time_average=time_average, export_primaries=export_primaries)
+                        time_average=time_average, export_primary_fields=export_primary_fields)
     cg.GridPoints, cg.Nodes, cg.Spacing = grid(), NODES, SPACING
     cg.cg_calc_mode = "Polydisperse" if poly else "Monodisperse"
     cg.phases = np.array([[1e-3, 2500.0], [2e-3, 2600.0]]) if poly else np.array([[1.5e-3, 2500.0]])
@@ -81,7 +81,7 @@ def run(cg, steps, poly=False):
 
 
 # ------------------------------------------------------------------------------------------------
-def test_export_primaries_and_attrs(tmp_path):
+def test_export_primary_fields_and_attrs(tmp_path):
     rng = np.random.default_rng(1)
     cg = make_cg(tmp_path)
     series, tavg = run(cg, [primaries(t, rng) for t in range(3)])
@@ -173,16 +173,16 @@ def test_time_average_then_space_equals_pooled(tmp_path):
 
 def test_naive_average_when_primaries_missing(tmp_path, monkeypatch):
     rng = np.random.default_rng(6)
-    cg = make_cg(tmp_path, export_primaries=False, time_average=False)
+    cg = make_cg(tmp_path, export_primary_fields=False, time_average=False)
     series, _ = run(cg, [primaries(0, rng)])
     assert "fluctuation_tensor" not in series and "momentum_density" not in series
-    with pytest.raises(ValueError, match="export_primaries=True"):
+    with pytest.raises(ValueError, match="Re-run the coarse graining"):
         SpatialAverager(series, naive=False).profile("y")
     monkeypatch.setattr("sys.stdin", io.StringIO(""))           # batch job: no answer -> error
-    with pytest.raises(ValueError, match="export_primaries=True"):
+    with pytest.raises(ValueError, match="Re-run the coarse graining"):
         SpatialAverager(series).profile("y")
     monkeypatch.setattr("sys.stdin", io.StringIO("n\n"))        # user says no
-    with pytest.raises(ValueError, match="export_primaries=True"):
+    with pytest.raises(ValueError, match="Re-run the coarse graining"):
         SpatialAverager(series).profile("y")
     monkeypatch.setattr("sys.stdin", io.StringIO("y\n"))        # user says yes
     prof = SpatialAverager(series).profile("y")
